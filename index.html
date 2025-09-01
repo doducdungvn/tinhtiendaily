@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Báo cáo by Đỗ Đức Dũng</title>
+  <title>Báo cáo thu tiền & Bán vé</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
@@ -92,20 +92,25 @@
     .header { font-weight: bold; background: #f8f9fa; }
     
     .so-so {
-      font-size: 45px; /* Tăng kích thước chữ */
+      font-size: 48px;
       font-weight: bold;
-      color: #CC5500; /* Màu đỏ cam sậm */
+      color: #CC5500;
       vertical-align: middle;
     }
 
-    .must-pay { background: #fddede; font-weight: bold; font-size: 24px; color: #8B0000; }
+    .must-pay { background: #fddede; font-size: 24px; color: #8B0000; }
+    .must-pay td:first-child { 
+      font-weight: bold; 
+      text-align: center; 
+    }
+    .must-pay td:last-child { font-weight: bold; }
+    
     .old-debt { background: #fff3cd; }
     #noCu { width: 150px; padding: 8px; font-size: 16px; text-align: right; border: 1px solid #ffc107; border-radius: 5px; }
     .bang-chu-cell { text-align: left !important; font-style: italic; padding-left: 15px !important; font-size: 16px; font-weight: normal; }
     .ticket-type-selector { display: flex; gap: 15px; margin-bottom: 10px; }
     .ticket-type-selector label { display: flex; align-items: center; gap: 5px; font-weight: normal; }
     
-    /* ----- CSS CHO COPYRIGHT ----- */
     .copyright {
       text-align: center;
       margin-top: 20px;
@@ -121,7 +126,7 @@
 </head>
 <body>
   <div class="container">
-    <h2>Bán vé & Báo cáo</h2>
+    <h2>Bán vé & Báo cáo thu tiền</h2>
 
     <div class="main-controls">
         <button id="toggleSellBtn" onclick="toggleSellMode()">Bán vé</button>
@@ -135,14 +140,14 @@
         </div>
         <div>
             <label for="sellQuantityInput">Số lượng:</label>
-            <input type="number" id="sellQuantityInput" placeholder="Nhập số lượng vé..." min="0" onkeydown="if (event.key === 'Enter') addTicketToReport()">
+            <input type="number" id="sellQuantityInput" placeholder="Nhập số lượng vé..." min="0" onkeydown="if (event.key === 'Enter') { addTicketToReport(); this.blur(); }">
         </div>
         <button onclick="addTicketToReport()">Thêm vé vào báo cáo</button>
     </div>
 
     <div id="reportControlsContainer" class="controls-panel" style="display:none;">
       <label for="soSo">Nhập số sổ (ví dụ: 550):</label>
-      <input type="text" id="soSo" placeholder="Nhập số sổ gốc để gộp" onkeydown="if (event.key === 'Enter') { this.blur(); loadData(); }">
+      <input type="text" id="soSo" inputmode="numeric" placeholder="Nhập số sổ gốc để gộp" onkeydown="if (event.key === 'Enter') { this.blur(); loadData(); }">
       <label for="excelFile">Chọn file Excel:</label>
       <input type="file" id="excelFile" accept=".xls,.xlsx">
       <button onclick="loadData()">Tạo báo cáo</button>
@@ -153,7 +158,9 @@
         <button onclick="xuatAnh()">Xuất ảnh báo cáo</button>
     </div>
 
-   
+    <div class="copyright">
+      Copyright© by Đỗ Đức Dũng
+    </div>
   </div>
 
   <script>
@@ -296,11 +303,15 @@
           <tr class="header"><td>Tổng cộng</td><td id="tongDT">${formatNumber(totals.__EMPTY_12)}</td><td id="tongHH">${formatNumber(totals.__EMPTY_13)}</td></tr>
           <tr><td>Thưởng</td><td colspan="2" id="thuong">${formatNumber(totals.__EMPTY_14)}</td></tr>
           <tr class="old-debt"><td>Nợ cũ</td><td colspan="2"><input type="text" id="noCu" placeholder="0" oninput="formatAndCalculate()" inputmode="numeric" onkeydown="if (event.key === 'Enter') this.blur()"></td></tr>
-          <tr class="must-pay"><td>Kết quả</td><td colspan="2" id="ketQua"></td></tr>
+          <tr class="must-pay">
+            <td id="ketQuaLabel"></td>
+            <td id="ketQuaValue" colspan="2"></td>
+          </tr>
           <tr class="header"><td>Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr>
         </table>
         <div id="excelDataTotals" data-tongdt="${totals.__EMPTY_12}" data-tonghh="${totals.__EMPTY_13}" style="display: none;"></div>
-        <div class="copyright">Copyright© by Đỗ Đức Dũng</div> `;
+        <div class="copyright">Copyright© by Đỗ Đức Dũng</div>
+      `;
       document.getElementById("report").innerHTML = reportHTML;
       document.getElementById('exportButtonContainer').style.display = 'block';
       tinhToanTuChon();
@@ -341,19 +352,27 @@
       let noCuInput = document.getElementById("noCu"); let noCu = 0;
       if (noCuInput && noCuInput.value) { noCu = parseFloat(noCuInput.value.replace(/\./g,'')) || 0; }
       let phaiNop = tongDT_Moi - tongHH_Moi - thuong + noCu;
-      let text = ""; let soTienBangChu = "";
+      
+      const ketQuaLabelCell = document.getElementById("ketQuaLabel");
+      const ketQuaValueCell = document.getElementById("ketQuaValue");
+      let soTienBangChu = "";
+      
       if (phaiNop >= 0) {
         let lamTron = Math.ceil(phaiNop / 1000) * 1000;
-        text = `Phải nộp: ${formatNumber(lamTron)}`; soTienBangChu = docso(lamTron) + " đồng";
+        if (ketQuaLabelCell) ketQuaLabelCell.innerText = 'Phải nộp:';
+        if (ketQuaValueCell) ketQuaValueCell.innerText = formatNumber(lamTron);
+        soTienBangChu = docso(lamTron) + " đồng";
       } else {
         let layVe = Math.abs(phaiNop);
-        text = `Lấy về: ${formatNumber(layVe)}`; soTienBangChu = docso(layVe) + " đồng";
+        if (ketQuaLabelCell) ketQuaLabelCell.innerText = 'Lấy về:';
+        if (ketQuaValueCell) ketQuaValueCell.innerText = formatNumber(layVe);
+        soTienBangChu = docso(layVe) + " đồng";
       }
-      let ketQuaCell = document.getElementById("ketQua"); if(ketQuaCell) { ketQuaCell.innerText = text; }
-      let ketQuaBangChuCell = document.getElementById("ketQuaBangChu"); if(ketQuaBangChuCell) { ketQuaBangChuCell.innerText = soTienBangChu; }
+      
+      const ketQuaBangChuCell = document.getElementById("ketQuaBangChu");
+      if(ketQuaBangChuCell) { ketQuaBangChuCell.innerText = soTienBangChu; }
     }
     function xuatAnh() {
-      // Khi xuất ảnh, sẽ xuất toàn bộ nội dung trong div#report, bao gồm cả copyright.
       let reportDiv = document.getElementById("report");
       if (!reportDiv.innerHTML) { alert("Chưa có báo cáo để xuất ảnh!"); return; }
       html2canvas(reportDiv, { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
