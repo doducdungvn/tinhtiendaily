@@ -130,7 +130,7 @@
 
     <div class="main-controls">
         <button id="toggleSellBtn" onclick="toggleSellMode()">Bán vé</button>
-        <button class="secondary" onclick="toggleReportControls()">Xem Báo Cáo Đại Lý</button>
+        <button class="secondary" onclick="toggleReportControls()">Xem Báo Cáo Thu Tiền</button>
     </div>
 
     <div id="sellTicketControls" class="controls-panel" style="display:none;">
@@ -224,6 +224,8 @@
         
         document.getElementById('sellQuantityInput').value = '';
         document.getElementById('sellQuantityInput').focus();
+
+        reportDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     
     function docso(numberStr) {
@@ -271,6 +273,8 @@
       if (isNaN(num) || num === "") return "0";
       return Number(num).toLocaleString("vi-VN");
     }
+    
+    // ----- CẬP NHẬT: THÊM LỆNH CUỘN TRANG VÀO CUỐI HÀM -----
     function loadData() {
       let soSo = document.getElementById("soSo").value.trim();
       if (!soSo) { alert("Vui lòng nhập số sổ!"); return; }
@@ -312,9 +316,13 @@
         <div id="excelDataTotals" data-tongdt="${totals.__EMPTY_12}" data-tonghh="${totals.__EMPTY_13}" style="display: none;"></div>
         <div class="copyright">Copyright© by Đỗ Đức Dũng</div>
       `;
-      document.getElementById("report").innerHTML = reportHTML;
+      const reportDiv = document.getElementById("report");
+      reportDiv.innerHTML = reportHTML;
       document.getElementById('exportButtonContainer').style.display = 'block';
       tinhToanTuChon();
+      
+      // Tự động cuộn xuống báo cáo sau khi tạo xong
+      reportDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     function tinhToanTuChon() {
       const tuChonRow = document.getElementById('tuChonRow');
