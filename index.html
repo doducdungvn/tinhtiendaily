@@ -201,7 +201,6 @@
         controls.style.display = controls.style.display === 'none' ? 'flex' : 'none';
     }
 
-    // ----- HÀM MỚI ĐỂ ẨN/HIỆN TÙY CHỌN GIÁ VÉ -----
     function handleTicketTypeChange() {
         const type = document.querySelector('input[name="sellTicketType"]:checked').value;
         const priceOptions = document.getElementById('xoSoPriceOptions');
@@ -212,7 +211,6 @@
         }
     }
     
-    // ----- HÀM addTicketToReport ĐƯỢC CẬP NHẬT -----
     function addTicketToReport() {
         const reportDiv = document.getElementById('report');
         if (!reportDiv.innerHTML) {
@@ -233,7 +231,7 @@
         if (type === 'xo-so') {
             price = document.querySelector('input[name="xoSoPrice"]:checked').value;
             typeName = `Xổ số (${parseInt(price) / 1000}k)`;
-        } else { // ve-boc
+        } else {
             price = 5000;
             typeName = 'Vé bóc';
         }
@@ -243,7 +241,7 @@
 
         tuChonRow.dataset.type = type;
         tuChonRow.dataset.quantity = quantity;
-        tuChonRow.dataset.price = price; // Lưu giá vé vào dòng
+        tuChonRow.dataset.price = price;
 
         tuChonDisplay.innerText = `${typeName}: ${quantity} vé`;
         
@@ -313,6 +311,7 @@
           const key = `__EMPTY_${i}`; totals[key] += parseFloat(row[key]) || 0;
         }
       });
+      // ----- CẬP NHẬT DÒNG COPYRIGHT -----
       let reportHTML = `
         <table>
           <tr><td class="header" style="width: 33.33%;">Thanh toán tiền Đại Lý:</td><td class="so-so">${totals.account_codes.join(', ')}</td></tr>
@@ -339,7 +338,7 @@
           <tr class="header"><td>Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr>
         </table>
         <div id="excelDataTotals" data-tongdt="${totals.__EMPTY_12}" data-tonghh="${totals.__EMPTY_13}" style="display: none;"></div>
-        <div class="copyright">Copyright© by Đỗ Đức Dũng</div>
+        <div id="copyrightInReport" class="copyright" style="display: none;">Copyright© by Đỗ Đức Dũng</div>
       `;
       const reportDiv = document.getElementById("report");
       reportDiv.innerHTML = reportHTML;
@@ -348,14 +347,13 @@
       reportDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     
-    // ----- HÀM tinhToanTuChon ĐƯỢC CẬP NHẬT -----
     function tinhToanTuChon() {
       const tuChonRow = document.getElementById('tuChonRow');
       if (!tuChonRow) { if(document.getElementById("excelDataTotals")) tinhToan(); return; }
 
       const loaiHinh = tuChonRow.dataset.type;
       const soLuong = parseFloat(tuChonRow.dataset.quantity) || 0;
-      const giaVe = parseFloat(tuChonRow.dataset.price) || 0; // Đọc giá vé từ data-
+      const giaVe = parseFloat(tuChonRow.dataset.price) || 0;
       
       let tyLeHoaHong = 0;
       if (loaiHinh === 'xo-so') {
@@ -413,10 +411,26 @@
       const ketQuaBangChuCell = document.getElementById("ketQuaBangChu");
       if(ketQuaBangChuCell) { ketQuaBangChuCell.innerText = soTienBangChu; }
     }
+    
+    // ----- HÀM XUẤT ẢNH ĐÃ ĐƯỢC CẬP NHẬT -----
     function xuatAnh() {
       let reportDiv = document.getElementById("report");
       if (!reportDiv.innerHTML) { alert("Chưa có báo cáo để xuất ảnh!"); return; }
+
+      const copyrightInReport = document.getElementById('copyrightInReport');
+
+      // 1. Hiện copyright trước khi chụp ảnh
+      if (copyrightInReport) {
+        copyrightInReport.style.display = 'block';
+      }
+
       html2canvas(reportDiv, { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
+        // 2. Ẩn lại copyright ngay sau khi chụp xong
+        if (copyrightInReport) {
+          copyrightInReport.style.display = 'none';
+        }
+        
+        // 3. Tiến hành tải ảnh
         let link = document.createElement("a");
         let soSo = document.getElementById("soSo").value.trim() || "baocao";
         link.download = `baocao_tonghop_${soSo}.png`;
