@@ -126,7 +126,7 @@
 </head>
 <body>
   <div class="container">
-    <h2>Bán vé & Báo cáo thu tiền</h2>
+    <h2>Bán vé & Báo cáo</h2>
 
     <div class="main-controls">
         <button id="toggleSellBtn" onclick="toggleSellMode()">Bán vé</button>
@@ -135,9 +135,15 @@
 
     <div id="sellTicketControls" class="controls-panel" style="display:none;">
         <div class="ticket-type-selector">
-            <label><input type="radio" name="sellTicketType" value="xo-so" checked> Xổ số</label>
-            <label><input type="radio" name="sellTicketType" value="ve-boc"> Vé bóc</label>
+            <label><input type="radio" name="sellTicketType" value="xo-so" onchange="handleTicketTypeChange()" checked> Xổ số</label>
+            <label><input type="radio" name="sellTicketType" value="ve-boc" onchange="handleTicketTypeChange()"> Vé bóc</label>
         </div>
+
+        <div id="xoSoPriceOptions" class="ticket-type-selector">
+            <label><input type="radio" name="xoSoPrice" value="10000" checked> 10.000đ</label>
+            <label><input type="radio" name="xoSoPrice" value="20000"> 20.000đ</label>
+        </div>
+
         <div>
             <label for="sellQuantityInput">Số lượng:</label>
             <input type="number" id="sellQuantityInput" placeholder="Nhập số lượng vé..." min="0" onkeydown="if (event.key === 'Enter') { addTicketToReport(); this.blur(); }">
@@ -194,7 +200,19 @@
         const controls = document.getElementById('reportControlsContainer');
         controls.style.display = controls.style.display === 'none' ? 'flex' : 'none';
     }
+
+    // ----- HÀM MỚI ĐỂ ẨN/HIỆN TÙY CHỌN GIÁ VÉ -----
+    function handleTicketTypeChange() {
+        const type = document.querySelector('input[name="sellTicketType"]:checked').value;
+        const priceOptions = document.getElementById('xoSoPriceOptions');
+        if (type === 'xo-so') {
+            priceOptions.style.display = 'flex';
+        } else {
+            priceOptions.style.display = 'none';
+        }
+    }
     
+    // ----- HÀM addTicketToReport ĐƯỢC CẬP NHẬT -----
     function addTicketToReport() {
         const reportDiv = document.getElementById('report');
         if (!reportDiv.innerHTML) {
@@ -204,10 +222,20 @@
 
         const type = document.querySelector('input[name="sellTicketType"]:checked').value;
         const quantity = document.getElementById('sellQuantityInput').value;
-        
+        let price = 0;
+        let typeName = '';
+
         if (!quantity || parseInt(quantity) <= 0) {
             alert("Vui lòng nhập số lượng vé hợp lệ!");
             return;
+        }
+
+        if (type === 'xo-so') {
+            price = document.querySelector('input[name="xoSoPrice"]:checked').value;
+            typeName = `Xổ số (${parseInt(price) / 1000}k)`;
+        } else { // ve-boc
+            price = 5000;
+            typeName = 'Vé bóc';
         }
 
         const tuChonRow = document.getElementById('tuChonRow');
@@ -215,8 +243,8 @@
 
         tuChonRow.dataset.type = type;
         tuChonRow.dataset.quantity = quantity;
+        tuChonRow.dataset.price = price; // Lưu giá vé vào dòng
 
-        const typeName = type === 'xo-so' ? 'Xổ số' : 'Vé bóc';
         tuChonDisplay.innerText = `${typeName}: ${quantity} vé`;
         
         tuChonRow.style.display = '';
@@ -224,7 +252,6 @@
         
         document.getElementById('sellQuantityInput').value = '';
         document.getElementById('sellQuantityInput').focus();
-
         reportDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     
@@ -273,8 +300,6 @@
       if (isNaN(num) || num === "") return "0";
       return Number(num).toLocaleString("vi-VN");
     }
-    
-    // ----- CẬP NHẬT: THÊM LỆNH CUỘN TRANG VÀO CUỐI HÀM -----
     function loadData() {
       let soSo = document.getElementById("soSo").value.trim();
       if (!soSo) { alert("Vui lòng nhập số sổ!"); return; }
@@ -299,7 +324,7 @@
           <tr><td>Lô cặp</td><td>${formatNumber(totals.__EMPTY_6)}</td><td>${formatNumber(totals.__EMPTY_7)}</td></tr>
           <tr><td>2/27</td><td>${formatNumber(totals.__EMPTY_8)}</td><td>${formatNumber(totals.__EMPTY_9)}</td></tr>
           <tr><td>3/23</td><td>${formatNumber(totals.__EMPTY_10)}</td><td>${formatNumber(totals.__EMPTY_11)}</td></tr>
-          <tr id="tuChonRow" style="display:none;" data-type="" data-quantity="0">
+          <tr id="tuChonRow" style="display:none;" data-type="" data-quantity="0" data-price="0">
             <td id="tuChonDisplay" style="text-align:center; font-weight: bold; color: #FF0000;"></td>
             <td id="doanhThuTuChon">0</td>
             <td id="hoaHongTuChon">0</td>
@@ -320,19 +345,27 @@
       reportDiv.innerHTML = reportHTML;
       document.getElementById('exportButtonContainer').style.display = 'block';
       tinhToanTuChon();
-      
-      // Tự động cuộn xuống báo cáo sau khi tạo xong
       reportDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+    
+    // ----- HÀM tinhToanTuChon ĐƯỢC CẬP NHẬT -----
     function tinhToanTuChon() {
       const tuChonRow = document.getElementById('tuChonRow');
       if (!tuChonRow) { if(document.getElementById("excelDataTotals")) tinhToan(); return; }
+
       const loaiHinh = tuChonRow.dataset.type;
       const soLuong = parseFloat(tuChonRow.dataset.quantity) || 0;
-      let giaVe = 0; let tyLeHoaHong = 0;
-      if (loaiHinh === 'xo-so') { giaVe = 10000; tyLeHoaHong = 0.10; }
-      else if (loaiHinh === 've-boc') { giaVe = 5000; tyLeHoaHong = 0.12; }
-      const doanhThu = soLuong * giaVe; const hoaHong = doanhThu * tyLeHoaHong;
+      const giaVe = parseFloat(tuChonRow.dataset.price) || 0; // Đọc giá vé từ data-
+      
+      let tyLeHoaHong = 0;
+      if (loaiHinh === 'xo-so') {
+        tyLeHoaHong = 0.10;
+      } else if (loaiHinh === 've-boc') {
+        tyLeHoaHong = 0.12;
+      }
+      
+      const doanhThu = soLuong * giaVe;
+      const hoaHong = doanhThu * tyLeHoaHong;
       document.getElementById('doanhThuTuChon').innerText = formatNumber(doanhThu);
       document.getElementById('hoaHongTuChon').innerText = formatNumber(hoaHong);
       tinhToan();
