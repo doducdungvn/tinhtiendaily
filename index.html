@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Báo cáo thu tiền & Bán vé</title>
+  <title>Báo cáo thu tiền 5.0</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
@@ -30,7 +30,7 @@
     .controls-panel {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 15px; /* Increased gap for better spacing */
       margin-bottom: 20px;
       padding: 15px;
       border: 1px solid #dee2e6;
@@ -108,22 +108,31 @@
     .old-debt { background: #fff3cd; }
     #noCu { width: 150px; padding: 8px; font-size: 16px; text-align: right; border: 1px solid #ffc107; border-radius: 5px; }
     .bang-chu-cell { text-align: left !important; font-style: italic; padding-left: 15px !important; font-size: 16px; font-weight: normal; }
+    .ticket-type-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
+    .ticket-type-selector label { display: flex; align-items: center; gap: 5px; font-weight: normal; }
     
-    .custom-ticket-row td:first-child {
-        color: #FF0000;
-        font-weight: bold;
-    }
-
     .copyright {
       text-align: center;
       margin-top: 20px;
       font-size: 14px;
       color: #6c757d;
     }
+    
+    /* Style for newly added ticket rows */
+    .added-ticket-row {
+        background-color: #e0f7fa; /* A light cyan background */
+    }
+    .added-ticket-row td:first-child {
+        font-weight: bold;
+        color: #00796b; /* A teal color for the name */
+        font-size: 15px;
+    }
+
 
     @media (max-width: 600px) {
       .so-so { font-size: 32px; word-break: break-all; }
       .must-pay { font-size: 20px; }
+      .ticket-type-selector { gap: 8px; }
     }
   </style>
 </head>
@@ -138,24 +147,42 @@
 
     <div id="sellTicketControls" class="controls-panel" style="display:none;">
         <div>
-            <label for="ticketNameInput">Tên loại hình:</label>
-            <input type="text" id="ticketNameInput" placeholder="Ví dụ: Lô tô, Vé bóc...">
+            <label>Loại hình:</label>
+            <div class="ticket-type-selector">
+                <label><input type="radio" name="sellTicketType" value="xo-so" onchange="handleSellOptionsChange()" checked> Xổ số</label>
+                <label><input type="radio" name="sellTicketType" value="ve-boc" onchange="handleSellOptionsChange()"> Vé bóc</label>
+                <label><input type="radio" name="sellTicketType" value="custom-name" onchange="handleSellOptionsChange()"> Tự nhập tên</label>
+            </div>
+            <input type="text" id="customTicketName" placeholder="Nhập tên loại hình..." style="display:none; margin-top: 5px;">
         </div>
+
         <div>
-            <label for="ticketPriceInput">Giá bán (VNĐ):</label>
-            <input type="text" id="ticketPriceInput" placeholder="Ví dụ: 10.000" inputmode="numeric" oninput="formatPriceInput(this)">
+            <label>Giá bán:</label>
+            <div class="ticket-type-selector">
+                <label><input type="radio" name="sellPrice" value="10000" onchange="handleSellOptionsChange()" checked> 10.000</label>
+                <label><input type="radio" name="sellPrice" value="20000" onchange="handleSellOptionsChange()"> 20.000</label>
+                <label><input type="radio" name="sellPrice" value="5000" onchange="handleSellOptionsChange()"> 5.000</label>
+                <label><input type="radio" name="sellPrice" value="custom-price" onchange="handleSellOptionsChange()"> Tự nhập giá</label>
+            </div>
+            <input type="text" id="customTicketPrice" inputmode="numeric" placeholder="Nhập giá bán..." style="display:none; margin-top: 5px;" oninput="formatCustomPrice(this)">
         </div>
+
         <div>
-            <label for="ticketCommissionInput">Hoa hồng (%):</label>
-            <input type="number" id="ticketCommissionInput" placeholder="Ví dụ: 10" min="0" max="100">
+            <label>Hoa hồng:</label>
+            <div class="ticket-type-selector">
+                <label><input type="radio" name="commissionRate" value="0.10" onchange="handleSellOptionsChange()" checked> 10%</label>
+                <label><input type="radio" name="commissionRate" value="0.12" onchange="handleSellOptionsChange()"> 12%</label>
+                <label><input type="radio" name="commissionRate" value="custom-commission" onchange="handleSellOptionsChange()"> Tự nhập %</label>
+            </div>
+            <input type="number" id="customCommissionPercent" placeholder="Nhập % hoa hồng (ví dụ: 15)" style="display:none; margin-top: 5px;" min="0">
         </div>
+
         <div>
             <label for="sellQuantityInput">Số lượng:</label>
-            <input type="number" id="sellQuantityInput" placeholder="Nhập số lượng rồi ấn Enter..." min="1" onkeydown="if (event.key === 'Enter') { addCustomTicket(); this.blur(); }">
+            <input type="number" id="sellQuantityInput" placeholder="Nhập số lượng vé..." min="0" onkeydown="if (event.key === 'Enter') { addTicketToReport(); this.blur(); }">
         </div>
-        <button onclick="addCustomTicket()">Thêm vé vào báo cáo</button>
+        <button onclick="addTicketToReport()">Thêm vé vào báo cáo</button>
     </div>
-
     <div id="reportControlsContainer" class="controls-panel" style="display:none;">
       <label for="soSo">Nhập số sổ (ví dụ: 550):</label>
       <input type="text" id="soSo" inputmode="numeric" placeholder="Nhập số sổ gốc để gộp" onkeydown="if (event.key === 'Enter') { this.blur(); loadData(); }">
@@ -178,15 +205,6 @@
     let excelData = [];
     let dateRangeText = "Chưa có ngày";
 
-    function formatPriceInput(input) {
-        let rawValue = input.value.replace(/\./g, '');
-        if (isNaN(rawValue) || rawValue === '') {
-            input.value = '';
-        } else {
-            input.value = parseInt(rawValue, 10).toLocaleString('vi-VN');
-        }
-    }
-
     function toggleSellMode() {
         const sellControls = document.getElementById('sellTicketControls');
         const toggleBtn = document.getElementById('toggleSellBtn');
@@ -196,13 +214,10 @@
             sellControls.style.display = 'none';
             toggleBtn.innerText = 'Bán vé';
             toggleBtn.classList.remove('danger');
-
-            const customRows = document.querySelectorAll('.custom-ticket-row');
-            customRows.forEach(row => row.remove());
-
-            if (document.getElementById('report').innerHTML) {
-                tinhToan();
-            }
+            
+            const addedRows = document.querySelectorAll('.added-ticket-row');
+            addedRows.forEach(row => row.remove());
+            tinhToan(); 
         } else {
             sellControls.style.display = 'flex';
             toggleBtn.innerText = 'Huỷ bán vé';
@@ -214,63 +229,103 @@
         const controls = document.getElementById('reportControlsContainer');
         controls.style.display = controls.style.display === 'none' ? 'flex' : 'none';
     }
+
+    function handleSellOptionsChange() {
+        const customNameInput = document.getElementById('customTicketName');
+        customNameInput.style.display = document.querySelector('input[name="sellTicketType"]:checked').value === 'custom-name' ? 'block' : 'none';
+
+        const customPriceInput = document.getElementById('customTicketPrice');
+        customPriceInput.style.display = document.querySelector('input[name="sellPrice"]:checked').value === 'custom-price' ? 'block' : 'none';
+
+        const customCommissionInput = document.getElementById('customCommissionPercent');
+        customCommissionInput.style.display = document.querySelector('input[name="commissionRate"]:checked').value === 'custom-commission' ? 'block' : 'none';
+    }
     
-    // HÀM ĐÃ CẬP NHẬT: Bỏ dòng .focus() để không gọi lại bàn phím
-    function addCustomTicket() {
-        const reportDiv = document.getElementById('report');
-        if (!reportDiv.innerHTML) {
+    function formatCustomPrice(input) {
+        let value = input.value.replace(/\D/g, '');
+        input.value = value ? parseInt(value, 10).toLocaleString('vi-VN') : '';
+    }
+    
+    function addTicketToReport() {
+        const reportTable = document.querySelector('.report-table');
+        if (!reportTable) {
             alert("Vui lòng tạo báo cáo trước khi thêm vé bán!");
             return;
         }
 
-        const name = document.getElementById('ticketNameInput').value.trim();
-        const price = parseFloat(document.getElementById('ticketPriceInput').value.replace(/\./g, ''));
-        const commissionRate = parseFloat(document.getElementById('ticketCommissionInput').value);
-        const quantity = parseInt(document.getElementById('sellQuantityInput').value);
+        const quantityInput = document.getElementById('sellQuantityInput');
+        const quantity = parseInt(quantityInput.value, 10);
 
-        if (!name || isNaN(price) || isNaN(commissionRate) || isNaN(quantity) || price <= 0 || commissionRate < 0 || quantity <= 0) {
-            alert("Vui lòng nhập đầy đủ và chính xác thông tin vé!");
+        if (!quantity || quantity <= 0) {
+            alert("Vui lòng nhập số lượng vé hợp lệ!");
             return;
         }
 
-        const doanhThu = price * quantity;
-        const hoaHong = doanhThu * (commissionRate / 100);
-
-        const tongCongRow = document.getElementById('tongCongRow');
-        if (!tongCongRow) {
-            alert("Lỗi: Không tìm thấy dòng tổng cộng trong báo cáo.");
-            return;
+        let typeName = '';
+        const ticketType = document.querySelector('input[name="sellTicketType"]:checked').value;
+        if (ticketType === 'xo-so') {
+            typeName = 'Xổ số';
+        } else if (ticketType === 've-boc') {
+            typeName = 'Vé bóc';
+        } else {
+            typeName = document.getElementById('customTicketName').value.trim();
+            if (!typeName) {
+                alert('Vui lòng nhập tên loại hình!');
+                return;
+            }
         }
+
+        let price = 0;
+        const priceType = document.querySelector('input[name="sellPrice"]:checked').value;
+        if (priceType === 'custom-price') {
+            const customPriceValue = document.getElementById('customTicketPrice').value.replace(/\./g, '');
+            price = parseFloat(customPriceValue) || 0;
+            if (price <= 0) {
+                alert('Vui lòng nhập giá bán hợp lệ!');
+                return;
+            }
+        } else {
+            price = parseFloat(priceType);
+        }
+
+        let commissionRate = 0;
+        const commissionType = document.querySelector('input[name="commissionRate"]:checked').value;
+        if (commissionType === 'custom-commission') {
+            const customCommissionValue = document.getElementById('customCommissionPercent').value;
+            commissionRate = parseFloat(customCommissionValue) / 100 || 0;
+            if (commissionRate <= 0) {
+                alert('Vui lòng nhập % hoa hồng hợp lệ!');
+                return;
+            }
+        } else {
+            commissionRate = parseFloat(commissionType);
+        }
+
+        const doanhThu = quantity * price;
+        const hoaHong = doanhThu * commissionRate;
+        
+        // ##### THIS IS THE MODIFIED LINE #####
+        const formattedName = `${typeName} (${price / 1000}k) [${quantity} vé]`;
 
         const newRow = document.createElement('tr');
-        newRow.className = 'custom-ticket-row';
-        newRow.dataset.doanhthu = doanhThu;
-        newRow.dataset.hoahong = hoaHong;
-
-        const priceInK = price / 1000;
-        const firstCellText = `${name} (${priceInK}k) (${quantity} vé)`;
-
+        newRow.classList.add('added-ticket-row');
+        
         newRow.innerHTML = `
-            <td>${firstCellText}</td>
+            <td>${formattedName}</td>
             <td>${formatNumber(doanhThu)}</td>
             <td>${formatNumber(hoaHong)}</td>
         `;
 
-        tongCongRow.parentNode.insertBefore(newRow, tongCongRow);
-
-        document.getElementById('ticketNameInput').value = '';
-        document.getElementById('ticketPriceInput').value = '';
-        document.getElementById('ticketCommissionInput').value = '';
-        document.getElementById('sellQuantityInput').value = '';
+        const tongCongRow = document.getElementById('tongCongRow');
+        reportTable.querySelector('tbody').insertBefore(newRow, tongCongRow);
         
-        // ĐÃ XÓA DÒNG .focus() TẠI ĐÂY
-        // document.getElementById('ticketNameInput').focus(); 
-
         tinhToan();
-
-        reportDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        
+        quantityInput.value = '';
+        quantityInput.focus();
+        newRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-    
+
     function docso(numberStr) {
         const defaultNumbers = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
         const readThreeDigits = (threeDigits) => {
@@ -332,30 +387,29 @@
           const key = `__EMPTY_${i}`; totals[key] += parseFloat(row[key]) || 0;
         }
       });
-      
       let reportHTML = `
         <table>
           <tr><td class="header" style="width: 33.33%;">Thanh toán tiền Đại Lý:</td><td class="so-so">${totals.account_codes.join(', ')}</td></tr>
           <tr><td class="header">Thời gian:</td><td>${dateRangeText}</td></tr>
         </table><br>
         <table class="report-table">
-          <tr><th>Loại hình</th><th>Doanh thu</th><th>Hoa hồng</th></tr>
-          <tr><td>Lô tô Đặc biệt</td><td>${formatNumber(totals.__EMPTY_2)}</td><td>${formatNumber(totals.__EMPTY_3)}</td></tr>
-          <tr><td>Lô cặp</td><td>${formatNumber(totals.__EMPTY_6)}</td><td>${formatNumber(totals.__EMPTY_7)}</td></tr>
-          <tr><td>2/27</td><td>${formatNumber(totals.__EMPTY_8)}</td><td>${formatNumber(totals.__EMPTY_9)}</td></tr>
-          <tr><td>3/23</td><td>${formatNumber(totals.__EMPTY_10)}</td><td>${formatNumber(totals.__EMPTY_11)}</td></tr>
-          <tr class="header" id="tongCongRow">
-            <td>Tổng cộng</td>
-            <td id="tongDT">${formatNumber(totals.__EMPTY_12)}</td>
-            <td id="tongHH">${formatNumber(totals.__EMPTY_13)}</td>
-          </tr>
-          <tr><td>Thưởng</td><td colspan="2" id="thuong">${formatNumber(totals.__EMPTY_14)}</td></tr>
-          <tr class="old-debt"><td>Nợ cũ</td><td colspan="2"><input type="text" id="noCu" placeholder="0" oninput="formatAndCalculate()" inputmode="numeric" onkeydown="if (event.key === 'Enter') this.blur()"></td></tr>
-          <tr class="must-pay">
-            <td id="ketQuaLabel"></td>
-            <td id="ketQuaValue" colspan="2"></td>
-          </tr>
-          <tr class="header"><td>Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr>
+          <thead>
+            <tr><th>Loại hình</th><th>Doanh thu</th><th>Hoa hồng</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Lô tô Đặc biệt</td><td>${formatNumber(totals.__EMPTY_2)}</td><td>${formatNumber(totals.__EMPTY_3)}</td></tr>
+            <tr><td>Lô cặp</td><td>${formatNumber(totals.__EMPTY_6)}</td><td>${formatNumber(totals.__EMPTY_7)}</td></tr>
+            <tr><td>2/27</td><td>${formatNumber(totals.__EMPTY_8)}</td><td>${formatNumber(totals.__EMPTY_9)}</td></tr>
+            <tr><td>3/23</td><td>${formatNumber(totals.__EMPTY_10)}</td><td>${formatNumber(totals.__EMPTY_11)}</td></tr>
+            <tr class="header" id="tongCongRow"><td>Tổng cộng</td><td id="tongDT">${formatNumber(totals.__EMPTY_12)}</td><td id="tongHH">${formatNumber(totals.__EMPTY_13)}</td></tr>
+            <tr><td>Thưởng</td><td colspan="2" id="thuong">${formatNumber(totals.__EMPTY_14)}</td></tr>
+            <tr class="old-debt"><td>Nợ cũ</td><td colspan="2"><input type="text" id="noCu" placeholder="0" oninput="formatAndCalculate()" inputmode="numeric" onkeydown="if (event.key === 'Enter') this.blur()"></td></tr>
+            <tr class="must-pay">
+              <td id="ketQuaLabel"></td>
+              <td id="ketQuaValue" colspan="2"></td>
+            </tr>
+            <tr class="header"><td>Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr>
+          </tbody>
         </table>
         <div id="excelDataTotals" data-tongdt="${totals.__EMPTY_12}" data-tonghh="${totals.__EMPTY_13}" style="display: none;"></div>
         <div id="copyrightInReport" class="copyright" style="display: none;">Copyright© by Đỗ Đức Dũng</div>
@@ -379,19 +433,22 @@
 
     function tinhToan() {
       const excelTotalsDiv = document.getElementById("excelDataTotals"); if (!excelTotalsDiv) return;
+      
       let tongDT_Excel = parseFloat(excelTotalsDiv.getAttribute('data-tongdt')) || 0;
       let tongHH_Excel = parseFloat(excelTotalsDiv.getAttribute('data-tonghh')) || 0;
       
-      let customTicketDT = 0;
-      let customTicketHH = 0;
-      const customRows = document.querySelectorAll('.custom-ticket-row');
-      customRows.forEach(row => {
-          customTicketDT += parseFloat(row.dataset.doanhthu) || 0;
-          customTicketHH += parseFloat(row.dataset.hoahong) || 0;
+      let addedRevenue = 0;
+      let addedCommission = 0;
+      const addedRows = document.querySelectorAll('.added-ticket-row');
+      addedRows.forEach(row => {
+          const revenueCell = row.cells[1];
+          const commissionCell = row.cells[2];
+          addedRevenue += parseFloat(revenueCell.innerText.replace(/[.\s]/g,'')) || 0;
+          addedCommission += parseFloat(commissionCell.innerText.replace(/[.\s]/g,'')) || 0;
       });
 
-      let tongDT_Moi = tongDT_Excel + customTicketDT;
-      let tongHH_Moi = tongHH_Excel + customTicketHH;
+      let tongDT_Moi = tongDT_Excel + addedRevenue;
+      let tongHH_Moi = tongHH_Excel + addedCommission;
       
       document.getElementById("tongDT").innerText = formatNumber(tongDT_Moi);
       document.getElementById("tongHH").innerText = formatNumber(tongHH_Moi);
@@ -426,15 +483,10 @@
       if (!reportDiv.innerHTML) { alert("Chưa có báo cáo để xuất ảnh!"); return; }
 
       const copyrightInReport = document.getElementById('copyrightInReport');
-
-      if (copyrightInReport) {
-        copyrightInReport.style.display = 'block';
-      }
+      if (copyrightInReport) copyrightInReport.style.display = 'block';
 
       html2canvas(reportDiv, { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
-        if (copyrightInReport) {
-          copyrightInReport.style.display = 'none';
-        }
+        if (copyrightInReport) copyrightInReport.style.display = 'none';
         
         let link = document.createElement("a");
         let soSo = document.getElementById("soSo").value.trim() || "baocao";
