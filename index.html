@@ -133,13 +133,13 @@
       font-size: 15px;
     }
     
-    .bang-chu-cell {
-      text-align: left !important;
-      font-style: italic;
-      padding-left: 15px !important;
-      font-size: 12px;
-      font-weight: normal;
-    }
+  .bang-chu-cell {
+  text-align: left !important;
+  font-style: italic;
+  padding-left: 15px !important;
+  font-size: 11px; /* <-- Chỉnh chữ nhỏ hơn */
+  font-weight: normal; /* <-- Đảm bảo chữ không đậm */
+}
 
     .ticket-type-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
     .ticket-type-selector label { display: flex; align-items: center; gap: 5px; font-weight: normal; }
@@ -465,7 +465,7 @@
                 <td id="ketQuaLabel"></td>
                 <td id="ketQuaValue" colspan="2"></td>
                 </tr>
-                <tr class="header"><td style="font-weight: normal; font-size: 12px;">Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr>
+               <tr class="header"><td>Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr>
             </tbody>
             </table>
             <div id="excelDataTotals" data-tongdt="${totals.__EMPTY_12}" data-tonghh="${totals.__EMPTY_13}" style="display: none;"></div>
