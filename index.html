@@ -89,8 +89,9 @@
     .report-table th { width: 33.33%; }
     
     .report-table tbody td {
-      font-weight: bold;
-    }
+      font-weight: bold;
+      font-size: 20px; /* <-- Thêm dòng này để chữ to hơn */
+}
 
     .header { font-weight: bold; background: #f8f9fa; }
     .so-so {
@@ -181,7 +182,7 @@
       }
       th, td {
         padding: 8px;
-        font-size: 4.2vw;
+        font-size: 5vw;
         word-break: break-word; /* Chống tràn chữ */
       }
       .so-so { font-size: 12vw; word-break: break-all; }
@@ -464,7 +465,7 @@
                 <td id="ketQuaLabel"></td>
                 <td id="ketQuaValue" colspan="2"></td>
                 </tr>
-                <tr><td style="font-weight: normal; font-size: 12px;">Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr>
+                <tr class="header"><td style="font-weight: normal; font-size: 12px;">Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr>
             </tbody>
             </table>
             <div id="excelDataTotals" data-tongdt="${totals.__EMPTY_12}" data-tonghh="${totals.__EMPTY_13}" style="display: none;"></div>
