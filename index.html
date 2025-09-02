@@ -7,11 +7,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
+    /* --- CÀI ĐẶT CHUNG CHO CẢ PC VÀ MOBILE --- */
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       margin: 15px;
       background: #f8f9fa;
       color: #343a40;
+      font-size: 16px; /* Font size chuẩn cho PC */
     }
     .container {
       max-width: 600px;
@@ -21,6 +23,7 @@
     h2 {
       text-align: center;
       color: #2c3e50;
+      font-size: 28px;
     }
     .main-controls {
         display: flex;
@@ -42,7 +45,7 @@
       color: #495057;
     }
     input[type="text"], input[type="file"], input[type="number"], select, button {
-      padding: 10px;
+      padding: 12px;
       border-radius: 6px;
       border: 1px solid #ced4da;
       width: 100%;
@@ -57,15 +60,11 @@
       transition: background-color 0.3s, color 0.3s;
       font-weight: bold;
     }
-    button.secondary {
-        background-color: #6c757d;
-    }
-    button.danger {
-        background-color: #dc3545;
-    }
-    button:hover {
-      opacity: 0.9;
-    }
+    button.secondary { background-color: #6c757d; }
+    button.danger { background-color: #dc3545; }
+    button:hover { opacity: 0.9; }
+
+    /* --- CÀI ĐẶT BẢNG BIỂU --- */
     table {
       border-collapse: collapse;
       width: 100%;
@@ -82,13 +81,16 @@
     th {
       background: #e9ecef;
       color: #495057;
+      font-size: 17px;
     }
-    .report-table {
-        table-layout: fixed;
+    .report-table { table-layout: fixed; }
+    .report-table th { width: 33.33%; }
+    
+    /* YÊU CẦU MỚI: In đậm các ô trong thân bảng báo cáo */
+    .report-table tbody td {
+      font-weight: bold;
     }
-    .report-table th {
-        width: 33.33%;
-    }
+
     .header { font-weight: bold; background: #f8f9fa; }
     .so-so {
       font-size: 48px;
@@ -96,11 +98,20 @@
       color: #CC5500;
       vertical-align: middle;
     }
-    .must-pay { background: #fddede; font-size: 24px; color: #8B0000; }
-    .must-pay td:first-child { font-weight: bold; text-align: center; }
-    .must-pay td:last-child { font-weight: bold; }
+    .must-pay {
+      background: #fddede;
+      font-size: 24px;
+      color: #8B0000;
+    }
+    .must-pay td:first-child, .must-pay td:last-child { font-weight: bold; }
     .old-debt { background: #fff3cd; }
-    .bang-chu-cell { text-align: left !important; font-style: italic; padding-left: 15px !important; font-size: 16px; font-weight: normal; }
+    .bang-chu-cell {
+      text-align: left !important;
+      font-style: italic;
+      padding-left: 15px !important;
+      font-size: 16px;
+      font-weight: normal; /* Chữ bằng chữ không cần in đậm */
+    }
     .ticket-type-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
     .ticket-type-selector label { display: flex; align-items: center; gap: 5px; font-weight: normal; }
     .copyright {
@@ -110,20 +121,17 @@
       color: #6c757d;
     }
     .added-ticket-row { background-color: #e0f7fa; }
-    .added-ticket-row td:first-child { font-weight: bold; color: #00796b; font-size: 15px; }
-    #actionButtonContainer {
+    .added-ticket-row td:first-child {
+      color: #00796b;
+      font-size: 15px;
+    }
+    #actionButtonContainer, #actionChoices {
         display: none;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
         margin-top: 15px;
     }
-    #actionChoices {
-        display: none;
-        grid-column: 1 / -1;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 10px;
-    }
+    #actionChoices { grid-column: 1 / -1; margin-top: 10px; }
     .dynamic-input {
         width: 100%;
         border: none;
@@ -132,10 +140,32 @@
         background: transparent;
         font-size: 16px;
     }
-    @media (max-width: 600px) {
-      .so-so { font-size: 32px; word-break: break-all; }
-      .must-pay { font-size: 20px; }
-      .ticket-type-selector { gap: 8px; }
+
+    /* --- YÊU CẦU MỚI: TỰ ĐỘNG PHÙ HỢP VỚI MÀN HÌNH ĐIỆN THOẠI --- */
+    @media (max-width: 768px) {
+      body {
+        margin: 8px;
+        font-size: 4vw; /* Sử dụng đơn vị vw cho mobile */
+        -webkit-text-size-adjust: 100%;
+      }
+      .container { padding: 5px; }
+      h2 { font-size: 6.5vw; }
+      label { font-size: 4.2vw; }
+      input[type="text"], input[type="file"], input[type="number"], select, button {
+        padding: 12px;
+        font-size: 4.5vw;
+      }
+      th, td {
+        padding: 8px;
+        font-size: 4.2vw;
+        word-break: break-word; /* Chống tràn chữ */
+      }
+      .so-so { font-size: 12vw; word-break: break-all; }
+      .must-pay { font-size: 7vw; }
+      .bang-chu-cell { font-size: 4vw; }
+      .copyright { font-size: 3.5vw; }
+      .added-ticket-row td:first-child { font-size: 4vw; }
+      .dynamic-input { font-size: 4.5vw; }
     }
   </style>
 </head>
@@ -249,7 +279,7 @@
             toggleBtn.classList.remove('danger');
             const addedRows = document.querySelectorAll('.added-ticket-row');
             addedRows.forEach(row => row.remove());
-            tinhToan(); 
+            if (document.getElementById("report").innerHTML) tinhToan();
         } else {
             sellControls.style.display = 'flex';
             toggleBtn.innerText = 'Huỷ bán vé';
