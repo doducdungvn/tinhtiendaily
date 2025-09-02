@@ -11,8 +11,8 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       margin: 15px;
-      background: #f4f7f9; /* Màu nền xám rất nhạt */
-      color: #333; /* Màu chữ chính đậm hơn */
+      background: #f4f7f9;
+      color: #333;
       font-size: 16px;
     }
     .container {
@@ -22,7 +22,7 @@
     }
     h2 {
       text-align: center;
-      color: #2c3e50; /* Xanh thẫm cho tiêu đề */
+      color: #2c3e50;
       font-size: 28px;
     }
     .main-controls {
@@ -36,7 +36,7 @@
       gap: 15px;
       margin-bottom: 20px;
       padding: 15px;
-      border: 1px solid #dfe6e9; /* Viền xám nhạt hơn */
+      border: 1px solid #dfe6e9;
       border-radius: 8px;
       background: #fff;
     }
@@ -53,20 +53,18 @@
       font-size: 16px;
     }
     
-    /* --- Bảng màu chuyên nghiệp cho nút bấm --- */
     button {
       cursor: pointer;
-      background: #007bff; /* Xanh dương chủ đạo */
+      background: #007bff;
       color: white;
       border: none;
       transition: background-color 0.3s, color 0.3s;
       font-weight: bold;
     }
-    button.secondary { background-color: #6c757d; } /* Xám cho nút phụ */
-    button.danger { background-color: #e74c3c; } /* Đỏ cho nút nguy hiểm */
+    button.secondary { background-color: #6c757d; }
+    button.danger { background-color: #e74c3c; }
     button:hover { opacity: 0.85; }
 
-    /* --- CÀI ĐẶT BẢNG BIỂU --- */
     table {
       border-collapse: collapse;
       width: 100%;
@@ -81,7 +79,7 @@
       vertical-align: middle;
     }
     th {
-      background: #f8f9fa; /* Nền xám rất nhạt cho tiêu đề bảng */
+      background: #f8f9fa;
       color: #495057;
       font-size: 17px;
     }
@@ -89,57 +87,56 @@
     .report-table th { width: 33.33%; }
     
     .report-table tbody td {
-      font-weight: bold;
-      font-size: 20px; /* <-- Thêm dòng này để chữ to hơn */
-}
+      font-weight: bold;
+      font-size: 18px; 
+    }
 
     .header { font-weight: bold; background: #f8f9fa; }
     .so-so {
       font-size: 48px;
       font-weight: bold;
-      color: #d35400; /* Màu cam đất cho số sổ */
+      color: #d35400;
       vertical-align: middle;
     }
     
-    /* --- Bảng màu chuyên nghiệp cho các dòng đặc biệt --- */
     .must-pay {
-      background: #ffebee; /* Đỏ rất nhạt */
+      background: #ffebee;
       font-size: 24px;
-      color: #c0392b; /* Chữ màu đỏ đậm */
+      color: #c0392b;
     }
     .must-pay td:first-child, .must-pay td:last-child { font-weight: bold; }
     
     .old-debt { 
-        background-color: #fdf5e6; /* Màu be nhạt */
+        background-color: #fdf5e6;
     }
 
     #tongCongRow {
-        background-color: #eaf2f8; /* Xanh dương rất nhạt */
+        background-color: #eaf2f8;
         color: #2c3e50;
     }
     #mainBonusRow {
-        background-color: #e9f7ef; /* Xanh lá cây rất nhạt */
-        color: #1e8449; /* Chữ màu xanh lá cây đậm */
+        background-color: #e9f7ef;
+        color: #1e8449;
     }
     #mainBonusRow td {
         font-weight: bold;
     }
     
     .added-ticket-row { 
-        background-color: #e8f6f8; /* Xanh cyan nhạt */
+        background-color: #e8f6f8;
     }
     .added-ticket-row td:first-child {
       color: #0e6251;
       font-size: 15px;
     }
     
-  .bang-chu-cell {
-  text-align: left !important;
-  font-style: italic;
-  padding-left: 14px !important;
-  font-size: 11px; /* <-- Chỉnh chữ nhỏ hơn */
-  font-weight: normal; /* <-- Đảm bảo chữ không đậm */
-}
+    .bang-chu-cell {
+      text-align: left !important;
+      font-style: italic;
+      padding-left: 15px !important;
+      font-size: 14px;
+      font-weight: normal;
+    }
 
     .ticket-type-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
     .ticket-type-selector label { display: flex; align-items: center; gap: 5px; font-weight: normal; }
@@ -163,14 +160,13 @@
         font-weight: bold;
         text-align: center;
         background: transparent;
-        font-size: 16px;
+        font-size: 18px; /* THAY ĐỔI: Đồng bộ kích cỡ chữ */
     }
 
-    /* --- TỰ ĐỘNG PHÙ HỢP VỚI MÀN HÌNH ĐIỆN THOẠI --- */
     @media (max-width: 768px) {
       body {
         margin: 8px;
-        font-size: 4vw; /* Sử dụng đơn vị vw cho mobile */
+        font-size: 4vw;
         -webkit-text-size-adjust: 100%;
       }
       .container { padding: 5px; }
@@ -182,15 +178,15 @@
       }
       th, td {
         padding: 8px;
-        font-size: 5vw;
-        word-break: break-word; /* Chống tràn chữ */
+        font-size: 4.8vw;
+        word-break: break-word;
       }
       .so-so { font-size: 12vw; word-break: break-all; }
       .must-pay { font-size: 7vw; }
       .bang-chu-cell { font-size: 4vw; }
       .copyright { font-size: 3.5vw; }
       .added-ticket-row td:first-child { font-size: 4vw; }
-      .dynamic-input { font-size: 4.5vw; }
+      .dynamic-input { font-size: 4.8vw; } /* THAY ĐỔI: Đồng bộ kích cỡ chữ mobile */
     }
   </style>
 </head>
@@ -269,8 +265,7 @@
         if (event.key === 'Enter') {
             event.preventDefault();
             if (nextElementId) {
-                const nextElement = document.getElementById(nextElementId);
-                if (nextElement) nextElement.focus();
+                document.getElementById(nextElementId)?.focus();
             } else {
                 event.target.blur();
             }
@@ -282,7 +277,6 @@
         event.preventDefault();
         const potentialNextIds = ['customTicketName', 'customTicketPrice', 'customCommissionPercent', 'sellQuantityInput'];
         const currentIndex = potentialNextIds.indexOf(currentElement.id);
-
         for (let i = currentIndex + 1; i < potentialNextIds.length; i++) {
             const nextElement = document.getElementById(potentialNextIds[i]);
             if (nextElement && nextElement.offsetParent !== null) {
@@ -290,10 +284,8 @@
                 return;
             }
         }
-        const quantityInput = document.getElementById('sellQuantityInput');
-        if (quantityInput) quantityInput.focus();
+        document.getElementById('sellQuantityInput')?.focus();
     }
-
 
     function toggleSellMode() {
         const sellControls = document.getElementById('sellTicketControls');
@@ -303,15 +295,13 @@
             sellControls.style.display = 'none';
             toggleBtn.innerText = 'Bán vé';
             toggleBtn.classList.remove('danger');
-            const addedRows = document.querySelectorAll('.added-ticket-row');
-            addedRows.forEach(row => row.remove());
+            document.querySelectorAll('.added-ticket-row').forEach(row => row.remove());
             if (document.getElementById("report").innerHTML) tinhToan();
         } else {
             sellControls.style.display = 'flex';
             toggleBtn.innerText = 'Huỷ bán vé';
             toggleBtn.classList.add('danger');
-            // Mặc định trỏ chuột vào ô số lượng khi mở
-            document.getElementById('sellQuantityInput').focus();
+            document.getElementById('sellQuantityInput')?.focus();
         }
     }
 
@@ -321,13 +311,9 @@
     }
     
     function handleTicketTypeChange() {
-        // Xóa số lượng đã nhập khi đổi loại hình
         document.getElementById('sellQuantityInput').value = '';
-
         const ticketType = document.querySelector('input[name="sellTicketType"]:checked').value;
         const customNameInput = document.getElementById('customTicketName');
-
-        // Hiện/ẩn ô tự nhập tên
         customNameInput.style.display = ticketType === 'custom-name' ? 'block' : 'none';
 
         switch (ticketType) {
@@ -347,15 +333,12 @@
                 customNameInput.focus();
                 break;
         }
-        
-        // Cập nhật hiển thị của các ô giá/hoa hồng tùy chỉnh
         updateCustomFieldVisibility();
     }
 
     function updateCustomFieldVisibility() {
         const customPriceInput = document.getElementById('customTicketPrice');
         const customCommissionInput = document.getElementById('customCommissionPercent');
-
         customPriceInput.style.display = document.querySelector('input[name="sellPrice"]:checked').value === 'custom-price' ? 'block' : 'none';
         customCommissionInput.style.display = document.querySelector('input[name="commissionRate"]:checked').value === 'custom-commission' ? 'block' : 'none';
     }
@@ -364,6 +347,50 @@
         let value = input.value.replace(/\D/g, '');
         input.value = value ? parseInt(value, 10).toLocaleString('vi-VN') : '';
     }
+	
+    function docso(numberStr) {
+        const defaultNumbers = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
+        const readThreeDigits = (threeDigits) => { let tram = parseInt(threeDigits[0]); let chuc = parseInt(threeDigits[1]); let donvi = parseInt(threeDigits[2]); let result = ""; if (tram > 0 || chuc > 0 || donvi > 0) { if (tram > 0) { result += defaultNumbers[tram] + " trăm "; } if (chuc > 0) { if (chuc === 1) { result += "mười "; } else { result += defaultNumbers[chuc] + " mươi "; } } else if (tram > 0 && donvi > 0) { result += "linh "; } if (donvi > 0) { if (chuc === 1) { if (donvi === 1) result += "một"; else if (donvi === 5) result += "lăm"; else result += defaultNumbers[donvi]; } else if (chuc > 1) { if (donvi === 1) result += "mốt"; else if (donvi === 5) result += "lăm"; else result += defaultNumbers[donvi]; } else { result += defaultNumbers[donvi]; } } } return result.trim(); }; let num = String(numberStr).replace(/[.,]/g, ''); if (num === '0') return 'Không'; if (num === '' || isNaN(parseInt(num))) return ''; let unit = ["", "nghìn", "triệu", "tỷ", "nghìn tỷ", "triệu tỷ"]; let chunks = []; while (num.length > 3) { chunks.unshift(num.slice(-3)); num = num.slice(0, -3); } if (num) { chunks.unshift(num); } let resultArr = []; let unitIndex = chunks.length - 1; for (let chunk of chunks) { let chunkStr = chunk.padStart(3, '0'); let text = readThreeDigits(chunkStr); if (text) { resultArr.push(text + " " + unit[unitIndex]); } unitIndex--; } let finalResult = resultArr.join(', ').trim(); if (finalResult.endsWith(',')) { finalResult = finalResult.slice(0, -1); } return finalResult.charAt(0).toUpperCase() + finalResult.slice(1);
+    }
+    
+    document.getElementById("excelFile").addEventListener("change", function(e) { 
+        let file = e.target.files[0]; 
+        if (!file) return; 
+        let reader = new FileReader(); 
+        reader.onload = function(e) { 
+            let data = new Uint8Array(e.target.result); 
+            let workbook = XLSX.read(data, {type: "array"}); 
+            let firstSheet = workbook.Sheets[workbook.SheetNames[0]]; 
+            excelData = XLSX.utils.sheet_to_json(firstSheet, {defval: ""}); 
+            let dateRow = excelData.find(r => Object.values(r).some(v => typeof v === "string" && v.includes("Tõ ngµy"))); 
+            if (dateRow) { 
+                let text = Object.values(dateRow).find(v => v.includes("Tõ ngµy")); 
+                let match = text.match(/Tõ ngµy\s*(\d{2}\/\d{2})\/\d{4}.*®Õn ngµy\s*(\d{2}\/\d{2})\/\d{4}/); 
+                if (match) { dateRangeText = `Từ ngày ${match[1]} đến ngày ${match[2]}`; } 
+            } 
+            alert("Đã nạp dữ liệu Excel thành công!");
+            document.getElementById('soSo').focus();
+        }; 
+        reader.readAsArrayBuffer(file); 
+    });
+
+    function formatNumber(num) { if (isNaN(num) || num === "") return "0"; return Number(num).toLocaleString("vi-VN"); }
+
+    function formatNumberHiddenK(num) {
+        if (isNaN(num) || num === "" || Math.abs(num) < 1000) return "0";
+        const truncatedNum = Math.floor(Number(num) / 1000);
+        return truncatedNum.toLocaleString("vi-VN");
+    }
+
+    function formatCommissionCellHiddenK(revenue, commission) {
+        if (!revenue || revenue === 0) return formatNumberHiddenK(commission);
+        const percentage = (commission / revenue) * 100;
+        const roundedPercentage = Math.round(percentage);
+        return `${roundedPercentage}% = ${formatNumberHiddenK(commission)}`;
+    }
+
+    function formatCommissionCell(revenue, commission) { if (!revenue || revenue === 0) return formatNumber(commission); const percentage = (commission / revenue) * 100; const roundedPercentage = Math.round(percentage); return `${roundedPercentage}% = ${formatNumber(commission)}`; }
+
     function addTicketToReport() {
         const reportTable = document.querySelector('.report-table');
         if (!reportTable) { alert("Vui lòng tạo báo cáo trước khi thêm vé bán!"); return; }
@@ -393,7 +420,7 @@
         const formattedName = `${typeName} (${price / 1000}k) [${quantity} vé]`;
         const newRow = document.createElement('tr');
         newRow.classList.add('added-ticket-row');
-        newRow.innerHTML = `<td>${formattedName}</td><td>${formatNumber(doanhThu)}</td><td>${formatCommissionCell(doanhThu, hoaHong)}</td>`;
+        newRow.innerHTML = `<td data-value-name="${formattedName}">${formattedName}</td><td data-value="${doanhThu}">${formatNumberHiddenK(doanhThu)}</td><td data-value="${hoaHong}">${formatCommissionCellHiddenK(doanhThu, hoaHong)}</td>`;
         const tongCongRow = document.getElementById('tongCongRow');
         reportTable.querySelector('tbody').insertBefore(newRow, tongCongRow);
         tinhToan();
@@ -401,34 +428,6 @@
         quantityInput.focus();
         newRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-    function docso(numberStr) {
-        const defaultNumbers = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
-        const readThreeDigits = (threeDigits) => { let tram = parseInt(threeDigits[0]); let chuc = parseInt(threeDigits[1]); let donvi = parseInt(threeDigits[2]); let result = ""; if (tram > 0 || chuc > 0 || donvi > 0) { if (tram > 0) { result += defaultNumbers[tram] + " trăm "; } if (chuc > 0) { if (chuc === 1) { result += "mười "; } else { result += defaultNumbers[chuc] + " mươi "; } } else if (tram > 0 && donvi > 0) { result += "linh "; } if (donvi > 0) { if (chuc === 1) { if (donvi === 1) result += "một"; else if (donvi === 5) result += "lăm"; else result += defaultNumbers[donvi]; } else if (chuc > 1) { if (donvi === 1) result += "mốt"; else if (donvi === 5) result += "lăm"; else result += defaultNumbers[donvi]; } else { result += defaultNumbers[donvi]; } } } return result.trim(); }; let num = String(numberStr).replace(/[.,]/g, ''); if (num === '0') return 'Không'; if (num === '' || isNaN(parseInt(num))) return ''; let unit = ["", "nghìn", "triệu", "tỷ", "nghìn tỷ", "triệu tỷ"]; let chunks = []; while (num.length > 3) { chunks.unshift(num.slice(-3)); num = num.slice(0, -3); } if (num) { chunks.unshift(num); } let resultArr = []; let unitIndex = chunks.length - 1; for (let chunk of chunks) { let chunkStr = chunk.padStart(3, '0'); let text = readThreeDigits(chunkStr); if (text) { resultArr.push(text + " " + unit[unitIndex]); } unitIndex--; } let finalResult = resultArr.join(', ').trim(); if (finalResult.endsWith(',')) { finalResult = finalResult.slice(0, -1); } return finalResult.charAt(0).toUpperCase() + finalResult.slice(1);
-    }
-    
-    document.getElementById("excelFile").addEventListener("change", function(e) { 
-        let file = e.target.files[0]; 
-        if (!file) return; 
-        let reader = new FileReader(); 
-        reader.onload = function(e) { 
-            let data = new Uint8Array(e.target.result); 
-            let workbook = XLSX.read(data, {type: "array"}); 
-            let firstSheet = workbook.Sheets[workbook.SheetNames[0]]; 
-            excelData = XLSX.utils.sheet_to_json(firstSheet, {defval: ""}); 
-            let dateRow = excelData.find(r => Object.values(r).some(v => typeof v === "string" && v.includes("Tõ ngµy"))); 
-            if (dateRow) { 
-                let text = Object.values(dateRow).find(v => v.includes("Tõ ngµy")); 
-                let match = text.match(/Tõ ngµy\s*(\d{2}\/\d{2})\/\d{4}.*®Õn ngµy\s*(\d{2}\/\d{2})\/\d{4}/); 
-                if (match) { dateRangeText = `Từ ngày ${match[1]} đến ngày ${match[2]}`; } 
-            } 
-            alert("Đã nạp dữ liệu Excel thành công!");
-            document.getElementById('soSo').focus();
-        }; 
-        reader.readAsArrayBuffer(file); 
-    });
-
-    function formatNumber(num) { if (isNaN(num) || num === "") return "0"; return Number(num).toLocaleString("vi-VN"); }
-    function formatCommissionCell(revenue, commission) { if (!revenue || revenue === 0) { return formatNumber(commission); } const percentage = (commission / revenue) * 100; const roundedPercentage = Math.round(percentage); return `${roundedPercentage}% = ${formatNumber(commission)}`; }
 
     function loadData() {
         let soSo = document.getElementById("soSo").value.trim();
@@ -455,12 +454,12 @@
                 <tr><th>Loại hình</th><th>Doanh thu</th><th>Hoa hồng</th></tr>
             </thead>
             <tbody>
-                <tr><td>Lô tô Đặc biệt</td><td>${formatNumber(totals.__EMPTY_2)}</td><td>${formatCommissionCell(totals.__EMPTY_2, totals.__EMPTY_3)}</td></tr>
-                <tr><td>Lô cặp</td><td>${formatNumber(totals.__EMPTY_6)}</td><td>${formatCommissionCell(totals.__EMPTY_6, totals.__EMPTY_7)}</td></tr>
-                <tr><td>2/27</td><td>${formatNumber(totals.__EMPTY_8)}</td><td>${formatCommissionCell(totals.__EMPTY_8, totals.__EMPTY_9)}</td></tr>
-                <tr><td>3/23</td><td>${formatNumber(totals.__EMPTY_10)}</td><td>${formatCommissionCell(totals.__EMPTY_10, totals.__EMPTY_11)}</td></tr>
-                <tr id="tongCongRow"><td>Tổng cộng</td><td id="tongDT">${formatNumber(totals.__EMPTY_12)}</td><td id="tongHH">${formatNumber(totals.__EMPTY_13)}</td></tr>
-                <tr id="mainBonusRow"><td>Thưởng</td><td colspan="2" id="thuong">${formatNumber(totals.__EMPTY_14)}</td></tr>
+                <tr><td>Lô tô Đặc biệt</td><td data-value="${totals.__EMPTY_2}">${formatNumberHiddenK(totals.__EMPTY_2)}</td><td data-value="${totals.__EMPTY_3}">${formatCommissionCellHiddenK(totals.__EMPTY_2, totals.__EMPTY_3)}</td></tr>
+                <tr><td>Lô cặp</td><td data-value="${totals.__EMPTY_6}">${formatNumberHiddenK(totals.__EMPTY_6)}</td><td data-value="${totals.__EMPTY_7}">${formatCommissionCellHiddenK(totals.__EMPTY_6, totals.__EMPTY_7)}</td></tr>
+                <tr><td>2/27</td><td data-value="${totals.__EMPTY_8}">${formatNumberHiddenK(totals.__EMPTY_8)}</td><td data-value="${totals.__EMPTY_9}">${formatCommissionCellHiddenK(totals.__EMPTY_8, totals.__EMPTY_9)}</td></tr>
+                <tr><td>3/23</td><td data-value="${totals.__EMPTY_10}">${formatNumberHiddenK(totals.__EMPTY_10)}</td><td data-value="${totals.__EMPTY_11}">${formatCommissionCellHiddenK(totals.__EMPTY_10, totals.__EMPTY_11)}</td></tr>
+                <tr id="tongCongRow"><td>Tổng cộng</td><td id="tongDT">${formatNumberHiddenK(totals.__EMPTY_12)}</td><td id="tongHH">${formatNumberHiddenK(totals.__EMPTY_13)}</td></tr>
+                <tr id="mainBonusRow"><td>Thưởng</td><td colspan="2" id="thuong">${formatNumberHiddenK(totals.__EMPTY_14)}</td></tr>
                 <tr class="must-pay">
                 <td id="ketQuaLabel"></td>
                 <td id="ketQuaValue" colspan="2"></td>
@@ -468,7 +467,7 @@
                <tr class="header"><td>Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr>
             </tbody>
             </table>
-            <div id="excelDataTotals" data-tongdt="${totals.__EMPTY_12}" data-tonghh="${totals.__EMPTY_13}" style="display: none;"></div>
+            <div id="excelDataTotals" data-tongdt="${totals.__EMPTY_12}" data-tonghh="${totals.__EMPTY_13}" data-thuong="${totals.__EMPTY_14}" style="display: none;"></div>
             <div id="copyrightInReport" class="copyright" style="display: none;">© 2025 by ZENG™</div>
         `;
         const reportDiv = document.getElementById("report");
@@ -484,18 +483,28 @@
         reportDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
+    // --- CÁC HÀM ĐỊNH DẠNG INPUT ĐÃ CẬP NHẬT ---
     function formatAndCalculate(inputElement) {
         if (!inputElement) return;
         let originalValue = inputElement.value;
-        let isNegative = originalValue.startsWith('-');
-        let rawValue = originalValue.replace(/[^\d]/g, '');
-        if (rawValue === '') { inputElement.value = isNegative ? '-' : ''; tinhToan(); return; }
-        let num = parseInt(rawValue, 10);
-        let formattedValue = num.toLocaleString('vi-VN');
-        inputElement.value = isNegative ? '-' + formattedValue : formattedValue;
+        let rawValue = originalValue.replace(/[^\d-]/g, '');
+        let num = parseInt(rawValue, 10) || 0;
+        inputElement.dataset.fullValue = num; 
+        inputElement.value = num.toLocaleString('vi-VN');
         tinhToan();
     }
     
+    function formatInputToHiddenK(inputElement) {
+        const fullValue = parseFloat(inputElement.dataset.fullValue) || 0;
+        inputElement.value = formatNumberHiddenK(fullValue);
+    }
+
+    function restoreFullInput(inputElement) {
+        const fullValue = parseFloat(inputElement.dataset.fullValue) || 0;
+        inputElement.value = fullValue.toLocaleString('vi-VN');
+    }
+    // --- KẾT THÚC CẬP NHẬT ---
+
     function toggleActionChoices() {
         const choicesDiv = document.getElementById('actionChoices');
         const toggleBtn = document.getElementById('toggleChoicesBtn');
@@ -505,10 +514,8 @@
             toggleBtn.classList.remove('secondary');
             toggleBtn.classList.add('danger');
         } else {
-            const bonusRow = document.getElementById('extraBonusRow');
-            if (bonusRow) bonusRow.remove();
-            const debtRow = document.getElementById('extraDebtRow');
-            if (debtRow) debtRow.remove();
+            document.getElementById('extraBonusRow')?.remove();
+            document.getElementById('extraDebtRow')?.remove();
             choicesDiv.style.display = 'none';
             toggleBtn.textContent = 'Thêm tiền Thưởng/Nợ';
             toggleBtn.classList.remove('danger');
@@ -543,7 +550,6 @@
             if (!mainBonusRow) return;
             const newRow = document.createElement('tr');
             newRow.id = 'extraBonusRow';
-            // --- BẮT ĐẦU CẬP NHẬT MÀU SẮC ---
             newRow.innerHTML = `
                 <td style="display: flex; align-items: center;">
                     <input type="text" id="extraBonusNameInput" class="dynamic-input" style="text-align: center; padding-right: 5px; color: #1e8449;" 
@@ -555,11 +561,12 @@
                 <td colspan="2">
                     <input type="text" id="extraBonusAmountInput" class="dynamic-input" style="color: #1e8449;" placeholder="Nhập số tiền..." 
                            oninput="formatAndCalculate(this)" 
+                           onfocus="restoreFullInput(this)"
+                           onblur="formatInputToHiddenK(this)"
                            onkeydown="handleEnterKey(event, null)" 
                            inputmode="numeric">
                 </td>
             `;
-            // --- KẾT THÚC CẬP NHẬT MÀU SẮC ---
             mainBonusRow.insertAdjacentElement('afterend', newRow);
             document.getElementById('extraBonusNameInput').focus();
         }
@@ -582,7 +589,9 @@
                 <td style="vertical-align: middle;">Nợ cũ</td>
                 <td colspan="2">
                     <input type="text" id="extraDebtAmountInput" class="dynamic-input" placeholder="Nhập số tiền nợ..." 
-                           oninput="formatAndCalculate(this)" 
+                           oninput="formatAndCalculate(this)"
+                           onfocus="restoreFullInput(this)"
+                           onblur="formatInputToHiddenK(this)"
                            onkeydown="handleEnterKey(event, null)" 
                            inputmode="numeric">
                 </td>
@@ -595,43 +604,52 @@
     }
 
     function tinhToan() {
-        const excelTotalsDiv = document.getElementById("excelDataTotals"); if (!excelTotalsDiv) return;
+        const excelTotalsDiv = document.getElementById("excelDataTotals"); 
+        if (!excelTotalsDiv) return;
+
         let tongDT_Excel = parseFloat(excelTotalsDiv.getAttribute('data-tongdt')) || 0;
         let tongHH_Excel = parseFloat(excelTotalsDiv.getAttribute('data-tonghh')) || 0;
+        let thuong_Excel = parseFloat(excelTotalsDiv.getAttribute('data-thuong')) || 0;
+
         let addedRevenue = 0;
         let addedCommission = 0;
+
         document.querySelectorAll('.added-ticket-row').forEach(row => {
-            addedRevenue += parseFloat(row.cells[1].innerText.replace(/[.\s]/g,'')) || 0;
-            const commissionText = row.cells[2].innerText;
-            const commissionValueString = commissionText.split('=')[1] || commissionText; 
-            addedCommission += parseFloat(commissionValueString.replace(/[.\s]/g, '')) || 0;
+            addedRevenue += parseFloat(row.cells[1].dataset.value) || 0;
+            addedCommission += parseFloat(row.cells[2].dataset.value) || 0;
         });
+
         let tongDT_Moi = tongDT_Excel + addedRevenue;
         let tongHH_Moi = tongHH_Excel + addedCommission;
-        document.getElementById("tongDT").innerText = formatNumber(tongDT_Moi);
-        document.getElementById("tongHH").innerText = formatNumber(tongHH_Moi);
+
+        document.getElementById("tongDT").innerText = formatNumberHiddenK(tongDT_Moi);
+        document.getElementById("tongHH").innerText = formatNumberHiddenK(tongHH_Moi);
         
-        let thuong = parseFloat(document.getElementById("thuong").innerText.replace(/[.\s]/g,'')) || 0;
-        let extraBonusAmount = parseFloat((document.getElementById('extraBonusAmountInput')?.value || '0').replace(/\./g, '')) || 0;
-        let extraDebtAmount = parseFloat((document.getElementById('extraDebtAmountInput')?.value || '0').replace(/\./g, '')) || 0;
+        const extraBonusInput = document.getElementById('extraBonusAmountInput');
+        const extraDebtInput = document.getElementById('extraDebtAmountInput');
+
+        let extraBonusAmount = parseFloat(extraBonusInput?.dataset.fullValue || '0') || 0;
+        let extraDebtAmount = parseFloat(extraDebtInput?.dataset.fullValue || '0') || 0;
       
-        let phaiNop = tongDT_Moi - tongHH_Moi - thuong - extraBonusAmount + extraDebtAmount;
+        let phaiNop = tongDT_Moi - tongHH_Moi - thuong_Excel - extraBonusAmount + extraDebtAmount;
       
         const ketQuaLabelCell = document.getElementById("ketQuaLabel");
         const ketQuaValueCell = document.getElementById("ketQuaValue");
         let soTienBangChu = "";
         
+        // --- KHỐI TÍNH TOÁN KẾT QUẢ ĐÃ CẬP NHẬT ---
         if (phaiNop >= 0) {
             let lamTron = Math.ceil(phaiNop / 1000) * 1000;
             if (ketQuaLabelCell) ketQuaLabelCell.innerText = 'Phải nộp:';
-            if (ketQuaValueCell) ketQuaValueCell.innerText = formatNumber(lamTron);
+            if (ketQuaValueCell) ketQuaValueCell.innerText = formatNumberHiddenK(lamTron); // THAY ĐỔI
             soTienBangChu = docso(lamTron) + " đồng";
         } else {
             let layVe = Math.abs(phaiNop);
             if (ketQuaLabelCell) ketQuaLabelCell.innerText = 'Lấy về:';
-            if (ketQuaValueCell) ketQuaValueCell.innerText = formatNumber(layVe);
+            if (ketQuaValueCell) ketQuaValueCell.innerText = formatNumberHiddenK(layVe); // THAY ĐỔI
             soTienBangChu = docso(layVe) + " đồng";
         }
+        // --- KẾT THÚC CẬP NHẬT ---
       
         const ketQuaBangChuCell = document.getElementById("ketQuaBangChu");
         if(ketQuaBangChuCell) { ketQuaBangChuCell.innerText = soTienBangChu; }
@@ -643,7 +661,23 @@
         const copyrightInReport = document.getElementById('copyrightInReport');
         try {
             if (copyrightInReport) copyrightInReport.style.display = 'block';
+            
+            // THAY ĐỔI: Chuyển input thành text trước khi chụp ảnh
+            document.querySelectorAll('.dynamic-input').forEach(input => {
+                const parent = input.parentElement;
+                const hiddenValueSpan = document.createElement('span');
+                hiddenValueSpan.innerText = input.value;
+                hiddenValueSpan.className = 'temp-span-for-copy';
+                hiddenValueSpan.style.color = input.style.color;
+                parent.appendChild(hiddenValueSpan);
+                input.style.display = 'none';
+            });
+
             const canvas = await html2canvas(reportDiv, { backgroundColor: "#ffffff", scale: 2 });
+
+            document.querySelectorAll('.dynamic-input').forEach(input => input.style.display = '');
+            document.querySelectorAll('.temp-span-for-copy').forEach(span => span.remove());
+
             canvas.toBlob(async (blob) => {
                 try {
                     await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
@@ -658,6 +692,8 @@
             alert('Đã xảy ra lỗi khi cố gắng tạo ảnh.');
         } finally {
             if (copyrightInReport) copyrightInReport.style.display = 'none';
+            document.querySelectorAll('.dynamic-input').forEach(input => input.style.display = '');
+            document.querySelectorAll('.temp-span-for-copy').forEach(span => span.remove());
         }
     }
 
