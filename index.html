@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo cáo thu tiền & Bán vé</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      margin: 15px;
+      background: #f8f9fa;
+      color: #343a40;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 10px;
+    }
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .main-controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    .controls-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      background: #fff;
+    }
+    label {
+      font-weight: bold;
+      color: #495057;
+    }
+    input[type="text"], input[type="file"], input[type="number"], select, button {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ced4da;
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    button {
+      cursor: pointer;
+      background: #0056b3;
+      color: white;
+      border: none;
+      transition: background-color 0.3s, color 0.3s;
+      font-weight: bold;
+    }
+    button.secondary {
+        background-color: #6c757d;
+    }
+    button.danger {
+        background-color: #dc3545;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1px auto;
+      background: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    th, td {
+      border: 1px solid #dee2e6;
+      padding: 12px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    th {
+      background: #e9ecef;
+      color: #495057;
+    }
+    .report-table {
+        table-layout: fixed;
+    }
+    .report-table th {
+        width: 33.33%;
+    }
+    .header { font-weight: bold; background: #f8f9fa; }
+    
+    .so-so {
+      font-size: 48px;
+      font-weight: bold;
+      color: #CC5500;
+      vertical-align: middle;
+    }
+
+    .must-pay { background: #fddede; font-size: 24px; color: #8B0000; }
+    .must-pay td:first-child { 
+      font-weight: bold; 
+      text-align: center; 
+    }
+    .must-pay td:last-child { font-weight: bold; }
+    
+    .old-debt { background: #fff3cd; }
+    #noCu { width: 150px; padding: 8px; font-size: 16px; text-align: right; border: 1px solid #ffc107; border-radius: 5px; }
+    .bang-chu-cell { text-align: left !important; font-style: italic; padding-left: 15px !important; font-size: 16px; font-weight: normal; }
+    
+    .custom-ticket-row td:first-child {
+        color: #FF0000;
+        font-weight: bold;
+    }
+
+    .copyright {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #6c757d;
+    }
+
+    @media (max-width: 600px) {
+      .so-so { font-size: 32px; word-break: break-all; }
+      .must-pay { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Bán vé & Báo cáo</h2>
+
+    <div class="main-controls">
+        <button id="toggleSellBtn" onclick="toggleSellMode()">Bán vé</button>
+        <button class="secondary" onclick="toggleReportControls()">Xem Báo Cáo Thu Tiền</button>
+    </div>
+
+    <div id="sellTicketControls" class="controls-panel" style="display:none;">
+        <div>
+            <label for="ticketNameInput">Tên loại hình:</label>
+            <input type="text" id="ticketNameInput" placeholder="Ví dụ: Lô tô, Vé bóc...">
+        </div>
+        <div>
+            <label for="ticketPriceInput">Giá bán (VNĐ):</label>
+            <input type="text" id="ticketPriceInput" placeholder="Ví dụ: 10.000" inputmode="numeric" oninput="formatPriceInput(this)">
+        </div>
+        <div>
+            <label for="ticketCommissionInput">Hoa hồng (%):</label>
+            <input type="number" id="ticketCommissionInput" placeholder="Ví dụ: 10" min="0" max="100">
+        </div>
+        <div>
+            <label for="sellQuantityInput">Số lượng:</label>
+            <input type="number" id="sellQuantityInput" placeholder="Nhập số lượng rồi ấn Enter..." min="1" onkeydown="if (event.key === 'Enter') { addCustomTicket(); this.blur(); }">
+        </div>
+        <button onclick="addCustomTicket()">Thêm vé vào báo cáo</button>
+    </div>
+
+    <div id="reportControlsContainer" class="controls-panel" style="display:none;">
+      <label for="soSo">Nhập số sổ (ví dụ: 550):</label>
+      <input type="text" id="soSo" inputmode="numeric" placeholder="Nhập số sổ gốc để gộp" onkeydown="if (event.key === 'Enter') { this.blur(); loadData(); }">
+      <label for="excelFile">Chọn file Excel:</label>
+      <input type="file" id="excelFile" accept=".xls,.xlsx">
+      <button onclick="loadData()">Tạo báo cáo</button>
+    </div>
+
+    <div id="report"></div>
+    <div style="margin-top: 15px; display: none;" id="exportButtonContainer">
+        <button onclick="xuatAnh()">Xuất ảnh báo cáo</button>
+    </div>
+
+    <div class="copyright">
+      Copyright© by Đỗ Đức Dũng
+    </div>
+  </div>
+
+  <script>
+    let excelData = [];
+    let dateRangeText = "Chưa có ngày";
+
+    function formatPriceInput(input) {
+        let rawValue = input.value.replace(/\./g, '');
+        if (isNaN(rawValue) || rawValue === '') {
+            input.value = '';
+        } else {
+            input.value = parseInt(rawValue, 10).toLocaleString('vi-VN');
+        }
+    }
+
+    function toggleSellMode() {
+        const sellControls = document.getElementById('sellTicketControls');
+        const toggleBtn = document.getElementById('toggleSellBtn');
+        const isSelling = sellControls.style.display === 'flex';
+
+        if (isSelling) {
+            sellControls.style.display = 'none';
+            toggleBtn.innerText = 'Bán vé';
+            toggleBtn.classList.remove('danger');
+
+            const customRows = document.querySelectorAll('.custom-ticket-row');
+            customRows.forEach(row => row.remove());
+
+            if (document.getElementById('report').innerHTML) {
+                tinhToan();
+            }
+        } else {
+            sellControls.style.display = 'flex';
+            toggleBtn.innerText = 'Huỷ bán vé';
+            toggleBtn.classList.add('danger');
+        }
+    }
+
+    function toggleReportControls() {
+        const controls = document.getElementById('reportControlsContainer');
+        controls.style.display = controls.style.display === 'none' ? 'flex' : 'none';
+    }
+    
+    // HÀM ĐÃ CẬP NHẬT: Bỏ dòng .focus() để không gọi lại bàn phím
+    function addCustomTicket() {
+        const reportDiv = document.getElementById('report');
+        if (!reportDiv.innerHTML) {
+            alert("Vui lòng tạo báo cáo trước khi thêm vé bán!");
+            return;
+        }
+
+        const name = document.getElementById('ticketNameInput').value.trim();
+        const price = parseFloat(document.getElementById('ticketPriceInput').value.replace(/\./g, ''));
+        const commissionRate = parseFloat(document.getElementById('ticketCommissionInput').value);
+        const quantity = parseInt(document.getElementById('sellQuantityInput').value);
+
+        if (!name || isNaN(price) || isNaN(commissionRate) || isNaN(quantity) || price <= 0 || commissionRate < 0 || quantity <= 0) {
+            alert("Vui lòng nhập đầy đủ và chính xác thông tin vé!");
+            return;
+        }
+
+        const doanhThu = price * quantity;
+        const hoaHong = doanhThu * (commissionRate / 100);
+
+        const tongCongRow = document.getElementById('tongCongRow');
+        if (!tongCongRow) {
+            alert("Lỗi: Không tìm thấy dòng tổng cộng trong báo cáo.");
+            return;
+        }
+
+        const newRow = document.createElement('tr');
+        newRow.className = 'custom-ticket-row';
+        newRow.dataset.doanhthu = doanhThu;
+        newRow.dataset.hoahong = hoaHong;
+
+        const priceInK = price / 1000;
+        const firstCellText = `${name} (${priceInK}k) (${quantity} vé)`;
+
+        newRow.innerHTML = `
+            <td>${firstCellText}</td>
+            <td>${formatNumber(doanhThu)}</td>
+            <td>${formatNumber(hoaHong)}</td>
+        `;
+
+        tongCongRow.parentNode.insertBefore(newRow, tongCongRow);
+
+        document.getElementById('ticketNameInput').value = '';
+        document.getElementById('ticketPriceInput').value = '';
+        document.getElementById('ticketCommissionInput').value = '';
+        document.getElementById('sellQuantityInput').value = '';
+        
+        // ĐÃ XÓA DÒNG .focus() TẠI ĐÂY
+        // document.getElementById('ticketNameInput').focus(); 
+
+        tinhToan();
+
+        reportDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+    
+    function docso(numberStr) {
+        const defaultNumbers = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
+        const readThreeDigits = (threeDigits) => {
+            let tram = parseInt(threeDigits[0]); let chuc = parseInt(threeDigits[1]); let donvi = parseInt(threeDigits[2]); let result = "";
+            if (tram > 0 || chuc > 0 || donvi > 0) {
+                if (tram > 0) { result += defaultNumbers[tram] + " trăm "; }
+                if (chuc > 0) { if (chuc === 1) { result += "mười "; } else { result += defaultNumbers[chuc] + " mươi "; }
+                } else if (tram > 0 && donvi > 0) { result += "linh "; }
+                if (donvi > 0) {
+                    if (chuc === 1) { if (donvi === 1) result += "một"; else if (donvi === 5) result += "lăm"; else result += defaultNumbers[donvi];
+                    } else if (chuc > 1) { if (donvi === 1) result += "mốt"; else if (donvi === 5) result += "lăm"; else result += defaultNumbers[donvi];
+                    } else { result += defaultNumbers[donvi]; }
+                }
+            } return result.trim();
+        };
+        let num = String(numberStr).replace(/[.,]/g, ''); if (num === '0') return 'Không'; if (num === '' || isNaN(parseInt(num))) return '';
+        let unit = ["", "nghìn", "triệu", "tỷ", "nghìn tỷ", "triệu tỷ"]; let chunks = [];
+        while (num.length > 3) { chunks.unshift(num.slice(-3)); num = num.slice(0, -3); }
+        if (num) { chunks.unshift(num); }
+        let resultArr = []; let unitIndex = chunks.length - 1;
+        for (let chunk of chunks) {
+            let chunkStr = chunk.padStart(3, '0'); let text = readThreeDigits(chunkStr);
+            if (text) { resultArr.push(text + " " + unit[unitIndex]); }
+            unitIndex--;
+        }
+        let finalResult = resultArr.join(', ').trim(); if (finalResult.endsWith(',')) { finalResult = finalResult.slice(0, -1); }
+        return finalResult.charAt(0).toUpperCase() + finalResult.slice(1);
+    }
+
+    document.getElementById("excelFile").addEventListener("change", function(e) {
+      let file = e.target.files[0]; if (!file) return; let reader = new FileReader();
+      reader.onload = function(e) {
+        let data = new Uint8Array(e.target.result); let workbook = XLSX.read(data, {type: "array"});
+        let firstSheet = workbook.Sheets[workbook.SheetNames[0]]; excelData = XLSX.utils.sheet_to_json(firstSheet, {defval: ""});
+        let dateRow = excelData.find(r => Object.values(r).some(v => typeof v === "string" && v.includes("Tõ ngµy")));
+        if (dateRow) {
+          let text = Object.values(dateRow).find(v => v.includes("Tõ ngµy"));
+          let match = text.match(/Tõ ngµy\s*(\d{2}\/\d{2})\/\d{4}.*®Õn ngµy\s*(\d{2}\/\d{2})\/\d{4}/);
+          if (match) { dateRangeText = `Từ ngày ${match[1]} đến ngày ${match[2]}`; }
+        } alert("Đã nạp dữ liệu Excel thành công!");
+      }; reader.readAsArrayBuffer(file);
+    });
+
+    function formatNumber(num) {
+      if (isNaN(num) || num === "") return "0";
+      return Number(num).toLocaleString("vi-VN");
+    }
+
+    function loadData() {
+      let soSo = document.getElementById("soSo").value.trim();
+      if (!soSo) { alert("Vui lòng nhập số sổ!"); return; }
+      if (!excelData.length) { alert("Vui lòng chọn file Excel trước!"); return; }
+      const filteredRows = excelData.filter(r => String(r.__EMPTY).trim().endsWith(soSo));
+      if (filteredRows.length === 0) { alert("Không tìm thấy số sổ nào phù hợp!"); return; }
+      const totals = { account_codes: [], __EMPTY_2: 0, __EMPTY_3: 0, __EMPTY_4: 0, __EMPTY_5: 0, __EMPTY_6: 0, __EMPTY_7: 0, __EMPTY_8: 0, __EMPTY_9: 0, __EMPTY_10: 0, __EMPTY_11: 0, __EMPTY_12: 0, __EMPTY_13: 0, __EMPTY_14: 0 };
+      filteredRows.forEach(row => {
+        totals.account_codes.push(String(row.__EMPTY).trim());
+        for (let i = 2; i <= 14; i++) {
+          const key = `__EMPTY_${i}`; totals[key] += parseFloat(row[key]) || 0;
+        }
+      });
+      
+      let reportHTML = `
+        <table>
+          <tr><td class="header" style="width: 33.33%;">Thanh toán tiền Đại Lý:</td><td class="so-so">${totals.account_codes.join(', ')}</td></tr>
+          <tr><td class="header">Thời gian:</td><td>${dateRangeText}</td></tr>
+        </table><br>
+        <table class="report-table">
+          <tr><th>Loại hình</th><th>Doanh thu</th><th>Hoa hồng</th></tr>
+          <tr><td>Lô tô Đặc biệt</td><td>${formatNumber(totals.__EMPTY_2)}</td><td>${formatNumber(totals.__EMPTY_3)}</td></tr>
+          <tr><td>Lô cặp</td><td>${formatNumber(totals.__EMPTY_6)}</td><td>${formatNumber(totals.__EMPTY_7)}</td></tr>
+          <tr><td>2/27</td><td>${formatNumber(totals.__EMPTY_8)}</td><td>${formatNumber(totals.__EMPTY_9)}</td></tr>
+          <tr><td>3/23</td><td>${formatNumber(totals.__EMPTY_10)}</td><td>${formatNumber(totals.__EMPTY_11)}</td></tr>
+          <tr class="header" id="tongCongRow">
+            <td>Tổng cộng</td>
+            <td id="tongDT">${formatNumber(totals.__EMPTY_12)}</td>
+            <td id="tongHH">${formatNumber(totals.__EMPTY_13)}</td>
+          </tr>
+          <tr><td>Thưởng</td><td colspan="2" id="thuong">${formatNumber(totals.__EMPTY_14)}</td></tr>
+          <tr class="old-debt"><td>Nợ cũ</td><td colspan="2"><input type="text" id="noCu" placeholder="0" oninput="formatAndCalculate()" inputmode="numeric" onkeydown="if (event.key === 'Enter') this.blur()"></td></tr>
+          <tr class="must-pay">
+            <td id="ketQuaLabel"></td>
+            <td id="ketQuaValue" colspan="2"></td>
+          </tr>
+          <tr class="header"><td>Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr>
+        </table>
+        <div id="excelDataTotals" data-tongdt="${totals.__EMPTY_12}" data-tonghh="${totals.__EMPTY_13}" style="display: none;"></div>
+        <div id="copyrightInReport" class="copyright" style="display: none;">Copyright© by Đỗ Đức Dũng</div>
+      `;
+      const reportDiv = document.getElementById("report");
+      reportDiv.innerHTML = reportHTML;
+      document.getElementById('exportButtonContainer').style.display = 'block';
+      tinhToan();
+      reportDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function formatAndCalculate() {
+        const input = document.getElementById('noCu'); if (!input) return;
+        let originalValue = input.value; let isNegative = originalValue.startsWith('-');
+        let rawValue = originalValue.replace(/[^\d]/g, '');
+        if (rawValue === '') { input.value = isNegative ? '-' : ''; tinhToan(); return; }
+        let num = parseInt(rawValue, 10); let formattedValue = num.toLocaleString('vi-VN');
+        input.value = isNegative ? '-' + formattedValue : formattedValue;
+        tinhToan();
+    }
+
+    function tinhToan() {
+      const excelTotalsDiv = document.getElementById("excelDataTotals"); if (!excelTotalsDiv) return;
+      let tongDT_Excel = parseFloat(excelTotalsDiv.getAttribute('data-tongdt')) || 0;
+      let tongHH_Excel = parseFloat(excelTotalsDiv.getAttribute('data-tonghh')) || 0;
+      
+      let customTicketDT = 0;
+      let customTicketHH = 0;
+      const customRows = document.querySelectorAll('.custom-ticket-row');
+      customRows.forEach(row => {
+          customTicketDT += parseFloat(row.dataset.doanhthu) || 0;
+          customTicketHH += parseFloat(row.dataset.hoahong) || 0;
+      });
+
+      let tongDT_Moi = tongDT_Excel + customTicketDT;
+      let tongHH_Moi = tongHH_Excel + customTicketHH;
+      
+      document.getElementById("tongDT").innerText = formatNumber(tongDT_Moi);
+      document.getElementById("tongHH").innerText = formatNumber(tongHH_Moi);
+      
+      let thuong = parseFloat(document.getElementById("thuong").innerText.replace(/[.\s]/g,'')) || 0;
+      let noCuInput = document.getElementById("noCu"); let noCu = 0;
+      if (noCuInput && noCuInput.value) { noCu = parseFloat(noCuInput.value.replace(/\./g,'')) || 0; }
+      let phaiNop = tongDT_Moi - tongHH_Moi - thuong + noCu;
+      
+      const ketQuaLabelCell = document.getElementById("ketQuaLabel");
+      const ketQuaValueCell = document.getElementById("ketQuaValue");
+      let soTienBangChu = "";
+      
+      if (phaiNop >= 0) {
+        let lamTron = Math.ceil(phaiNop / 1000) * 1000;
+        if (ketQuaLabelCell) ketQuaLabelCell.innerText = 'Phải nộp:';
+        if (ketQuaValueCell) ketQuaValueCell.innerText = formatNumber(lamTron);
+        soTienBangChu = docso(lamTron) + " đồng";
+      } else {
+        let layVe = Math.abs(phaiNop);
+        if (ketQuaLabelCell) ketQuaLabelCell.innerText = 'Lấy về:';
+        if (ketQuaValueCell) ketQuaValueCell.innerText = formatNumber(layVe);
+        soTienBangChu = docso(layVe) + " đồng";
+      }
+      
+      const ketQuaBangChuCell = document.getElementById("ketQuaBangChu");
+      if(ketQuaBangChuCell) { ketQuaBangChuCell.innerText = soTienBangChu; }
+    }
+    
+    function xuatAnh() {
+      let reportDiv = document.getElementById("report");
+      if (!reportDiv.innerHTML) { alert("Chưa có báo cáo để xuất ảnh!"); return; }
+
+      const copyrightInReport = document.getElementById('copyrightInReport');
+
+      if (copyrightInReport) {
+        copyrightInReport.style.display = 'block';
+      }
+
+      html2canvas(reportDiv, { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
+        if (copyrightInReport) {
+          copyrightInReport.style.display = 'none';
+        }
+        
+        let link = document.createElement("a");
+        let soSo = document.getElementById("soSo").value.trim() || "baocao";
+        link.download = `baocao_tonghop_${soSo}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    }
+
+    toggleReportControls();
+  </script>
+</body>
+</html>
