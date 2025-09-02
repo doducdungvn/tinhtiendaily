@@ -541,22 +541,23 @@
             if (!mainBonusRow) return;
             const newRow = document.createElement('tr');
             newRow.id = 'extraBonusRow';
-            // Bỏ màu nền cho dòng thưởng thêm
+            // --- BẮT ĐẦU CẬP NHẬT MÀU SẮC ---
             newRow.innerHTML = `
                 <td style="display: flex; align-items: center;">
-                    <input type="text" id="extraBonusNameInput" class="dynamic-input" style="text-align: center; padding-right: 5px;" 
+                    <input type="text" id="extraBonusNameInput" class="dynamic-input" style="text-align: center; padding-right: 5px; color: #1e8449;" 
                            placeholder="Nhập tên thưởng..." 
                            onfocus="this.style.textAlign='right'" 
                            onblur="this.style.textAlign='center'" 
                            onkeydown="handleEnterKey(event, 'extraBonusAmountInput')">
                 </td>
                 <td colspan="2">
-                    <input type="text" id="extraBonusAmountInput" class="dynamic-input" placeholder="Nhập số tiền..." 
+                    <input type="text" id="extraBonusAmountInput" class="dynamic-input" style="color: #1e8449;" placeholder="Nhập số tiền..." 
                            oninput="formatAndCalculate(this)" 
                            onkeydown="handleEnterKey(event, null)" 
                            inputmode="numeric">
                 </td>
             `;
+            // --- KẾT THÚC CẬP NHẬT MÀU SẮC ---
             mainBonusRow.insertAdjacentElement('afterend', newRow);
             document.getElementById('extraBonusNameInput').focus();
         }
