@@ -11,9 +11,9 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       margin: 15px;
-      background: #f8f9fa;
-      color: #343a40;
-      font-size: 16px; /* Font size chuẩn cho PC */
+      background: #f4f7f9; /* Màu nền xám rất nhạt */
+      color: #333; /* Màu chữ chính đậm hơn */
+      font-size: 16px;
     }
     .container {
       max-width: 600px;
@@ -22,7 +22,7 @@
     }
     h2 {
       text-align: center;
-      color: #2c3e50;
+      color: #2c3e50; /* Xanh thẫm cho tiêu đề */
       font-size: 28px;
     }
     .main-controls {
@@ -36,13 +36,13 @@
       gap: 15px;
       margin-bottom: 20px;
       padding: 15px;
-      border: 1px solid #dee2e6;
+      border: 1px solid #dfe6e9; /* Viền xám nhạt hơn */
       border-radius: 8px;
       background: #fff;
     }
     label {
       font-weight: bold;
-      color: #495057;
+      color: #555;
     }
     input[type="text"], input[type="file"], input[type="number"], select, button {
       padding: 12px;
@@ -52,17 +52,19 @@
       box-sizing: border-box;
       font-size: 16px;
     }
+    
+    /* --- Bảng màu chuyên nghiệp cho nút bấm --- */
     button {
       cursor: pointer;
-      background: #0056b3;
+      background: #007bff; /* Xanh dương chủ đạo */
       color: white;
       border: none;
       transition: background-color 0.3s, color 0.3s;
       font-weight: bold;
     }
-    button.secondary { background-color: #6c757d; }
-    button.danger { background-color: #dc3545; }
-    button:hover { opacity: 0.9; }
+    button.secondary { background-color: #6c757d; } /* Xám cho nút phụ */
+    button.danger { background-color: #e74c3c; } /* Đỏ cho nút nguy hiểm */
+    button:hover { opacity: 0.85; }
 
     /* --- CÀI ĐẶT BẢNG BIỂU --- */
     table {
@@ -79,7 +81,7 @@
       vertical-align: middle;
     }
     th {
-      background: #e9ecef;
+      background: #f8f9fa; /* Nền xám rất nhạt cho tiêu đề bảng */
       color: #495057;
       font-size: 17px;
     }
@@ -94,38 +96,48 @@
     .so-so {
       font-size: 48px;
       font-weight: bold;
-      color: #CC5500;
+      color: #d35400; /* Màu cam đất cho số sổ */
       vertical-align: middle;
     }
+    
+    /* --- Bảng màu chuyên nghiệp cho các dòng đặc biệt --- */
     .must-pay {
-      background: #fddede;
+      background: #ffebee; /* Đỏ rất nhạt */
       font-size: 24px;
-      color: #8B0000;
+      color: #c0392b; /* Chữ màu đỏ đậm */
     }
     .must-pay td:first-child, .must-pay td:last-child { font-weight: bold; }
     
-    /* --- BẮT ĐẦU CẬP NHẬT MÀU SẮC --- */
-    .old-debt { /* Bỏ nền vàng cho dòng nợ */
-        /* background: #fff3cd; */ 
+    .old-debt { 
+        background-color: #fdf5e6; /* Màu be nhạt */
     }
+
     #tongCongRow {
-        background-color: rgba(72, 61, 139, 0.2); /* Xanh tím than nhạt */
+        background-color: #eaf2f8; /* Xanh dương rất nhạt */
+        color: #2c3e50;
     }
     #mainBonusRow {
-        background-color: #dc3545; /* Đỏ tươi */
-        color: white;
+        background-color: #e9f7ef; /* Xanh lá cây rất nhạt */
+        color: #1e8449; /* Chữ màu xanh lá cây đậm */
     }
     #mainBonusRow td {
         font-weight: bold;
     }
-     /* --- KẾT THÚC CẬP NHẬT MÀU SẮC --- */
-
+    
+    .added-ticket-row { 
+        background-color: #e8f6f8; /* Xanh cyan nhạt */
+    }
+    .added-ticket-row td:first-child {
+      color: #0e6251;
+      font-size: 15px;
+    }
+    
     .bang-chu-cell {
       text-align: left !important;
       font-style: italic;
       padding-left: 15px !important;
       font-size: 16px;
-      font-weight: normal; /* Chữ bằng chữ không cần in đậm */
+      font-weight: normal;
     }
 
     .ticket-type-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
@@ -136,11 +148,7 @@
       font-size: 14px;
       color: #6c757d;
     }
-    .added-ticket-row { background-color: #e0f7fa; }
-    .added-ticket-row td:first-child {
-      color: #00796b;
-      font-size: 15px;
-    }
+    
     #actionButtonContainer, #actionChoices {
         display: none;
         grid-template-columns: 1fr 1fr;
@@ -524,7 +532,6 @@
         }
     }
     
-    // --- BẮT ĐẦU CẬP NHẬT MÀU SẮC ---
     function addOrRemoveBonus() {
         const existingRow = document.getElementById('extraBonusRow');
         if (existingRow) {
@@ -535,7 +542,6 @@
             const newRow = document.createElement('tr');
             newRow.id = 'extraBonusRow';
             // Bỏ màu nền cho dòng thưởng thêm
-            // newRow.style.backgroundColor = 'rgba(60, 179, 113, 0.2)'; 
             newRow.innerHTML = `
                 <td style="display: flex; align-items: center;">
                     <input type="text" id="extraBonusNameInput" class="dynamic-input" style="text-align: center; padding-right: 5px;" 
@@ -557,7 +563,6 @@
         updateActionButtons();
         tinhToan();
     }
-    // --- KẾT THÚC CẬP NHẬT MÀU SẮC ---
 
     function addOrRemoveDebt() {
         const existingRow = document.getElementById('extraDebtRow');
