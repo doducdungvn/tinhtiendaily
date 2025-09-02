@@ -160,10 +160,10 @@
         font-weight: bold;
         text-align: center;
         background: transparent;
-        font-size: 18px; /* THAY ĐỔI: Đồng bộ kích cỡ chữ */
+        font-size: 18px;
 	    padding-left: 5px;
-        resize: none; /* THÊM: Ẩn biểu tượng kéo-thả thay đổi kích thước */
-        overflow-y: hidden; /* THÊM: Ẩn thanh cuộn dọc */
+        resize: none;
+        overflow-y: hidden;
     }
 
     @media (max-width: 768px) {
@@ -189,7 +189,7 @@
       .bang-chu-cell { font-size: 4vw !important; }
       .copyright { font-size: 3.5vw; }
       .added-ticket-row td:first-child { font-size: 4vw; }
-      .dynamic-input { font-size: 4vw !important; } /* THAY ĐỔI: Đồng bộ kích cỡ chữ mobile */
+      .dynamic-input { font-size: 4vw !important; }
     }
   </style>
 </head>
@@ -389,10 +389,15 @@
         if (!revenue || revenue === 0) return formatNumberHiddenK(commission);
         const percentage = (commission / revenue) * 100;
         const roundedPercentage = Math.round(percentage);
-        return `${roundedPercentage}% = ${formatNumberHiddenK(commission)}`;
+        return `<i style="color: #E57373; font-weight: normal;">(${roundedPercentage}%)</i> ${formatNumberHiddenK(commission)}`;
     }
 
-    function formatCommissionCell(revenue, commission) { if (!revenue || revenue === 0) return formatNumber(commission); const percentage = (commission / revenue) * 100; const roundedPercentage = Math.round(percentage); return `${roundedPercentage}% = ${formatNumber(commission)}`; }
+    function formatCommissionCell(revenue, commission) { 
+        if (!revenue || revenue === 0) return formatNumber(commission); 
+        const percentage = (commission / revenue) * 100; 
+        const roundedPercentage = Math.round(percentage); 
+        return `<i style="color: #E57373; font-weight: normal;">(${roundedPercentage}%)</i> ${formatNumber(commission)}`; 
+    }
 
     function addTicketToReport() {
         const reportTable = document.querySelector('.report-table');
@@ -486,13 +491,10 @@
         reportDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    // --- CÁC HÀM ĐỊNH DẠNG INPUT ĐÃ CẬP NHẬT ---
 	function autoResizeTextarea(element) {
-    element.style.height = 'auto';
-    element.style.height = (element.scrollHeight) + 'px';
-}
-	
-	
+        element.style.height = 'auto';
+        element.style.height = (element.scrollHeight) + 'px';
+    }
 	
     function formatAndCalculate(inputElement) {
         if (!inputElement) return;
@@ -513,7 +515,6 @@
         const fullValue = parseFloat(inputElement.dataset.fullValue) || 0;
         inputElement.value = fullValue.toLocaleString('vi-VN');
     }
-    // --- KẾT THÚC CẬP NHẬT ---
 
     function toggleActionChoices() {
         const choicesDiv = document.getElementById('actionChoices');
@@ -563,12 +564,12 @@
             newRow.innerHTML = `
                 <td style="display: flex; align-items: center;">
                     <textarea id="extraBonusNameInput" class="dynamic-input" style="color: #1e8449;" 
-          placeholder="Nhập tên thưởng..." 
-          rows="1"
+                          placeholder="Nhập tên thưởng..." 
+                          rows="1"
                            onfocus="this.style.textAlign='right'" 
                            onblur="this.style.textAlign='center'" 
                            oninput="autoResizeTextarea(this)"
-          onkeydown="handleEnterKey(event, 'extraBonusAmountInput')"></textarea>
+                          onkeydown="handleEnterKey(event, 'extraBonusAmountInput')"></textarea>
                 </td>
                 <td colspan="2">
                     <input type="text" id="extraBonusAmountInput" class="dynamic-input" style="color: #1e8449;" placeholder="Nhập số tiền..." 
@@ -635,6 +636,7 @@
         let tongHH_Moi = tongHH_Excel + addedCommission;
 
         document.getElementById("tongDT").innerText = formatNumberHiddenK(tongDT_Moi);
+        // *** CHANGE 2: Removed percentage format from Total Commission ***
         document.getElementById("tongHH").innerText = formatNumberHiddenK(tongHH_Moi);
         
         const extraBonusInput = document.getElementById('extraBonusAmountInput');
@@ -649,19 +651,17 @@
         const ketQuaValueCell = document.getElementById("ketQuaValue");
         let soTienBangChu = "";
         
-        // --- KHỐI TÍNH TOÁN KẾT QUẢ ĐÃ CẬP NHẬT ---
         if (phaiNop >= 0) {
             let lamTron = Math.ceil(phaiNop / 1000) * 1000;
             if (ketQuaLabelCell) ketQuaLabelCell.innerText = 'Phải nộp:';
-            if (ketQuaValueCell) ketQuaValueCell.innerText = formatNumberHiddenK(lamTron); // THAY ĐỔI
+            if (ketQuaValueCell) ketQuaValueCell.innerText = formatNumberHiddenK(lamTron);
             soTienBangChu = docso(lamTron) + " đồng";
         } else {
             let layVe = Math.abs(phaiNop);
             if (ketQuaLabelCell) ketQuaLabelCell.innerText = 'Lấy về:';
-            if (ketQuaValueCell) ketQuaValueCell.innerText = formatNumberHiddenK(layVe); // THAY ĐỔI
+            if (ketQuaValueCell) ketQuaValueCell.innerText = formatNumberHiddenK(layVe);
             soTienBangChu = docso(layVe) + " đồng";
         }
-        // --- KẾT THÚC CẬP NHẬT ---
       
         const ketQuaBangChuCell = document.getElementById("ketQuaBangChu");
         if(ketQuaBangChuCell) { ketQuaBangChuCell.innerText = soTienBangChu; }
@@ -674,7 +674,6 @@
         try {
             if (copyrightInReport) copyrightInReport.style.display = 'block';
             
-            // THAY ĐỔI: Chuyển input thành text trước khi chụp ảnh
             document.querySelectorAll('.dynamic-input').forEach(input => {
                 const parent = input.parentElement;
                 const hiddenValueSpan = document.createElement('span');
