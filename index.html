@@ -134,7 +134,7 @@
       text-align: left !important;
       font-style: italic;
       padding-left: 15px !important;
-      font-size: 14px;
+      font-size: 11px;
       font-weight: normal;
     }
 
@@ -161,6 +161,9 @@
         text-align: center;
         background: transparent;
         font-size: 18px; /* THAY ĐỔI: Đồng bộ kích cỡ chữ */
+	    padding-left: 5px;
+        resize: none; /* THÊM: Ẩn biểu tượng kéo-thả thay đổi kích thước */
+        overflow-y: hidden; /* THÊM: Ẩn thanh cuộn dọc */
     }
 
     @media (max-width: 768px) {
@@ -183,10 +186,10 @@
       }
       .so-so { font-size: 12vw; word-break: break-all; }
       .must-pay { font-size: 7vw; }
-      .bang-chu-cell { font-size: 4vw; }
+      .bang-chu-cell { font-size: 3vw !important; }
       .copyright { font-size: 3.5vw; }
       .added-ticket-row td:first-child { font-size: 4vw; }
-      .dynamic-input { font-size: 4.8vw; } /* THAY ĐỔI: Đồng bộ kích cỡ chữ mobile */
+      .dynamic-input { font-size: 3.5vw !important; } /* THAY ĐỔI: Đồng bộ kích cỡ chữ mobile */
     }
   </style>
 </head>
@@ -484,6 +487,13 @@
     }
 
     // --- CÁC HÀM ĐỊNH DẠNG INPUT ĐÃ CẬP NHẬT ---
+	function autoResizeTextarea(element) {
+    element.style.height = 'auto';
+    element.style.height = (element.scrollHeight) + 'px';
+}
+	
+	
+	
     function formatAndCalculate(inputElement) {
         if (!inputElement) return;
         let originalValue = inputElement.value;
@@ -552,11 +562,13 @@
             newRow.id = 'extraBonusRow';
             newRow.innerHTML = `
                 <td style="display: flex; align-items: center;">
-                    <input type="text" id="extraBonusNameInput" class="dynamic-input" style="text-align: center; padding-right: 5px; color: #1e8449;" 
-                           placeholder="Nhập tên thưởng..." 
+                    <textarea id="extraBonusNameInput" class="dynamic-input" style="color: #1e8449;" 
+          placeholder="Nhập tên thưởng..." 
+          rows="1"
                            onfocus="this.style.textAlign='right'" 
                            onblur="this.style.textAlign='center'" 
-                           onkeydown="handleEnterKey(event, 'extraBonusAmountInput')">
+                           oninput="autoResizeTextarea(this)"
+          onkeydown="handleEnterKey(event, 'extraBonusAmountInput')"></textarea>
                 </td>
                 <td colspan="2">
                     <input type="text" id="extraBonusAmountInput" class="dynamic-input" style="color: #1e8449;" placeholder="Nhập số tiền..." 
