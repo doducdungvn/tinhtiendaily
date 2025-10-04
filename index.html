@@ -3,100 +3,178 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Báo cáo thu tiền 7.9 - Zeng™</title>
+  <title>Báo cáo thu tiền 8.3 (Final) - Zeng™</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    /* --- CÀI ĐẶT CHUNG CHO CẢ PC VÀ MOBILE --- */
+    /* === BỘ CSS CHUYÊN NGHIỆP === */
+
+    /* 1. Định nghĩa biến toàn cục (Màu sắc, khoảng cách, bo góc...) */
+    :root {
+        --color-primary: #3498db;
+        --color-primary-dark: #2980b9;
+        --color-secondary: #7f8c8d;
+        --color-secondary-dark: #6c7a7b;
+        --color-success: #27ae60;
+        --color-success-dark: #229954;
+        --color-danger: #e74c3c;
+        --color-danger-dark: #c0392b;
+        --color-text: #34495e;
+        --color-text-light: #566573;
+        --color-background: #ecf0f1;
+        --color-surface: #ffffff;
+        --color-border: #bdc3c7;
+        
+        --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        
+        --spacing-xs: 4px;
+        --spacing-sm: 8px;
+        --spacing-md: 16px;
+        --spacing-lg: 24px;
+        --spacing-xl: 32px;
+        
+        --border-radius-sm: 4px;
+        --border-radius-md: 8px;
+        
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+        --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+
+        --transition-fast: all 0.2s ease-in-out;
+    }
+
+    /* 2. Thiết lập chung */
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      margin: 15px;
-      background: #f4f7f9;
-      color: #333;
-      font-size: 16px;
+        font-family: var(--font-family);
+        margin: var(--spacing-md);
+        background: var(--color-background);
+        color: var(--color-text);
+        font-size: 16px;
+        line-height: 1.6;
     }
     .page {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 10px;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 0;
     }
     h2, h3 {
-      text-align: center;
-      color: #2c3e50;
+        text-align: center;
+        color: var(--color-text);
+        margin-bottom: var(--spacing-lg);
     }
     h2 { font-size: 28px; }
     h3 { font-size: 22px; }
 
+    /* 3. Panel và Form Controls */
     .controls-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      margin-bottom: 20px;
-      padding: 15px;
-      border: 1px solid #dfe6e9;
-      border-radius: 8px;
-      background: #fff;
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+        padding: var(--spacing-lg);
+        border: 1px solid var(--color-border);
+        border-radius: var(--border-radius-md);
+        background: var(--color-surface);
+        box-shadow: var(--shadow-sm);
     }
     label {
-      font-weight: bold;
-      color: #555;
+        font-weight: 600;
+        color: var(--color-text-light);
     }
     input[type="text"], input[type="file"], input[type="number"], select, button {
-      padding: 12px;
-      border-radius: 6px;
-      border: 1px solid #ced4da;
-      width: 100%;
-      box-sizing: border-box;
-      font-size: 16px;
+        padding: 12px;
+        border-radius: var(--border-radius-md);
+        border: 1px solid var(--color-border);
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 16px;
+        transition: var(--transition-fast);
+    }
+    input[type="text"]:focus, input[type="number"]:focus, select:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
     }
     input[type="file"].loaded {
         background-color: #e9f7ef;
-        border-color: #1e8449;
+        border-color: var(--color-success);
     }
     
+    /* 4. Nút bấm (Buttons) */
     button {
       cursor: pointer;
-      background: #007bff;
+      background: var(--color-primary);
       color: white;
       border: none;
-      transition: background-color 0.3s, color 0.3s;
       font-weight: bold;
+      box-shadow: var(--shadow-sm);
     }
-    button.secondary { background-color: #6c757d; }
-    button.success { background-color: #28a745; }
-    button.danger { background-color: #e74c3c; }
-    button:hover { opacity: 0.85; }
+    button:hover {
+        background: var(--color-primary-dark);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+    button.secondary { background-color: var(--color-secondary); }
+    button.secondary:hover { background-color: var(--color-secondary-dark); }
+    button.success { background-color: var(--color-success); }
+    button.success:hover { background-color: var(--color-success-dark); }
+    button.danger { background-color: var(--color-danger); }
+    button.danger:hover { background-color: var(--color-danger-dark); }
 
-    .main-nav, .summary-actions {
+    /* 5. Giao diện trang chính */
+    .main-nav {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-        margin-bottom: 15px;
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-lg);
+    }
+    .main-nav button {
+        background-color: var(--color-surface);
+        color: var(--color-text-light);
+        border: 1px solid var(--color-border);
+        font-weight: 600;
+    }
+    .main-nav button:hover {
+        background-color: #f8f9fa;
+        color: var(--color-primary);
+        transform: none;
+        box-shadow: var(--shadow-sm);
+    }
+    .main-nav button.active {
+        background-color: var(--color-primary);
+        color: white;
+        border-color: var(--color-primary);
     }
      .summary-actions {
+        display: grid;
         grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-md);
      }
-    .main-nav button.active {
-        background-color: #16a085;
-    }
-
+    
+    /* 6. Bảng biểu (Tables) */
     table {
       border-collapse: collapse;
       width: 100%;
       margin: 1px auto;
-      background: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      background: var(--color-surface);
+      box-shadow: var(--shadow-sm);
+      border-radius: var(--border-radius-md);
+      overflow: hidden;
     }
     th, td {
-      border: 1px solid #dee2e6;
-      padding: 12px;
+      border: 1px solid #ecf0f1;
+      padding: var(--spacing-md);
       text-align: center;
       vertical-align: middle;
     }
     th {
       background: #f8f9fa;
-      color: #495057;
-      font-size: 17px;
+      color: var(--color-text-light);
+      font-size: 15px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    tbody tr:nth-child(even) {
+        background-color: #fdfdfd;
     }
     .report-table { table-layout: fixed; }
     .report-table th { width: 33.33%; }
@@ -106,103 +184,39 @@
       font-size: 18px; 
     }
 
-    .header { font-weight: bold; background: #f8f9fa; }
     .so-so {
       font-size: 30px;
       font-weight: bold;
-      color: #d35400;
+      color: var(--color-primary-dark);
       vertical-align: middle;
     }
     
     .must-pay {
-      background: #ffebee;
+      background: #fff5f5;
       font-size: 28px !important;
-      color: #c0392b;
+      color: var(--color-danger);
     }
-    .must-pay td:first-child, .must-pay td:last-child { font-weight: bold; }
     
-    .old-debt { 
-        background-color: #fdf5e6;
-    }
-
-    #tongCongRow {
+    #tongCongRow, #summaryTableContainer tfoot tr {
         background-color: #eaf2f8;
-        color: #2c3e50;
-    }
-    #mainBonusRow {
-        background-color: #e9f7ef;
-        color: #1e8449;
-    }
-    #mainBonusRow td {
         font-weight: bold;
+        color: var(--color-text);
     }
     
-    .added-ticket-row { 
-        background-color: #e8f6f8;
-    }
-    .added-ticket-row td:first-child {
-      color: #0e6251;
-      font-size: 15px;
-    }
-    
-    .bang-chu-cell {
-      text-align: left !important;
-      font-style: italic;
-      padding-left: 15px !important;
-      font-size: 9px;
-      font-weight: normal;
-    }
-
-    .ticket-type-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
-    .ticket-type-selector label { display: flex; align-items: center; gap: 5px; font-weight: normal; }
     .copyright {
       text-align: center;
-      margin-top: 20px;
+      margin-top: var(--spacing-xl);
       font-size: 14px;
-      color: #6c757d;
+      color: var(--color-text-light);
     }
     
-    #actionButtonContainer, #actionChoices {
-        display: none;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 15px;
-    }
-    #actionChoices { grid-column: 1 / -1; margin-top: 10px; }
-    .dynamic-input {
-        width: 100%;
-        border: none;
-        font-weight: bold;
-        text-align: center;
-        background: transparent;
-        font-size: 18px;
-	    padding-left: 5px;
-        resize: none;
-        overflow-y: hidden;
-    }
-    
-    #summaryTableContainer {
-        margin-top: 15px;
-        overflow-x: auto;
-    }
-    #summaryTableContainer table th {
-        position: sticky;
-        top: 0;
-        z-index: 1;
-    }
-    #summaryTableContainer tfoot tr {
-        background-color: #eaf2f8;
-        font-weight: bold;
-    }
-    .negative-value { color: #c0392b; }
-
     .inline-form {
         display: flex;
-        gap: 10px;
+        gap: var(--spacing-sm);
         align-items: center;
     }
     .inline-form > input {
-        width: 50%; /* <--- CHỈNH SỬA KÍCH THƯỚC Ô NHẬP TẠI ĐÂY */
+        width: 50%;
         flex: none;
     }
     .inline-form > button {
@@ -210,33 +224,19 @@
         flex-shrink: 0;
     }
 
+    /* --- Giao diện Responsive --- */
     @media (max-width: 768px) {
       body {
-        margin: 8px;
+        margin: var(--spacing-sm);
         font-size: 4vw;
-        -webkit-text-size-adjust: 100%;
       }
-      .page { padding: 5px; }
+      .page { padding: 0; }
       h2 { font-size: 6.5vw; }
-      label { font-size: 4.2vw; }
-      input[type="text"], input[type="file"], input[type="number"], select, button {
-        padding: 12px;
-        font-size: 4.5vw;
-      }
       th, td {
-        padding: 8px;
+        padding: var(--spacing-sm);
         font-size: 3.5vw;
-        word-break: break-word;
       }
-      .so-so { 
-        font-size: 6vw;
-        word-break: break-all; 
-      }
-      .must-pay { font-size: 14vw !important; }
-      .bang-chu-cell { font-size: 4vw !important; }
-      .copyright { font-size: 3.5vw; }
-      .added-ticket-row td:first-child { font-size: 4vw; }
-      .dynamic-input { font-size: 4vw !important; }
+      .so-so { font-size: 6vw; }
     }
 
     @media (min-width: 769px) {
@@ -259,7 +259,7 @@
             width: 100%;
             overflow: visible;
         }
-        table { font-size: 10pt; }
+        table { font-size: 10pt; box-shadow: none; border: 1px solid #ccc;}
         th, td { padding: 4px; }
         button, a { display: none !important; }
     }
@@ -362,7 +362,6 @@
     let excelData = [];
     let excelData2 = [];
     let dateRangeText = "Chưa có ngày";
-    let summaryDataForExport = [];
     
     document.getElementById("excelFile").addEventListener("change", function(e) { 
         handleFile(e.target.files[0], 1, 'excelFile');
@@ -461,18 +460,31 @@
             }
         };
 
+        // === UPDATE: Logic tính toán cho Bảng Tổng Kết được thống nhất, luôn tự tính lại để đảm bảo không có lỗi sai số ===
         excelData.forEach(row => {
             const agentCode = String(row.__EMPTY || '').trim();
             if (!agentCode || !/\d/.test(agentCode)) return;
             initializeAgent(agentCode);
             const data = agentData.get(agentCode);
-            data.lotoDB += parseFloat(row.__EMPTY_2) || 0;
-            data.lotoCap += parseFloat(row.__EMPTY_6) || 0;
-            data.c2_27 += parseFloat(row.__EMPTY_8) || 0;
-            data.c3_23 += parseFloat(row.__EMPTY_10) || 0;
+
+            const loto_db_rev = parseFloat(row.__EMPTY_2) || 0;
+            const lo_cap_rev = parseFloat(row.__EMPTY_6) || 0;
+            const c2_27_rev = parseFloat(row.__EMPTY_8) || 0;
+            const c3_23_rev = parseFloat(row.__EMPTY_10) || 0;
+            
+            data.lotoDB += loto_db_rev;
+            data.lotoCap += lo_cap_rev;
+            data.c2_27 += c2_27_rev;
+            data.c3_23 += c3_23_rev;
             data.thuong += parseFloat(row.__EMPTY_14) || 0;
-            data.totalRevenue += parseFloat(row.__EMPTY_12) || 0;
-            data.totalCommission += parseFloat(row.__EMPTY_13) || 0;
+
+            data.totalRevenue += loto_db_rev + lo_cap_rev + c2_27_rev + c3_23_rev;
+            
+            const loto_db_com = loto_db_rev * 0.08;
+            const lo_cap_com = lo_cap_rev * 0.10;
+            const c2_27_com = c2_27_rev * 0.10;
+            const c3_23_com = c3_23_rev * 0.10;
+            data.totalCommission += loto_db_com + lo_cap_com + c2_27_com + c3_23_com;
         });
 
         if (excelData2.length > 0) {
@@ -495,16 +507,15 @@
         let tableHTML = `<table border="1">
             <thead>
                 <tr>
-                    <th style="width: 12%;">ĐL</th><th>LTô</th><th>LCặp</th>
+                    <th style="width: 8%;">STT</th><th style="width: 12%;">ĐL</th><th>LTô</th><th>LCặp</th>
                     <th>3/23</th><th>2/27</th><th>XSKT</th>
                     <th>Thưởng</th><th>Tiền</th>
                 </tr>
             </thead>
             <tbody>`;
             
-        summaryDataForExport = []; 
-        const grandTotals = { lotoDB: 0, lotoCap: 0, c3_23: 0, c2_27: 0, xskt: 0, thuong: 0, finalAmount: 0 };
         const sortedAgents = [...agentData.keys()].sort();
+        let stt = 1;
 
         for(const agentCode of sortedAgents) {
             const data = agentData.get(agentCode);
@@ -517,6 +528,7 @@
 
             tableHTML += `
                 <tr>
+                    <td>${stt}</td>
                     <td>${agentCode}</td>
                     <td>${formatNumberHiddenK(data.lotoDB)}</td>
                     <td>${formatNumberHiddenK(data.lotoCap)}</td>
@@ -526,7 +538,14 @@
                     <td>${formatNumberHiddenK(data.thuong)}</td>
                     <td>${displayFinalAmount}</td>
                 </tr>`;
-            
+            stt++;
+        }
+
+        const grandTotals = { lotoDB: 0, lotoCap: 0, c3_23: 0, c2_27: 0, xskt: 0, thuong: 0, finalAmount: 0 };
+        for(const data of agentData.values()){
+            const finalAmount = data.totalRevenue - data.totalCommission - data.thuong;
+            const finalAmountRounded = (finalAmount === 0) ? 0 : Math.ceil(finalAmount / 1000) * 1000;
+
             grandTotals.lotoDB += data.lotoDB;
             grandTotals.lotoCap += data.lotoCap;
             grandTotals.c3_23 += data.c3_23;
@@ -539,7 +558,7 @@
         tableHTML += `</tbody>
             <tfoot>
                 <tr>
-                    <td>TỔNG CỘNG</td>
+                    <td colspan="2">TỔNG CỘNG</td>
                     <td>${formatNumberHiddenK(grandTotals.lotoDB)}</td>
                     <td>${formatNumberHiddenK(grandTotals.lotoCap)}</td>
                     <td>${formatNumberHiddenK(grandTotals.c3_23)}</td>
