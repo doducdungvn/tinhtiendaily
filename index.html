@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Báo cáo thu tiền 7.6 - Zeng™</title>
+  <title>Báo cáo thu tiền 7.9 - Zeng™</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
@@ -196,14 +196,13 @@
     }
     .negative-value { color: #c0392b; }
 
-    /* === UPDATE: CSS cho việc sắp xếp ô nhập và nút bấm trên cùng dòng === */
     .inline-form {
         display: flex;
         gap: 10px;
         align-items: center;
     }
     .inline-form > input {
-        width: 51%;
+        width: 50%; /* <--- CHỈNH SỬA KÍCH THƯỚC Ô NHẬP TẠI ĐÂY */
         flex: none;
     }
     .inline-form > button {
@@ -535,12 +534,6 @@
             grandTotals.xskt += data.xskt;
             grandTotals.thuong += data.thuong;
             grandTotals.finalAmount += finalAmountRounded;
-            
-            summaryDataForExport.push({
-                "ĐL": agentCode, "LTô": data.lotoDB, "LCặp": data.lotoCap,
-                "3/23": data.c3_23, "2/27": data.c2_27, "XSKT": data.xskt,
-                "Thưởng": data.thuong, "Tiền": finalAmountRounded
-            });
         }
 
         tableHTML += `</tbody>
@@ -628,16 +621,17 @@
             return;
         }
         
-        const totals = { __EMPTY_2: 0, __EMPTY_3: 0, __EMPTY_6: 0, __EMPTY_7: 0, __EMPTY_8: 0, __EMPTY_9: 0, __EMPTY_10: 0, __EMPTY_11: 0, __EMPTY_12: 0, __EMPTY_13: 0, __EMPTY_14: 0 };
+        const totals = { __EMPTY_2: 0, __EMPTY_6: 0, __EMPTY_8: 0, __EMPTY_10: 0, __EMPTY_14: 0 };
         const accountCodes = new Set();
         
         if (filteredRows1.length > 0) {
             filteredRows1.forEach(row => {
                 accountCodes.add(String(row.__EMPTY).trim());
-                [2,3,6,7,8,9,10,11,12,13,14].forEach(i => {
-                    const key = `__EMPTY_${i}`;
-                    totals[key] += parseFloat(row[key]) || 0;
-                });
+                totals.__EMPTY_2 += parseFloat(row.__EMPTY_2) || 0;
+                totals.__EMPTY_6 += parseFloat(row.__EMPTY_6) || 0;
+                totals.__EMPTY_8 += parseFloat(row.__EMPTY_8) || 0;
+                totals.__EMPTY_10 += parseFloat(row.__EMPTY_10) || 0;
+                totals.__EMPTY_14 += parseFloat(row.__EMPTY_14) || 0;
             });
         }
 
@@ -649,16 +643,27 @@
             });
         }
         
-        const xskt_commission_rate = 0.10;
-        const xskt_commission = xskt_revenue * xskt_commission_rate;
+        const loto_db_rev = totals.__EMPTY_2 || 0;
+        const loto_db_com = loto_db_rev * 0.08;
 
-        const final_tongDT = (totals.__EMPTY_12 || 0) + xskt_revenue;
-        const final_tongHH = (totals.__EMPTY_13 || 0) + xskt_commission;
+        const lo_cap_rev = totals.__EMPTY_6 || 0;
+        const lo_cap_com = lo_cap_rev * 0.10;
+
+        const c2_27_rev = totals.__EMPTY_8 || 0;
+        const c2_27_com = c2_27_rev * 0.10;
+
+        const c3_23_rev = totals.__EMPTY_10 || 0;
+        const c3_23_com = c3_23_rev * 0.10;
+
+        const xskt_com = xskt_revenue * 0.10;
+
+        const final_tongDT = loto_db_rev + lo_cap_rev + c2_27_rev + c3_23_rev + xskt_revenue;
+        const final_tongHH = loto_db_com + lo_cap_com + c2_27_com + c3_23_com + xskt_com;
         const final_thuong = totals.__EMPTY_14 || 0;
 
         let xsktRowHTML = '';
         if (xskt_revenue > 0) {
-            xsktRowHTML = `<tr><td>Xổ số kiến thiết</td><td data-value="${xskt_revenue}">${formatNumberHiddenK(xskt_revenue)}</td><td data-value="${xskt_commission}">${formatCommissionCellHiddenK(xskt_revenue, xskt_commission)}</td></tr>`;
+            xsktRowHTML = `<tr><td>Xổ số kiến thiết</td><td data-value="${xskt_revenue}">${formatNumberHiddenK(xskt_revenue)}</td><td data-value="${xskt_com}">${formatCommissionCellHiddenK(xskt_revenue, xskt_com)}</td></tr>`;
         }
         
         let reportHTML = `
@@ -671,12 +676,12 @@
                 <tr><th>Loại hình</th><th>Doanh thu</th><th>Hoa hồng</th></tr>
             </thead>
             <tbody>
-                <tr><td>Lô tô Đặc biệt</td><td data-value="${totals.__EMPTY_2}">${formatNumberHiddenK(totals.__EMPTY_2)}</td><td data-value="${totals.__EMPTY_3}">${formatCommissionCellHiddenK(totals.__EMPTY_2, totals.__EMPTY_3)}</td></tr>
-                <tr><td>Lô cặp</td><td data-value="${totals.__EMPTY_6}">${formatNumberHiddenK(totals.__EMPTY_6)}</td><td data-value="${totals.__EMPTY_7}">${formatCommissionCellHiddenK(totals.__EMPTY_6, totals.__EMPTY_7)}</td></tr>
-                <tr><td>2/27</td><td data-value="${totals.__EMPTY_8}">${formatNumberHiddenK(totals.__EMPTY_8)}</td><td data-value="${totals.__EMPTY_9}">${formatCommissionCellHiddenK(totals.__EMPTY_8, totals.__EMPTY_9)}</td></tr>
-                <tr><td>3/23</td><td data-value="${totals.__EMPTY_10}">${formatNumberHiddenK(totals.__EMPTY_10)}</td><td data-value="${totals.__EMPTY_11}">${formatCommissionCellHiddenK(totals.__EMPTY_10, totals.__EMPTY_11)}</td></tr>
+                <tr><td>Lô tô Đặc biệt</td><td data-value="${loto_db_rev}">${formatNumberHiddenK(loto_db_rev)}</td><td data-value="${loto_db_com}">${formatCommissionCellHiddenK(loto_db_rev, loto_db_com)}</td></tr>
+                <tr><td>Lô cặp</td><td data-value="${lo_cap_rev}">${formatNumberHiddenK(lo_cap_rev)}</td><td data-value="${lo_cap_com}">${formatCommissionCellHiddenK(lo_cap_rev, lo_cap_com)}</td></tr>
+                <tr><td>2/27</td><td data-value="${c2_27_rev}">${formatNumberHiddenK(c2_27_rev)}</td><td data-value="${c2_27_com}">${formatCommissionCellHiddenK(c2_27_rev, c2_27_com)}</td></tr>
+                <tr><td>3/23</td><td data-value="${c3_23_rev}">${formatNumberHiddenK(c3_23_rev)}</td><td data-value="${c3_23_com}">${formatCommissionCellHiddenK(c3_23_rev, c3_23_com)}</td></tr>
                 ${xsktRowHTML}
-                <tr id="tongCongRow"><td>Tổng cộng</td><td id="tongDT">${formatNumber(final_tongDT)}</td><td id="tongHH">${formatNumber(final_tongHH)}</td></tr>
+                <tr id="tongCongRow"><td>Tổng cộng</td><td id="tongDT">${formatNumberHiddenK(final_tongDT)}</td><td id="tongHH">${formatNumberHiddenK(final_tongHH)}</td></tr>
                 <tr id="mainBonusRow"><td>Thưởng</td><td colspan="2" id="thuong">${formatNumberHiddenK(final_thuong)}</td></tr>
                 <tr class="must-pay">
                 <td id="ketQuaLabel"></td>
@@ -720,8 +725,8 @@
         let tongDT_Moi = tongDT_Excel + addedRevenue;
         let tongHH_Moi = tongHH_Excel + addedCommission;
 
-        document.getElementById("tongDT").innerText = formatNumber(tongDT_Moi);
-        document.getElementById("tongHH").innerText = formatNumber(tongHH_Moi);
+        document.getElementById("tongDT").innerText = formatNumberHiddenK(tongDT_Moi);
+        document.getElementById("tongHH").innerText = formatNumberHiddenK(tongHH_Moi);
         
         const extraBonusInput = document.getElementById('extraBonusAmountInput');
         const extraDebtInput = document.getElementById('extraDebtAmountInput');
