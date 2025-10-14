@@ -520,9 +520,10 @@
             const data = agentData.get(agentCode);
             const finalAmount = data.totalRevenue - data.totalCommission - data.thuong;
 
+            // === UPDATE: Hiển thị cột "Tiền" dạng ẩn nghìn ===
             const displayFinalAmount = (finalAmount < 0) 
-                ? `<span class="negative-value">${formatNumber(finalAmount)}</span>`
-                : formatNumber(finalAmount);
+                ? `<span class="negative-value">${formatNumberHiddenK(finalAmount)}</span>`
+                : formatNumberHiddenK(finalAmount);
 
             tableHTML += `
                 <tr>
@@ -562,7 +563,8 @@
                     <td>${formatNumberHiddenK(grandTotals.c2_27)}</td>
                     <td>${formatNumberHiddenK(grandTotals.xskt)}</td>
                     <td>${formatNumberHiddenK(grandTotals.thuong)}</td>
-                    <td>${formatNumber(grandTotals.finalAmount)}</td>
+                    {/* === UPDATE: Hiển thị tổng của cột "Tiền" dạng ẩn nghìn === */}
+                    <td>${formatNumberHiddenK(grandTotals.finalAmount)}</td>
                 </tr>
             </tfoot>
         </table>`;
