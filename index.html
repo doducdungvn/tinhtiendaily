@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thu tiền 8.8 - Zeng™</title>
+  <title>BÁO CÁO ZENG™</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
@@ -92,10 +92,12 @@
       padding: 12px;
       text-align: center;
       vertical-align: middle;
+      color: #333; /* Màu chữ mặc định cho td */
     }
+    /* CẬP NHẬT: Tiêu đề Báo cáo Chi tiết và Bảng Tổng kết (Xanh tím than) */
     th {
-      background: #f8f9fa;
-      color: #495057;
+      background: #2c3e50; 
+      color: white;
       font-size: 17px;
     }
     .report-table { table-layout: fixed; }
@@ -114,10 +116,9 @@
       vertical-align: middle;
     }
     
+    /* Loại bỏ định nghĩa .must-pay cũ để không xung đột với màu nền/chữ mới */
     .must-pay {
-      background: #ffebee;
       font-size: 28px !important;
-      color: #c0392b;
     }
     .must-pay td:first-child, .must-pay td:last-child { font-weight: bold; }
     
@@ -185,16 +186,42 @@
         margin-top: 15px;
         overflow-x: auto;
     }
+    /* Đảm bảo tiêu đề Bảng Tổng kết có màu nền xanh tím than */
     #summaryTableContainer table th {
         position: sticky;
         top: 0;
         z-index: 1;
+        background: #2c3e50; 
+        color: white;
     }
     #summaryTableContainer tfoot tr {
         background-color: #eaf2f8;
         font-weight: bold;
     }
-    .negative-value { color: #c0392b; }
+    
+    /* Màu chữ đỏ cho số âm (các dòng chi tiết) */
+    .negative-value { 
+        color: #c0392b; 
+    }
+    
+    /* CẬP NHẬT: Màu nền và chữ cho ô TỔNG CỘNG cuối cùng và dòng Phải nộp/Lấy về */
+    .final-amount-positive {
+        background-color: #e74c3c !important; /* Đỏ */
+        color: white !important;
+    }
+    .final-amount-negative {
+        background-color: #28a745 !important; /* Xanh lá */
+        color: white !important;
+    }
+
+    /* Thiết lập lại cỡ chữ cho dòng phải nộp/lấy về khi áp dụng màu nền */
+    tr.final-amount-positive td,
+    tr.final-amount-negative td {
+        font-size: 28px !important; 
+        font-weight: bold;
+        color: white !important;
+    }
+
 
     .inline-form {
         display: flex;
@@ -232,7 +259,10 @@
         font-size: 6vw;
         word-break: break-all; 
       }
-      .must-pay { font-size: 14vw !important; }
+      tr.final-amount-positive td,
+      tr.final-amount-negative td { 
+        font-size: 8vw !important; /* Cỡ chữ lớn hơn trên mobile */
+      }
       .bang-chu-cell { font-size: 4vw !important; }
       .copyright { font-size: 3.5vw; }
       .added-ticket-row td:first-child { font-size: 4vw; }
@@ -280,7 +310,7 @@
         <button class="success" onclick="loadMainPage()">Nạp dữ liệu</button>
     </div>
     <div class="copyright">
-        © 2025 by ZENG™
+        © 2025 ZENG FINANCE
     </div>
   </div>
   
@@ -394,9 +424,11 @@
                 }
                 
                 if (fileNumber === 1) {
+                    // Ưu tiên 1: Tìm dòng có "Tõ ngµy" (dải ngày)
                     let dateRow = jsonData.find(r => Object.values(r).some(v => typeof v === "string" && v.includes("Tõ ngµy")));
+                    
                     if (dateRow) {
-                        let text = Object.values(dateRow).find(v => v.includes("Tõ ngµy"));
+                        let text = Object.values(dateRow).find(v => typeof v === "string" && v.includes("Tõ ngµy"));
                         
                         let matchRange = text.match(/Tõ ngµy\s*(\d{2}\/\d{2})\/\d{4}.*®Õn ngµy\s*(\d{2}\/\d{2})\/\d{4}/);
                         if (matchRange) {
@@ -405,13 +437,33 @@
                             } else {
                                 dateRangeText = `Từ ngày ${matchRange[1]} đến ngày ${matchRange[2]}`;
                             }
-                        } else {
-                            let matchSingle = text.match(/ngµy\s*(\d{2}\/\d{2}\/\d{4})/i);
-                            if (matchSingle) {
-                                dateRangeText = `Ngày ${matchSingle[1]}`;
-                            }
+                            // Dừng nếu đã tìm thấy dải ngày hợp lệ
+                            alert(`Đã nạp dữ liệu ${file.name} thành công!`);
+                            fileInput.classList.add('loaded');
+                            return; 
+                        }
+                    } 
+                    
+                    // Ưu tiên 2: Tìm kiếm bất kỳ dòng nào chứa ngày DD/MM/YYYY (ngày đơn)
+                    let singleDateRow = jsonData.find(r => Object.values(r).some(v => typeof v === "string" && v.match(/(\d{2}\/\d{2}\/\d{4})/i)));
+                    
+                    if (singleDateRow) {
+                        // Lấy giá trị ngày tháng từ dòng tìm được
+                        let singleText = Object.values(singleDateRow).find(v => typeof v === "string" && v.match(/(\d{2}\/\d{2}\/\d{4})/i));
+                        let matchSingleFull = singleText.match(/(\d{2}\/\d{2}\/\d{4})/i);
+                        
+                        if (matchSingleFull) {
+                            // Lấy DD/MM
+                            const singleDate = matchSingleFull[1].substring(0, 5); 
+                            dateRangeText = `Ngày ${singleDate}`;
+                            // Dừng nếu đã tìm thấy ngày đơn hợp lệ
+                            alert(`Đã nạp dữ liệu ${file.name} thành công!`);
+                            fileInput.classList.add('loaded');
+                            return; 
                         }
                     }
+                    
+                    // Nếu không tìm thấy cả hai dạng, dateRangeText sẽ giữ giá trị mặc định ("Chưa có ngày")
                 }
                 
                 alert(`Đã nạp dữ liệu ${file.name} thành công!`);
@@ -532,8 +584,9 @@
         for(const agentCode of sortedAgents) {
             const data = agentData.get(agentCode);
             const finalAmount = data.totalRevenue - data.totalCommission - data.thuong;
-
-            const displayFinalAmount = (finalAmount < 0) 
+            
+            // Màu chữ đỏ cho số âm (các dòng chi tiết)
+            const lastCellContent = (finalAmount < 0) 
                 ? `<span class="negative-value">${formatNumberHiddenK(finalAmount)}</span>`
                 : formatNumberHiddenK(finalAmount);
 
@@ -547,7 +600,7 @@
                     <td>${formatNumberHiddenK(data.c2_27)}</td>
                     <td>${formatNumberHiddenK(data.xskt)}</td>
                     <td>${formatNumberHiddenK(data.thuong)}</td>
-                    <td>${displayFinalAmount}</td>
+                    <td>${lastCellContent}</td> 
                 </tr>`;
             stt++;
         }
@@ -564,6 +617,9 @@
             grandTotals.thuong += data.thuong;
             grandTotals.finalAmount += finalAmount;
         }
+        
+        // Màu nền cho tổng Tiền cuối cùng
+        const grandFinalAmountClass = grandTotals.finalAmount >= 0 ? 'final-amount-positive' : 'final-amount-negative';
 
         tableHTML += `</tbody>
             <tfoot>
@@ -575,7 +631,7 @@
                     <td>${formatNumberHiddenK(grandTotals.c2_27)}</td>
                     <td>${formatNumberHiddenK(grandTotals.xskt)}</td>
                     <td>${formatNumberHiddenK(grandTotals.thuong)}</td>
-                    <td>${formatNumberHiddenK(grandTotals.finalAmount)}</td>
+                    <td class="${grandFinalAmountClass}">${formatNumberHiddenK(grandTotals.finalAmount)}</td> 
                 </tr>
             </tfoot>
         </table>`;
@@ -726,7 +782,7 @@
             </tbody>
             </table>
             <div id="excelDataTotals" data-tongdt="${final_tongDT}" data-tonghh="${final_tongHH}" data-thuong="${final_thuong}" style="display: none;"></div>
-            <div id="copyrightInReport" class="copyright" style="display: none;">© 2025 by ZENG™</div>
+            <div id="copyrightInReport" class="copyright" style="display: none;">© 2025 ZENG FINANCE</div>
         `;
         const reportDiv = document.getElementById("report");
         reportDiv.innerHTML = reportHTML;
@@ -774,6 +830,17 @@
         const ketQuaLabelCell = document.getElementById("ketQuaLabel");
         const ketQuaValueCell = document.getElementById("ketQuaValue");
         
+        // Xử lý màu nền và chữ cho dòng Phải nộp/Lấy về
+        const finalClass = phaiNop >= 0 ? 'final-amount-positive' : 'final-amount-negative';
+        
+        if (ketQuaValueCell) {
+            const resultRow = ketQuaValueCell.parentElement;
+             // Thêm class màu mong muốn cho dòng kết quả
+            resultRow.classList.remove('must-pay'); // Xóa class nền mặc định
+            resultRow.classList.remove('final-amount-positive', 'final-amount-negative');
+            resultRow.classList.add(finalClass);
+        }
+
         if (phaiNop >= 0) {
             let lamTron = Math.ceil(phaiNop / 1000) * 1000;
             if (ketQuaLabelCell) ketQuaLabelCell.innerText = 'Phải nộp:';
