@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thu tiền 8.6 - Zeng™</title>
+  <title>Thu tiền 8.8 - Zeng™</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
@@ -293,6 +293,7 @@
 
     <div id="summarySection" class="main-section">
         <h3>Bảng Tổng Kết</h3>
+        <h4 id="summaryDate" style="text-align:center; font-weight: normal; margin-top: -16px; margin-bottom: 16px;"></h4>
         <div class="summary-actions">
             <button onclick="copySummaryAsImage()" class="success">Copy Ảnh</button>
             <button onclick="printSummary()" class="secondary">In Bảng</button>
@@ -396,8 +397,20 @@
                     let dateRow = jsonData.find(r => Object.values(r).some(v => typeof v === "string" && v.includes("Tõ ngµy")));
                     if (dateRow) {
                         let text = Object.values(dateRow).find(v => v.includes("Tõ ngµy"));
-                        let match = text.match(/Tõ ngµy\s*(\d{2}\/\d{2})\/\d{4}.*®Õn ngµy\s*(\d{2}\/\d{2})\/\d{4}/);
-                        if (match) { dateRangeText = `Từ ngày ${match[1]} đến ngày ${match[2]}`; }
+                        
+                        let matchRange = text.match(/Tõ ngµy\s*(\d{2}\/\d{2})\/\d{4}.*®Õn ngµy\s*(\d{2}\/\d{2})\/\d{4}/);
+                        if (matchRange) {
+                            if (matchRange[1] === matchRange[2]) {
+                                dateRangeText = `Ngày ${matchRange[1]}`;
+                            } else {
+                                dateRangeText = `Từ ngày ${matchRange[1]} đến ngày ${matchRange[2]}`;
+                            }
+                        } else {
+                            let matchSingle = text.match(/ngµy\s*(\d{2}\/\d{2}\/\d{4})/i);
+                            if (matchSingle) {
+                                dateRangeText = `Ngày ${matchSingle[1]}`;
+                            }
+                        }
                     }
                 }
                 
@@ -520,7 +533,6 @@
             const data = agentData.get(agentCode);
             const finalAmount = data.totalRevenue - data.totalCommission - data.thuong;
 
-            // === UPDATE: Hiển thị cột "Tiền" dạng ẩn nghìn ===
             const displayFinalAmount = (finalAmount < 0) 
                 ? `<span class="negative-value">${formatNumberHiddenK(finalAmount)}</span>`
                 : formatNumberHiddenK(finalAmount);
@@ -563,12 +575,12 @@
                     <td>${formatNumberHiddenK(grandTotals.c2_27)}</td>
                     <td>${formatNumberHiddenK(grandTotals.xskt)}</td>
                     <td>${formatNumberHiddenK(grandTotals.thuong)}</td>
-                    {/* === UPDATE: Hiển thị tổng của cột "Tiền" dạng ẩn nghìn === */}
                     <td>${formatNumberHiddenK(grandTotals.finalAmount)}</td>
                 </tr>
             </tfoot>
         </table>`;
         document.getElementById('summaryTableContainer').innerHTML = tableHTML;
+        document.getElementById('summaryDate').textContent = dateRangeText;
         return true;
     }
     
@@ -577,14 +589,13 @@
     }
 
     async function copySummaryAsImage() {
-        const summaryDiv = document.getElementById("summaryTableContainer");
-        const summaryTable = summaryDiv.querySelector('table');
-        if (!summaryTable) {
-            alert("Chưa có bảng tổng kết để sao chép!");
-            return;
-        }
+        const summaryDiv = document.getElementById("summarySection");
+        const actions = summaryDiv.querySelector('.summary-actions');
+        if (!summaryDiv) return;
+        
         try {
-            const canvas = await html2canvas(summaryTable, {
+            actions.style.display = 'none'; // Ẩn các nút bấm
+            const canvas = await html2canvas(summaryDiv, {
                 backgroundColor: "#ffffff",
                 scale: 2
             });
@@ -600,6 +611,8 @@
         } catch (err) {
             console.error('Lỗi khi tạo ảnh từ bảng: ', err);
             alert('Đã xảy ra lỗi khi cố gắng tạo ảnh.');
+        } finally {
+            actions.style.display = 'grid'; // Hiển thị lại các nút bấm
         }
     }
 
@@ -685,7 +698,7 @@
 
         let xsktRowHTML = '';
         if (xskt_revenue > 0) {
-            xsktRowHTML = `<tr><td>Xổ số kiến thiết</td><td data-value="${xskt_revenue}">${formatNumberHiddenK_RoundUp(xskt_revenue)}</td><td data-value="${xskt_com}">${formatCommissionCellHiddenK_RoundUp(xskt_revenue, xskt_com)}</td></tr>`;
+            xsktRowHTML = `<tr><td>Xổ số kiến thiết</td><td data-value="${xskt_revenue}">${formatNumberHiddenK(xskt_revenue)}</td><td data-value="${xskt_com}">${formatCommissionCellHiddenK(xskt_revenue, xskt_com)}</td></tr>`;
         }
         
         let reportHTML = `
@@ -698,13 +711,13 @@
                 <tr><th>Loại hình</th><th>Doanh thu</th><th>Hoa hồng</th></tr>
             </thead>
             <tbody>
-                <tr><td>Lô tô Đặc biệt</td><td data-value="${loto_db_rev}">${formatNumberHiddenK_RoundUp(loto_db_rev)}</td><td data-value="${loto_db_com}">${formatCommissionCellHiddenK_RoundUp(loto_db_rev, loto_db_com)}</td></tr>
-                <tr><td>Lô cặp</td><td data-value="${lo_cap_rev}">${formatNumberHiddenK_RoundUp(lo_cap_rev)}</td><td data-value="${lo_cap_com}">${formatCommissionCellHiddenK_RoundUp(lo_cap_rev, lo_cap_com)}</td></tr>
-                <tr><td>2/27</td><td data-value="${c2_27_rev}">${formatNumberHiddenK_RoundUp(c2_27_rev)}</td><td data-value="${c2_27_com}">${formatCommissionCellHiddenK_RoundUp(c2_27_rev, c2_27_com)}</td></tr>
-                <tr><td>3/23</td><td data-value="${c3_23_rev}">${formatNumberHiddenK_RoundUp(c3_23_rev)}</td><td data-value="${c3_23_com}">${formatCommissionCellHiddenK_RoundUp(c3_23_rev, c3_23_com)}</td></tr>
+                <tr><td>Lô tô Đặc biệt</td><td data-value="${loto_db_rev}">${formatNumberHiddenK(loto_db_rev)}</td><td data-value="${loto_db_com}">${formatCommissionCellHiddenK(loto_db_rev, loto_db_com)}</td></tr>
+                <tr><td>Lô cặp</td><td data-value="${lo_cap_rev}">${formatNumberHiddenK(lo_cap_rev)}</td><td data-value="${lo_cap_com}">${formatCommissionCellHiddenK(lo_cap_rev, lo_cap_com)}</td></tr>
+                <tr><td>2/27</td><td data-value="${c2_27_rev}">${formatNumberHiddenK(c2_27_rev)}</td><td data-value="${c2_27_com}">${formatCommissionCellHiddenK(c2_27_rev, c2_27_com)}</td></tr>
+                <tr><td>3/23</td><td data-value="${c3_23_rev}">${formatNumberHiddenK(c3_23_rev)}</td><td data-value="${c3_23_com}">${formatCommissionCellHiddenK(c3_23_rev, c3_23_com)}</td></tr>
                 ${xsktRowHTML}
-                <tr id="tongCongRow"><td>Tổng cộng</td><td id="tongDT">${formatNumberHiddenK_RoundUp(final_tongDT)}</td><td id="tongHH">${formatNumberHiddenK_RoundUp(final_tongHH)}</td></tr>
-                <tr id="mainBonusRow"><td>Thưởng</td><td colspan="2" id="thuong">${formatNumberHiddenK_RoundUp(final_thuong)}</td></tr>
+                <tr id="tongCongRow"><td>Tổng cộng</td><td id="tongDT">${formatNumberHiddenK(final_tongDT)}</td><td id="tongHH">${formatNumberHiddenK(final_tongHH)}</td></tr>
+                <tr id="mainBonusRow"><td>Thưởng</td><td colspan="2" id="thuong">${formatNumberHiddenK(final_thuong)}</td></tr>
                 <tr class="must-pay">
                 <td id="ketQuaLabel"></td>
                 <td id="ketQuaValue" colspan="2"></td>
@@ -747,8 +760,8 @@
         let tongDT_Moi = tongDT_Excel + addedRevenue;
         let tongHH_Moi = tongHH_Excel + addedCommission;
 
-        document.getElementById("tongDT").innerText = formatNumberHiddenK_RoundUp(tongDT_Moi);
-        document.getElementById("tongHH").innerText = formatNumberHiddenK_RoundUp(tongHH_Moi);
+        document.getElementById("tongDT").innerText = formatNumberHiddenK(tongDT_Moi);
+        document.getElementById("tongHH").innerText = formatNumberHiddenK(tongHH_Moi);
         
         const extraBonusInput = document.getElementById('extraBonusAmountInput');
         const extraDebtInput = document.getElementById('extraDebtAmountInput');
@@ -764,13 +777,13 @@
         if (phaiNop >= 0) {
             let lamTron = Math.ceil(phaiNop / 1000) * 1000;
             if (ketQuaLabelCell) ketQuaLabelCell.innerText = 'Phải nộp:';
-            if (ketQuaValueCell) ketQuaValueCell.innerText = formatNumberHiddenK_RoundUp(lamTron);
+            if (ketQuaValueCell) ketQuaValueCell.innerText = formatNumberHiddenK(lamTron);
             document.getElementById("ketQuaBangChu").innerText = docso(lamTron) + " đồng";
         } else {
             let layVe = Math.abs(phaiNop);
             let khongLamTron = parseInt(layVe / 1000) * 1000;
             if (ketQuaLabelCell) ketQuaLabelCell.innerText = 'Lấy về:';
-            if (ketQuaValueCell) ketQuaValueCell.innerText = formatNumberHiddenK_RoundUp(khongLamTron);
+            if (ketQuaValueCell) ketQuaValueCell.innerText = formatNumberHiddenK(khongLamTron);
             document.getElementById("ketQuaBangChu").innerText = docso(khongLamTron) + " đồng";
         }
     }
@@ -782,7 +795,7 @@
     function formatCustomPrice(input) { let value = input.value.replace(/\D/g, ''); input.value = value ? parseInt(value, 10).toLocaleString('vi-VN') : ''; }
     function docso(numberStr) { const defaultNumbers = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín']; const readThreeDigits = (threeDigits) => { let tram = parseInt(threeDigits[0]); let chuc = parseInt(threeDigits[1]); let donvi = parseInt(threeDigits[2]); let result = ""; if (tram > 0 || chuc > 0 || donvi > 0) { if (tram > 0) { result += defaultNumbers[tram] + " trăm "; } if (chuc > 0) { if (chuc === 1) { result += "mười "; } else { result += defaultNumbers[chuc] + " mươi "; } } else if (tram > 0 && donvi > 0) { result += "linh "; } if (donvi > 0) { if (chuc === 1) { if (donvi === 1) result += "một"; else if (donvi === 5) result += "lăm"; else result += defaultNumbers[donvi]; } else if (chuc > 1) { if (donvi === 1) result += "mốt"; else if (donvi === 5) result += "lăm"; else result += defaultNumbers[donvi]; } else { result += defaultNumbers[donvi]; } } } return result.trim(); }; let num = String(numberStr).replace(/[.,]/g, ''); if (num === '0') return 'Không'; if (num === '' || isNaN(parseInt(num))) return ''; let unit = ["", "nghìn", "triệu", "tỷ", "nghìn tỷ", "triệu tỷ"]; let chunks = []; while (num.length > 3) { chunks.unshift(num.slice(-3)); num = num.slice(0, -3); } if (num) { chunks.unshift(num); } let resultArr = []; let unitIndex = chunks.length - 1; for (let chunk of chunks) { let chunkStr = chunk.padStart(3, '0'); let text = readThreeDigits(chunkStr); if (text) { resultArr.push(text + " " + unit[unitIndex]); } unitIndex--; } let finalResult = resultArr.join(', ').trim(); if (finalResult.endsWith(',')) { finalResult = finalResult.slice(0, -1); } return finalResult.charAt(0).toUpperCase() + finalResult.slice(1); }
     
-    function formatCommissionCellHiddenK_RoundUp(revenue, commission) { if (!revenue || revenue === 0) return formatNumberHiddenK_RoundUp(commission); const percentage = (commission / revenue) * 100; const roundedPercentage = Math.round(percentage); return `<i style="color: #E57373; font-weight: normal;">(${roundedPercentage}%)</i> ${formatNumberHiddenK_RoundUp(commission)}`; }
+    function formatCommissionCellHiddenK(revenue, commission) { if (!revenue || revenue === 0) return formatNumberHiddenK(commission); const percentage = (commission / revenue) * 100; const roundedPercentage = Math.round(percentage); return `<i style="color: #E57373; font-weight: normal;">(${roundedPercentage}%)</i> ${formatNumberHiddenK(commission)}`; }
     function formatCommissionCell(revenue, commission) { if (!revenue || revenue === 0) return formatNumber(commission); const percentage = (commission / revenue) * 100; const roundedPercentage = Math.round(percentage); return `<i style="color: #E57373; font-weight: normal;">(${roundedPercentage}%)</i> ${formatNumber(commission)}`; }
     
     function addTicketToReport() {
@@ -828,7 +841,7 @@
         const formattedName = `${typeName} (${price / 1000}k) [${quantity} vé]`;
         const newRow = document.createElement('tr');
         newRow.classList.add('added-ticket-row');
-        newRow.innerHTML = `<td data-value-name="${formattedName}">${formattedName}</td><td data-value="${doanhThu}">${formatNumberHiddenK_RoundUp(doanhThu)}</td><td data-value="${hoaHong}">${formatCommissionCellHiddenK_RoundUp(doanhThu, hoaHong)}</td>`;
+        newRow.innerHTML = `<td data-value-name="${formattedName}">${formattedName}</td><td data-value="${doanhThu}">${formatNumberHiddenK(doanhThu)}</td><td data-value="${hoaHong}">${formatCommissionCellHiddenK(doanhThu, hoaHong)}</td>`;
         const tongCongRow = document.getElementById('tongCongRow');
         reportTable.querySelector('tbody').insertBefore(newRow, tongCongRow);
         tinhToan();
@@ -840,7 +853,7 @@
 
     function autoResizeTextarea(element) { element.style.height = 'auto'; element.style.height = (element.scrollHeight) + 'px'; }
     function formatAndCalculate(inputElement) { if (!inputElement) return; let originalValue = inputElement.value; let rawValue = originalValue.replace(/[^\d-]/g, ''); let num = parseInt(rawValue, 10) || 0; inputElement.dataset.fullValue = num; inputElement.value = num.toLocaleString('vi-VN'); tinhToan(); }
-    function formatInputToHiddenK(inputElement) { const fullValue = parseFloat(inputElement.dataset.fullValue) || 0; inputElement.value = formatNumberHiddenK_RoundUp(fullValue); }
+    function formatInputToHiddenK(inputElement) { const fullValue = parseFloat(inputElement.dataset.fullValue) || 0; inputElement.value = formatNumberHiddenK(fullValue); }
     function restoreFullInput(inputElement) { const fullValue = parseFloat(inputElement.dataset.fullValue) || 0; inputElement.value = fullValue.toLocaleString('vi-VN'); }
     function toggleActionChoices() { const choicesDiv = document.getElementById('actionChoices'); const toggleBtn = document.getElementById('toggleChoicesBtn'); if (toggleBtn.textContent === 'Thêm tiền Thưởng/Nợ') { choicesDiv.style.display = 'grid'; toggleBtn.textContent = 'Xoá hết Thưởng/Nợ'; toggleBtn.classList.remove('secondary'); toggleBtn.classList.add('danger'); } else { document.getElementById('extraBonusRow')?.remove(); document.getElementById('extraDebtRow')?.remove(); choicesDiv.style.display = 'none'; toggleBtn.textContent = 'Thêm tiền Thưởng/Nợ'; toggleBtn.classList.remove('danger'); toggleBtn.classList.add('secondary'); updateActionButtons(); tinhToan(); } }
     function updateActionButtons() { const choicesDiv = document.getElementById('actionChoices'); if (!choicesDiv) return; choicesDiv.innerHTML = ''; if (document.getElementById('extraBonusRow')) { choicesDiv.innerHTML += `<button class="danger" onclick="addOrRemoveBonus()">Xoá Thưởng thêm</button>`; } else { choicesDiv.innerHTML += `<button onclick="addOrRemoveBonus()">Thêm tiền Thưởng</button>`; } if (document.getElementById('extraDebtRow')) { choicesDiv.innerHTML += `<button class="danger" onclick="addOrRemoveDebt()">Xoá tiền Nợ</button>`; } else { choicesDiv.innerHTML += `<button onclick="addOrRemoveDebt()">Thêm tiền Nợ</button>`; } }
