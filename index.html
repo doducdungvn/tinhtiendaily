@@ -204,23 +204,31 @@
         color: #c0392b; 
     }
     
-    /* CẬP NHẬT: Màu nền và chữ cho ô TỔNG CỘNG cuối cùng và dòng Phải nộp/Lấy về */
-    .final-amount-positive {
-        background-color: #e74c3c !important; /* Đỏ */
-        color: white !important;
-    }
-    .final-amount-negative {
-        background-color: #28a745 !important; /* Xanh lá */
-        color: white !important;
-    }
+   /* === CẬP NHẬT THEO YÊU CẦU MỚI === */
 
-    /* Thiết lập lại cỡ chữ cho dòng phải nộp/lấy về khi áp dụng màu nền */
-    tr.final-amount-positive td,
-    tr.final-amount-negative td {
-        font-size: 28px !important; 
-        font-weight: bold;
-        color: white !important;
-    }
+/* Đặt nền đỏ nhạt chung cho cả hai trường hợp "Phải nộp" và "Lấy về" */
+.final-amount-positive,
+.final-amount-negative {
+    background-color: #fdecea !important; /* Màu đỏ nhạt phớt */
+}
+
+/* Đặt màu chữ là ĐỎ cho trường hợp "Phải nộp" */
+.final-amount-positive {
+    color: #e74c3c !important; /* Màu chữ đỏ */
+}
+
+/* Đặt màu chữ là XANH LÁ CÂY cho trường hợp "Lấy về" */
+.final-amount-negative {
+    color: #28a745 !important; /* Màu chữ xanh lá */
+}
+
+/* Kế thừa màu chữ từ dòng <tr> cha và giữ nguyên định dạng khác */
+tr.final-amount-positive td,
+tr.final-amount-negative td {
+    font-size: 28px !important; 
+    font-weight: bold;
+    color: inherit !important; /* Kế thừa màu chữ từ thẻ <tr> */
+}
 
 
     .inline-form {
