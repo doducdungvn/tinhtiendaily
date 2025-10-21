@@ -47,7 +47,7 @@
     .page { max-width: 600px; margin: 20px auto; padding: 15px; background-color: var(--container-bg); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
     h2, h3 { text-align: center; color: var(--header-bg); margin-bottom: 0.8em; }
     h2 { font-size: 26px; font-weight: 600; }
-    h3 { font-size: 20px; font-weight: 500; }
+    h3 { font-size: 20px; font-weight: 500; } 
     h4 { margin-top: 0; text-align: center; color: var(--text-color); font-weight: 500;}
     .report-date { text-align:center; font-weight: normal; margin-top: -12px; margin-bottom: 16px; color: var(--text-light); }
 
@@ -59,7 +59,7 @@
         padding: 20px;
         border: 1px solid var(--border-color);
         border-radius: 8px;
-        background: var(--container-bg); /* Use white for panels */
+        background: var(--container-bg); 
     }
     label { font-weight: 500; color: var(--text-color); }
     input[type="text"], input[type="file"], input[type="number"], select, button, textarea {
@@ -102,11 +102,11 @@
     button.secondary { background-color: var(--secondary-color); color: var(--text-color); }
     button.secondary:hover { background-color: var(--secondary-dark); filter: brightness(105%);}
     button.success { background-color: var(--success-color); }
-    button.success:hover { background-color: #27ae60; } /* Darker Emerald */
+    button.success:hover { background-color: #27ae60; } 
     button.danger { background-color: var(--danger-color); }
-    button.danger:hover { background-color: #c0392b; } /* Darker Alizarin */
+    button.danger:hover { background-color: #c0392b; } 
     button.warning { background-color: var(--warning-color); }
-    button.warning:hover { background-color: #e67e22; } /* Darker Carrot */
+    button.warning:hover { background-color: #e67e22; } 
 
     .main-nav, .summary-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
     .summary-actions { grid-template-columns: repeat(2, 1fr); }
@@ -117,11 +117,10 @@
 
     table {
         border-collapse: collapse; width: 100%; margin: 1px auto; background: var(--container-bg);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-radius: 6px; overflow: hidden; /* For rounded corners */
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-radius: 6px; overflow: hidden; 
     }
     th, td { border: 1px solid var(--border-color); padding: 10px 12px; text-align: center; vertical-align: middle; }
     th { background: var(--header-bg); color: var(--header-text); font-size: 16px; font-weight: 500; }
-    /* Style cho dòng đầu của group trong bảng tổng kết */
     tr.group-start-row td { border-top: 2px solid var(--secondary-dark) !important; }
     
     .report-table { table-layout: fixed; }
@@ -136,7 +135,7 @@
     #mainBonusRow td { font-weight: 600; }
 
     .added-ticket-row { background-color: var(--info-light-bg); }
-    .added-ticket-row td:first-child { color: #2980b9; font-size: 15px; font-weight: normal; } /* Peter River */
+    .added-ticket-row td:first-child { color: #2980b9; font-size: 15px; font-weight: normal; } 
     .bang-chu-cell { text-align: left !important; font-style: italic; padding-left: 15px !important; font-size: 15px; font-weight: normal; color: var(--text-light); }
 
     .ticket-type-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
@@ -150,7 +149,7 @@
         font-size: 17px; padding: 5px; resize: none; overflow-y: hidden;
     }
     .dynamic-input::placeholder { color: var(--secondary-dark); font-weight: normal; }
-    textarea.dynamic-input { text-align: right; } /* Align textarea left */
+    textarea.dynamic-input { text-align: right; } 
 
     #summaryTableContainer { margin-top: 20px; overflow-x: auto; }
     #summaryTableContainer table th { position: sticky; top: 0; z-index: 1; }
@@ -162,25 +161,12 @@
     .final-amount-negative { color: var(--success-color) !important; }
     tr.final-amount-positive td, tr.final-amount-negative td { font-size: 26px !important; font-weight: 600; color: inherit !important; padding: 15px 12px !important; }
 
-    /* --- CẬP NHẬT CSS CHO INLINE FORM --- */
     .inline-form { 
-        display: flex; 
-        gap: 10px; 
-        align-items: center; 
-        flex-wrap: wrap; /* Cho phép các mục xuống hàng nếu cần */
+        display: flex; gap: 10px; align-items: center; flex-wrap: wrap; 
     }
-    .inline-form > input { 
-        flex: 1 1 150px; /* Cho input co giãn, có độ rộng cơ bản */
-        min-width: 100px; 
-    } 
-    .inline-form > button { 
-        flex: 0 1 auto; /* Nút sẽ co lại nếu cần, không giãn ra */
-        white-space: nowrap; 
-        padding: 12px 15px; 
-    }
-    /* --- KẾT THÚC CẬP NHẬT --- */
+    .inline-form > input { flex: 1 1 150px; min-width: 100px; } 
+    .inline-form > button { flex: 0 1 auto; white-space: nowrap; padding: 12px 15px; } 
 
-    /* CSS MỚI */
     .home-actions, .form-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .manual-grid { display: grid; grid-template-columns: auto 1fr; gap: 15px; align-items: center; }
     .manual-grid label { text-align: right; font-size: 15px; }
@@ -237,8 +223,7 @@
         .modal-close-btn { top: 8px; right: 12px; font-size: 24px; }
         #notification-area { top: 10px; right: 10px; }
         .notification { font-size: 3.8vw; padding: 10px 15px;}
-        /* Cho phép nút xuống hàng trên mobile */
-        .inline-form > button { flex-basis: 48%; } /* Chiếm gần nửa hàng */
+        .inline-form > button { flex-basis: 48%; } 
     }
     @media (min-width: 769px) { #mainPage { max-width: 1200px; } }
     @media print { body * { visibility: hidden; } #summaryTableContainer, #summaryTableContainer * { visibility: visible; } #summaryTableContainer { position: absolute; left: 0; top: 0; width: 100%; overflow: visible; } table { font-size: 10pt; } th, td { padding: 4px; } button, a, #notification-area, .modal-overlay, #loading-indicator { display: none !important; } }
@@ -253,7 +238,7 @@
   <div id="loading-indicator">Đang xử lý...</div>
 
   <div id="homePage" class="page">
-    <h3>ZENG™</h3>
+    <h3>ZENG™</h3> 
     <h2>Báo cáo Thu Tiền</h2>
     <div class="controls-panel">
         <label for="excelFile1">Chọn file Biểu 31 (Lô tô):</label>
@@ -490,7 +475,7 @@
         function resetState(soSo) { state.currentSoSo = soSo; state.baseTongDT = 0; state.baseTongHH = 0; state.baseThuong = 0; state.extraBonus = 0; state.extraDebt = 0; state.addedTickets = []; state.accountCodes.clear(); }
         function processDetailedReportData(soSo) { const filterBySoSo = (row) => { const agentCode = String(row.__EMPTY || row.__EMPTY_1 || '').trim(); if (!agentCode) return false; const numericPartMatch = agentCode.match(/\d+$/); if (!numericPartMatch) return false; return numericPartMatch[0] === soSo; }; const filtered1 = excelData1.filter(filterBySoSo); const filtered2 = excelData2.filter(filterBySoSo); if (filtered1.length === 0 && filtered2.length === 0) return null; resetState(soSo); const totalsFromExcel = { lotoDB: 0, loCap: 0, c2_27: 0, c3_23: 0, thuong: 0, xskt: 0 }; filtered1.forEach(row => { state.accountCodes.add(String(row.__EMPTY).trim()); totalsFromExcel.lotoDB += parseFloat(row.__EMPTY_2) || 0; totalsFromExcel.loCap += parseFloat(row.__EMPTY_6) || 0; totalsFromExcel.c2_27 += parseFloat(row.__EMPTY_8) || 0; totalsFromExcel.c3_23 += parseFloat(row.__EMPTY_10) || 0; totalsFromExcel.thuong += parseFloat(row.__EMPTY_14) || 0; }); filtered2.forEach(row => { state.accountCodes.add(String(row.__EMPTY || row.__EMPTY_1).trim()); totalsFromExcel.xskt += (parseFloat(row.__EMPTY_7) || 0) * 1000; }); const loto_db_com = totalsFromExcel.lotoDB * 0.08; const lo_cap_com = totalsFromExcel.loCap * 0.10; const c2_27_com = totalsFromExcel.c2_27 * 0.10; const c3_23_com = totalsFromExcel.c3_23 * 0.10; const xskt_com = totalsFromExcel.xskt * 0.10; state.baseTongDT = totalsFromExcel.lotoDB + totalsFromExcel.loCap + totalsFromExcel.c2_27 + totalsFromExcel.c3_23 + totalsFromExcel.xskt; state.baseTongHH = loto_db_com + lo_cap_com + c2_27_com + c3_23_com + xskt_com; state.baseThuong = totalsFromExcel.thuong; return { totals: totalsFromExcel, commissions: { loto_db_com, lo_cap_com, c2_27_com, c3_23_com, xskt_com } }; }
         function renderDetailedReport(data, manualDateRange = null) { const { totals, commissions } = data; const displayDate = manualDateRange !== null ? manualDateRange : dateRangeText; const xsktRowHTML = totals.xskt > 0 ? `<tr><td>Xổ số kiến thiết</td><td>${formatNumberHiddenK(totals.xskt)}</td><td>${formatCommissionCellHiddenK(totals.xskt, commissions.xskt_com)}</td></tr>` : ''; DOM.reportContainer.innerHTML = `<table><tr><td class="header" style="width: 33.33%;">Thanh toán tiền Đại Lý:</td><td class="so-so">${[...state.accountCodes].join(', ')}</td></tr><tr><td class="header">Thời gian:</td><td>${displayDate}</td></tr></table><br><table class="report-table"><thead><tr><th>Loại hình</th><th>Doanh thu</th><th>Hoa hồng</th></tr></thead><tbody><tr><td>Lô tô Đặc biệt</td><td>${formatNumberHiddenK(totals.lotoDB)}</td><td>${formatCommissionCellHiddenK(totals.lotoDB, commissions.loto_db_com)}</td></tr><tr><td>Lô cặp</td><td>${formatNumberHiddenK(totals.loCap)}</td><td>${formatCommissionCellHiddenK(totals.loCap, commissions.lo_cap_com)}</td></tr><tr><td>2/27</td><td>${formatNumberHiddenK(totals.c2_27)}</td><td>${formatCommissionCellHiddenK(totals.c2_27, commissions.c2_27_com)}</td></tr><tr><td>3/23</td><td>${formatNumberHiddenK(totals.c3_23)}</td><td>${formatCommissionCellHiddenK(totals.c3_23, commissions.c3_23_com)}</td></tr>${xsktRowHTML}<tr id="tongCongRow"><td>Tổng cộng</td><td id="tongDT"></td><td id="tongHH"></td></tr><tr id="mainBonusRow"><td>Thưởng</td><td colspan="2" id="thuong">${formatNumberHiddenK(state.baseThuong)}</td></tr><tr id="finalResultRow"><td id="ketQuaLabel"></td><td id="ketQuaValue" colspan="2"></td></tr><tr class="header"><td>Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr></tbody></table><div id="copyrightInReport" class="copyright" style="display: none;">© 2025 ZENG FINANCE</div>`; }
-        function updateDetailedReportView() { if (!state.currentSoSo) return; const addedRevenue = state.addedTickets.reduce((sum, t) => sum + t.doanhThu, 0); const addedCommission = state.addedTickets.reduce((sum, t) => sum + t.hoaHong, 0); const tongDT_Moi = state.baseTongDT + addedRevenue; const tongHH_Moi = state.baseTongHH + addedCommission; document.getElementById('tongDT').textContent = formatNumberHiddenK(tongDT_Moi); document.getElementById('tongHH').textContent = formatNumberHiddenK(tongHH_Moi); const phaiNop = tongDT_Moi - tongHH_Moi - state.baseThuong - state.extraBonus + state.extraDebt; const resultRow = document.getElementById('finalResultRow'); const ketQuaLabel = document.getElementById('ketQuaLabel'); const ketQuaValue = document.getElementById('ketQuaValue'); const ketQuaBangChu = document.getElementById('ketQuaBangChu'); resultRow.className = phaiNop >= 0 ? 'final-amount-positive' : 'final-amount-negative'; if (phaiNop >= 0) { const lamTron = Math.ceil(phaiNop / 1000) * 1000; ketQuaLabel.textContent = 'Phải nộp:'; ketQuaValue.textContent = formatNumberHiddenK(lamTron); ketQuaBangChu.textContent = docso(lamTron) + " đồng"; } else { const layVe = Math.abs(phaiNop); const khongLamTron = parseInt(layVe / 1000) * 1000; ketQuaLabel.textContent = 'Lấy về:'; ketQuaValue.textContent = formatNumberHiddenK(khongLamTron); ketQuaBangChu.textContent = docso(khongLamTron) + " đồng"; } }
+        function updateDetailedReportView() { if (!state.currentSoSo) return; const addedRevenue = state.addedTickets.reduce((sum, t) => sum + t.doanhThu, 0); const addedCommission = state.addedTickets.reduce((sum, t) => sum + t.hoaHong, 0); const tongDT_Moi = state.baseTongDT + addedRevenue; const tongHH_Moi = state.baseTongHH + addedCommission; const tongDTElement = document.getElementById('tongDT'); const tongHHElement = document.getElementById('tongHH'); if (tongDTElement) tongDTElement.textContent = formatNumberHiddenK(tongDT_Moi); if (tongHHElement) tongHHElement.textContent = formatNumberHiddenK(tongHH_Moi); const phaiNop = tongDT_Moi - tongHH_Moi - state.baseThuong - state.extraBonus + state.extraDebt; const resultRow = document.getElementById('finalResultRow'); const ketQuaLabel = document.getElementById('ketQuaLabel'); const ketQuaValue = document.getElementById('ketQuaValue'); const ketQuaBangChu = document.getElementById('ketQuaBangChu'); if (!resultRow || !ketQuaLabel || !ketQuaValue || !ketQuaBangChu) return; resultRow.className = phaiNop >= 0 ? 'final-amount-positive' : 'final-amount-negative'; if (phaiNop >= 0) { const lamTron = Math.ceil(phaiNop / 1000) * 1000; ketQuaLabel.textContent = 'Phải nộp:'; ketQuaValue.textContent = formatNumberHiddenK(lamTron); ketQuaBangChu.textContent = docso(lamTron) + " đồng"; } else { const layVe = Math.abs(phaiNop); const khongLamTron = parseInt(layVe / 1000) * 1000; ketQuaLabel.textContent = 'Lấy về:'; ketQuaValue.textContent = formatNumberHiddenK(khongLamTron); ketQuaBangChu.textContent = docso(khongLamTron) + " đồng"; } }
 
         // ===== UI EVENT HANDLERS & CONTROLLERS =====
         function initializeApp() {
@@ -623,7 +608,6 @@
                                    setTimeout(() => { if(buttonElement) buttonElement.textContent = originalButtonText; }, 2000);
                               }
                            } else {
-                               // Fallback if write API is not available/blocked
                                copyUsingExecCommand(canvas, message, buttonElement, originalButtonText);
                            }
                         } catch (writeErr) {
@@ -658,11 +642,8 @@
                 textarea.setSelectionRange(0, 999999); // Ensure full selection
 
                 let successful = false;
-                try {
-                    successful = document.execCommand('copy');
-                } catch(err) {
-                    console.error('execCommand copy failed:', err);
-                }
+                try { successful = document.execCommand('copy'); } 
+                catch(err) { console.error('execCommand copy failed:', err); }
 
                 if (successful) {
                     showNotification(message + " (đã dùng phương pháp cũ)", 'success');
@@ -670,11 +651,8 @@
                          buttonElement.textContent = 'Đã Copy!';
                          setTimeout(() => { if(buttonElement) buttonElement.textContent = originalButtonText; }, 2000);
                      }
-                } else {
-                     throw new Error('document.execCommand("copy") thất bại.');
-                }
+                } else { throw new Error('document.execCommand("copy") thất bại.'); }
                  document.body.removeChild(textarea);
-
             } catch (execErr) {
                  console.error('Lỗi khi dùng document.execCommand("copy"):', execErr);
                  showNotification('Sao chép thất bại. Vui lòng thử lại hoặc dùng trình duyệt khác.', 'error');
@@ -682,10 +660,69 @@
             }
         }
 
-
         function formatNumberHiddenK(num) { num = parseFloat(num); if (isNaN(num) || num === 0 || Math.abs(num) < 1000) return "0"; return parseInt(num / 1000).toLocaleString("vi-VN"); }
         function formatCommissionCellHiddenK(revenue, commission) { revenue = parseFloat(revenue); commission = parseFloat(commission); if (!revenue || revenue === 0 || isNaN(revenue) || isNaN(commission)) return formatNumberHiddenK(commission); const percentage = Math.round((commission / revenue) * 100); return `<i style="color: #E57373; font-weight: normal;">(${percentage}%)</i> ${formatNumberHiddenK(commission)}`; }
-        function docso(numberStr) { const num = String(numberStr).replace(/[.,]/g, ''); if (num === '0') return 'Không'; if (num === '' || isNaN(parseInt(num))) return ''; const readChunk = (chunkStr) => { if (!chunkStr || parseInt(chunkStr, 10) === 0) return ""; const originalLength = chunkStr.length; const n = chunkStr.padStart(3, '0').split('').map(Number); const words = ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"]; let str = ""; const [tram, chuc, donvi] = n; if (originalLength > 2 || tram > 0) { str += words[tram] + " trăm "; } if (chuc === 0 && donvi !== 0) { if (originalLength > 2 || tram > 0 || chunks.length > 1) { str += "linh "; } } else if (chuc === 1) { str += "mười "; } else if (chuc > 1) { str += words[chuc] + " mươi "; } if (donvi > 0) { if (chuc === 1) { if (donvi === 5) str += "lăm"; else str += words[donvi]; } else if (chuc > 1) { if (donvi === 1) str += "mốt"; else if (donvi === 5) str += "lăm"; else str += words[donvi]; } else { str += words[donvi]; } } return str.trim(); }; const units = ["", "nghìn", "triệu", "tỷ"]; const chunks = []; let tempNum = num; while (tempNum.length > 0) { chunks.unshift(tempNum.substring(Math.max(0, tempNum.length - 3))); tempNum = tempNum.substring(0, tempNum.length - 3); } if (chunks.length > units.length) return "Số quá lớn"; let result = chunks.map((chunk, i) => { const text = readChunk(chunk); if (text) { if (parseInt(chunk, 10) > 0) { return text + " " + units[chunks.length - 1 - i]; } return ""; } return ""; }).filter(Boolean).join(" ").replace(/\s+/g, ' ').trim(); return result.charAt(0).toUpperCase() + result.slice(1); }
+        
+        // --- HÀM DOCSO ĐÃ SỬA LỖI ---
+        function docso(numberStr) {
+            const num = String(numberStr).replace(/[.,]/g, '');
+            if (num === '0') return 'Không';
+            if (num === '' || isNaN(parseInt(num))) return '';
+
+            const words = ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"];
+            const units = ["", "nghìn", "triệu", "tỷ"];
+
+            const readChunk = (chunkStr, isFirstChunk) => {
+                if (!chunkStr || parseInt(chunkStr, 10) === 0) return "";
+                
+                const n = chunkStr.padStart(3, '0').split('').map(Number);
+                const [tram, chuc, donvi] = n;
+                let str = "";
+
+                if (tram > 0) { str += words[tram] + " trăm "; } 
+                else if (!isFirstChunk) { 
+                    // Chỉ thêm "không trăm" nếu không phải chunk đầu và có chục hoặc đơn vị
+                    if(chuc > 0 || donvi > 0) str += "không trăm ";
+                }
+
+                if (chuc === 0 && donvi !== 0) { 
+                    // Chỉ thêm linh nếu có hàng trăm hoặc không phải chunk đầu tiên
+                    if (tram > 0 || !isFirstChunk) str += "linh "; 
+                } 
+                else if (chuc === 1) { str += "mười "; } 
+                else if (chuc > 1) { str += words[chuc] + " mươi "; }
+
+                if (donvi > 0) {
+                    if (chuc === 1) {
+                        if (donvi === 5) str += "lăm"; else str += words[donvi];
+                    } else if (chuc > 1) {
+                        if (donvi === 1) str += "mốt"; else if (donvi === 5) str += "lăm"; else str += words[donvi];
+                    } else { // chuc === 0
+                        str += words[donvi];
+                    }
+                }
+                return str.trim();
+            };
+
+            const chunks = [];
+            let tempNum = num;
+            while (tempNum.length > 0) {
+                chunks.unshift(tempNum.substring(Math.max(0, tempNum.length - 3)));
+                tempNum = tempNum.substring(0, tempNum.length - 3);
+            }
+
+            if (chunks.length > units.length) return "Số quá lớn";
+
+            let result = chunks.map((chunk, i) => {
+                const text = readChunk(chunk, i === 0); // Kiểm tra xem có phải chunk đầu không
+                if (text) {
+                    return text + " " + units[chunks.length - 1 - i];
+                }
+                return "";
+            }).filter(Boolean).join(" ").replace(/\s+/g, ' ').trim();
+            
+            return result.charAt(0).toUpperCase() + result.slice(1);
+        }
         
         // --- Notification System ---
         function showNotification(message, type = 'info', duration = 3000) { const notification = document.createElement('div'); notification.className = `notification ${type}`; notification.textContent = message; DOM.notificationArea.appendChild(notification); notification.offsetHeight; notification.classList.add('show'); setTimeout(() => { notification.classList.remove('show'); notification.addEventListener('transitionend', () => notification.remove()); }, duration); }
