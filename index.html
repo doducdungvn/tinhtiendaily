@@ -1,1 +1,489 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo cáo thu tiền ZENG™</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    /* --- BIẾN MÀU SẮC TRUNG TÂM --- */
+    :root {
+        --header-bg: #2c3e50;
+        --primary-text: #333;
+        --primary-accent: #007bff;
+        --secondary-accent: #6c757d;
+        --success-accent: #28a745;
+        --danger-accent: #e74c3c;
+        --warning-accent: #f39c12; /* Màu cam cho nút "Thêm Báo cáo" */
+        --bg-color: #f4f7f9;
+        --container-bg: #fff;
+        --border-color: #dfe6e9;
+        --light-red-bg: #fdecea;
+        --success-light-bg: #e9f7ef;
+        --info-light-bg: #e8f6f8;
+        --neutral-light-bg: #eaf2f8;
+    }
+
+    /* --- CÀI ĐẶT CHUNG --- */
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        margin: 15px;
+        background: var(--bg-color);
+        color: var(--primary-text);
+        font-size: 16px;
+    }
+    .page { max-width: 600px; margin: 0 auto; padding: 10px; }
+    h2, h3 { text-align: center; color: var(--header-bg); }
+    h2 { font-size: 28px; }
+    h3 { font-size: 22px; }
+    .report-date { text-align:center; font-weight: normal; margin-top: -16px; margin-bottom: 16px; }
+
+    .controls-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--container-bg);
+    }
+    label { font-weight: bold; color: #555; }
+    input[type="text"], input[type="file"], input[type="number"], select, button {
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 16px;
+    }
+    input[type="file"].loaded { background-color: var(--success-light-bg); border-color: var(--success-accent); }
+
+    button {
+        cursor: pointer;
+        background: var(--primary-accent);
+        color: white;
+        border: none;
+        transition: background-color 0.3s;
+        font-weight: bold;
+    }
+    button.secondary { background-color: var(--secondary-accent); }
+    button.success { background-color: var(--success-accent); }
+    button.danger { background-color: var(--danger-accent); }
+    button.warning { background-color: var(--warning-accent); } /* Class màu mới */
+    button:hover { opacity: 0.85; }
+
+    .main-nav, .summary-actions {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    .summary-actions { grid-template-columns: repeat(2, 1fr); }
+    .main-nav button.active { background-color: #16a085; }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 1px auto;
+        background: var(--container-bg);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    th, td { border: 1px solid #dee2e6; padding: 12px; text-align: center; vertical-align: middle; }
+    th { background: var(--header-bg); color: white; font-size: 17px; }
+    .report-table { table-layout: fixed; }
+    .report-table th { width: 33.33%; }
+    .report-table tbody td { font-weight: bold; font-size: 18px; }
+
+    .header { font-weight: bold; background: #f8f9fa; }
+    .so-so { font-size: 30px; font-weight: bold; color: var(--warning-accent); vertical-align: middle; }
+
+    #tongCongRow { background-color: var(--neutral-light-bg); color: var(--header-bg); }
+    #mainBonusRow { background-color: var(--success-light-bg); color: var(--success-accent); }
+    #mainBonusRow td { font-weight: bold; }
+
+    .added-ticket-row { background-color: var(--info-light-bg); }
+    .added-ticket-row td:first-child { color: #0e6251; font-size: 15px; }
+    .bang-chu-cell { text-align: left !important; font-style: italic; padding-left: 15px !important; font-size: 9px; font-weight: normal; }
+
+    .ticket-type-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
+    .ticket-type-selector label { display: flex; align-items: center; gap: 5px; font-weight: normal; }
+    .copyright { text-align: center; margin-top: 20px; font-size: 14px; color: var(--secondary-accent); }
+
+    #actionButtonContainer, #actionChoices {
+        display: none;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    #actionChoices { grid-column: 1 / -1; margin-top: 10px; }
+    .dynamic-input {
+        width: 100%; border: none; font-weight: bold; text-align: center; background: transparent;
+        font-size: 18px; padding-left: 5px; resize: none; overflow-y: hidden;
+    }
+
+    #summaryTableContainer { margin-top: 15px; overflow-x: auto; }
+    #summaryTableContainer table th { position: sticky; top: 0; z-index: 1; }
+    #summaryTableContainer tfoot tr { background-color: var(--neutral-light-bg); font-weight: bold; }
+    .negative-value { color: var(--danger-accent); }
+
+    .final-amount-positive, .final-amount-negative { background-color: var(--light-red-bg) !important; }
+    .final-amount-positive { color: var(--danger-accent) !important; }
+    .final-amount-negative { color: var(--success-accent) !important; }
+    tr.final-amount-positive td, tr.final-amount-negative td { font-size: 28px !important; font-weight: bold; color: inherit !important; }
+
+    .inline-form { display: flex; gap: 10px; align-items: center; }
+    .inline-form > input { flex: 1 1 auto; min-width: 100px; } /* Cho phép co lại nhưng có độ rộng tối thiểu */
+    .inline-form > button { flex-shrink: 1; white-space: nowrap; } /* Cho phép nút co lại */
+
+    /* CSS MỚI */
+    .home-actions, .form-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .manual-grid { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; }
+    .manual-grid label { text-align: right; font-size: 15px; }
+
+    @media (max-width: 768px) {
+        body { margin: 8px; font-size: 4vw; -webkit-text-size-adjust: 100%; }
+        .page { padding: 5px; }
+        h2 { font-size: 6.5vw; }
+        label { font-size: 4.2vw; }
+        input, button { padding: 12px; font-size: 4.5vw; }
+        th, td { padding: 8px; font-size: 3.5vw; word-break: break-word; }
+        .so-so { font-size: 6vw; word-break: break-all; }
+        tr.final-amount-positive td, tr.final-amount-negative td { font-size: 8vw !important; }
+        .bang-chu-cell { font-size: 4vw !important; }
+        .copyright { font-size: 3.5vw; }
+        .added-ticket-row td:first-child { font-size: 4vw; }
+        .dynamic-input { font-size: 4vw !important; }
+        .manual-grid { grid-template-columns: 1fr; }
+        .manual-grid label { text-align: left; }
+    }
+    @media (min-width: 769px) { #mainPage { max-width: 1200px; } }
+    @media print {
+        body * { visibility: hidden; }
+        #summaryTableContainer, #summaryTableContainer * { visibility: visible; }
+        #summaryTableContainer { position: absolute; left: 0; top: 0; width: 100%; overflow: visible; }
+        table { font-size: 10pt; }
+        th, td { padding: 4px; }
+        button, a { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="homePage" class="page">
+    <h3>ZENG™</h3>
+    <h2>Báo cáo Thu Tiền</h2>
+    <div class="controls-panel">
+        <label for="excelFile1">Chọn file Biểu 31 (Lô tô):</label>
+        <input type="file" id="excelFile1" accept=".xls,.xlsx">
+        
+        <label for="excelFile2">Chọn file Biểu 35 (XSKT - Tùy chọn):</label>
+        <input type="file" id="excelFile2" accept=".xls,.xlsx">
+        
+        <div class="home-actions">
+            <button id="btnShowManualReport" class="warning">Thêm Báo cáo</button>
+            <button id="btnLoadData" class="success">Nạp dữ liệu</button>
+        </div>
+    </div>
+    <div class="copyright">
+        © 2025 ZENG FINANCE
+    </div>
+  </div>
+  
+  <div id="mainPage" class="page" style="display: none;">
+    <div class="main-nav">
+        <button id="navSummary" class="active">Xem Tổng Kết</button>
+        <button id="navReport">Tạo Báo Cáo</button>
+        <button id="navSell">Bán Vé</button>
+    </div>
+
+    <div id="summarySection" class="main-section">
+        <h3>Bảng Tổng Kết</h3>
+        <h4 id="summaryDate" class="report-date"></h4>
+        <div class="summary-actions">
+            <button id="btnCopySummary" class="success">Copy Ảnh</button>
+            <button id="btnPrintSummary" class="secondary">In Bảng</button>
+        </div>
+        <div id="summaryTableContainer"></div>
+    </div>
+
+    <div id="reportSection" class="main-section" style="display: none;">
+        <h3>Tạo Báo Cáo Chi Tiết</h3>
+        <div class="controls-panel">
+            <label for="soSoInput">Nhập số sổ (ví dụ: 550):</label>
+            <div class="inline-form">
+                <input type="text" id="soSoInput" inputmode="numeric" placeholder="Nhập số sổ...">
+                <button id="btnCreateReport">Tạo báo cáo</button>
+                <button id="btnShowManualReport_inline" class="warning">Thêm Báo cáo</button>
+            </div>
+        </div>
+        
+        <div id="manualReportSection" class="controls-panel" style="display: none;">
+            <h4 style="margin-top:0; text-align:center;">Thêm Báo Cáo Thủ Công</h4>
+            <div class="manual-grid">
+                <label for="manualAgentName">Tên Đại Lý:</label>
+                <input type="text" id="manualAgentName" placeholder="Tự nhập...">
+                <label for="manualDateRange">Thời gian:</label>
+                <input type="text" id="manualDateRange" placeholder="Tự nhập...">
+                <label for="manualLotoDB">Lô tô Đặc biệt:</label>
+                <input type="text" id="manualLotoDB" inputmode="numeric" class="manual-currency" placeholder="Nhập doanh thu...">
+                <label for="manualLoCap">Lô cặp:</label>
+                <input type="text" id="manualLoCap" inputmode="numeric" class="manual-currency" placeholder="Nhập doanh thu...">
+                <label for="manualC227">2/27:</label>
+                <input type="text" id="manualC227" inputmode="numeric" class="manual-currency" placeholder="Nhập doanh thu...">
+                <label for="manualC323">3/23:</label>
+                <input type="text" id="manualC323" inputmode="numeric" class="manual-currency" placeholder="Nhập doanh thu...">
+                <label for="manualThuong">Thưởng:</label>
+                <input type="text" id="manualThuong" inputmode="numeric" class="manual-currency" placeholder="Nhập tiền thưởng...">
+            </div>
+            <div class="form-actions">
+                <button id="btnClearManualReport" class="secondary">Xoá</button>
+                <button id="btnCreateManualReport" class="success">Thêm</button>
+            </div>
+        </div>
+
+        <div id="reportContainer"></div>
+        <div id="actionButtonContainer">
+            <button id="btnCopyReport">Sao chép để Gửi</button>
+            <button id="toggleChoicesBtn" class="secondary">Thêm tiền Thưởng/Nợ</button>
+            <div id="actionChoices"></div>
+        </div>
+    </div>
+
+    <div id="sellSection" class="main-section" style="display: none;">
+        <h3>Bán Vé (Thêm vào Báo cáo chi tiết)</h3>
+        <div id="sellTicketControls" class="controls-panel">
+            <div>
+                <label>Loại hình:</label>
+                <div class="ticket-type-selector">
+                    <label><input type="radio" name="sellTicketType" value="xo-so" checked> Xổ số</label>
+                    <label><input type="radio" name="sellTicketType" value="ve-boc"> Vé bóc</label>
+                    <label><input type="radio" name="sellTicketType" value="custom-name"> Tự nhập tên</label>
+                </div>
+                <input type="text" id="customTicketName" placeholder="Nhập tên loại hình..." style="display:none; margin-top: 5px;">
+            </div>
+            <div>
+                <label>Giá bán:</label>
+                <div class="ticket-type-selector">
+                    <label><input type="radio" name="sellPrice" value="10000" checked> 10.000</label>
+                    <label><input type="radio" name="sellPrice" value="20000"> 20.000</label>
+                    <label><input type="radio" name="sellPrice" value="5000"> 5.000</label>
+                    <label><input type="radio" name="sellPrice" value="custom-price"> Tự nhập giá</label>
+                </div>
+                <input type="text" id="customTicketPrice" inputmode="numeric" placeholder="Nhập giá bán..." style="display:none; margin-top: 5px;">
+            </div>
+            <div>
+                <label>Hoa hồng:</label>
+                <div class="ticket-type-selector">
+                    <label><input type="radio" name="commissionRate" value="0.10" checked> 10%</label>
+                    <label><input type="radio" name="commissionRate" value="0.12"> 12%</label>
+                    <label><input type="radio" name="commissionRate" value="custom-commission"> Tự nhập %</label>
+                </div>
+                <input type="number" id="customCommissionPercent" placeholder="Nhập % hoa hồng (ví dụ: 15)" style="display:none; margin-top: 5px;" min="0">
+            </div>
+            <div>
+                <label for="sellQuantityInput">Số lượng:</label>
+                <input type="number" id="sellQuantityInput" placeholder="Nhập số lượng vé..." min="0">
+            </div>
+            <button id="btnAddTicket" class="success">Thêm vé vào báo cáo</button>
+        </div>
+    </div>
+  </div>
+
+  <script>
+    'use strict';
+
+    (function() {
+        // ===== MODULE-LEVEL VARIABLES & STATE =====
+        let excelData1 = [];
+        let excelData2 = [];
+        let dateRangeText = "Chưa có ngày";
+
+        const state = {
+            currentSoSo: null,
+            baseTongDT: 0,
+            baseTongHH: 0,
+            baseThuong: 0,
+            extraBonus: 0,
+            extraDebt: 0,
+            addedTickets: [],
+            accountCodes: new Set()
+        };
+
+        // ===== DOM ELEMENT REFERENCES =====
+        const DOM = {
+            homePage: document.getElementById('homePage'), mainPage: document.getElementById('mainPage'),
+            excelFile1: document.getElementById('excelFile1'), excelFile2: document.getElementById('excelFile2'),
+            btnLoadData: document.getElementById('btnLoadData'), navSummary: document.getElementById('navSummary'),
+            navReport: document.getElementById('navReport'), navSell: document.getElementById('navSell'),
+            summarySection: document.getElementById('summarySection'), reportSection: document.getElementById('reportSection'),
+            sellSection: document.getElementById('sellSection'), summaryTableContainer: document.getElementById('summaryTableContainer'),
+            summaryDate: document.getElementById('summaryDate'), soSoInput: document.getElementById('soSoInput'),
+            btnCreateReport: document.getElementById('btnCreateReport'), reportContainer: document.getElementById('reportContainer'),
+            actionButtonContainer: document.getElementById('actionButtonContainer'), btnCopySummary: document.getElementById('btnCopySummary'),
+            btnPrintSummary: document.getElementById('btnPrintSummary'), btnCopyReport: document.getElementById('btnCopyReport'),
+            toggleChoicesBtn: document.getElementById('toggleChoicesBtn'), actionChoices: document.getElementById('actionChoices'),
+            btnAddTicket: document.getElementById('btnAddTicket'), sellQuantityInput: document.getElementById('sellQuantityInput'),
+            btnShowManualReport: document.getElementById('btnShowManualReport'), btnShowManualReport_inline: document.getElementById('btnShowManualReport_inline'),
+            manualReportSection: document.getElementById('manualReportSection'), btnCreateManualReport: document.getElementById('btnCreateManualReport'),
+            btnClearManualReport: document.getElementById('btnClearManualReport'), manualAgentName: document.getElementById('manualAgentName'),
+            manualDateRange: document.getElementById('manualDateRange'), manualLotoDB: document.getElementById('manualLotoDB'),
+            manualLoCap: document.getElementById('manualLoCap'), manualC227: document.getElementById('manualC227'),
+            manualC323: document.getElementById('manualC323'), manualThuong: document.getElementById('manualThuong'),
+            sellTicketTypeRadios: document.querySelectorAll('input[name="sellTicketType"]'), sellPriceRadios: document.querySelectorAll('input[name="sellPrice"]'),
+            commissionRateRadios: document.querySelectorAll('input[name="commissionRate"]'), customTicketName: document.getElementById('customTicketName'),
+            customTicketPrice: document.getElementById('customTicketPrice'), customCommissionPercent: document.getElementById('customCommissionPercent')
+        };
+        
+        const manualFormOrder = [
+            'manualAgentName', 'manualDateRange', 'manualLotoDB', 'manualLoCap', 
+            'manualC227', 'manualC323', 'manualThuong'
+        ];
+
+        // ===== CORE LOGIC: FILE HANDLING =====
+        function handleFile(file, fileNumber) {
+            if (!file) return;
+            const fileInput = fileNumber === 1 ? DOM.excelFile1 : DOM.excelFile2;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: "array" });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+                    if (!jsonData || jsonData.length === 0) { throw new Error("File không có dữ liệu hoặc định dạng không hợp lệ."); }
+                    if (fileNumber === 1) {
+                        excelData1 = jsonData;
+                        let dateRow = jsonData.find(r => Object.values(r).some(v => typeof v === "string" && v.includes("Tõ ngµy")));
+                        if (dateRow) {
+                            let text = Object.values(dateRow).find(v => typeof v === "string" && v.includes("Tõ ngµy"));
+                            let matchRange = text.match(/Tõ ngµy\s*(\d{2}\/\d{2})\/\d{4}.*®Õn ngµy\s*(\d{2}\/\d{2})\/\d{4}/);
+                            if (matchRange) { dateRangeText = matchRange[1] === matchRange[2] ? `Ngày ${matchRange[1]}` : `Từ ${matchRange[1]} đến ${matchRange[2]}`; }
+                        } else {
+                            let singleDateRow = jsonData.find(r => Object.values(r).some(v => typeof v === "string" && v.match(/(\d{2}\/\d{2}\/\d{4})/i)));
+                            if (singleDateRow) {
+                                let singleText = Object.values(singleDateRow).find(v => typeof v === "string" && v.match(/(\d{2}\/\d{2}\/\d{4})/i));
+                                let matchSingle = singleText.match(/(\d{2}\/\d{2}\/\d{4})/i);
+                                if (matchSingle) { dateRangeText = `Ngày ${matchSingle[1].substring(0, 5)}`; }
+                            }
+                        }
+                    } else {
+                        excelData2 = jsonData;
+                    }
+                    alert(`Đã nạp dữ liệu ${file.name} thành công!`);
+                    fileInput.classList.add('loaded');
+                } catch (error) {
+                    console.error("Lỗi khi xử lý file:", error);
+                    alert(`Lỗi: ${error.message}. Vui lòng kiểm tra lại file.`);
+                    fileInput.classList.remove('loaded');
+                    fileInput.value = '';
+                }
+            };
+            reader.onerror = () => alert(`Không thể đọc file ${file.name}.`);
+            reader.readAsArrayBuffer(file);
+        }
+
+        // ===== SUMMARY VIEW LOGIC =====
+        function processSummaryData() { const individualAgentData = new Map(); const initializeAgent = (code) => { if (!individualAgentData.has(code)) { individualAgentData.set(code, { totalRevenue: 0, totalCommission: 0, lotoDB: 0, lotoCap: 0, c2_27: 0, c3_23: 0, xskt: 0, thuong: 0 }); } }; excelData1.forEach(row => { const agentCode = String(row.__EMPTY || '').trim(); if (!agentCode || !/\d/.test(agentCode)) return; initializeAgent(agentCode); const data = individualAgentData.get(agentCode); const loto_db_rev = parseFloat(row.__EMPTY_2) || 0; const lo_cap_rev = parseFloat(row.__EMPTY_6) || 0; const c2_27_rev = parseFloat(row.__EMPTY_8) || 0; const c3_23_rev = parseFloat(row.__EMPTY_10) || 0; data.lotoDB += loto_db_rev; data.lotoCap += lo_cap_rev; data.c2_27 += c2_27_rev; data.c3_23 += c3_23_rev; data.thuong += parseFloat(row.__EMPTY_14) || 0; data.totalRevenue += loto_db_rev + lo_cap_rev + c2_27_rev + c3_23_rev; data.totalCommission += (loto_db_rev * 0.08) + (lo_cap_rev * 0.10) + (c2_27_rev * 0.10) + (c3_23_rev * 0.10); }); excelData2.forEach(row => { const agentCode = String(row.__EMPTY || row.__EMPTY_1 || '').trim(); if (!agentCode || !/\d/.test(agentCode)) return; initializeAgent(agentCode); const data = individualAgentData.get(agentCode); const xsktRevenue = (parseFloat(row.__EMPTY_7) || 0) * 1000; data.xskt += xsktRevenue; data.totalRevenue += xsktRevenue; data.totalCommission += xsktRevenue * 0.10; }); const getAgentNumber = (code) => String(code).match(/\d+$/)?.[0] || code; const getAgentParts = (code) => { const num = getAgentNumber(code); const prefix = String(code).replace(num, ''); return { num: parseInt(num, 10), prefix }; }; const sortedKeys = [...individualAgentData.keys()].sort((a, b) => { const partsA = getAgentParts(a); const partsB = getAgentParts(b); if (partsA.num !== partsB.num) return partsA.num - partsB.num; return partsA.prefix.localeCompare(partsB.prefix); }); const groupedData = new Map(); sortedKeys.forEach(agentCode => { const groupKey = getAgentNumber(agentCode); if (!groupedData.has(groupKey)) { groupedData.set(groupKey, { agents: [], groupTotal: 0 }); } const group = groupedData.get(groupKey); const agentDetails = individualAgentData.get(agentCode); const finalAmount = agentDetails.totalRevenue - agentDetails.totalCommission - agentDetails.thuong; group.agents.push({ code: agentCode, data: agentDetails }); group.groupTotal += finalAmount; }); const grandTotals = { lotoDB: 0, lotoCap: 0, c3_23: 0, c2_27: 0, xskt: 0, thuong: 0, finalAmount: 0 }; individualAgentData.forEach(data => { grandTotals.lotoDB += data.lotoDB; grandTotals.lotoCap += data.lotoCap; grandTotals.c3_23 += data.c3_23; grandTotals.c2_27 += data.c2_27; grandTotals.xskt += data.xskt; grandTotals.thuong += data.thuong; grandTotals.finalAmount += data.totalRevenue - data.totalCommission - data.thuong; }); return { groupedData, grandTotals }; }
+        function renderSummaryTable({ groupedData, grandTotals }) { let body = ''; let stt = 1; const sortedGroupedData = [...groupedData.entries()].sort((a, b) => parseInt(a[0], 10) - parseInt(b[0], 10)); for (const [groupKey, group] of sortedGroupedData) { group.agents.forEach((agent, index) => { const agentData = agent.data; const finalAmount = agentData.totalRevenue - agentData.totalCommission - agentData.thuong; const sttCell = index === 0 ? `<td>${stt}</td>` : '<td></td>'; let finalAmountCellContent = finalAmount < 0 ? `<span class="negative-value">${formatNumberHiddenK(finalAmount)}</span>` : formatNumberHiddenK(finalAmount); if (index === group.agents.length - 1) { finalAmountCellContent += ` <strong style="color: #007bff;">(${formatNumberHiddenK(group.groupTotal)})</strong>`; } body += `<tr>${sttCell}<td>${agent.code}</td><td>${formatNumberHiddenK(agentData.lotoDB)}</td><td>${formatNumberHiddenK(agentData.lotoCap)}</td><td>${formatNumberHiddenK(agentData.c3_23)}</td><td>${formatNumberHiddenK(agentData.c2_27)}</td><td>${formatNumberHiddenK(agentData.xskt)}</td><td>${formatNumberHiddenK(agentData.thuong)}</td><td>${finalAmountCellContent}</td></tr>`; }); stt++; } const grandFinalAmountClass = grandTotals.finalAmount >= 0 ? 'final-amount-positive' : 'final-amount-negative'; const footer = `<tr><td colspan="2">TỔNG CỘNG</td><td>${formatNumberHiddenK(grandTotals.lotoDB)}</td><td>${formatNumberHiddenK(grandTotals.lotoCap)}</td><td>${formatNumberHiddenK(grandTotals.c3_23)}</td><td>${formatNumberHiddenK(grandTotals.c2_27)}</td><td>${formatNumberHiddenK(grandTotals.xskt)}</td><td>${formatNumberHiddenK(grandTotals.thuong)}</td><td class="${grandFinalAmountClass}">${formatNumberHiddenK(grandTotals.finalAmount)}</td></tr>`; return `<table border="1"><thead><tr><th style="width: 8%;">STT</th><th style="width: 12%;">ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th><th>XSKT</th><th>Thưởng</th><th>Tiền</th></tr></thead><tbody>${body}</tbody><tfoot>${footer}</tfoot></table>`; }
+        function generateSummaryView() { if (excelData1.length === 0 && excelData2.length === 0) return; const summaryData = processSummaryData(); const tableHTML = renderSummaryTable(summaryData); DOM.summaryTableContainer.innerHTML = tableHTML; DOM.summaryDate.textContent = dateRangeText; }
+
+        // ===== DETAILED REPORT VIEW LOGIC =====
+        function resetState(soSo) { state.currentSoSo = soSo; state.baseTongDT = 0; state.baseTongHH = 0; state.baseThuong = 0; state.extraBonus = 0; state.extraDebt = 0; state.addedTickets = []; state.accountCodes.clear(); }
+        function processDetailedReportData(soSo) { const filterBySoSo = (row) => { const agentCode = String(row.__EMPTY || row.__EMPTY_1 || '').trim(); if (!agentCode) return false; const numericPartMatch = agentCode.match(/\d+$/); if (!numericPartMatch) return false; return numericPartMatch[0] === soSo; }; const filtered1 = excelData1.filter(filterBySoSo); const filtered2 = excelData2.filter(filterBySoSo); if (filtered1.length === 0 && filtered2.length === 0) return null; resetState(soSo); const totalsFromExcel = { lotoDB: 0, loCap: 0, c2_27: 0, c3_23: 0, thuong: 0, xskt: 0 }; filtered1.forEach(row => { state.accountCodes.add(String(row.__EMPTY).trim()); totalsFromExcel.lotoDB += parseFloat(row.__EMPTY_2) || 0; totalsFromExcel.loCap += parseFloat(row.__EMPTY_6) || 0; totalsFromExcel.c2_27 += parseFloat(row.__EMPTY_8) || 0; totalsFromExcel.c3_23 += parseFloat(row.__EMPTY_10) || 0; totalsFromExcel.thuong += parseFloat(row.__EMPTY_14) || 0; }); filtered2.forEach(row => { state.accountCodes.add(String(row.__EMPTY || row.__EMPTY_1).trim()); totalsFromExcel.xskt += (parseFloat(row.__EMPTY_7) || 0) * 1000; }); const loto_db_com = totalsFromExcel.lotoDB * 0.08; const lo_cap_com = totalsFromExcel.loCap * 0.10; const c2_27_com = totalsFromExcel.c2_27 * 0.10; const c3_23_com = totalsFromExcel.c3_23 * 0.10; const xskt_com = totalsFromExcel.xskt * 0.10; state.baseTongDT = totalsFromExcel.lotoDB + totalsFromExcel.loCap + totalsFromExcel.c2_27 + totalsFromExcel.c3_23 + totalsFromExcel.xskt; state.baseTongHH = loto_db_com + lo_cap_com + c2_27_com + c3_23_com + xskt_com; state.baseThuong = totalsFromExcel.thuong; return { totals: totalsFromExcel, commissions: { loto_db_com, lo_cap_com, c2_27_com, c3_23_com, xskt_com } }; }
+        function renderDetailedReport(data, manualDateRange = null) { const { totals, commissions } = data; const displayDate = manualDateRange !== null ? manualDateRange : dateRangeText; const xsktRowHTML = totals.xskt > 0 ? `<tr><td>Xổ số kiến thiết</td><td>${formatNumberHiddenK(totals.xskt)}</td><td>${formatCommissionCellHiddenK(totals.xskt, commissions.xskt_com)}</td></tr>` : ''; DOM.reportContainer.innerHTML = `<table><tr><td class="header" style="width: 33.33%;">Thanh toán tiền Đại Lý:</td><td class="so-so">${[...state.accountCodes].join(', ')}</td></tr><tr><td class="header">Thời gian:</td><td>${displayDate}</td></tr></table><br><table class="report-table"><thead><tr><th>Loại hình</th><th>Doanh thu</th><th>Hoa hồng</th></tr></thead><tbody><tr><td>Lô tô Đặc biệt</td><td>${formatNumberHiddenK(totals.lotoDB)}</td><td>${formatCommissionCellHiddenK(totals.lotoDB, commissions.loto_db_com)}</td></tr><tr><td>Lô cặp</td><td>${formatNumberHiddenK(totals.loCap)}</td><td>${formatCommissionCellHiddenK(totals.loCap, commissions.lo_cap_com)}</td></tr><tr><td>2/27</td><td>${formatNumberHiddenK(totals.c2_27)}</td><td>${formatCommissionCellHiddenK(totals.c2_27, commissions.c2_27_com)}</td></tr><tr><td>3/23</td><td>${formatNumberHiddenK(totals.c3_23)}</td><td>${formatCommissionCellHiddenK(totals.c3_23, commissions.c3_23_com)}</td></tr>${xsktRowHTML}<tr id="tongCongRow"><td>Tổng cộng</td><td id="tongDT"></td><td id="tongHH"></td></tr><tr id="mainBonusRow"><td>Thưởng</td><td colspan="2" id="thuong">${formatNumberHiddenK(state.baseThuong)}</td></tr><tr id="finalResultRow"><td id="ketQuaLabel"></td><td id="ketQuaValue" colspan="2"></td></tr><tr class="header"><td>Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr></tbody></table><div id="copyrightInReport" class="copyright" style="display: none;">© 2025 ZENG FINANCE</div>`; }
+        function updateDetailedReportView() { if (!state.currentSoSo) return; const addedRevenue = state.addedTickets.reduce((sum, t) => sum + t.doanhThu, 0); const addedCommission = state.addedTickets.reduce((sum, t) => sum + t.hoaHong, 0); const tongDT_Moi = state.baseTongDT + addedRevenue; const tongHH_Moi = state.baseTongHH + addedCommission; document.getElementById('tongDT').textContent = formatNumberHiddenK(tongDT_Moi); document.getElementById('tongHH').textContent = formatNumberHiddenK(tongHH_Moi); const phaiNop = tongDT_Moi - tongHH_Moi - state.baseThuong - state.extraBonus + state.extraDebt; const resultRow = document.getElementById('finalResultRow'); const ketQuaLabel = document.getElementById('ketQuaLabel'); const ketQuaValue = document.getElementById('ketQuaValue'); const ketQuaBangChu = document.getElementById('ketQuaBangChu'); resultRow.className = phaiNop >= 0 ? 'final-amount-positive' : 'final-amount-negative'; if (phaiNop >= 0) { const lamTron = Math.ceil(phaiNop / 1000) * 1000; ketQuaLabel.textContent = 'Phải nộp:'; ketQuaValue.textContent = formatNumberHiddenK(lamTron); ketQuaBangChu.textContent = docso(lamTron) + " đồng"; } else { const layVe = Math.abs(phaiNop); const khongLamTron = parseInt(layVe / 1000) * 1000; ketQuaLabel.textContent = 'Lấy về:'; ketQuaValue.textContent = formatNumberHiddenK(khongLamTron); ketQuaBangChu.textContent = docso(khongLamTron) + " đồng"; } }
+
+        // ===== UI EVENT HANDLERS & CONTROLLERS =====
+        function initializeApp() {
+            DOM.btnLoadData.addEventListener('click', () => { if (excelData1.length === 0 && excelData2.length === 0) { alert("Vui lòng chọn ít nhất một file excel!"); return; } generateSummaryView(); DOM.homePage.style.display = 'none'; DOM.mainPage.style.display = 'block'; showSection('reportSection'); });
+            DOM.navSummary.addEventListener('click', () => showSection('summarySection'));
+            DOM.navReport.addEventListener('click', () => showSection('reportSection'));
+            DOM.navSell.addEventListener('click', () => showSection('sellSection'));
+            DOM.excelFile1.addEventListener('change', (e) => handleFile(e.target.files[0], 1));
+            DOM.excelFile2.addEventListener('change', (e) => handleFile(e.target.files[0], 2));
+            DOM.btnCreateReport.addEventListener('click', createDetailedReport);
+            DOM.soSoInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.target.blur(); createDetailedReport(); } });
+            DOM.btnShowManualReport.addEventListener('click', showManualReportForm);
+            DOM.btnShowManualReport_inline.addEventListener('click', showManualReportForm);
+            DOM.btnCreateManualReport.addEventListener('click', createManualReport);
+            DOM.btnClearManualReport.addEventListener('click', clearManualReportForm); 
+            manualFormOrder.forEach(id => { const element = document.getElementById(id); if (element) { element.addEventListener('keydown', handleManualFormEnter); } });
+            document.querySelectorAll('.manual-currency').forEach(input => { input.addEventListener('input', (e) => { const value = e.target.value.replace(/\D/g, ''); e.target.dataset.value = value; e.target.value = value ? parseInt(value, 10).toLocaleString('vi-VN') : ''; }); });
+            DOM.btnPrintSummary.addEventListener('click', () => window.print());
+            DOM.btnCopySummary.addEventListener('click', () => copyElementAsImage('#summarySection', 'Copy ảnh tổng kết thành công!'));
+            DOM.btnCopyReport.addEventListener('click', () => copyElementAsImage('#reportContainer', 'Copy ảnh báo cáo thành công!'));
+            DOM.toggleChoicesBtn.addEventListener('click', toggleActionChoices);
+            DOM.sellTicketTypeRadios.forEach(radio => radio.addEventListener('change', handleSellOptionsChange));
+            DOM.sellPriceRadios.forEach(radio => radio.addEventListener('change', handleSellOptionsChange));
+            DOM.commissionRateRadios.forEach(radio => radio.addEventListener('change', handleSellOptionsChange));
+            DOM.customTicketPrice.addEventListener('input', (e) => { const value = e.target.value.replace(/\D/g, ''); e.target.value = value ? parseInt(value, 10).toLocaleString('vi-VN') : ''; });
+            DOM.sellQuantityInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); DOM.btnAddTicket.click(); } });
+            DOM.btnAddTicket.addEventListener('click', addTicketToReport);
+        }
+        
+        function createDetailedReport() { DOM.manualReportSection.style.display = 'none'; const soSo = DOM.soSoInput.value.trim(); if (!soSo) return alert("Vui lòng nhập số sổ!"); if (excelData1.length === 0 && excelData2.length === 0) return alert("Chưa có dữ liệu Excel được nạp!"); const reportData = processDetailedReportData(soSo); if (!reportData) { return alert(`Không tìm thấy số sổ '${soSo}' trong dữ liệu!`); } renderDetailedReport(reportData); updateDetailedReportView(); DOM.actionButtonContainer.style.display = 'grid'; DOM.actionChoices.style.display = 'none'; DOM.toggleChoicesBtn.textContent = 'Thêm tiền Thưởng/Nợ'; DOM.toggleChoicesBtn.className = 'secondary'; updateActionButtons(); DOM.reportContainer.scrollIntoView({ behavior: 'smooth' }); }
+        function handleManualFormEnter(event) { if (event.key !== 'Enter') return; event.preventDefault(); const currentId = event.target.id; const currentIndex = manualFormOrder.indexOf(currentId); if (currentIndex === -1) return; if (currentIndex < manualFormOrder.length - 1) { const nextId = manualFormOrder[currentIndex + 1]; DOM[nextId]?.focus(); } else { DOM.btnCreateManualReport.click(); } }
+        function clearManualReportForm() { manualFormOrder.forEach(id => { const element = DOM[id]; if (element) { element.value = ''; if (element.dataset.value) { element.dataset.value = ''; } } }); DOM.manualAgentName.focus(); }
+        function showManualReportForm() { if (DOM.homePage.style.display !== 'none') { DOM.homePage.style.display = 'none'; DOM.mainPage.style.display = 'block'; } showSection('reportSection'); DOM.manualReportSection.style.display = 'flex'; DOM.reportContainer.innerHTML = ''; DOM.actionButtonContainer.style.display = 'none'; clearManualReportForm(); }
+        function createManualReport() { const agentName = DOM.manualAgentName.value.trim(); if (!agentName) return alert("Vui lòng nhập Tên Đại Lý!"); const totals = { lotoDB: (parseFloat(DOM.manualLotoDB.dataset.value) || 0) * 1000, loCap: (parseFloat(DOM.manualLoCap.dataset.value) || 0) * 1000, c2_27: (parseFloat(DOM.manualC227.dataset.value) || 0) * 1000, c3_23: (parseFloat(DOM.manualC323.dataset.value) || 0) * 1000, thuong: parseFloat(DOM.manualThuong.dataset.value) || 0, xskt: 0 }; const commissions = { loto_db_com: totals.lotoDB * 0.08, lo_cap_com: totals.loCap * 0.10, c2_27_com: totals.c2_27 * 0.10, c3_23_com: totals.c3_23 * 0.10, xskt_com: 0 }; resetState('manual'); state.accountCodes.add(agentName); state.baseTongDT = totals.lotoDB + totals.loCap + totals.c2_27 + totals.c3_23; state.baseTongHH = commissions.loto_db_com + commissions.lo_cap_com + commissions.c2_27_com + commissions.c3_23_com; state.baseThuong = totals.thuong; renderDetailedReport({ totals, commissions }, DOM.manualDateRange.value.trim()); updateDetailedReportView(); DOM.manualReportSection.style.display = 'none'; DOM.actionButtonContainer.style.display = 'grid'; DOM.reportContainer.scrollIntoView({ behavior: 'smooth' }); }
+        function showSection(sectionId) { [DOM.summarySection, DOM.reportSection, DOM.sellSection].forEach(s => s.style.display = 'none'); document.getElementById(sectionId).style.display = 'block'; [DOM.navSummary, DOM.navReport, DOM.navSell].forEach(b => b.classList.remove('active')); const activeBtn = sectionId === 'summarySection' ? DOM.navSummary : (sectionId === 'reportSection' ? DOM.navReport : DOM.navSell); activeBtn.classList.add('active'); }
+        function toggleActionChoices() { if (DOM.toggleChoicesBtn.textContent.includes('Thêm')) { DOM.actionChoices.style.display = 'grid'; DOM.toggleChoicesBtn.textContent = 'Xoá hết Thưởng/Nợ'; DOM.toggleChoicesBtn.className = 'danger'; } else { document.getElementById('extraBonusRow')?.remove(); document.getElementById('extraDebtRow')?.remove(); state.extraBonus = 0; state.extraDebt = 0; updateDetailedReportView(); DOM.actionChoices.style.display = 'none'; DOM.toggleChoicesBtn.textContent = 'Thêm tiền Thưởng/Nợ'; DOM.toggleChoicesBtn.className = 'secondary'; } updateActionButtons(); }
+        function updateActionButtons() { DOM.actionChoices.innerHTML = `${document.getElementById('extraBonusRow') ? `<button class="danger" data-action="remove-bonus">Xoá Thưởng thêm</button>` : `<button data-action="add-bonus">Thêm tiền Thưởng</button>`}${document.getElementById('extraDebtRow') ? `<button class="danger" data-action="remove-debt">Xoá tiền Nợ</button>` : `<button data-action="add-debt">Thêm tiền Nợ</button>`}`; }
+        DOM.actionChoices.addEventListener('click', (e) => { const action = e.target.dataset.action; if (!action) return; const actionMap = { 'add-bonus': () => createDynamicInputRow('bonus'), 'remove-bonus': () => { document.getElementById('extraBonusRow')?.remove(); state.extraBonus = 0; updateDetailedReportView(); }, 'add-debt': () => createDynamicInputRow('debt'), 'remove-debt': () => { document.getElementById('extraDebtRow')?.remove(); state.extraDebt = 0; updateDetailedReportView(); } }; actionMap[action]?.(); updateActionButtons(); });
+        function createDynamicInputRow(type) { const isBonus = type === 'bonus'; const existingRow = document.getElementById(isBonus ? 'extraBonusRow' : 'extraDebtRow'); if (existingRow) return; const mainBonusRow = document.getElementById('mainBonusRow'); if (!mainBonusRow) return; const newRow = document.createElement('tr'); newRow.id = isBonus ? 'extraBonusRow' : 'extraDebtRow'; if (!isBonus) newRow.className = 'old-debt'; const nameCellHTML = isBonus ? `<td style="display: flex; align-items: center;"><textarea class="dynamic-input" style="color: var(--success-accent);" placeholder="Nhập tên thưởng..." rows="1"></textarea></td>` : `<td style="vertical-align: middle;">Nợ cũ</td>`; newRow.innerHTML = `${nameCellHTML}<td colspan="2"><input type="text" class="dynamic-input" data-type="${type}" placeholder="Nhập số tiền..." inputmode="numeric"></td>`; const anchorRow = document.getElementById('extraBonusRow') || mainBonusRow; anchorRow.insertAdjacentElement('afterend', newRow); const input = newRow.querySelector('input'); input.addEventListener('input', handleDynamicInputChange); input.addEventListener('focus', (e) => e.target.value = (parseFloat(e.target.dataset.fullValue) || 0).toLocaleString('vi-VN')); input.addEventListener('blur', (e) => e.target.value = formatNumberHiddenK(e.target.dataset.fullValue)); input.focus(); }
+        function handleDynamicInputChange(e) { const input = e.target; const rawValue = input.value.replace(/[^\d-]/g, ''); const num = parseInt(rawValue, 10) || 0; input.dataset.fullValue = num; if (input.dataset.type === 'bonus') state.extraBonus = num; else if (input.dataset.type === 'debt') state.extraDebt = num; updateDetailedReportView(); }
+        
+        // --- HÀM BÁN VÉ ---
+        function handleSellOptionsChange(event) { // Thêm event vào đây
+            const ticketType = document.querySelector('input[name="sellTicketType"]:checked').value;
+            const priceType = document.querySelector('input[name="sellPrice"]:checked').value;
+            const commissionType = document.querySelector('input[name="commissionRate"]:checked').value;
+            DOM.customTicketName.style.display = ticketType === 'custom-name' ? 'block' : 'none';
+            DOM.customTicketPrice.style.display = priceType === 'custom-price' ? 'block' : 'none';
+            DOM.customCommissionPercent.style.display = commissionType === 'custom-commission' ? 'block' : 'none';
+            
+            // Sửa lỗi: Chỉ chạy logic focus/check khi người dùng thực sự click
+            if (event && event.isTrusted && event.target.name === 'sellTicketType') {
+                DOM.sellQuantityInput.value = '';
+                switch (ticketType) {
+                    case 'xo-so': 
+                        document.querySelector('input[name="sellPrice"][value="10000"]').checked = true; 
+                        document.querySelector('input[name="commissionRate"][value="0.10"]').checked = true; 
+                        // Không gọi lại handleSellOptionsChange() nữa
+                        DOM.customTicketPrice.style.display = 'none'; // Cập nhật lại UI
+                        DOM.customCommissionPercent.style.display = 'none'; // Cập nhật lại UI
+                        DOM.sellQuantityInput.focus(); 
+                        break;
+                    case 've-boc': 
+                        document.querySelector('input[name="sellPrice"][value="5000"]').checked = true; 
+                        document.querySelector('input[name="commissionRate"][value="0.12"]').checked = true; 
+                        // Không gọi lại handleSellOptionsChange() nữa
+                        DOM.customTicketPrice.style.display = 'none'; // Cập nhật lại UI
+                        DOM.customCommissionPercent.style.display = 'none'; // Cập nhật lại UI
+                        DOM.sellQuantityInput.focus(); 
+                        break;
+                    case 'custom-name': 
+                        DOM.customTicketName.focus(); 
+                        break;
+                }
+            }
+        }
+        function addTicketToReport() { if (!state.currentSoSo) { alert("Chức năng này chỉ dùng khi đang có một báo cáo chi tiết. Vui lòng tạo báo cáo trước!"); return; } const quantity = parseInt(DOM.sellQuantityInput.value, 10); if (!quantity || quantity <= 0) { alert("Vui lòng nhập số lượng vé hợp lệ!"); return; } let typeName = ''; const ticketType = document.querySelector('input[name="sellTicketType"]:checked').value; if (ticketType === 'xo-so') { typeName = 'Xổ số'; } else if (ticketType === 've-boc') { typeName = 'Vé bóc'; } else { typeName = DOM.customTicketName.value.trim(); if (!typeName) { alert('Vui lòng nhập tên loại hình!'); return; } } let price = 0; const priceType = document.querySelector('input[name="sellPrice"]:checked').value; if (priceType === 'custom-price') { price = parseFloat(DOM.customTicketPrice.value.replace(/\D/g, '')) || 0; if (price <= 0) { alert('Vui lòng nhập giá bán hợp lệ!'); return; } } else { price = parseFloat(priceType); } let commissionRate = 0; const commissionType = document.querySelector('input[name="commissionRate"]:checked').value; if (commissionType === 'custom-commission') { commissionRate = parseFloat(DOM.customCommissionPercent.value) / 100 || 0; if (commissionRate <= 0) { alert('Vui lòng nhập % hoa hồng hợp lệ!'); return; } } else { commissionRate = parseFloat(commissionType); } const doanhThu = quantity * price; const hoaHong = doanhThu * commissionRate; const formattedName = `${typeName} (${(price / 1000).toLocaleString('vi-VN')}k) [${quantity} vé]`; const newTicket = { id: Date.now(), doanhThu, hoaHong, name: formattedName }; state.addedTickets.push(newTicket); const newRow = document.createElement('tr'); newRow.className = 'added-ticket-row'; newRow.dataset.ticketId = newTicket.id; newRow.innerHTML = `<td>${newTicket.name}</td><td>${formatNumberHiddenK(doanhThu)}</td><td>${formatCommissionCellHiddenK(doanhThu, hoaHong)}</td>`; const tongCongRow = document.getElementById('tongCongRow'); if (!tongCongRow) return; tongCongRow.parentNode.insertBefore(newRow, tongCongRow); updateDetailedReportView(); DOM.sellQuantityInput.value = ''; newRow.scrollIntoView({ behavior: 'smooth', block: 'center' }); showSection('reportSection'); }
+        
+        // --- UTILITY FUNCTIONS ---
+        async function copyElementAsImage(selector, message) { const element = document.querySelector(selector); if (!element || !element.innerHTML) return alert("Chưa có nội dung để sao chép!"); const copyright = document.getElementById('copyrightInReport'); if (copyright) copyright.style.display = 'block'; try { const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 }); canvas.toBlob(async (blob) => { try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); alert(message); } catch (err) { console.error('Lỗi sao chép:', err); alert('Không thể sao chép. Trình duyệt có thể không hỗ trợ.'); } }, 'image/png'); } catch (err) { console.error('Lỗi tạo ảnh:', err); alert('Đã xảy ra lỗi khi tạo ảnh.'); } finally { if (copyright) copyright.style.display = 'none'; } }
+        function formatNumberHiddenK(num) { if (isNaN(num) || num === "") return "0"; if (Math.abs(num) < 1000) return "0"; return parseInt(num / 1000).toLocaleString("vi-VN"); }
+        function formatCommissionCellHiddenK(revenue, commission) { if (!revenue || revenue === 0) return formatNumberHiddenK(commission); const percentage = Math.round((commission / revenue) * 100); return `<i style="color: #E57373; font-weight: normal;">(${percentage}%)</i> ${formatNumberHiddenK(commission)}`; }
+        function docso(numberStr) { const num = String(numberStr).replace(/[.,]/g, ''); if (num === '0') return 'Không'; if (num === '' || isNaN(parseInt(num))) return ''; const readChunk = (chunkStr) => { if (!chunkStr || parseInt(chunkStr, 10) === 0) return ""; const originalLength = chunkStr.length; const n = chunkStr.padStart(3, '0').split('').map(Number); const words = ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"]; let str = ""; const [tram, chuc, donvi] = n; if (originalLength > 2 || tram > 0) { str += words[tram] + " trăm "; } if (chuc === 0 && donvi !== 0) { if (originalLength > 2 || tram > 0) { str += "linh "; } } else if (chuc === 1) { str += "mười "; } else if (chuc > 1) { str += words[chuc] + " mươi "; } if (donvi > 0) { if (chuc === 1) { if (donvi === 5) str += "lăm"; else str += words[donvi]; } else if (chuc > 1) { if (donvi === 1) str += "mốt"; else if (donvi === 5) str += "lăm"; else str += words[donvi]; } else { str += words[donvi]; } } return str.trim(); }; const units = ["", "nghìn", "triệu", "tỷ"]; const chunks = []; let tempNum = num; while (tempNum.length > 0) { chunks.unshift(tempNum.substring(Math.max(0, tempNum.length - 3))); tempNum = tempNum.substring(0, tempNum.length - 3); } if (chunks.length > units.length) return "Số quá lớn"; let result = chunks.map((chunk, i) => { const text = readChunk(chunk); if (text) { if (parseInt(chunk, 10) > 0) { return text + " " + units[chunks.length - 1 - i]; } if (i === chunks.length - 1) return text; return ""; } return ""; }).filter(Boolean).join(" ").replace(/\s+/g, ' ').trim(); return result.charAt(0).toUpperCase() + result.slice(1); }
+        
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+    })();
+  </script>
+
+</body>
+</html>
+
 
