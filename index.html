@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Báo cáo thu tiền ZENG™ - Tối Ưu</title>
+  <title>Báo cáo thu tiền - ZENG™ Tối Ưu</title> {/* Cập nhật title */}
   <!-- Thư viện bên ngoài -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -598,6 +598,11 @@
             try {
                 const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
                 try {
+                    // Try the fallback method first as it's more likely to work in iframe
+                    copyUsingExecCommand(canvas, message, buttonElement, originalButtonText);
+                } catch (fallbackError) {
+                    console.error('Lỗi khi dùng document.execCommand, thử API mới:', fallbackError);
+                     // If fallback fails, try the newer API
                     canvas.toBlob(async (blob) => {
                         try {
                            if (navigator.clipboard && navigator.clipboard.write) {
@@ -608,16 +613,14 @@
                                    setTimeout(() => { if(buttonElement) buttonElement.textContent = originalButtonText; }, 2000);
                               }
                            } else {
-                               copyUsingExecCommand(canvas, message, buttonElement, originalButtonText);
+                                throw new Error('Clipboard API không được hỗ trợ.'); // Throw if even new API isn't supported
                            }
                         } catch (writeErr) {
                             console.error('Lỗi khi dùng navigator.clipboard.write:', writeErr);
-                            copyUsingExecCommand(canvas, message, buttonElement, originalButtonText);
+                            showNotification('Sao chép thất bại. Trình duyệt có thể không hỗ trợ.', 'error');
+                            if (buttonElement) buttonElement.textContent = originalButtonText;
                         }
                     }, 'image/png');
-                } catch (apiError) {
-                     console.error('Lỗi Clipboard API:', apiError);
-                     copyUsingExecCommand(canvas, message, buttonElement, originalButtonText);
                 }
             } catch (err) {
                 console.error('Lỗi tạo ảnh:', err);
@@ -631,34 +634,37 @@
         }
 
         function copyUsingExecCommand(canvas, message, buttonElement, originalButtonText) {
-            try {
-                const dataUrl = canvas.toDataURL('image/png');
-                const textarea = document.createElement('textarea');
-                textarea.value = dataUrl; 
-                textarea.style.position = 'fixed'; 
-                textarea.style.left = '-9999px';
-                document.body.appendChild(textarea);
-                textarea.select();
-                textarea.setSelectionRange(0, 999999); // Ensure full selection
+             // This function now throws an error if execCommand fails, caught by the caller
+            const dataUrl = canvas.toDataURL('image/png');
+            const textarea = document.createElement('textarea');
+            textarea.value = dataUrl; 
+            textarea.style.position = 'fixed'; 
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            textarea.setSelectionRange(0, 999999); 
 
-                let successful = false;
-                try { successful = document.execCommand('copy'); } 
-                catch(err) { console.error('execCommand copy failed:', err); }
+            let successful = false;
+            try { successful = document.execCommand('copy'); } 
+            catch(err) { 
+                console.error('execCommand copy failed:', err); 
+                document.body.removeChild(textarea); // Clean up textarea
+                throw err; // Re-throw the error to be caught by the main function
+            }
 
-                if (successful) {
-                    showNotification(message + " (đã dùng phương pháp cũ)", 'success');
-                     if (buttonElement) {
-                         buttonElement.textContent = 'Đã Copy!';
-                         setTimeout(() => { if(buttonElement) buttonElement.textContent = originalButtonText; }, 2000);
-                     }
-                } else { throw new Error('document.execCommand("copy") thất bại.'); }
-                 document.body.removeChild(textarea);
-            } catch (execErr) {
-                 console.error('Lỗi khi dùng document.execCommand("copy"):', execErr);
-                 showNotification('Sao chép thất bại. Vui lòng thử lại hoặc dùng trình duyệt khác.', 'error');
-                 if (buttonElement) buttonElement.textContent = originalButtonText;
+            document.body.removeChild(textarea); // Clean up textarea
+
+            if (successful) {
+                showNotification(message + " (đã dùng phương pháp cũ)", 'success');
+                 if (buttonElement) {
+                     buttonElement.textContent = 'Đã Copy!';
+                     setTimeout(() => { if(buttonElement) buttonElement.textContent = originalButtonText; }, 2000);
+                 }
+            } else { 
+                throw new Error('document.execCommand("copy") trả về false.'); 
             }
         }
+
 
         function formatNumberHiddenK(num) { num = parseFloat(num); if (isNaN(num) || num === 0 || Math.abs(num) < 1000) return "0"; return parseInt(num / 1000).toLocaleString("vi-VN"); }
         function formatCommissionCellHiddenK(revenue, commission) { revenue = parseFloat(revenue); commission = parseFloat(commission); if (!revenue || revenue === 0 || isNaN(revenue) || isNaN(commission)) return formatNumberHiddenK(commission); const percentage = Math.round((commission / revenue) * 100); return `<i style="color: #E57373; font-weight: normal;">(${percentage}%)</i> ${formatNumberHiddenK(commission)}`; }
@@ -675,29 +681,39 @@
             const readChunk = (chunkStr, isFirstChunk) => {
                 if (!chunkStr || parseInt(chunkStr, 10) === 0) return "";
                 
-                const n = chunkStr.padStart(3, '0').split('').map(Number);
+                let n = chunkStr.padStart(3, '0').split('').map(Number);
+                // Fix for reading single/double digits correctly without padding affecting logic
+                if (chunkStr.length < 3 && isFirstChunk) {
+                    if (chunkStr.length === 1) n = [0, 0, Number(chunkStr)];
+                    else if (chunkStr.length === 2) n = [0, Number(chunkStr[0]), Number(chunkStr[1])];
+                }
+                 
                 const [tram, chuc, donvi] = n;
                 let str = "";
 
                 if (tram > 0) { str += words[tram] + " trăm "; } 
-                else if (!isFirstChunk) { 
-                    // Chỉ thêm "không trăm" nếu không phải chunk đầu và có chục hoặc đơn vị
-                    if(chuc > 0 || donvi > 0) str += "không trăm ";
+                else if (!isFirstChunk && (chuc > 0 || donvi > 0)) { 
+                    // Add "không trăm" only if not the first chunk AND there are tens or units
+                     str += "không trăm "; 
                 }
 
                 if (chuc === 0 && donvi !== 0) { 
-                    // Chỉ thêm linh nếu có hàng trăm hoặc không phải chunk đầu tiên
+                    // Add "linh" only if there were hundreds OR if it's not the first chunk
                     if (tram > 0 || !isFirstChunk) str += "linh "; 
                 } 
                 else if (chuc === 1) { str += "mười "; } 
                 else if (chuc > 1) { str += words[chuc] + " mươi "; }
 
                 if (donvi > 0) {
-                    if (chuc === 1) {
-                        if (donvi === 5) str += "lăm"; else str += words[donvi];
+                    if (chuc === 1 || (chuc === 0 && (tram > 0 || !isFirstChunk))) { // Need special handling for 'mười' and 'linh' cases
+                         if (donvi === 5 && chuc === 1) str += "lăm"; // Mười lăm
+                         else if (donvi === 1 && chuc === 1) str += "một"; // Mười một (standard Vietnamese)
+                         else str += words[donvi];
                     } else if (chuc > 1) {
-                        if (donvi === 1) str += "mốt"; else if (donvi === 5) str += "lăm"; else str += words[donvi];
-                    } else { // chuc === 0
+                        if (donvi === 1) str += "mốt"; 
+                        else if (donvi === 5) str += "lăm"; 
+                        else str += words[donvi];
+                    } else { // chuc === 0 and (tram === 0 and isFirstChunk)
                         str += words[donvi];
                     }
                 }
@@ -714,15 +730,17 @@
             if (chunks.length > units.length) return "Số quá lớn";
 
             let result = chunks.map((chunk, i) => {
-                const text = readChunk(chunk, i === 0); // Kiểm tra xem có phải chunk đầu không
+                const text = readChunk(chunk, i === 0); 
                 if (text) {
                     return text + " " + units[chunks.length - 1 - i];
                 }
                 return "";
             }).filter(Boolean).join(" ").replace(/\s+/g, ' ').trim();
             
+            // Capitalize first letter
             return result.charAt(0).toUpperCase() + result.slice(1);
         }
+        
         
         // --- Notification System ---
         function showNotification(message, type = 'info', duration = 3000) { const notification = document.createElement('div'); notification.className = `notification ${type}`; notification.textContent = message; DOM.notificationArea.appendChild(notification); notification.offsetHeight; notification.classList.add('show'); setTimeout(() => { notification.classList.remove('show'); notification.addEventListener('transitionend', () => notification.remove()); }, duration); }
