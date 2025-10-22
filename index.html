@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Báo cáo thu tiền ZENG™ - Tối Ưu</title>
+  <title>Báo cáo thu tiền - ZENG™</title>
   <!-- Thư viện bên ngoài -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -59,21 +59,38 @@
         color: var(--logo-color); /* Sử dụng màu đỏ ánh vàng */
         overflow: hidden; 
     }
+
     .simple-animated-logo span {
-        opacity: 0; display: inline-block; 
-        transform: translateY(15px); 
-        animation: slideFadeInLetter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; 
+        opacity: 0; /* Ẩn các ký tự ban đầu */
+        display: inline-block; 
+        transform: translateY(15px); /* Bắt đầu ở dưới */
+        /* Cấu hình animation */
+        animation-name: slideFadeInLetter;
+        animation-duration: 3s; /* Tổng thời gian của 1 vòng lặp */
+        animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        animation-iteration-count: infinite; /* Lặp lại vô hạn */
     }
+    
+    /* Animation delay cho từng ký tự (thời gian bắt đầu) */
     .simple-animated-logo span:nth-child(1) { animation-delay: 0.1s; } /* Z */
     .simple-animated-logo span:nth-child(2) { animation-delay: 0.25s; } /* E */
     .simple-animated-logo span:nth-child(3) { animation-delay: 0.4s; } /* N */
     .simple-animated-logo span:nth-child(4) { animation-delay: 0.55s; } /* G */
     .simple-animated-logo span:nth-child(5) { animation-delay: 0.8s; } /* ™ */
+
+
     .simple-animated-logo .tm {
         font-size: 0.5em; vertical-align: super; margin-left: 2px;
         font-weight: normal; color: var(--text-light); /* Màu TM riêng */
     }
-    @keyframes slideFadeInLetter { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Keyframes cho hiệu ứng trượt lên + mờ dần, giữ 1 lúc rồi lặp lại */
+    @keyframes slideFadeInLetter { 
+        0%   { opacity: 0; transform: translateY(15px); } /* Bắt đầu */
+        20%  { opacity: 1; transform: translateY(0); }  /* Xuất hiện (0.6s) */
+        80%  { opacity: 1; transform: translateY(0); }  /* Đứng yên (1.8s) */
+        100% { opacity: 0; transform: translateY(15px); } /* Biến mất và về vị trí_bắt_đầu (0.6s) */
+    }
     /* --- KẾT THÚC CSS LOGO --- */
 
 
@@ -160,7 +177,7 @@
         input, button, textarea { padding: 10px 12px; font-size: 4vw; }
         th, td { padding: 8px; font-size: 3.8vw; word-break: break-word; }
         .so-so { font-size: 5.5vw; word-break: break-all; }
-        tr.final-amount-positive td, tr.final-amount-negative td { font-size: 4vw !important; padding: 12px 8px !important; }
+        tr.final-amount-positive td, tr.final-amount-negative td { font-size: 3.9vw !important; padding: 12px 8px !important; }
         .bang-chu-cell { font-size: 3.8vw !important; }
         .copyright { font-size: 3.5vw; }
         .added-ticket-row td:first-child { font-size: 3.8vw; }
@@ -674,4 +691,6 @@
 
 </body>
 </html>
+
+
 
