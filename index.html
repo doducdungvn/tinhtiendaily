@@ -52,44 +52,60 @@
     h4 { margin-top: 0; text-align: center; color: var(--text-color); font-weight: 500;}
     .report-date { text-align:center; font-weight: normal; margin-top: -12px; margin-bottom: 16px; color: var(--text-light); }
 
-    /* --- CSS CHO LOGO ZENG™ ANIMATED (PHIÊN BẢN ĐƠN GIẢN) --- */
+    /* --- CSS CHO LOGO ZENG™ ANIMATED (PHIÊN BẢN MỚI) --- */
     .simple-animated-logo {
         text-align: center; margin-bottom: 15px; margin-top: 10px;
         font-size: 32px; font-weight: 700; 
-        color: var(--logo-color); /* Sử dụng màu đỏ ánh vàng */
+        color: var(--logo-color); /* Màu khởi đầu */
         overflow: hidden; 
+        transition: color 0.5s ease; /* Hiệu ứng đổi màu mượt */
+    }
+    .main-page-logo {
+        font-size: 24px; margin-top: 5px; margin-bottom: 10px;
     }
 
     .simple-animated-logo span {
         opacity: 0; /* Ẩn các ký tự ban đầu */
         display: inline-block; 
         transform: translateY(15px); /* Bắt đầu ở dưới */
-        /* Cấu hình animation */
-        animation-name: slideFadeInLetter;
-        animation-duration: 3s; /* Tổng thời gian của 1 vòng lặp */
-        animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        animation-iteration-count: infinite; /* Lặp lại vô hạn */
     }
     
-    /* Animation delay cho từng ký tự (thời gian bắt đầu) */
-    .simple-animated-logo span:nth-child(1) { animation-delay: 0.1s; } /* Z */
-    .simple-animated-logo span:nth-child(2) { animation-delay: 0.25s; } /* E */
-    .simple-animated-logo span:nth-child(3) { animation-delay: 0.4s; } /* N */
-    .simple-animated-logo span:nth-child(4) { animation-delay: 0.55s; } /* G */
-    .simple-animated-logo span:nth-child(5) { animation-delay: 0.8s; } /* ™ */
+    /* Lớp điều khiển animation */
+    .simple-animated-logo.animate-in span {
+        animation: slideFadeInLetter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+    .simple-animated-logo.animate-out span {
+        animation: slideFadeOutLetter 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
 
+    /* Animation delay cho từng ký tự (xuất hiện) */
+    .simple-animated-logo.animate-in .logo-char-1 { animation-delay: 0.1s; }
+    .simple-animated-logo.animate-in .logo-char-2 { animation-delay: 0.25s; }
+    .simple-animated-logo.animate-in .logo-char-3 { animation-delay: 0.4s; }
+    .simple-animated-logo.animate-in .logo-char-4 { animation-delay: 0.55s; }
+    .simple-animated-logo.animate-in .logo-char-5 { animation-delay: 0.8s; }
+    
+    /* Animation delay cho từng ký tự (biến mất - ngược lại) */
+    .simple-animated-logo.animate-out .logo-char-1 { animation-delay: 0.25s; }
+    .simple-animated-logo.animate-out .logo-char-2 { animation-delay: 0.2s; }
+    .simple-animated-logo.animate-out .logo-char-3 { animation-delay: 0.15s; }
+    .simple-animated-logo.animate-out .logo-char-4 { animation-delay: 0.1s; }
+    .simple-animated-logo.animate-out .logo-char-5 { animation-delay: 0s; }
 
     .simple-animated-logo .tm {
         font-size: 0.5em; vertical-align: super; margin-left: 2px;
         font-weight: normal; color: var(--text-light); /* Màu TM riêng */
     }
 
-    /* Keyframes cho hiệu ứng trượt lên + mờ dần, giữ 1 lúc rồi lặp lại */
+    /* Keyframes cho hiệu ứng trượt lên + mờ dần */
     @keyframes slideFadeInLetter { 
-        0%   { opacity: 0; transform: translateY(15px); } /* Bắt đầu */
-        20%  { opacity: 1; transform: translateY(0); }  /* Xuất hiện (0.6s) */
-        80%  { opacity: 1; transform: translateY(0); }  /* Đứng yên (1.8s) */
-        100% { opacity: 0; transform: translateY(15px); } /* Biến mất và về vị trí_bắt_đầu (0.6s) */
+        from { opacity: 0; transform: translateY(15px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    /* Keyframes cho hiệu ứng trượt xuống + mờ đi */
+    @keyframes slideFadeOutLetter { 
+        from { opacity: 1; transform: translateY(0); }
+        to   { opacity: 0; transform: translateY(15px); }
     }
     /* --- KẾT THÚC CSS LOGO --- */
 
@@ -112,12 +128,18 @@
     button.danger:hover { background-color: #c0392b; } 
     button.warning { background-color: var(--warning-color); }
     button.warning:hover { background-color: #e67e22; } 
-    .main-nav, .summary-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-    .summary-actions { grid-template-columns: repeat(2, 1fr); }
+    
+    /* CẬP NHẬT THANH NAV CHÍNH */
+    .main-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+    .summary-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+    
     .main-nav button { background-color: var(--secondary-color); color: var(--text-color); }
     .main-nav button:hover { background-color: var(--secondary-dark); }
     .main-nav button.active { background-color: var(--primary-color); color: white; }
     .main-nav button.active:hover { background-color: var(--primary-dark); }
+    /* Nút nạp lại nổi bật */
+    .main-nav button.warning { font-weight: 600; }
+
     table { border-collapse: collapse; width: 100%; margin: 1px auto; background: var(--container-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-radius: 6px; overflow: hidden; }
     th, td { border: 1px solid var(--border-color); padding: 10px 12px; text-align: center; vertical-align: middle; }
     th { background: var(--header-bg); color: var(--header-text); font-size: 16px; font-weight: 500; }
@@ -169,11 +191,20 @@
     .notification.info { background-color: var(--info-color); }
     #loading-indicator { display: none; position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background-color: var(--header-bg); color: var(--header-text); padding: 8px 15px; border-radius: 4px; font-size: 14px; z-index: 2100; box-shadow: 0 2px 5px rgba(0,0,0,0.2); animation: fadeIn 0.3s; }
     .context-note { font-size: 14px; color: var(--text-light); text-align: center; margin-top: -10px; margin-bottom: 15px; font-style: italic; }
+    
+    /* CSS cho modal nạp lại file */
+    #reloadModal .controls-panel {
+        padding-top: 10px;
+        box-shadow: none;
+        border: none;
+    }
+
     @media (max-width: 768px) {
         body { margin: 0; padding: 10px; font-size: 4vw; -webkit-text-size-adjust: 100%; }
         .page { padding: 10px; margin: 10px auto; }
         h2 { font-size: 6vw; } h3 { font-size: 5vw; } label { font-size: 4vw; }
         .simple-animated-logo { font-size: 8vw; } 
+        .main-page-logo { font-size: 6vw; margin-bottom: 15px; } /* Logo nhỏ hơn trên mobile */
         input, button, textarea { padding: 10px 12px; font-size: 4vw; }
         th, td { padding: 8px; font-size: 3.8vw; word-break: break-word; }
         .so-so { font-size: 5.5vw; word-break: break-all; }
@@ -189,6 +220,8 @@
         #notification-area { top: 10px; right: 10px; }
         .notification { font-size: 3.8vw; padding: 10px 15px;}
         .inline-form > button { flex-basis: 48%; } 
+        /* CẬP NHẬT: Thanh Nav trên mobile */
+        .main-nav { grid-template-columns: repeat(2, 1fr); } /* 2x2 grid */
     }
     @media (min-width: 769px) { #mainPage { max-width: 1200px; } }
     @media print { body * { visibility: hidden; } #summaryTableContainer, #summaryTableContainer * { visibility: visible; } #summaryTableContainer { position: absolute; left: 0; top: 0; width: 100%; overflow: visible; } table { font-size: 10pt; } th, td { padding: 4px; } button, a, #notification-area, .modal-overlay, #loading-indicator { display: none !important; } }
@@ -204,7 +237,12 @@
 
   <div id="homePage" class="page">
     <div class="simple-animated-logo">
-        <span>Z</span><span>E</span><span>N</span><span>G</span><span class="tm">™</span>
+        <!-- Thêm class cho từng ký tự -->
+        <span class="logo-char-1">Z</span>
+        <span class="logo-char-2">E</span>
+        <span class="logo-char-3">N</span>
+        <span class="logo-char-4">G</span>
+        <span class="logo-char-5 tm">™</span>
     </div>
     <h2>Báo cáo Thu Tiền</h2>
     <div class="controls-panel">
@@ -225,10 +263,21 @@
   </div>
   
   <div id="mainPage" class="page" style="display: none;">
+    <!-- THÊM LOGO VÀO TRANG CHÍNH -->
+    <div class="simple-animated-logo main-page-logo">
+        <span class="logo-char-1">Z</span>
+        <span class="logo-char-2">E</span>
+        <span class="logo-char-3">N</span>
+        <span class="logo-char-4">G</span>
+        <span class="logo-char-5 tm">™</span>
+    </div>
+
+    <!-- THÊM NÚT NẠP LẠI -->
     <div class="main-nav">
         <button id="navSummary" class="active">Xem Tổng Kết</button>
         <button id="navReport">Tạo Báo Cáo</button>
         <button id="navSell">Bán Vé</button>
+        <button id="navReload" class="warning">Nạp lại Excel</button>
     </div>
 
     <div id="summarySection" class="main-section">
@@ -331,7 +380,7 @@
      </div>
    </div>
 
-   <!-- THAY ĐỔI: Modal mới để xem trước ảnh -->
+   <!-- Modal xem trước ảnh -->
    <div id="imagePreviewModal" class="modal-overlay">
      <div class="modal-content">
        <span id="closePreviewModalBtn" class="modal-close-btn">&times;</span>
@@ -342,6 +391,24 @@
        <img id="imagePreviewHolder" src="" alt="Bản xem trước báo cáo" style="width: 100%; border: 1px solid var(--border-color); border-radius: 4px; user-select: auto; -webkit-user-select: auto;">
      </div>
    </div>
+
+    <!-- MODAL NẠP LẠI EXCEL MỚI -->
+    <div id="reloadModal" class="modal-overlay">
+      <div class="modal-content">
+        <span id="closeReloadModalBtn" class="modal-close-btn">&times;</span>
+        <div id="reloadFormContent" class="controls-panel" style="border: none; box-shadow: none; padding: 10px 0;"> 
+            <h4 style="margin-top:0; text-align:center;">Nạp lại File Excel</h4>
+            
+            <label for="reloadFile1">Chọn file Biểu 31 (Lô tô):</label>
+            <input type="file" id="reloadFile1" accept=".xls,.xlsx">
+            
+            <label for="reloadFile2">Chọn file Biểu 35 (XSKT - Tùy chọn):</label>
+            <input type="file" id="reloadFile2" accept=".xls,.xlsx">
+            
+            <button id="btnReloadSubmit" class="success" style="margin-top: 15px;">Nạp</button>
+        </div>
+      </div>
+    </div>
 
   <script>
     'use strict';
@@ -390,7 +457,15 @@
             loadingIndicator: document.getElementById('loading-indicator'),
             imagePreviewModal: document.getElementById('imagePreviewModal'),
             closePreviewModalBtn: document.getElementById('closePreviewModalBtn'),
-            imagePreviewHolder: document.getElementById('imagePreviewHolder')
+            imagePreviewHolder: document.getElementById('imagePreviewHolder'),
+            navReload: document.getElementById('navReload'),
+            reloadModal: document.getElementById('reloadModal'),
+            closeReloadModalBtn: document.getElementById('closeReloadModalBtn'),
+            reloadFile1: document.getElementById('reloadFile1'),
+            reloadFile2: document.getElementById('reloadFile2'),
+            btnReloadSubmit: document.getElementById('btnReloadSubmit'),
+            // Thêm logo containers
+            logoContainers: document.querySelectorAll('.simple-animated-logo')
         };
         
         const manualFormOrder = [
@@ -399,10 +474,10 @@
         ];
 
         // ===== CORE LOGIC: FILE HANDLING =====
-        function handleFile(file, fileNumber) {
+        function handleFile(file, fileNumber, inputId) {
             if (!file) return;
             showLoading(); 
-            const fileInput = fileNumber === 1 ? DOM.excelFile1 : DOM.excelFile2;
+            const fileInput = document.getElementById(inputId); 
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
@@ -430,29 +505,25 @@
                         excelData2 = jsonData;
                     }
                     showNotification(`Đã nạp dữ liệu ${file.name} thành công!`, 'success');
-                    fileInput.classList.add('loaded');
+                    if (fileInput) fileInput.classList.add('loaded'); 
                 } catch (error) {
                     console.error("Lỗi khi xử lý file:", error);
                     showNotification(`Lỗi: ${error.message}. Vui lòng kiểm tra lại file.`, 'error');
-                    fileInput.classList.remove('loaded');
-                    fileInput.value = '';
+                    if (fileInput) { fileInput.classList.remove('loaded'); fileInput.value = ''; }
                 } finally {
                     hideLoading(); 
                 }
             };
-            reader.onerror = () => {
-                showNotification(`Không thể đọc file ${file.name}.`, 'error');
-                hideLoading();
-            }
+            reader.onerror = () => { showNotification(`Không thể đọc file ${file.name}.`, 'error'); hideLoading(); }
             reader.readAsArrayBuffer(file);
         }
 
-        // ===== SUMMARY VIEW LOGIC =====
+        // ===== SUMMARY VIEW LOGIC (Không đổi) =====
         function processSummaryData() { const individualAgentData = new Map(); const initializeAgent = (code) => { if (!individualAgentData.has(code)) { individualAgentData.set(code, { totalRevenue: 0, totalCommission: 0, lotoDB: 0, lotoCap: 0, c2_27: 0, c3_23: 0, xskt: 0, thuong: 0 }); } }; excelData1.forEach(row => { const agentCode = String(row.__EMPTY || '').trim(); if (!agentCode || !/\d/.test(agentCode)) return; initializeAgent(agentCode); const data = individualAgentData.get(agentCode); const loto_db_rev = parseFloat(row.__EMPTY_2) || 0; const lo_cap_rev = parseFloat(row.__EMPTY_6) || 0; const c2_27_rev = parseFloat(row.__EMPTY_8) || 0; const c3_23_rev = parseFloat(row.__EMPTY_10) || 0; data.lotoDB += loto_db_rev; data.lotoCap += lo_cap_rev; data.c2_27 += c2_27_rev; data.c3_23 += c3_23_rev; data.thuong += parseFloat(row.__EMPTY_14) || 0; data.totalRevenue += loto_db_rev + lo_cap_rev + c2_27_rev + c3_23_rev; data.totalCommission += (loto_db_rev * 0.08) + (lo_cap_rev * 0.10) + (c2_27_rev * 0.10) + (c3_23_rev * 0.10); }); excelData2.forEach(row => { const agentCode = String(row.__EMPTY || row.__EMPTY_1 || '').trim(); if (!agentCode || !/\d/.test(agentCode)) return; initializeAgent(agentCode); const data = individualAgentData.get(agentCode); const xsktRevenue = (parseFloat(row.__EMPTY_7) || 0) * 1000; data.xskt += xsktRevenue; data.totalRevenue += xsktRevenue; data.totalCommission += xsktRevenue * 0.10; }); const getAgentNumber = (code) => String(code).match(/\d+$/)?.[0] || code; const getAgentParts = (code) => { const num = getAgentNumber(code); const prefix = String(code).replace(num, ''); return { num: parseInt(num, 10), prefix }; }; const sortedKeys = [...individualAgentData.keys()].sort((a, b) => { const partsA = getAgentParts(a); const partsB = getAgentParts(b); if (partsA.num !== partsB.num) return partsA.num - partsB.num; return partsA.prefix.localeCompare(partsB.prefix); }); const groupedData = new Map(); sortedKeys.forEach(agentCode => { const groupKey = getAgentNumber(agentCode); if (!groupedData.has(groupKey)) { groupedData.set(groupKey, { agents: [], groupTotal: 0 }); } const group = groupedData.get(groupKey); const agentDetails = individualAgentData.get(agentCode); const finalAmount = agentDetails.totalRevenue - agentDetails.totalCommission - agentDetails.thuong; group.agents.push({ code: agentCode, data: agentDetails }); group.groupTotal += finalAmount; }); const grandTotals = { lotoDB: 0, lotoCap: 0, c3_23: 0, c2_27: 0, xskt: 0, thuong: 0, finalAmount: 0 }; individualAgentData.forEach(data => { grandTotals.lotoDB += data.lotoDB; grandTotals.lotoCap += data.lotoCap; grandTotals.c3_23 += data.c3_23; grandTotals.c2_27 += data.c2_27; grandTotals.xskt += data.xskt; grandTotals.thuong += data.thuong; grandTotals.finalAmount += data.totalRevenue - data.totalCommission - data.thuong; }); return { groupedData, grandTotals }; }
         function renderSummaryTable({ groupedData, grandTotals }) { let body = ''; let stt = 1; const sortedGroupedData = [...groupedData.entries()].sort((a, b) => parseInt(a[0], 10) - parseInt(b[0], 10)); for (const [groupKey, group] of sortedGroupedData) { group.agents.forEach((agent, index) => { const agentData = agent.data; const finalAmount = agentData.totalRevenue - agentData.totalCommission - agentData.thuong; const isFirstInGroup = index === 0; const sttCell = isFirstInGroup ? `<td>${stt}</td>` : '<td></td>'; let finalAmountCellContent = finalAmount < 0 ? `<span class="negative-value">${formatNumberHiddenK(finalAmount)}</span>` : formatNumberHiddenK(finalAmount); if (index === group.agents.length - 1) { finalAmountCellContent += ` <strong style="color: var(--primary-color);">(${formatNumberHiddenK(group.groupTotal)})</strong>`; } body += `<tr ${isFirstInGroup ? 'class="group-start-row"' : ''}>${sttCell}<td>${agent.code}</td><td>${formatNumberHiddenK(agentData.lotoDB)}</td><td>${formatNumberHiddenK(agentData.lotoCap)}</td><td>${formatNumberHiddenK(agentData.c3_23)}</td><td>${formatNumberHiddenK(agentData.c2_27)}</td><td>${formatNumberHiddenK(agentData.xskt)}</td><td>${formatNumberHiddenK(agentData.thuong)}</td><td>${finalAmountCellContent}</td></tr>`; }); stt++; } const grandFinalAmountClass = grandTotals.finalAmount >= 0 ? 'final-amount-positive' : 'final-amount-negative'; const footer = `<tr><td colspan="2">TỔNG CỘNG</td><td>${formatNumberHiddenK(grandTotals.lotoDB)}</td><td>${formatNumberHiddenK(grandTotals.lotoCap)}</td><td>${formatNumberHiddenK(grandTotals.c3_23)}</td><td>${formatNumberHiddenK(grandTotals.c2_27)}</td><td>${formatNumberHiddenK(grandTotals.xskt)}</td><td>${formatNumberHiddenK(grandTotals.thuong)}</td><td class="${grandFinalAmountClass}">${formatNumberHiddenK(grandTotals.finalAmount)}</td></tr>`; return `<table border="1"><thead><tr><th style="width: 8%;">STT</th><th style="width: 12%;">ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th><th>XSKT</th><th>Thưởng</th><th>Tiền</th></tr></thead><tbody>${body}</tbody><tfoot>${footer}</tfoot></table>`; }
         function generateSummaryView() { if (excelData1.length === 0 && excelData2.length === 0) return; const summaryData = processSummaryData(); const tableHTML = renderSummaryTable(summaryData); DOM.summaryTableContainer.innerHTML = tableHTML; DOM.summaryDate.textContent = dateRangeText; }
 
-        // ===== DETAILED REPORT VIEW LOGIC =====
+        // ===== DETAILED REPORT VIEW LOGIC (Không đổi) =====
         function resetState(soSo) { state.currentSoSo = soSo; state.baseTongDT = 0; state.baseTongHH = 0; state.baseThuong = 0; state.extraBonus = 0; state.extraDebt = 0; state.addedTickets = []; state.accountCodes.clear(); }
         function processDetailedReportData(soSo) { const filterBySoSo = (row) => { const agentCode = String(row.__EMPTY || row.__EMPTY_1 || '').trim(); if (!agentCode) return false; const numericPartMatch = agentCode.match(/\d+$/); if (!numericPartMatch) return false; return numericPartMatch[0] === soSo; }; const filtered1 = excelData1.filter(filterBySoSo); const filtered2 = excelData2.filter(filterBySoSo); if (filtered1.length === 0 && filtered2.length === 0) return null; resetState(soSo); const totalsFromExcel = { lotoDB: 0, loCap: 0, c2_27: 0, c3_23: 0, thuong: 0, xskt: 0 }; filtered1.forEach(row => { state.accountCodes.add(String(row.__EMPTY).trim()); totalsFromExcel.lotoDB += parseFloat(row.__EMPTY_2) || 0; totalsFromExcel.loCap += parseFloat(row.__EMPTY_6) || 0; totalsFromExcel.c2_27 += parseFloat(row.__EMPTY_8) || 0; totalsFromExcel.c3_23 += parseFloat(row.__EMPTY_10) || 0; totalsFromExcel.thuong += parseFloat(row.__EMPTY_14) || 0; }); filtered2.forEach(row => { state.accountCodes.add(String(row.__EMPTY || row.__EMPTY_1).trim()); totalsFromExcel.xskt += (parseFloat(row.__EMPTY_7) || 0) * 1000; }); const loto_db_com = totalsFromExcel.lotoDB * 0.08; const lo_cap_com = totalsFromExcel.loCap * 0.10; const c2_27_com = totalsFromExcel.c2_27 * 0.10; const c3_23_com = totalsFromExcel.c3_23 * 0.10; const xskt_com = totalsFromExcel.xskt * 0.10; state.baseTongDT = totalsFromExcel.lotoDB + totalsFromExcel.loCap + totalsFromExcel.c2_27 + totalsFromExcel.c3_23 + totalsFromExcel.xskt; state.baseTongHH = loto_db_com + lo_cap_com + c2_27_com + c3_23_com + xskt_com; state.baseThuong = totalsFromExcel.thuong; return { totals: totalsFromExcel, commissions: { loto_db_com, lo_cap_com, c2_27_com, c3_23_com, xskt_com } }; }
         function renderDetailedReport(data, manualDateRange = null) { const { totals, commissions } = data; const displayDate = manualDateRange !== null ? manualDateRange : dateRangeText; const xsktRowHTML = totals.xskt > 0 ? `<tr><td>Xổ số kiến thiết</td><td>${formatNumberHiddenK(totals.xskt)}</td><td>${formatCommissionCellHiddenK(totals.xskt, commissions.xskt_com)}</td></tr>` : ''; DOM.reportContainer.innerHTML = `<table><tr><td class="header" style="width: 33.33%;">Thanh toán tiền Đại Lý:</td><td class="so-so">${[...state.accountCodes].join(', ')}</td></tr><tr><td class="header">Thời gian:</td><td>${displayDate}</td></tr></table><br><table class="report-table"><thead><tr><th>Loại hình</th><th>Doanh thu</th><th>Hoa hồng</th></tr></thead><tbody><tr><td>Lô tô Đặc biệt</td><td>${formatNumberHiddenK(totals.lotoDB)}</td><td>${formatCommissionCellHiddenK(totals.lotoDB, commissions.loto_db_com)}</td></tr><tr><td>Lô cặp</td><td>${formatNumberHiddenK(totals.loCap)}</td><td>${formatCommissionCellHiddenK(totals.loCap, commissions.lo_cap_com)}</td></tr><tr><td>2/27</td><td>${formatNumberHiddenK(totals.c2_27)}</td><td>${formatCommissionCellHiddenK(totals.c2_27, commissions.c2_27_com)}</td></tr><tr><td>3/23</td><td>${formatNumberHiddenK(totals.c3_23)}</td><td>${formatCommissionCellHiddenK(totals.c3_23, commissions.c3_23_com)}</td></tr>${xsktRowHTML}<tr id="tongCongRow"><td>Tổng cộng</td><td id="tongDT"></td><td id="tongHH"></td></tr><tr id="mainBonusRow"><td>Thưởng</td><td colspan="2" id="thuong">${formatNumberHiddenK(state.baseThuong)}</td></tr><tr id="finalResultRow"><td id="ketQuaLabel"></td><td id="ketQuaValue" colspan="2"></td></tr><tr class="header"><td>Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr></tbody></table><div id="copyrightInReport" class="copyright" style="display: none;">© 2025 ZENG FINANCE</div>`; }
@@ -460,12 +531,12 @@
 
         // ===== UI EVENT HANDLERS & CONTROLLERS =====
         function initializeApp() {
-            DOM.btnLoadData.addEventListener('click', () => { if (excelData1.length === 0 && excelData2.length === 0) { showNotification("Vui lòng chọn ít nhất một file excel!", 'error'); return; } generateSummaryView(); DOM.homePage.style.display = 'none'; DOM.mainPage.style.display = 'block'; showSection('reportSection'); });
+            DOM.btnLoadData.addEventListener('click', () => { if (excelData1.length === 0 && excelData2.length === 0) { showNotification("Vui lòng chọn ít nhất một file excel!", 'error'); return; } generateSummaryView(); DOM.homePage.style.display = 'none'; DOM.mainPage.style.display = 'block'; showSection('reportSection'); loopLogoAnimation(); }); // Bắt đầu anim logo
             DOM.navSummary.addEventListener('click', () => showSection('summarySection'));
             DOM.navReport.addEventListener('click', () => showSection('reportSection'));
             DOM.navSell.addEventListener('click', () => showSection('sellSection'));
-            DOM.excelFile1.addEventListener('change', (e) => handleFile(e.target.files[0], 1));
-            DOM.excelFile2.addEventListener('change', (e) => handleFile(e.target.files[0], 2));
+            DOM.excelFile1.addEventListener('change', (e) => handleFile(e.target.files[0], 1, 'excelFile1'));
+            DOM.excelFile2.addEventListener('change', (e) => handleFile(e.target.files[0], 2, 'excelFile2'));
             DOM.btnCreateReport.addEventListener('click', createDetailedReport);
             DOM.soSoInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.target.blur(); createDetailedReport(); } });
             DOM.btnShowManualReport.addEventListener('click', showManualInputModal);
@@ -484,15 +555,65 @@
             DOM.customTicketPrice.addEventListener('input', (e) => { const value = e.target.value.replace(/\D/g, ''); e.target.value = value ? parseInt(value, 10).toLocaleString('vi-VN') : ''; });
             DOM.sellQuantityInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); DOM.btnAddTicket.click(); } });
             DOM.btnAddTicket.addEventListener('click', addTicketToReport);
-
-            // Modal events
             DOM.closeModalBtn.addEventListener('click', hideManualInputModal);
-            DOM.manualInputModal.addEventListener('click', (event) => { if (event.target === DOM.manualInputModal) { hideManualInputModal(); } }); // Close on overlay click
-            
-            // THÊM SỰ KIỆN CHO MODAL ẢNH
+            DOM.manualInputModal.addEventListener('click', (event) => { if (event.target === DOM.manualInputModal) { hideManualInputModal(); } });
             DOM.closePreviewModalBtn.addEventListener('click', hideImagePreviewModal);
             DOM.imagePreviewModal.addEventListener('click', (event) => { if (event.target === DOM.imagePreviewModal) { hideImagePreviewModal(); } });
+            DOM.navReload.addEventListener('click', showReloadModal);
+            DOM.closeReloadModalBtn.addEventListener('click', hideReloadModal);
+            DOM.reloadModal.addEventListener('click', (e) => { if (e.target === DOM.reloadModal) hideReloadModal(); });
+            DOM.reloadFile1.addEventListener('change', (e) => handleFile(e.target.files[0], 1, 'reloadFile1'));
+            DOM.reloadFile2.addEventListener('change', (e) => handleFile(e.target.files[0], 2, 'reloadFile2'));
+            DOM.btnReloadSubmit.addEventListener('click', submitReload);
+
+            // Bắt đầu animation logo lần đầu tiên
+            loopLogoAnimation();
         }
+        
+        // --- LOGIC ANIMATION LOGO MỚI ---
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            // Tạo màu tối hơn (0-9) để đảm bảo độ tương phản
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 10)]; 
+            }
+            return color;
+        }
+
+        function loopLogoAnimation() {
+            const newColor = getRandomColor();
+            // Tìm span cuối cùng để biết khi nào animation kết thúc
+            const lastSpan = document.querySelector('.main-page-logo .logo-char-5') || document.querySelector('.simple-animated-logo .logo-char-5');
+
+            DOM.logoContainers.forEach(logo => {
+                logo.style.color = newColor; // Đặt màu mới
+                logo.classList.remove('animate-out');
+                logo.classList.add('animate-in');
+            });
+
+            // Lắng nghe khi animation "IN" kết thúc
+            lastSpan.addEventListener('animationend', function onFadeInEnd() {
+                lastSpan.removeEventListener('animationend', onFadeInEnd); // Dọn dẹp listener
+
+                // Đợi 2 giây
+                setTimeout(() => {
+                    DOM.logoContainers.forEach(logo => {
+                        logo.classList.remove('animate-in');
+                        logo.classList.add('animate-out');
+                    });
+
+                    // Lắng nghe khi animation "OUT" kết thúc (trên ký tự đầu tiên, vì nó mờ cuối cùng)
+                    const firstSpan = document.querySelector('.main-page-logo .logo-char-1') || document.querySelector('.simple-animated-logo .logo-char-1');
+                    firstSpan.addEventListener('animationend', function onFadeOutEnd() {
+                        firstSpan.removeEventListener('animationend', onFadeOutEnd);
+                        // Lặp lại toàn bộ quá trình
+                        loopLogoAnimation(); 
+                    });
+                }, 2000); // 2 giây giữ nguyên
+            });
+        }
+        // --- KẾT THÚC LOGIC LOGO ---
         
         function createDetailedReport() { 
             hideManualInputModal(); 
@@ -519,26 +640,45 @@
             DOM.manualInputModal.style.display = 'block';
             document.getElementById('manualAgentName').focus(); 
         }
-
         function hideManualInputModal() {
             DOM.manualInputModal.style.display = 'none';
         }
-
-        // THÊM HÀM MỚI CHO MODAL ẢNH
         function hideImagePreviewModal() {
             DOM.imagePreviewModal.style.display = 'none';
-            DOM.imagePreviewHolder.src = ''; // Xóa ảnh cũ để giải phóng bộ nhớ
+            DOM.imagePreviewHolder.src = ''; 
         }
+
+        // --- HÀM MỚI CHO VIỆC NẠP LẠI EXCEL ---
+        function showReloadModal() {
+            DOM.reloadModal.style.display = 'block';
+            DOM.reloadFile1.value = ''; DOM.reloadFile2.value = '';
+            DOM.reloadFile1.classList.remove('loaded'); DOM.reloadFile2.classList.remove('loaded');
+        }
+        function hideReloadModal() { DOM.reloadModal.style.display = 'none'; }
+        function submitReload() {
+            if (DOM.reloadFile1.files.length === 0 && excelData1.length === 0 && DOM.reloadFile2.files.length === 0 && excelData2.length === 0) {
+                 showNotification("Bạn chưa chọn file Excel nào để nạp.", 'error');
+                 return;
+            }
+            // Dữ liệu đã được nạp qua sự kiện 'change' của handleFile
+            generateSummaryView(); 
+            DOM.reportContainer.innerHTML = '';
+            DOM.actionButtonContainer.style.display = 'none';
+            DOM.soSoInput.value = '';
+            state.currentSoSo = null;
+            hideReloadModal();
+            showSection('summarySection');
+            showNotification("Đã nạp lại dữ liệu Excel thành công!", 'success');
+        }
+        // --- KẾT THÚC HÀM MỚI ---
 
         function createManualReport() { 
             const agentName = DOM.manualAgentName.value.trim(); if (!agentName) return showNotification("Vui lòng nhập Tên Đại Lý!", 'error'); 
             const totals = { lotoDB: (parseFloat(DOM.manualLotoDB.dataset.value) || 0) * 1000, loCap: (parseFloat(DOM.manualLoCap.dataset.value) || 0) * 1000, c2_27: (parseFloat(DOM.manualC227.dataset.value) || 0) * 1000, c3_23: (parseFloat(DOM.manualC323.dataset.value) || 0) * 1000, thuong: parseFloat(DOM.manualThuong.dataset.value) || 0, xskt: 0 }; 
             const commissions = { loto_db_com: totals.lotoDB * 0.08, lo_cap_com: totals.loCap * 0.10, c2_27_com: totals.c2_27 * 0.10, c3_23_com: totals.c3_23 * 0.10, xskt_com: 0 }; 
             resetState('manual'); state.accountCodes.add(agentName); state.baseTongDT = totals.lotoDB + totals.loCap + totals.c2_27 + totals.c3_23; state.baseTongHH = commissions.loto_db_com + commissions.lo_cap_com + commissions.c2_27_com + commissions.c3_23_com; state.baseThuong = totals.thuong; 
-            
             if (DOM.homePage.style.display !== 'none') { DOM.homePage.style.display = 'none'; DOM.mainPage.style.display = 'block'; }
             showSection('reportSection'); 
-
             renderDetailedReport({ totals, commissions }, DOM.manualDateRange.value.trim()); 
             updateDetailedReportView(); 
             hideManualInputModal(); 
@@ -547,7 +687,16 @@
             showNotification('Đã thêm báo cáo thủ công thành công!', 'success');
         }
         
-        function showSection(sectionId) { [DOM.summarySection, DOM.reportSection, DOM.sellSection].forEach(s => s.style.display = 'none'); document.getElementById(sectionId).style.display = 'block'; [DOM.navSummary, DOM.navReport, DOM.navSell].forEach(b => b.classList.remove('active')); const activeBtn = sectionId === 'summarySection' ? DOM.navSummary : (sectionId === 'reportSection' ? DOM.navReport : DOM.navSell); activeBtn.classList.add('active'); }
+        function showSection(sectionId) { 
+            [DOM.summarySection, DOM.reportSection, DOM.sellSection].forEach(s => s.style.display = 'none'); 
+            const sectionToShow = document.getElementById(sectionId);
+            if(sectionToShow) sectionToShow.style.display = 'block';
+            
+            [DOM.navSummary, DOM.navReport, DOM.navSell, DOM.navReload].forEach(b => b.classList.remove('active')); 
+            const activeBtn = document.getElementById(`nav${sectionId.replace('Section', '')}`);
+            if(activeBtn) activeBtn.classList.add('active'); 
+            else DOM.navSummary.classList.add('active'); // Default
+        }
         function toggleActionChoices() { if (DOM.toggleChoicesBtn.textContent.includes('Thêm')) { DOM.actionChoices.style.display = 'grid'; DOM.toggleChoicesBtn.textContent = 'Xoá hết Thưởng/Nợ'; DOM.toggleChoicesBtn.className = 'danger'; } else { document.getElementById('extraBonusRow')?.remove(); document.getElementById('extraDebtRow')?.remove(); state.extraBonus = 0; state.extraDebt = 0; updateDetailedReportView(); DOM.actionChoices.style.display = 'none'; DOM.toggleChoicesBtn.textContent = 'Thêm tiền Thưởng/Nợ'; DOM.toggleChoicesBtn.className = 'secondary'; } updateActionButtons(); }
         function updateActionButtons() { DOM.actionChoices.innerHTML = `${document.getElementById('extraBonusRow') ? `<button class="danger" data-action="remove-bonus">Xoá Thưởng thêm</button>` : `<button data-action="add-bonus">Thêm tiền Thưởng</button>`}${document.getElementById('extraDebtRow') ? `<button class="danger" data-action="remove-debt">Xoá tiền Nợ</button>` : `<button data-action="add-debt">Thêm tiền Nợ</button>`}`; }
         DOM.actionChoices.addEventListener('click', (e) => { const action = e.target.dataset.action; if (!action) return; const actionMap = { 'add-bonus': () => createDynamicInputRow('bonus'), 'remove-bonus': () => { document.getElementById('extraBonusRow')?.remove(); state.extraBonus = 0; updateDetailedReportView(); }, 'add-debt': () => createDynamicInputRow('debt'), 'remove-debt': () => { document.getElementById('extraDebtRow')?.remove(); state.extraDebt = 0; updateDetailedReportView(); } }; actionMap[action]?.(); updateActionButtons(); });
@@ -573,44 +722,32 @@
         function addTicketToReport() { if (!state.currentSoSo) { showNotification("Vui lòng tạo hoặc mở một báo cáo chi tiết trước khi thêm vé!", 'error'); return; } const quantity = parseInt(DOM.sellQuantityInput.value, 10); if (!quantity || quantity <= 0) { showNotification("Vui lòng nhập số lượng vé hợp lệ!", 'error'); return; } let typeName = ''; const ticketType = document.querySelector('input[name="sellTicketType"]:checked').value; if (ticketType === 'xo-so') { typeName = 'Xổ số'; } else if (ticketType === 've-boc') { typeName = 'Vé bóc'; } else { typeName = DOM.customTicketName.value.trim(); if (!typeName) { showNotification('Vui lòng nhập tên loại hình!', 'error'); return; } } let price = 0; const priceType = document.querySelector('input[name="sellPrice"]:checked').value; if (priceType === 'custom-price') { price = parseFloat(DOM.customTicketPrice.value.replace(/\D/g, '')) || 0; if (price <= 0) { showNotification('Vui lòng nhập giá bán hợp lệ!', 'error'); return; } } else { price = parseFloat(priceType); } let commissionRate = 0; const commissionType = document.querySelector('input[name="commissionRate"]:checked').value; if (commissionType === 'custom-commission') { commissionRate = parseFloat(DOM.customCommissionPercent.value) / 100 || 0; if (commissionRate <= 0) { showNotification('Vui lòng nhập % hoa hồng hợp lệ!', 'error'); return; } } else { commissionRate = parseFloat(commissionType); } const doanhThu = quantity * price; const hoaHong = doanhThu * commissionRate; const formattedName = `${typeName} (${(price / 1000).toLocaleString('vi-VN')}k) [${quantity} vé]`; const newTicket = { id: Date.now(), doanhThu, hoaHong, name: formattedName }; state.addedTickets.push(newTicket); const newRow = document.createElement('tr'); newRow.className = 'added-ticket-row'; newRow.dataset.ticketId = newTicket.id; newRow.innerHTML = `<td>${newTicket.name}</td><td>${formatNumberHiddenK(doanhThu)}</td><td>${formatCommissionCellHiddenK(doanhThu, hoaHong)}</td>`; const tongCongRow = document.getElementById('tongCongRow'); if (!tongCongRow) { showNotification('Lỗi: Không tìm thấy bảng báo cáo để thêm vé.', 'error'); return; } tongCongRow.parentNode.insertBefore(newRow, tongCongRow); updateDetailedReportView(); DOM.sellQuantityInput.value = ''; newRow.scrollIntoView({ behavior: 'smooth', block: 'center' }); showSection('reportSection'); showNotification('Đã thêm vé vào báo cáo!', 'success'); }
         
         // --- UTILITY FUNCTIONS ---
-        // --- CẬP NHẬT HÀM COPY ẢNH ---
         async function copyElementAsImage(selector, message, buttonElement = null) {
             const element = document.querySelector(selector);
             if (!element || !element.innerHTML.trim()) return showNotification("Chưa có nội dung để sao chép!", 'info');
             const originalButtonText = buttonElement ? buttonElement.textContent : '';
             if (buttonElement) buttonElement.textContent = 'Đang tạo ảnh...';
-            
             const elementsToHideTemporarily = [];
             const actions = element.querySelector('.summary-actions'); 
             const reportActions = document.getElementById('actionButtonContainer'); 
             if (actions) elementsToHideTemporarily.push(actions);
             if (reportActions && element === DOM.reportContainer) elementsToHideTemporarily.push(reportActions);
             elementsToHideTemporarily.forEach(el => el.style.visibility = 'hidden');
-
             const copyright = document.getElementById('copyrightInReport');
             if (copyright && element === DOM.reportContainer) copyright.style.display = 'block'; 
-
             try {
                 const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
-                
-                // --- THAY ĐỔI: Chỉ sử dụng API mới (navigator.clipboard.write) ---
                 canvas.toBlob(async (blob) => {
                     try {
                         if (navigator.clipboard && navigator.clipboard.write) {
-                            await navigator.clipboard.write([
-                                new ClipboardItem({ 'image/png': blob })
-                            ]);
+                            await navigator.clipboard.write([ new ClipboardItem({ 'image/png': blob }) ]);
                             showNotification(message, 'success');
                             if (buttonElement) {
                                 buttonElement.textContent = 'Đã Copy!';
                                 setTimeout(() => { if(buttonElement) buttonElement.textContent = originalButtonText; }, 2000);
                             }
-                        } else {
-                            // Nếu API không tồn tại, hiển thị modal
-                            throw new Error('Clipboard API không được hỗ trợ.');
-                        }
+                        } else { throw new Error('Clipboard API không được hỗ trợ.'); }
                     } catch (writeErr) {
-                        // Nếu API lỗi (do quyền), hiển thị modal
                         console.error('Lỗi khi dùng navigator.clipboard.write:', writeErr);
                         showNotification('Không thể tự động copy, vui lòng copy thủ công!', 'info');
                         DOM.imagePreviewHolder.src = canvas.toDataURL('image/png');
@@ -618,19 +755,16 @@
                         if (buttonElement) buttonElement.textContent = originalButtonText;
                     }
                 }, 'image/png');
-                // --- KẾT THÚC THAY ĐỔI ---
-
             } catch (err) {
                 console.error('Lỗi tạo ảnh:', err);
                 showNotification('Đã xảy ra lỗi khi tạo ảnh.', 'error');
                 if (buttonElement) buttonElement.textContent = originalButtonText;
             } finally {
                 if (copyright) copyright.style.display = 'none';
-                elementsToHideTemporarily.forEach(el => el.style.visibility = 'visible'); // Hiển thị lại
+                elementsToHideTemporarily.forEach(el => el.style.visibility = 'visible'); 
             }
         }
-        // --- Đã xóa hàm copyUsingExecCommand ---
-
+        
         function formatNumberHiddenK(num) { num = parseFloat(num); if (isNaN(num) || num === 0 || Math.abs(num) < 1000) return "0"; return parseInt(num / 1000).toLocaleString("vi-VN"); }
         function formatCommissionCellHiddenK(revenue, commission) { revenue = parseFloat(revenue); commission = parseFloat(commission); if (!revenue || revenue === 0 || isNaN(revenue) || isNaN(commission)) return formatNumberHiddenK(commission); const percentage = Math.round((commission / revenue) * 100); return `<i style="color: #E57373; font-weight: normal;">(${percentage}%)</i> ${formatNumberHiddenK(commission)}`; }
         
@@ -691,6 +825,4 @@
 
 </body>
 </html>
-
-
 
