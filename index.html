@@ -104,7 +104,7 @@
     
     /* CẬP NHẬT THANH NAV CHÍNH */
     .main-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-    .summary-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; } /* THAY ĐỔI: 2 -> 3 cột */
+    .summary-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; } /* THAY ĐỔI: 3 -> 2 cột */
     
     .main-nav button { background-color: var(--secondary-color); color: var(--text-color); }
     .main-nav button:hover { background-color: var(--secondary-dark); }
@@ -155,23 +155,9 @@
     
     .negative-value { color: var(--danger-color); }
 
-    /* === CSS MỚI: Chế độ chụp ảnh cho Bảng Tổng Kết === */
-    #summaryTableContainer.copy-mode {
-        overflow-x: visible !important;
-    }
-    #summaryTableContainer.copy-mode table {
-        /* THAY ĐỔI: Đặt chiều rộng bằng 90% CHIỀU CAO màn hình,
-           để mô phỏng xoay ngang mà không cần xoay thực sự. */
-        width: 90vh !important; 
-        min-width: unset !important;
-    }
-    #summaryTableContainer.copy-mode th,
-    #summaryTableContainer.copy-mode td {
-        /* THAY ĐỔI: Gỡ bỏ 'white-space: normal' để giữ nội dung trên một dòng,
-           vì bây giờ bảng đã đủ rộng. */
-        /* white-space: normal !important; */ 
-        /* word-break: break-all; */
-    }
+    /* === XÓA BỎ: Chế độ chụp ảnh === */
+    /* #summaryTableContainer.copy-mode ... (đã xóa) */
+
 
     /* --- CSS MỚI: Cỡ chữ Tổng Tiền (Bảng Tổng Kết) --- */
     #summaryTableContainer tfoot .final-amount-positive,
@@ -302,9 +288,9 @@
         <h4 id="summaryDate" class="report-date"></h4>
         <div class="summary-actions">
             <button id="btnCopySummary" class="success">Copy Ảnh</button>
-            <button id="btnPrintSummary" class="secondary">In Bảng</button>
-            <!-- NÚT MỚI THÊM VÀO -->
-            <button id="btnToggleSummaryView" class="secondary" data-mode="scroll">Chế độ Chụp</button>
+            <!-- THAY ĐỔI: Đổi nút "In Bảng" thành "Lưu ảnh" -->
+            <button id="btnSaveSummary" class="secondary">Lưu ảnh</button>
+            <!-- XÓA BỎ: Nút "Chế độ Chụp" -->
         </div>
         <div id="summaryTableContainer"></div>
     </div>
@@ -454,8 +440,8 @@
             summaryDate: document.getElementById('summaryDate'), soSoInput: document.getElementById('soSoInput'),
             btnCreateReport: document.getElementById('btnCreateReport'), reportContainer: document.getElementById('reportContainer'),
             actionButtonContainer: document.getElementById('actionButtonContainer'), btnCopySummary: document.getElementById('btnCopySummary'),
-            btnPrintSummary: document.getElementById('btnPrintSummary'),
-            btnToggleSummaryView: document.getElementById('btnToggleSummaryView'), // <-- THÊM MỚI
+            btnSaveSummary: document.getElementById('btnSaveSummary'), // <-- ĐÃ THAY ĐỔI
+            /* XÓA BỎ: btnToggleSummaryView */
             btnCopyReport: document.getElementById('btnCopyReport'),
             toggleChoicesBtn: document.getElementById('toggleChoicesBtn'), actionChoices: document.getElementById('actionChoices'),
             btnAddTicket: document.getElementById('btnAddTicket'), sellQuantityInput: document.getElementById('sellQuantityInput'),
@@ -568,11 +554,13 @@
             DOM.btnClearManualReport.addEventListener('click', clearManualReportForm); 
             manualFormOrder.forEach(id => { const element = document.getElementById(id); if (element) { element.addEventListener('keydown', handleManualFormEnter); } });
             document.querySelectorAll('.manual-currency').forEach(input => { input.addEventListener('input', (e) => { const value = e.target.value.replace(/\D/g, ''); e.target.dataset.value = value; e.target.value = value ? parseInt(value, 10).toLocaleString('vi-VN') : ''; }); });
-            DOM.btnPrintSummary.addEventListener('click', () => window.print());
+            
+            // === THAY ĐỔI: Gán sự kiện cho nút "Lưu ảnh" ===
+            DOM.btnSaveSummary.addEventListener('click', () => saveElementAsImage('#summarySection', 'Báo-cáo-Tổng-kết.png', DOM.btnSaveSummary));
+            
             DOM.btnCopySummary.addEventListener('click', () => copyElementAsImage('#summarySection', 'Copy ảnh tổng kết thành công!', DOM.btnCopySummary));
             
-            // === THÊM MỚI: Event listener cho nút chuyển chế độ ===
-            DOM.btnToggleSummaryView.addEventListener('click', toggleSummaryViewMode);
+            /* XÓA BỎ: Event listener cho nút chuyển chế độ */
             
             DOM.btnCopyReport.addEventListener('click', () => copyElementAsImage('#reportContainer', 'Copy ảnh báo cáo thành công!', DOM.btnCopyReport));
             DOM.toggleChoicesBtn.addEventListener('click', toggleActionChoices);
@@ -646,30 +634,7 @@
         }
         // --- KẾT THÚC LOGIC LOGO ---
         
-        // === HÀM MỚI: Chuyển đổi chế độ xem Bảng Tổng Kết ===
-        function toggleSummaryViewMode() {
-            const tableContainer = DOM.summaryTableContainer;
-            const button = DOM.btnToggleSummaryView;
-            const currentMode = button.dataset.mode;
-
-            if (currentMode === 'scroll') {
-                // Chuyển sang Chế độ Chụp Ảnh
-                tableContainer.classList.add('copy-mode');
-                button.dataset.mode = 'copy';
-                button.textContent = 'Chế độ Xem';
-                button.classList.remove('secondary');
-                button.classList.add('info'); // Đổi màu để báo hiệu
-                showNotification('Chế độ Chụp Ảnh: Đã BẬT. Bảng mô phỏng xoay ngang.', 'info');
-            } else {
-                // Chuyển về Chế độ Xem (Cuộn)
-                tableContainer.classList.remove('copy-mode');
-                button.dataset.mode = 'scroll';
-                button.textContent = 'Chế độ Chụp';
-                button.classList.remove('info');
-                button.classList.add('secondary'); // Trả về màu cũ
-                showNotification('Chế độ Chụp Ảnh: Đã TẮT. Bảng có thể cuộn ngang.', 'info');
-            }
-        }
+        /* XÓA BỎ: Hàm toggleSummaryViewMode */
         
         function createDetailedReport() { 
             hideManualInputModal(); 
@@ -783,6 +748,59 @@
         function addTicketToReport() { if (!state.currentSoSo) { showNotification("Vui lòng tạo hoặc mở một báo cáo chi tiết trước khi thêm vé!", 'error'); return; } const quantity = parseInt(DOM.sellQuantityInput.value, 10); if (!quantity || quantity <= 0) { showNotification("Vui lòng nhập số lượng vé hợp lệ!", 'error'); return; } let typeName = ''; const ticketType = document.querySelector('input[name="sellTicketType"]:checked').value; if (ticketType === 'xo-so') { typeName = 'Xổ số'; } else if (ticketType === 've-boc') { typeName = 'Vé bóc'; } else { typeName = DOM.customTicketName.value.trim(); if (!typeName) { showNotification('Vui lòng nhập tên loại hình!', 'error'); return; } } let price = 0; const priceType = document.querySelector('input[name="sellPrice"]:checked').value; if (priceType === 'custom-price') { price = parseFloat(DOM.customTicketPrice.value.replace(/\D/g, '')) || 0; if (price <= 0) { showNotification('Vui lòng nhập giá bán hợp lệ!', 'error'); return; } } else { price = parseFloat(priceType); } let commissionRate = 0; const commissionType = document.querySelector('input[name="commissionRate"]:checked').value; if (commissionType === 'custom-commission') { commissionRate = parseFloat(DOM.customCommissionPercent.value) / 100 || 0; if (commissionRate <= 0) { showNotification('Vui lòng nhập % hoa hồng hợp lệ!', 'error'); return; } } else { commissionRate = parseFloat(commissionType); } const doanhThu = quantity * price; const hoaHong = doanhThu * commissionRate; const formattedName = `${typeName} (${(price / 1000).toLocaleString('vi-VN')}k) [${quantity} vé]`; const newTicket = { id: Date.now(), doanhThu, hoaHong, name: formattedName }; state.addedTickets.push(newTicket); const newRow = document.createElement('tr'); newRow.className = 'added-ticket-row'; newRow.dataset.ticketId = newTicket.id; newRow.innerHTML = `<td>${newTicket.name}</td><td>${formatNumberHiddenK(doanhThu)}</td><td>${formatCommissionCellHiddenK(doanhThu, hoaHong)}</td>`; const tongCongRow = document.getElementById('tongCongRow'); if (!tongCongRow) { showNotification('Lỗi: Không tìm thấy bảng báo cáo để thêm vé.', 'error'); return; } tongCongRow.parentNode.insertBefore(newRow, tongCongRow); updateDetailedReportView(); DOM.sellQuantityInput.value = ''; newRow.scrollIntoView({ behavior: 'smooth', block: 'center' }); showSection('reportSection'); showNotification('Đã thêm vé vào báo cáo!', 'success'); }
         
         // --- UTILITY FUNCTIONS ---
+
+        // === HÀM MỚI: Để lưu ảnh về máy ===
+        async function saveElementAsImage(selector, filename, buttonElement = null) {
+            const element = document.querySelector(selector);
+            if (!element || !element.innerHTML.trim()) {
+                showNotification("Chưa có nội dung để lưu!", 'info');
+                return;
+            }
+
+            const originalButtonText = buttonElement ? buttonElement.textContent : '';
+            if (buttonElement) buttonElement.textContent = 'Đang tạo ảnh...';
+
+            // Ẩn các nút điều khiển
+            const elementsToHideTemporarily = [];
+            const actions = element.querySelector('.summary-actions'); 
+            const reportActions = document.getElementById('actionButtonContainer'); 
+            if (actions) elementsToHideTemporarily.push(actions);
+            if (reportActions && element === DOM.reportContainer) elementsToHideTemporarily.push(reportActions);
+            elementsToHideTemporarily.forEach(el => el.style.visibility = 'hidden');
+            const copyright = document.getElementById('copyrightInReport');
+            if (copyright && element === DOM.reportContainer) copyright.style.display = 'block'; 
+
+            try {
+                const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
+                const dataUrl = canvas.toDataURL('image/png');
+                
+                // Tạo một thẻ <a> ẩn để tải ảnh
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = filename; // Tên file khi tải về
+                
+                // Thêm vào DOM, click và gỡ bỏ
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                showNotification('Đã lưu ảnh thành công!', 'success');
+                if (buttonElement) {
+                    buttonElement.textContent = 'Đã lưu!';
+                    setTimeout(() => { if(buttonElement) buttonElement.textContent = originalButtonText; }, 2000);
+                }
+
+            } catch (err) {
+                console.error('Lỗi tạo ảnh:', err);
+                showNotification('Đã xảy ra lỗi khi tạo ảnh.', 'error');
+                if (buttonElement) buttonElement.textContent = originalButtonText;
+            } finally {
+                // Hiển thị lại các nút đã ẩn
+                if (copyright) copyright.style.display = 'none';
+                elementsToHideTemporarily.forEach(el => el.style.visibility = 'visible'); 
+            }
+        }
+        
         async function copyElementAsImage(selector, message, buttonElement = null) {
             const element = document.querySelector(selector);
             if (!element || !element.innerHTML.trim()) return showNotification("Chưa có nội dung để sao chép!", 'info');
@@ -887,6 +905,8 @@
 
 </body>
 </html>
+
+
 
 
 
