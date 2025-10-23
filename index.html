@@ -58,7 +58,8 @@
         font-size: 32px; font-weight: 700; 
         color: var(--logo-color); /* Màu khởi đầu */
         overflow: hidden; 
-        transition: color 0.5s ease; /* Hiệu ứng đổi màu mượt */
+        /* Thêm transition cho việc đổi màu mượt mà */
+        transition: color 0.5s ease-in-out;
     }
     .main-page-logo {
         font-size: 24px; margin-top: 5px; margin-bottom: 10px;
@@ -68,44 +69,16 @@
         opacity: 0; /* Ẩn các ký tự ban đầu */
         display: inline-block; 
         transform: translateY(15px); /* Bắt đầu ở dưới */
+        /* Dùng transition thay vì animation */
+        transition: opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                    transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
     
-    /* Lớp điều khiển animation */
-    .simple-animated-logo.animate-in span {
-        animation: slideFadeInLetter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-    }
-    .simple-animated-logo.animate-out span {
-        animation: slideFadeOutLetter 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-    }
-
-    /* Animation delay cho từng ký tự (xuất hiện) */
-    .simple-animated-logo.animate-in .logo-char-1 { animation-delay: 0.1s; }
-    .simple-animated-logo.animate-in .logo-char-2 { animation-delay: 0.25s; }
-    .simple-animated-logo.animate-in .logo-char-3 { animation-delay: 0.4s; }
-    .simple-animated-logo.animate-in .logo-char-4 { animation-delay: 0.55s; }
-    .simple-animated-logo.animate-in .logo-char-5 { animation-delay: 0.8s; }
-    
-    /* Animation delay cho từng ký tự (biến mất - ngược lại) */
-    .simple-animated-logo.animate-out .logo-char-1 { animation-delay: 0.25s; }
-    .simple-animated-logo.animate-out .logo-char-2 { animation-delay: 0.2s; }
-    .simple-animated-logo.animate-out .logo-char-3 { animation-delay: 0.15s; }
-    .simple-animated-logo.animate-out .logo-char-4 { animation-delay: 0.1s; }
-    .simple-animated-logo.animate-out .logo-char-5 { animation-delay: 0s; }
+    /* Xóa các @keyframes và animation-delay */
 
     .simple-animated-logo .tm {
         font-size: 0.5em; vertical-align: super; margin-left: 2px;
         font-weight: normal; color: var(--text-light); /* Màu TM riêng */
-    }
-
-    /* Keyframes cho hiệu ứng trượt lên + mờ dần */
-    @keyframes slideFadeInLetter { 
-        from { opacity: 0; transform: translateY(15px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-    /* Keyframes cho hiệu ứng trượt xuống + mờ đi */
-    @keyframes slideFadeOutLetter { 
-        from { opacity: 1; transform: translateY(0); }
-        to   { opacity: 0; transform: translateY(15px); }
     }
     /* --- KẾT THÚC CSS LOGO --- */
 
@@ -131,7 +104,7 @@
     
     /* CẬP NHẬT THANH NAV CHÍNH */
     .main-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-    .summary-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+    .summary-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; } /* THAY ĐỔI: 2 -> 3 cột */
     
     .main-nav button { background-color: var(--secondary-color); color: var(--text-color); }
     .main-nav button:hover { background-color: var(--secondary-dark); }
@@ -164,9 +137,49 @@
     .dynamic-input::placeholder { color: var(--secondary-dark); font-weight: normal; }
     textarea.dynamic-input { text-align: right; } 
     #summaryTableContainer { margin-top: 20px; overflow-x: auto; }
+    
+    /* === KÍCH HOẠT LẠI: Cho phép bảng tổng kết tự động mở rộng === */
+    #summaryTableContainer table {
+        width: auto; /* Ghi đè 'width: 100%' để bảng có thể mở rộng */
+        min-width: 100%; /* Đảm bảo bảng ít nhất cũng rộng bằng container */
+    }
+
     #summaryTableContainer table th { position: sticky; top: 0; z-index: 1; }
     #summaryTableContainer tfoot tr { background-color: var(--neutral-light-bg); font-weight: 600; color: var(--text-color); }
+    
+    /* === KÍCH HOẠT LẠI: Ngăn nội dung xuống dòng === */
+    #summaryTableContainer th, 
+    #summaryTableContainer td {
+        white-space: nowrap;
+    }
+    
     .negative-value { color: var(--danger-color); }
+
+    /* === CSS MỚI: Chế độ chụp ảnh cho Bảng Tổng Kết === */
+    #summaryTableContainer.copy-mode {
+        overflow-x: visible !important;
+    }
+    #summaryTableContainer.copy-mode table {
+        /* THAY ĐỔI: Đặt chiều rộng bằng 90% CHIỀU CAO màn hình,
+           để mô phỏng xoay ngang mà không cần xoay thực sự. */
+        width: 90vh !important; 
+        min-width: unset !important;
+    }
+    #summaryTableContainer.copy-mode th,
+    #summaryTableContainer.copy-mode td {
+        /* THAY ĐỔI: Gỡ bỏ 'white-space: normal' để giữ nội dung trên một dòng,
+           vì bây giờ bảng đã đủ rộng. */
+        /* white-space: normal !important; */ 
+        /* word-break: break-all; */
+    }
+
+    /* --- CSS MỚI: Cỡ chữ Tổng Tiền (Bảng Tổng Kết) --- */
+    #summaryTableContainer tfoot .final-amount-positive,
+    #summaryTableContainer tfoot .final-amount-negative {
+        font-size: 21px; /* <--- CHỈNH CỠ CHỮ MÁY TÍNH Ở ĐÂY */
+        font-weight: 630; /* Đậm hơn một chút */
+    }
+
     .final-amount-positive, .final-amount-negative { background-color: var(--light-red-bg) !important; }
     .final-amount-positive { color: var(--danger-color) !important; }
     .final-amount-negative { color: var(--success-color) !important; }
@@ -220,8 +233,12 @@
         #notification-area { top: 10px; right: 10px; }
         .notification { font-size: 3.8vw; padding: 10px 15px;}
         .inline-form > button { flex-basis: 48%; } 
-        /* CẬP NHẬT: Thanh Nav trên mobile */
-        .main-nav { grid-template-columns: repeat(2, 1fr); } /* 2x2 grid */
+
+        /* --- CSS MỚI: Cỡ chữ Tổng Tiền (Mobile) --- */
+        #summaryTableContainer tfoot .final-amount-positive,
+        #summaryTableContainer tfoot .final-amount-negative {
+            font-size: 5vw; /* <--- CHỈNH CỠ CHỮ DI ĐỘNG Ở ĐÂY */
+        }
     }
     @media (min-width: 769px) { #mainPage { max-width: 1200px; } }
     @media print { body * { visibility: hidden; } #summaryTableContainer, #summaryTableContainer * { visibility: visible; } #summaryTableContainer { position: absolute; left: 0; top: 0; width: 100%; overflow: visible; } table { font-size: 10pt; } th, td { padding: 4px; } button, a, #notification-area, .modal-overlay, #loading-indicator { display: none !important; } }
@@ -286,6 +303,8 @@
         <div class="summary-actions">
             <button id="btnCopySummary" class="success">Copy Ảnh</button>
             <button id="btnPrintSummary" class="secondary">In Bảng</button>
+            <!-- NÚT MỚI THÊM VÀO -->
+            <button id="btnToggleSummaryView" class="secondary" data-mode="scroll">Chế độ Chụp</button>
         </div>
         <div id="summaryTableContainer"></div>
     </div>
@@ -435,7 +454,9 @@
             summaryDate: document.getElementById('summaryDate'), soSoInput: document.getElementById('soSoInput'),
             btnCreateReport: document.getElementById('btnCreateReport'), reportContainer: document.getElementById('reportContainer'),
             actionButtonContainer: document.getElementById('actionButtonContainer'), btnCopySummary: document.getElementById('btnCopySummary'),
-            btnPrintSummary: document.getElementById('btnPrintSummary'), btnCopyReport: document.getElementById('btnCopyReport'),
+            btnPrintSummary: document.getElementById('btnPrintSummary'),
+            btnToggleSummaryView: document.getElementById('btnToggleSummaryView'), // <-- THÊM MỚI
+            btnCopyReport: document.getElementById('btnCopyReport'),
             toggleChoicesBtn: document.getElementById('toggleChoicesBtn'), actionChoices: document.getElementById('actionChoices'),
             btnAddTicket: document.getElementById('btnAddTicket'), sellQuantityInput: document.getElementById('sellQuantityInput'),
             btnShowManualReport: document.getElementById('btnShowManualReport'), btnShowManualReport_inline: document.getElementById('btnShowManualReport_inline'),
@@ -464,8 +485,7 @@
             reloadFile1: document.getElementById('reloadFile1'),
             reloadFile2: document.getElementById('reloadFile2'),
             btnReloadSubmit: document.getElementById('btnReloadSubmit'),
-            // Thêm logo containers
-            logoContainers: document.querySelectorAll('.simple-animated-logo')
+            logoContainers: document.querySelectorAll('.simple-animated-logo') // Đã thêm
         };
         
         const manualFormOrder = [
@@ -514,7 +534,10 @@
                     hideLoading(); 
                 }
             };
-            reader.onerror = () => { showNotification(`Không thể đọc file ${file.name}.`, 'error'); hideLoading(); }
+            reader.onerror = () => {
+                showNotification(`Không thể đọc file ${file.name}.`, 'error');
+                hideLoading();
+            }
             reader.readAsArrayBuffer(file);
         }
 
@@ -531,7 +554,7 @@
 
         // ===== UI EVENT HANDLERS & CONTROLLERS =====
         function initializeApp() {
-            DOM.btnLoadData.addEventListener('click', () => { if (excelData1.length === 0 && excelData2.length === 0) { showNotification("Vui lòng chọn ít nhất một file excel!", 'error'); return; } generateSummaryView(); DOM.homePage.style.display = 'none'; DOM.mainPage.style.display = 'block'; showSection('reportSection'); loopLogoAnimation(); }); // Bắt đầu anim logo
+            DOM.btnLoadData.addEventListener('click', () => { if (excelData1.length === 0 && excelData2.length === 0) { showNotification("Vui lòng chọn ít nhất một file excel!", 'error'); return; } generateSummaryView(); DOM.homePage.style.display = 'none'; DOM.mainPage.style.display = 'block'; showSection('reportSection'); loopLogoAnimation(); });
             DOM.navSummary.addEventListener('click', () => showSection('summarySection'));
             DOM.navReport.addEventListener('click', () => showSection('reportSection'));
             DOM.navSell.addEventListener('click', () => showSection('sellSection'));
@@ -547,6 +570,10 @@
             document.querySelectorAll('.manual-currency').forEach(input => { input.addEventListener('input', (e) => { const value = e.target.value.replace(/\D/g, ''); e.target.dataset.value = value; e.target.value = value ? parseInt(value, 10).toLocaleString('vi-VN') : ''; }); });
             DOM.btnPrintSummary.addEventListener('click', () => window.print());
             DOM.btnCopySummary.addEventListener('click', () => copyElementAsImage('#summarySection', 'Copy ảnh tổng kết thành công!', DOM.btnCopySummary));
+            
+            // === THÊM MỚI: Event listener cho nút chuyển chế độ ===
+            DOM.btnToggleSummaryView.addEventListener('click', toggleSummaryViewMode);
+            
             DOM.btnCopyReport.addEventListener('click', () => copyElementAsImage('#reportContainer', 'Copy ảnh báo cáo thành công!', DOM.btnCopyReport));
             DOM.toggleChoicesBtn.addEventListener('click', toggleActionChoices);
             DOM.sellTicketTypeRadios.forEach(radio => radio.addEventListener('change', handleSellOptionsChange));
@@ -566,54 +593,83 @@
             DOM.reloadFile2.addEventListener('change', (e) => handleFile(e.target.files[0], 2, 'reloadFile2'));
             DOM.btnReloadSubmit.addEventListener('click', submitReload);
 
-            // Bắt đầu animation logo lần đầu tiên
-            loopLogoAnimation();
+            loopLogoAnimation(); // Bắt đầu animation logo lần đầu tiên
         }
         
         // --- LOGIC ANIMATION LOGO MỚI ---
         function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            // Tạo màu tối hơn (0-9) để đảm bảo độ tương phản
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 10)]; 
-            }
-            return color;
+            const h = Math.floor(Math.random() * 360); // Hue (0-359)
+            const s = Math.floor(Math.random() * 30) + 70; // Saturation (70-100)
+            const l = Math.floor(Math.random() * 20) + 40; // Lightness (40-60)
+            return `hsl(${h}, ${s}%, ${l}%)`;
         }
 
-        function loopLogoAnimation() {
-            const newColor = getRandomColor();
-            // Tìm span cuối cùng để biết khi nào animation kết thúc
-            const lastSpan = document.querySelector('.main-page-logo .logo-char-5') || document.querySelector('.simple-animated-logo .logo-char-5');
+        async function loopLogoAnimation() {
+            try {
+                const spans = document.querySelectorAll('.simple-animated-logo span');
+                if (spans.length === 0) return; // Dừng nếu không tìm thấy logo
 
-            DOM.logoContainers.forEach(logo => {
-                logo.style.color = newColor; // Đặt màu mới
-                logo.classList.remove('animate-out');
-                logo.classList.add('animate-in');
-            });
+                const chars = Array.from(spans);
+                const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
-            // Lắng nghe khi animation "IN" kết thúc
-            lastSpan.addEventListener('animationend', function onFadeInEnd() {
-                lastSpan.removeEventListener('animationend', onFadeInEnd); // Dọn dẹp listener
+                // Phase 1: Fade In (từng ký tự)
+                for (let i = 0; i < chars.length; i++) {
+                    chars[i].style.opacity = '1';
+                    chars[i].style.transform = 'translateY(0)';
+                    await delay(150); // Delay giữa các ký tự
+                }
+                
+                // Phase 2: Đợi
+                await delay(3000); // Giữ 3 giây
 
-                // Đợi 2 giây
-                setTimeout(() => {
-                    DOM.logoContainers.forEach(logo => {
-                        logo.classList.remove('animate-in');
-                        logo.classList.add('animate-out');
-                    });
+                // Phase 3: Fade Out (cùng lúc)
+                chars.forEach(span => {
+                    span.style.opacity = '0';
+                    span.style.transform = 'translateY(15px)';
+                });
 
-                    // Lắng nghe khi animation "OUT" kết thúc (trên ký tự đầu tiên, vì nó mờ cuối cùng)
-                    const firstSpan = document.querySelector('.main-page-logo .logo-char-1') || document.querySelector('.simple-animated-logo .logo-char-1');
-                    firstSpan.addEventListener('animationend', function onFadeOutEnd() {
-                        firstSpan.removeEventListener('animationend', onFadeOutEnd);
-                        // Lặp lại toàn bộ quá trình
-                        loopLogoAnimation(); 
-                    });
-                }, 2000); // 2 giây giữ nguyên
-            });
+                // Đợi fade out hoàn tất
+                await delay(600); // 0.6s (thời gian transition + 0.1s đệm)
+
+                // Phase 4: Đổi màu
+                const newColor = getRandomColor();
+                DOM.logoContainers.forEach(logo => {
+                    logo.style.color = newColor;
+                });
+                
+                // Lặp lại
+                setTimeout(loopLogoAnimation, 100); // Đợi 1 chút trước khi lặp lại
+
+            } catch (error) {
+                console.error("Lỗi animation logo:", error);
+            }
         }
         // --- KẾT THÚC LOGIC LOGO ---
+        
+        // === HÀM MỚI: Chuyển đổi chế độ xem Bảng Tổng Kết ===
+        function toggleSummaryViewMode() {
+            const tableContainer = DOM.summaryTableContainer;
+            const button = DOM.btnToggleSummaryView;
+            const currentMode = button.dataset.mode;
+
+            if (currentMode === 'scroll') {
+                // Chuyển sang Chế độ Chụp Ảnh
+                tableContainer.classList.add('copy-mode');
+                button.dataset.mode = 'copy';
+                button.textContent = 'Chế độ Xem';
+                button.classList.remove('secondary');
+                button.classList.add('info'); // Đổi màu để báo hiệu
+                showNotification('Chế độ Chụp Ảnh: Đã BẬT. Bảng mô phỏng xoay ngang.', 'info');
+            } else {
+                // Chuyển về Chế độ Xem (Cuộn)
+                tableContainer.classList.remove('copy-mode');
+                button.dataset.mode = 'scroll';
+                button.textContent = 'Chế độ Chụp';
+                button.classList.remove('info');
+                button.classList.add('secondary'); // Trả về màu cũ
+                showNotification('Chế độ Chụp Ảnh: Đã TẮT. Bảng có thể cuộn ngang.', 'info');
+            }
+        }
         
         function createDetailedReport() { 
             hideManualInputModal(); 
@@ -648,7 +704,7 @@
             DOM.imagePreviewHolder.src = ''; 
         }
 
-        // --- HÀM MỚI CHO VIỆC NẠP LẠI EXCEL ---
+        // --- HÀM CHO VIỆC NẠP LẠI EXCEL ---
         function showReloadModal() {
             DOM.reloadModal.style.display = 'block';
             DOM.reloadFile1.value = ''; DOM.reloadFile2.value = '';
@@ -660,7 +716,6 @@
                  showNotification("Bạn chưa chọn file Excel nào để nạp.", 'error');
                  return;
             }
-            // Dữ liệu đã được nạp qua sự kiện 'change' của handleFile
             generateSummaryView(); 
             DOM.reportContainer.innerHTML = '';
             DOM.actionButtonContainer.style.display = 'none';
@@ -670,7 +725,6 @@
             showSection('summarySection');
             showNotification("Đã nạp lại dữ liệu Excel thành công!", 'success');
         }
-        // --- KẾT THÚC HÀM MỚI ---
 
         function createManualReport() { 
             const agentName = DOM.manualAgentName.value.trim(); if (!agentName) return showNotification("Vui lòng nhập Tên Đại Lý!", 'error'); 
@@ -693,9 +747,16 @@
             if(sectionToShow) sectionToShow.style.display = 'block';
             
             [DOM.navSummary, DOM.navReport, DOM.navSell, DOM.navReload].forEach(b => b.classList.remove('active')); 
-            const activeBtn = document.getElementById(`nav${sectionId.replace('Section', '')}`);
+            
+            // Tìm nút nav tương ứng
+            let activeBtn;
+            if (sectionId === 'summarySection') activeBtn = DOM.navSummary;
+            else if (sectionId === 'reportSection') activeBtn = DOM.navReport;
+            else if (sectionId === 'sellSection') activeBtn = DOM.navSell;
+            // Không làm active nút "Nạp lại"
+            
             if(activeBtn) activeBtn.classList.add('active'); 
-            else DOM.navSummary.classList.add('active'); // Default
+            else DOM.navSummary.classList.add('active'); // Mặc định
         }
         function toggleActionChoices() { if (DOM.toggleChoicesBtn.textContent.includes('Thêm')) { DOM.actionChoices.style.display = 'grid'; DOM.toggleChoicesBtn.textContent = 'Xoá hết Thưởng/Nợ'; DOM.toggleChoicesBtn.className = 'danger'; } else { document.getElementById('extraBonusRow')?.remove(); document.getElementById('extraDebtRow')?.remove(); state.extraBonus = 0; state.extraDebt = 0; updateDetailedReportView(); DOM.actionChoices.style.display = 'none'; DOM.toggleChoicesBtn.textContent = 'Thêm tiền Thưởng/Nợ'; DOM.toggleChoicesBtn.className = 'secondary'; } updateActionButtons(); }
         function updateActionButtons() { DOM.actionChoices.innerHTML = `${document.getElementById('extraBonusRow') ? `<button class="danger" data-action="remove-bonus">Xoá Thưởng thêm</button>` : `<button data-action="add-bonus">Thêm tiền Thưởng</button>`}${document.getElementById('extraDebtRow') ? `<button class="danger" data-action="remove-debt">Xoá tiền Nợ</button>` : `<button data-action="add-debt">Thêm tiền Nợ</button>`}`; }
@@ -735,6 +796,7 @@
             elementsToHideTemporarily.forEach(el => el.style.visibility = 'hidden');
             const copyright = document.getElementById('copyrightInReport');
             if (copyright && element === DOM.reportContainer) copyright.style.display = 'block'; 
+
             try {
                 const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
                 canvas.toBlob(async (blob) => {
@@ -825,4 +887,8 @@
 
 </body>
 </html>
+
+
+
+
 
