@@ -758,71 +758,71 @@
             const copyright = document.getElementById('copyrightInReport');
             if (copyright && element === DOM.reportContainer) copyright.style.display = 'block'; 
 
-            // === CẬP NHẬT: Xử lý chụp nội dung cuộn ===
-            let mainPage, tableContainer, table;
-            let originalPageMaxWidth, originalElementWidth, originalTableContainerWidth, originalTableContainerOverflow; // <-- Đã thêm originalElementWidth
+            // === CẬP NHẬT: Xử lý chụp nội dung cuộn (Logic mới) ===
+            let mainPage, tableContainer, table, summarySectionEl;
+            let originalPageMaxWidth, originalSummarySectionWidth, originalTableContainerWidth, originalTableContainerOverflow;
 
             if (selector === '#summarySection') {
                 mainPage = DOM.mainPage;
+                summarySectionEl = DOM.summarySection;
                 tableContainer = DOM.summaryTableContainer;
                 table = tableContainer.querySelector('table');
                 
-                if (mainPage && element && tableContainer && table) {
-                    // 1. Lưu lại các giá trị gốc
+                if (mainPage && summarySectionEl && tableContainer && table) {
                     originalPageMaxWidth = mainPage.style.maxWidth;
-                    originalElementWidth = element.style.width; // <-- Lưu style của element
+                    originalSummarySectionWidth = summarySectionEl.style.width;
                     originalTableContainerWidth = tableContainer.style.width;
                     originalTableContainerOverflow = tableContainer.style.overflowX;
 
-                    // 2. Tạm thời gỡ bỏ giới hạn của .page
                     mainPage.style.maxWidth = 'none';
-                    const scrollW = table.scrollWidth;
-                    // 3. Mở rộng element và container để html2canvas thấy hết
-                    element.style.width = `${scrollW}px`; // <-- Đặt width cho element
+                    const scrollW = table.scrollWidth + 2; // +2px buffer
+                    
+                    summarySectionEl.style.width = `${scrollW}px`;
                     tableContainer.style.width = `${scrollW}px`;
                     tableContainer.style.overflowX = 'visible';
                 }
             }
             // === KẾT THÚC CẬP NHẬT ===
 
-            try {
-                const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
-                const dataUrl = canvas.toDataURL('image/png');
-                
-                // Tạo một thẻ <a> ẩn để tải ảnh
-                const link = document.createElement('a');
-                link.href = dataUrl;
-                link.download = filename; // Tên file khi tải về
-                
-                // Thêm vào DOM, click và gỡ bỏ
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
 
-                showNotification('Đã lưu ảnh thành công!', 'success');
-                if (buttonElement) {
-                    buttonElement.textContent = 'Đã lưu!';
-                    setTimeout(() => { if(buttonElement) buttonElement.textContent = originalButtonText; }, 2000);
+            // === CẬP NHẬT: Thêm setTimeout để chờ trình duyệt vẽ lại ===
+            setTimeout(async () => {
+                try {
+                    const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
+                    const dataUrl = canvas.toDataURL('image/png');
+                    
+                    const link = document.createElement('a');
+                    link.href = dataUrl;
+                    link.download = filename; 
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    showNotification('Đã lưu ảnh thành công!', 'success');
+                    if (buttonElement) {
+                        buttonElement.textContent = 'Đã lưu!';
+                        setTimeout(() => { if(buttonElement) buttonElement.textContent = originalButtonText; }, 2000);
+                    }
+
+                } catch (err) {
+                    console.error('Lỗi tạo ảnh:', err);
+                    showNotification('Đã xảy ra lỗi khi tạo ảnh.', 'error');
+                    if (buttonElement) buttonElement.textContent = originalButtonText;
+                } finally {
+                    // Hiển thị lại các nút đã ẩn
+                    if (copyright) copyright.style.display = 'none';
+                    elementsToHideTemporarily.forEach(el => el.style.visibility = 'visible'); 
+
+                    // === CẬP NHẬT: Khôi phục cài đặt cuộn (bên trong finally) ===
+                    if (mainPage && summarySectionEl && tableContainer) {
+                        mainPage.style.maxWidth = originalPageMaxWidth;
+                        summarySectionEl.style.width = originalSummarySectionWidth;
+                        tableContainer.style.width = originalTableContainerWidth;
+                        tableContainer.style.overflowX = originalTableContainerOverflow;
+                    }
+                    // === KẾT THÚC CẬP NHẬT ===
                 }
-
-            } catch (err) {
-                console.error('Lỗi tạo ảnh:', err);
-                showNotification('Đã xảy ra lỗi khi tạo ảnh.', 'error');
-                if (buttonElement) buttonElement.textContent = originalButtonText;
-            } finally {
-                // Hiển thị lại các nút đã ẩn
-                if (copyright) copyright.style.display = 'none';
-                elementsToHideTemporarily.forEach(el => el.style.visibility = 'visible'); 
-
-                // === CẬP NHẬT: Khôi phục cài đặt cuộn ===
-                if (mainPage && element && tableContainer) {
-                    mainPage.style.maxWidth = originalPageMaxWidth;
-                    element.style.width = originalElementWidth; // <-- Khôi phục element
-                    tableContainer.style.width = originalTableContainerWidth;
-                    tableContainer.style.overflowX = originalTableContainerOverflow;
-                }
-                // === KẾT THÚC CẬP NHẬT ===
-            }
+            }, 50); // <-- Đợi 50ms
         }
         
         async function copyElementAsImage(selector, message, buttonElement = null) {
@@ -839,70 +839,72 @@
             const copyright = document.getElementById('copyrightInReport');
             if (copyright && element === DOM.reportContainer) copyright.style.display = 'block'; 
 
-            // === CẬP NHẬT: Xử lý chụp nội dung cuộn ===
-            let mainPage, tableContainer, table;
-            let originalPageMaxWidth, originalElementWidth, originalTableContainerWidth, originalTableContainerOverflow; // <-- Đã thêm originalElementWidth
+            // === CẬP NHẬT: Xử lý chụp nội dung cuộn (Logic mới) ===
+            let mainPage, tableContainer, table, summarySectionEl;
+            let originalPageMaxWidth, originalSummarySectionWidth, originalTableContainerWidth, originalTableContainerOverflow;
 
             if (selector === '#summarySection') {
                 mainPage = DOM.mainPage;
+                summarySectionEl = DOM.summarySection;
                 tableContainer = DOM.summaryTableContainer;
                 table = tableContainer.querySelector('table');
                 
-                if (mainPage && element && tableContainer && table) {
-                    // 1. Lưu lại các giá trị gốc
+                if (mainPage && summarySectionEl && tableContainer && table) {
                     originalPageMaxWidth = mainPage.style.maxWidth;
-                    originalElementWidth = element.style.width; // <-- Lưu style của element
+                    originalSummarySectionWidth = summarySectionEl.style.width;
                     originalTableContainerWidth = tableContainer.style.width;
                     originalTableContainerOverflow = tableContainer.style.overflowX;
 
-                    // 2. Tạm thời gỡ bỏ giới hạn của .page
                     mainPage.style.maxWidth = 'none';
-                    const scrollW = table.scrollWidth;
-                    // 3. Mở rộng element và container để html2canvas thấy hết
-                    element.style.width = `${scrollW}px`; // <-- Đặt width cho element
+                    const scrollW = table.scrollWidth + 2; // +2px buffer
+                    
+                    summarySectionEl.style.width = `${scrollW}px`;
                     tableContainer.style.width = `${scrollW}px`;
                     tableContainer.style.overflowX = 'visible';
                 }
             }
             // === KẾT THÚC CẬP NHẬT ===
 
-            try {
-                const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
-                canvas.toBlob(async (blob) => {
-                    try {
-                        if (navigator.clipboard && navigator.clipboard.write) {
-                            await navigator.clipboard.write([ new ClipboardItem({ 'image/png': blob }) ]);
-                            showNotification(message, 'success');
-                            if (buttonElement) {
-                                buttonElement.textContent = 'Đã Copy!';
-                                setTimeout(() => { if(buttonElement) buttonElement.textContent = originalButtonText; }, 2000);
-                            }
-                        } else { throw new Error('Clipboard API không được hỗ trợ.'); }
-                    } catch (writeErr) {
-                        console.error('Lỗi khi dùng navigator.clipboard.write:', writeErr);
-                        showNotification('Không thể tự động copy, vui lòng copy thủ công!', 'info');
-                        DOM.imagePreviewHolder.src = canvas.toDataURL('image/png');
-                        DOM.imagePreviewModal.style.display = 'block';
-                        if (buttonElement) buttonElement.textContent = originalButtonText;
-                    }
-                }, 'image/png');
-            } catch (err) {
-                console.error('Lỗi tạo ảnh:', err);
-                showNotification('Đã xảy ra lỗi khi tạo ảnh.', 'error');
-                if (buttonElement) buttonElement.textContent = originalButtonText;
-            } finally {
-                if (copyright) copyright.style.display = 'none';
-                elementsToHideTemporarily.forEach(el => el.style.visibility = 'visible'); 
+            // === CẬP NHẬT: Thêm setTimeout để chờ trình duyệt vẽ lại ===
+            setTimeout(async () => {
+                try {
+                    const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
+                    canvas.toBlob(async (blob) => {
+                        try {
+                            if (navigator.clipboard && navigator.clipboard.write) {
+                                await navigator.clipboard.write([ new ClipboardItem({ 'image/png': blob }) ]);
+                                showNotification(message, 'success');
+                                if (buttonElement) {
+                                    buttonElement.textContent = 'Đã Copy!';
+                                    setTimeout(() => { if(buttonElement) buttonElement.textContent = originalButtonText; }, 2000);
+                                }
+                            } else { throw new Error('Clipboard API không được hỗ trợ.'); }
+                        } catch (writeErr) {
+                            console.error('Lỗi khi dùng navigator.clipboard.write:', writeErr);
+                            showNotification('Không thể tự động copy, vui lòng copy thủ công!', 'info');
+                            DOM.imagePreviewHolder.src = canvas.toDataURL('image/png');
+                            DOM.imagePreviewModal.style.display = 'block';
+                            if (buttonElement) buttonElement.textContent = originalButtonText;
+                        }
+                    }, 'image/png');
+                } catch (err) {
+                    console.error('Lỗi tạo ảnh:', err);
+                    showNotification('Đã xảy ra lỗi khi tạo ảnh.', 'error');
+                    if (buttonElement) buttonElement.textContent = originalButtonText;
+                } finally {
+                    if (copyright) copyright.style.display = 'none';
+                    elementsToHideTemporarily.forEach(el => el.style.visibility = 'visible'); 
 
-                // === CẬP NHẬT: Khôi phục cài đặt cuộn ===
-                if (mainPage && element && tableContainer) {
-                    mainPage.style.maxWidth = originalPageMaxWidth;
-                    element.style.width = originalElementWidth; // <-- Khôi phục element
-                    tableContainer.style.width = originalTableContainerWidth;
-                    tableContainer.style.overflowX = originalTableContainerOverflow;
+                    // === CẬP NHẬT: Khôi phục cài đặt cuộn (bên trong finally) ===
+                    if (mainPage && summarySectionEl && tableContainer) {
+                        mainPage.style.maxWidth = originalPageMaxWidth;
+                        summarySectionEl.style.width = originalSummarySectionWidth;
+                        tableContainer.style.width = originalTableContainerWidth;
+                        tableContainer.style.overflowX = originalTableContainerOverflow;
+                    }
+                    // === KẾT THÚC CẬP NHẬT ===
                 }
-                // === KẾT THÚC CẬP NHẬT ===
-            }
+            }, 50); // <-- Đợi 50ms
         }
         
         function formatNumberHiddenK(num) { num = parseFloat(num); if (isNaN(num) || num === 0 || Math.abs(num) < 1000) return "0"; return parseInt(num / 1000).toLocaleString("vi-VN"); }
