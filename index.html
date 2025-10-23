@@ -137,27 +137,15 @@
     .dynamic-input::placeholder { color: var(--secondary-dark); font-weight: normal; }
     textarea.dynamic-input { text-align: right; } 
     #summaryTableContainer { margin-top: 20px; overflow-x: auto; }
-    
-    /* === KÍCH HOẠT LẠI: Cho phép bảng tổng kết tự động mở rộng === */
-    #summaryTableContainer table {
-        width: auto; /* Ghi đè 'width: 100%' để bảng có thể mở rộng */
-        min-width: 100%; /* Đảm bảo bảng ít nhất cũng rộng bằng container */
-    }
-
+    #summaryTableContainer table { width: auto; } /* CHO PHÉP BẢNG RỘNG HƠN */
     #summaryTableContainer table th { position: sticky; top: 0; z-index: 1; }
-    #summaryTableContainer tfoot tr { background-color: var(--neutral-light-bg); font-weight: 600; color: var(--text-color); }
-    
-    /* === KÍCH HOẠT LẠI: Ngăn nội dung xuống dòng === */
+    /* NGĂN XUỐNG DÒNG TRONG BẢNG TỔNG KẾT */
     #summaryTableContainer th, 
     #summaryTableContainer td {
         white-space: nowrap;
     }
-    
+    #summaryTableContainer tfoot tr { background-color: var(--neutral-light-bg); font-weight: 600; color: var(--text-color); }
     .negative-value { color: var(--danger-color); }
-
-    /* === XÓA BỎ: Chế độ chụp ảnh === */
-    /* #summaryTableContainer.copy-mode ... (đã xóa) */
-
 
     /* --- CSS MỚI: Cỡ chữ Tổng Tiền (Bảng Tổng Kết) --- */
     #summaryTableContainer tfoot .final-amount-positive,
@@ -770,6 +758,33 @@
             const copyright = document.getElementById('copyrightInReport');
             if (copyright && element === DOM.reportContainer) copyright.style.display = 'block'; 
 
+            // === CẬP NHẬT: Xử lý chụp nội dung cuộn ===
+            let mainPage, tableContainer, table;
+            let originalPageMaxWidth, originalElementWidth, originalTableContainerWidth, originalTableContainerOverflow; // <-- Đã thêm originalElementWidth
+
+            if (selector === '#summarySection') {
+                mainPage = DOM.mainPage;
+                tableContainer = DOM.summaryTableContainer;
+                table = tableContainer.querySelector('table');
+                
+                if (mainPage && element && tableContainer && table) {
+                    // 1. Lưu lại các giá trị gốc
+                    originalPageMaxWidth = mainPage.style.maxWidth;
+                    originalElementWidth = element.style.width; // <-- Lưu style của element
+                    originalTableContainerWidth = tableContainer.style.width;
+                    originalTableContainerOverflow = tableContainer.style.overflowX;
+
+                    // 2. Tạm thời gỡ bỏ giới hạn của .page
+                    mainPage.style.maxWidth = 'none';
+                    const scrollW = table.scrollWidth;
+                    // 3. Mở rộng element và container để html2canvas thấy hết
+                    element.style.width = `${scrollW}px`; // <-- Đặt width cho element
+                    tableContainer.style.width = `${scrollW}px`;
+                    tableContainer.style.overflowX = 'visible';
+                }
+            }
+            // === KẾT THÚC CẬP NHẬT ===
+
             try {
                 const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
                 const dataUrl = canvas.toDataURL('image/png');
@@ -798,6 +813,15 @@
                 // Hiển thị lại các nút đã ẩn
                 if (copyright) copyright.style.display = 'none';
                 elementsToHideTemporarily.forEach(el => el.style.visibility = 'visible'); 
+
+                // === CẬP NHẬT: Khôi phục cài đặt cuộn ===
+                if (mainPage && element && tableContainer) {
+                    mainPage.style.maxWidth = originalPageMaxWidth;
+                    element.style.width = originalElementWidth; // <-- Khôi phục element
+                    tableContainer.style.width = originalTableContainerWidth;
+                    tableContainer.style.overflowX = originalTableContainerOverflow;
+                }
+                // === KẾT THÚC CẬP NHẬT ===
             }
         }
         
@@ -814,6 +838,33 @@
             elementsToHideTemporarily.forEach(el => el.style.visibility = 'hidden');
             const copyright = document.getElementById('copyrightInReport');
             if (copyright && element === DOM.reportContainer) copyright.style.display = 'block'; 
+
+            // === CẬP NHẬT: Xử lý chụp nội dung cuộn ===
+            let mainPage, tableContainer, table;
+            let originalPageMaxWidth, originalElementWidth, originalTableContainerWidth, originalTableContainerOverflow; // <-- Đã thêm originalElementWidth
+
+            if (selector === '#summarySection') {
+                mainPage = DOM.mainPage;
+                tableContainer = DOM.summaryTableContainer;
+                table = tableContainer.querySelector('table');
+                
+                if (mainPage && element && tableContainer && table) {
+                    // 1. Lưu lại các giá trị gốc
+                    originalPageMaxWidth = mainPage.style.maxWidth;
+                    originalElementWidth = element.style.width; // <-- Lưu style của element
+                    originalTableContainerWidth = tableContainer.style.width;
+                    originalTableContainerOverflow = tableContainer.style.overflowX;
+
+                    // 2. Tạm thời gỡ bỏ giới hạn của .page
+                    mainPage.style.maxWidth = 'none';
+                    const scrollW = table.scrollWidth;
+                    // 3. Mở rộng element và container để html2canvas thấy hết
+                    element.style.width = `${scrollW}px`; // <-- Đặt width cho element
+                    tableContainer.style.width = `${scrollW}px`;
+                    tableContainer.style.overflowX = 'visible';
+                }
+            }
+            // === KẾT THÚC CẬP NHẬT ===
 
             try {
                 const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
@@ -842,6 +893,15 @@
             } finally {
                 if (copyright) copyright.style.display = 'none';
                 elementsToHideTemporarily.forEach(el => el.style.visibility = 'visible'); 
+
+                // === CẬP NHẬT: Khôi phục cài đặt cuộn ===
+                if (mainPage && element && tableContainer) {
+                    mainPage.style.maxWidth = originalPageMaxWidth;
+                    element.style.width = originalElementWidth; // <-- Khôi phục element
+                    tableContainer.style.width = originalTableContainerWidth;
+                    tableContainer.style.overflowX = originalTableContainerOverflow;
+                }
+                // === KẾT THÚC CẬP NHẬT ===
             }
         }
         
@@ -905,10 +965,4 @@
 
 </body>
 </html>
-
-
-
-
-
-
 
