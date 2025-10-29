@@ -104,7 +104,7 @@
     
     /* CẬP NHẬT THANH NAV CHÍNH */
     .main-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-    .summary-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; } /* THAY ĐỔI: 3 -> 2 cột */
+    .summary-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 20px; } /* THAY ĐỔI: margin-bottom -> margin-top */
     
     .main-nav button { background-color: var(--secondary-color); color: var(--text-color); }
     .main-nav button:hover { background-color: var(--secondary-dark); }
@@ -284,13 +284,12 @@
     <div id="summarySection" class="main-section">
         <h3>Bảng Tổng Kết</h3>
         <h4 id="summaryDate" class="report-date"></h4>
+        <!-- DI CHUYỂN NÚT XUỐNG DƯỚI -->
+        <div id="summaryTableContainer"></div>
         <div class="summary-actions">
             <button id="btnCopySummary" class="success">Copy Ảnh</button>
-            <!-- THAY ĐỔI: Đổi nút "In Bảng" thành "Lưu ảnh" -->
             <button id="btnSaveSummary" class="secondary">Lưu ảnh</button>
-            <!-- XÓA BỎ: Nút "Chế độ Chụp" -->
         </div>
-        <div id="summaryTableContainer"></div>
     </div>
 
     <div id="reportSection" class="main-section" style="display: none;">
@@ -764,7 +763,10 @@
             const reportActions = document.getElementById('actionButtonContainer'); 
             if (actions) elementsToHideTemporarily.push(actions);
             if (reportActions && element === DOM.reportContainer) elementsToHideTemporarily.push(reportActions);
-            elementsToHideTemporarily.forEach(el => el.style.visibility = 'hidden');
+            
+            // === CẬP NHẬT: Dùng display: none thay vì visibility: hidden ===
+            elementsToHideTemporarily.forEach(el => el.style.display = 'none');
+            
             const copyright = document.getElementById('copyrightInReport');
             if (copyright && element === DOM.reportContainer) copyright.style.display = 'block'; 
 
@@ -821,7 +823,8 @@
                 } finally {
                     // Hiển thị lại các nút đã ẩn
                     if (copyright) copyright.style.display = 'none';
-                    elementsToHideTemporarily.forEach(el => el.style.visibility = 'visible'); 
+                    // === CẬP NHẬT: Khôi phục display ===
+                    elementsToHideTemporarily.forEach(el => el.style.display = ''); 
 
                     // === CẬP NHẬT: Khôi phục cài đặt cuộn (bên trong finally) ===
                     if (mainPage && summarySectionEl && tableContainer) {
@@ -845,7 +848,10 @@
             const reportActions = document.getElementById('actionButtonContainer'); 
             if (actions) elementsToHideTemporarily.push(actions);
             if (reportActions && element === DOM.reportContainer) elementsToHideTemporarily.push(reportActions);
-            elementsToHideTemporarily.forEach(el => el.style.visibility = 'hidden');
+
+            // === CẬP NHẬT: Dùng display: none thay vì visibility: hidden ===
+            elementsToHideTemporarily.forEach(el => el.style.display = 'none');
+            
             const copyright = document.getElementById('copyrightInReport');
             if (copyright && element === DOM.reportContainer) copyright.style.display = 'block'; 
 
@@ -903,7 +909,8 @@
                     if (buttonElement) buttonElement.textContent = originalButtonText;
                 } finally {
                     if (copyright) copyright.style.display = 'none';
-                    elementsToHideTemporarily.forEach(el => el.style.visibility = 'visible'); 
+                    // === CẬP NHẬT: Khôi phục display ===
+                    elementsToHideTemporarily.forEach(el => el.style.display = ''); 
 
                     // === CẬP NHẬT: Khôi phục cài đặt cuộn (bên trong finally) ===
                     if (mainPage && summarySectionEl && tableContainer) {
@@ -977,4 +984,3 @@
 
 </body>
 </html>
-
