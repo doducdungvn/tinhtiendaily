@@ -122,12 +122,25 @@
     .report-table tbody td { font-weight: 500; font-size: 20px; }
     .header { font-weight: 500; background: var(--neutral-light-bg); }
     .so-so { font-size: 32px; font-weight: 600; color: var(--warning-color); vertical-align: middle; }
-    #tongCongRow { background-color: var(--neutral-light-bg); color: var(--text-color); font-weight: 600 !important;}
-    #mainBonusRow { background-color: var(--success-light-bg); color: var(--success-color); }
+    #tongCongRow { background-color: #FFC107; color: var(--text-color); font-weight: 600 !important;} /* THAY ĐỔI: Đổi màu nền sang vàng cam */
+    #mainBonusRow { background-color: var(--success-color); color: #ffffff; } /* THAY ĐỔI: Nền xanh lá, chữ trắng */
     #mainBonusRow td { font-weight: 600; }
-    .added-ticket-row { background-color: var(--info-light-bg); }
-    .added-ticket-row td:first-child { color: #2980b9; font-size: 15px; font-weight: normal; } 
+    .added-ticket-row { background-color: #ffffff; } /* THAY ĐỔI: Đổi nền thành màu trắng */
+    
+    /* === THAY ĐỔI: Chỉnh dòng bán vé đậm và giống các dòng khác === */
+    .added-ticket-row td:first-child { 
+        /* color: #2980b9; */ /* Bỏ màu xanh để dùng màu chữ mặc định */
+        /* font-size: 15px; */ /* Bỏ cỡ chữ riêng để dùng cỡ chữ của bảng (20px) */
+        font-weight: 500; /* Đổi thành 500 để đậm bằng các dòng khác */
+    } 
+    
     .bang-chu-cell { text-align: left !important; font-style: italic; padding-left: 15px !important; font-size: 10px; font-weight: normal; color: var(--text-light); }
+    
+    /* THAY ĐỔI: Đổi màu nền dòng "Bằng chữ" sang trắng */
+    #bangChuRow, #bangChuRow td {
+        background: #ffffff !important;
+    }
+
     .ticket-type-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
     .ticket-type-selector label { display: flex; align-items: center; gap: 5px; font-weight: normal; cursor: pointer; }
     .copyright { text-align: center; margin-top: 25px; font-size: 14px; color: var(--text-light); }
@@ -144,7 +157,12 @@
     #summaryTableContainer td {
         white-space: nowrap;
     }
-    #summaryTableContainer tfoot tr { background-color: var(--neutral-light-bg); font-weight: 600; color: var(--text-color); }
+    #summaryTableContainer tfoot tr { font-weight: 600; } /* THAY ĐỔI: Xóa màu nền/chữ chung */
+    /* THAY ĐỔI: Thêm quy tắc mới cho ô tfoot */
+    #summaryTableContainer tfoot tr td {
+        background-color: var(--header-bg);
+        color: var(--header-text);
+    }
     .negative-value { color: var(--danger-color); }
 
     /* --- CSS MỚI: Cỡ chữ Tổng Tiền (Bảng Tổng Kết) --- */
@@ -154,10 +172,18 @@
         font-weight: 630; /* Đậm hơn một chút */
     }
 
-    .final-amount-positive, .final-amount-negative { background-color: var(--light-red-bg) !important; }
-    .final-amount-positive { color: var(--danger-color) !important; }
-    .final-amount-negative { color: var(--success-color) !important; }
+    /* === THAY ĐỔI: Chỉnh nền dòng "Phải nộp" (đỏ) và "Lấy về" (xanh) === */
+    /* .final-amount-positive, .final-amount-negative { background-color: var(--light-red-bg) !important; } */ /* Tắt dòng này */
+    .final-amount-positive { 
+        background-color: var(--danger-color) !important; /* Nền đỏ */
+        color: #ffffff !important; /* Chữ trắng */
+    }
+    .final-amount-negative { 
+        background-color: var(--success-color) !important; /* Nền xanh */
+        color: #ffffff !important; /* Chữ trắng */
+    }
     tr.final-amount-positive td, tr.final-amount-negative td { font-size: 30px !important; font-weight: 600; color: inherit !important; padding: 15px 12px !important; }
+    
     .inline-form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .inline-form > input { flex: 1 1 150px; min-width: 100px; } 
     .inline-form > button { flex: 0 1 auto; white-space: nowrap; padding: 12px 15px; } 
@@ -198,7 +224,10 @@
         tr.final-amount-positive td, tr.final-amount-negative td { font-size: 6.8vw !important; padding: 11px 7px !important; }
         .bang-chu-cell { font-size: 3vw !important; }
         .copyright { font-size: 3vw; }
-        .added-ticket-row td:first-child { font-size: 3.8vw; }
+        
+        /* === THAY ĐỔI: Xóa cỡ chữ riêng cho dòng bán vé trên di động === */
+        /* .added-ticket-row td:first-child { font-size: 3.8vw; } */ /* Xóa bỏ để dùng cỡ chữ chung 4vw */
+        
         .dynamic-input { font-size: 4.2vw !important; }
         .manual-grid { grid-template-columns: 1fr; }
         .manual-grid label { text-align: left; }
@@ -560,7 +589,15 @@
         // ===== DETAILED REPORT VIEW LOGIC (Không đổi) =====
         function resetState(soSo) { state.currentSoSo = soSo; state.baseTongDT = 0; state.baseTongHH = 0; state.baseThuong = 0; state.extraBonus = 0; state.extraDebt = 0; state.addedTickets = []; state.accountCodes.clear(); }
         function processDetailedReportData(soSo) { const filterBySoSo = (row) => { const agentCode = String(row.__EMPTY || row.__EMPTY_1 || '').trim(); if (!agentCode) return false; const numericPartMatch = agentCode.match(/\d+$/); if (!numericPartMatch) return false; return numericPartMatch[0] === soSo; }; const filtered1 = excelData1.filter(filterBySoSo); const filtered2 = excelData2.filter(filterBySoSo); if (filtered1.length === 0 && filtered2.length === 0) return null; resetState(soSo); const totalsFromExcel = { lotoDB: 0, loCap: 0, c2_27: 0, c3_23: 0, thuong: 0, xskt: 0 }; filtered1.forEach(row => { state.accountCodes.add(String(row.__EMPTY).trim()); totalsFromExcel.lotoDB += parseFloat(row.__EMPTY_2) || 0; totalsFromExcel.loCap += parseFloat(row.__EMPTY_6) || 0; totalsFromExcel.c2_27 += parseFloat(row.__EMPTY_8) || 0; totalsFromExcel.c3_23 += parseFloat(row.__EMPTY_10) || 0; totalsFromExcel.thuong += parseFloat(row.__EMPTY_14) || 0; }); filtered2.forEach(row => { state.accountCodes.add(String(row.__EMPTY || row.__EMPTY_1).trim()); totalsFromExcel.xskt += (parseFloat(row.__EMPTY_7) || 0) * 1000; }); const loto_db_com = totalsFromExcel.lotoDB * 0.08; const lo_cap_com = totalsFromExcel.loCap * 0.10; const c2_27_com = totalsFromExcel.c2_27 * 0.10; const c3_23_com = totalsFromExcel.c3_23 * 0.10; const xskt_com = totalsFromExcel.xskt * 0.10; state.baseTongDT = totalsFromExcel.lotoDB + totalsFromExcel.loCap + totalsFromExcel.c2_27 + totalsFromExcel.c3_23 + totalsFromExcel.xskt; state.baseTongHH = loto_db_com + lo_cap_com + c2_27_com + c3_23_com + xskt_com; state.baseThuong = totalsFromExcel.thuong; return { totals: totalsFromExcel, commissions: { loto_db_com, lo_cap_com, c2_27_com, c3_23_com, xskt_com } }; }
-        function renderDetailedReport(data, manualDateRange = null) { const { totals, commissions } = data; const displayDate = manualDateRange !== null ? manualDateRange : dateRangeText; const xsktRowHTML = totals.xskt > 0 ? `<tr><td>Xổ số kiến thiết</td><td>${formatNumberHiddenK(totals.xskt)}</td><td>${formatCommissionCellHiddenK(totals.xskt, commissions.xskt_com)}</td></tr>` : ''; DOM.reportContainer.innerHTML = `<table><tr><td class="header" style="width: 33.33%;">Thanh toán tiền Đại Lý:</td><td class="so-so">${[...state.accountCodes].join(', ')}</td></tr><tr><td class="header">Thời gian:</td><td>${displayDate}</td></tr></table><br><table class="report-table"><thead><tr><th>Loại hình</th><th>Doanh thu</th><th>Hoa hồng</th></tr></thead><tbody><tr><td>Lô tô Đặc biệt</td><td>${formatNumberHiddenK(totals.lotoDB)}</td><td>${formatCommissionCellHiddenK(totals.lotoDB, commissions.loto_db_com)}</td></tr><tr><td>Lô cặp</td><td>${formatNumberHiddenK(totals.loCap)}</td><td>${formatCommissionCellHiddenK(totals.loCap, commissions.lo_cap_com)}</td></tr><tr><td>2/27</td><td>${formatNumberHiddenK(totals.c2_27)}</td><td>${formatCommissionCellHiddenK(totals.c2_27, commissions.c2_27_com)}</td></tr><tr><td>3/23</td><td>${formatNumberHiddenK(totals.c3_23)}</td><td>${formatCommissionCellHiddenK(totals.c3_23, commissions.c3_23_com)}</td></tr>${xsktRowHTML}<tr id="tongCongRow"><td>Tổng cộng</td><td id="tongDT"></td><td id="tongHH"></td></tr><tr id="mainBonusRow"><td>Thưởng</td><td colspan="2" id="thuong">${formatNumberHiddenK(state.baseThuong)}</td></tr><tr id="finalResultRow"><td id="ketQuaLabel"></td><td id="ketQuaValue" colspan="2"></td></tr><tr class="header"><td>Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr></tbody></table><div id="copyrightInReport" class="copyright" style="display: none;">© 2025 ZENG FINANCE</div>`; }
+        function renderDetailedReport(data, manualDateRange = null) { 
+            const { totals, commissions } = data; 
+            const displayDate = manualDateRange !== null ? manualDateRange : dateRangeText; 
+            const xsktRowHTML = totals.xskt > 0 ? `<tr><td>Xổ số kiến thiết</td><td>${formatNumberHiddenK(totals.xskt)}</td><td>${formatCommissionCellHiddenK(totals.xskt, commissions.xskt_com)}</td></tr>` : ''; 
+            
+            // === THAY ĐỔI: Thêm id="bangChuRow" vào dòng "Bằng chữ" ===
+            DOM.reportContainer.innerHTML = `<table><tr><td class="header" style="width: 33.33%;">Thanh toán tiền Đại Lý:</td><td class="so-so">${[...state.accountCodes].join(', ')}</td></tr><tr><td class="header">Thời gian:</td><td>${displayDate}</td></tr></table><br><table class="report-table"><thead><tr><th>Loại hình</th><th>Doanh thu</th><th>Hoa hồng</th></tr></thead><tbody><tr><td>Lô tô Đặc biệt</td><td>${formatNumberHiddenK(totals.lotoDB)}</td><td>${formatCommissionCellHiddenK(totals.lotoDB, commissions.loto_db_com)}</td></tr><tr><td>Lô cặp</td><td>${formatNumberHiddenK(totals.loCap)}</td><td>${formatCommissionCellHiddenK(totals.loCap, commissions.lo_cap_com)}</td></tr><tr><td>2/27</td><td>${formatNumberHiddenK(totals.c2_27)}</td><td>${formatCommissionCellHiddenK(totals.c2_27, commissions.c2_27_com)}</td></tr><tr><td>3/23</td><td>${formatNumberHiddenK(totals.c3_23)}</td><td>${formatCommissionCellHiddenK(totals.c3_23, commissions.c3_23_com)}</td></tr>${xsktRowHTML}<tr id="tongCongRow"><td>Tổng cộng</td><td id="tongDT"></td><td id="tongHH"></td></tr><tr id="mainBonusRow"><td>Thưởng</td><td colspan="2" id="thuong">${formatNumberHiddenK(state.baseThuong)}</td></tr><tr id="finalResultRow"><td id="ketQuaLabel"></td><td id="ketQuaValue" colspan="2"></td></tr><tr id="bangChuRow" class="header"><td>Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr></tbody></table><div id="copyrightInReport" class="copyright" style="display: none;">© 2025 ZENG FINANCE</div>`; 
+            // === KẾT THÚC THAY ĐỔI ===
+        }
         function updateDetailedReportView() { if (!state.currentSoSo) return; const addedRevenue = state.addedTickets.reduce((sum, t) => sum + t.doanhThu, 0); const addedCommission = state.addedTickets.reduce((sum, t) => sum + t.hoaHong, 0); const tongDT_Moi = state.baseTongDT + addedRevenue; const tongHH_Moi = state.baseTongHH + addedCommission; const tongDTElement = document.getElementById('tongDT'); const tongHHElement = document.getElementById('tongHH'); if (tongDTElement) tongDTElement.textContent = formatNumberHiddenK(tongDT_Moi); if (tongHHElement) tongHHElement.textContent = formatNumberHiddenK(tongHH_Moi); const phaiNop = tongDT_Moi - tongHH_Moi - state.baseThuong - state.extraBonus + state.extraDebt; const resultRow = document.getElementById('finalResultRow'); const ketQuaLabel = document.getElementById('ketQuaLabel'); const ketQuaValue = document.getElementById('ketQuaValue'); const ketQuaBangChu = document.getElementById('ketQuaBangChu'); if (!resultRow || !ketQuaLabel || !ketQuaValue || !ketQuaBangChu) return; resultRow.className = phaiNop >= 0 ? 'final-amount-positive' : 'final-amount-negative'; if (phaiNop >= 0) { const lamTron = Math.ceil(phaiNop / 1000) * 1000; ketQuaLabel.textContent = 'Phải nộp:'; ketQuaValue.textContent = formatNumberHiddenK(lamTron); ketQuaBangChu.textContent = docso(lamTron) + " đồng"; } else { const layVe = Math.abs(phaiNop); const khongLamTron = parseInt(layVe / 1000) * 1000; ketQuaLabel.textContent = 'Lấy về:'; ketQuaValue.textContent = formatNumberHiddenK(khongLamTron); ketQuaBangChu.textContent = docso(khongLamTron) + " đồng"; } }
 
         // ===== UI EVENT HANDLERS & CONTROLLERS =====
