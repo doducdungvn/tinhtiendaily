@@ -526,7 +526,35 @@
 
         // ===== SUMMARY VIEW LOGIC (Không đổi) =====
         function processSummaryData() { const individualAgentData = new Map(); const initializeAgent = (code) => { if (!individualAgentData.has(code)) { individualAgentData.set(code, { totalRevenue: 0, totalCommission: 0, lotoDB: 0, lotoCap: 0, c2_27: 0, c3_23: 0, xskt: 0, thuong: 0 }); } }; excelData1.forEach(row => { const agentCode = String(row.__EMPTY || '').trim(); if (!agentCode || !/\d/.test(agentCode)) return; initializeAgent(agentCode); const data = individualAgentData.get(agentCode); const loto_db_rev = parseFloat(row.__EMPTY_2) || 0; const lo_cap_rev = parseFloat(row.__EMPTY_6) || 0; const c2_27_rev = parseFloat(row.__EMPTY_8) || 0; const c3_23_rev = parseFloat(row.__EMPTY_10) || 0; data.lotoDB += loto_db_rev; data.lotoCap += lo_cap_rev; data.c2_27 += c2_27_rev; data.c3_23 += c3_23_rev; data.thuong += parseFloat(row.__EMPTY_14) || 0; data.totalRevenue += loto_db_rev + lo_cap_rev + c2_27_rev + c3_23_rev; data.totalCommission += (loto_db_rev * 0.08) + (lo_cap_rev * 0.10) + (c2_27_rev * 0.10) + (c3_23_rev * 0.10); }); excelData2.forEach(row => { const agentCode = String(row.__EMPTY || row.__EMPTY_1 || '').trim(); if (!agentCode || !/\d/.test(agentCode)) return; initializeAgent(agentCode); const data = individualAgentData.get(agentCode); const xsktRevenue = (parseFloat(row.__EMPTY_7) || 0) * 1000; data.xskt += xsktRevenue; data.totalRevenue += xsktRevenue; data.totalCommission += xsktRevenue * 0.10; }); const getAgentNumber = (code) => String(code).match(/\d+$/)?.[0] || code; const getAgentParts = (code) => { const num = getAgentNumber(code); const prefix = String(code).replace(num, ''); return { num: parseInt(num, 10), prefix }; }; const sortedKeys = [...individualAgentData.keys()].sort((a, b) => { const partsA = getAgentParts(a); const partsB = getAgentParts(b); if (partsA.num !== partsB.num) return partsA.num - partsB.num; return partsA.prefix.localeCompare(partsB.prefix); }); const groupedData = new Map(); sortedKeys.forEach(agentCode => { const groupKey = getAgentNumber(agentCode); if (!groupedData.has(groupKey)) { groupedData.set(groupKey, { agents: [], groupTotal: 0 }); } const group = groupedData.get(groupKey); const agentDetails = individualAgentData.get(agentCode); const finalAmount = agentDetails.totalRevenue - agentDetails.totalCommission - agentDetails.thuong; group.agents.push({ code: agentCode, data: agentDetails }); group.groupTotal += finalAmount; }); const grandTotals = { lotoDB: 0, lotoCap: 0, c3_23: 0, c2_27: 0, xskt: 0, thuong: 0, finalAmount: 0 }; individualAgentData.forEach(data => { grandTotals.lotoDB += data.lotoDB; grandTotals.lotoCap += data.lotoCap; grandTotals.c3_23 += data.c3_23; grandTotals.c2_27 += data.c2_27; grandTotals.xskt += data.xskt; grandTotals.thuong += data.thuong; grandTotals.finalAmount += data.totalRevenue - data.totalCommission - data.thuong; }); return { groupedData, grandTotals }; }
-        function renderSummaryTable({ groupedData, grandTotals }) { let body = ''; let stt = 1; const sortedGroupedData = [...groupedData.entries()].sort((a, b) => parseInt(a[0], 10) - parseInt(b[0], 10)); for (const [groupKey, group] of sortedGroupedData) { group.agents.forEach((agent, index) => { const agentData = agent.data; const finalAmount = agentData.totalRevenue - agentData.totalCommission - agentData.thuong; const isFirstInGroup = index === 0; const sttCell = isFirstInGroup ? `<td>${stt}</td>` : '<td></td>'; let finalAmountCellContent = finalAmount < 0 ? `<span class="negative-value">${formatNumberHiddenK(finalAmount)}</span>` : formatNumberHiddenK(finalAmount); if (index === group.agents.length - 1) { finalAmountCellContent += ` <strong style="color: var(--primary-color);">(${formatNumberHiddenK(group.groupTotal)})</strong>`; } body += `<tr ${isFirstInGroup ? 'class="group-start-row"' : ''}>${sttCell}<td>${agent.code}</td><td>${formatNumberHiddenK(agentData.lotoDB)}</td><td>${formatNumberHiddenK(agentData.lotoCap)}</td><td>${formatNumberHiddenK(agentData.c3_23)}</td><td>${formatNumberHiddenK(agentData.c2_27)}</td><td>${formatNumberHiddenK(agentData.xskt)}</td><td>${formatNumberHiddenK(agentData.thuong)}</td><td>${finalAmountCellContent}</td></tr>`; }); stt++; } const grandFinalAmountClass = grandTotals.finalAmount >= 0 ? 'final-amount-positive' : 'final-amount-negative'; const footer = `<tr><td colspan="2">TỔNG CỘNG</td><td>${formatNumberHiddenK(grandTotals.lotoDB)}</td><td>${formatNumberHiddenK(grandTotals.lotoCap)}</td><td>${formatNumberHiddenK(grandTotals.c3_23)}</td><td>${formatNumberHiddenK(grandTotals.c2_27)}</td><td>${formatNumberHiddenK(grandTotals.xskt)}</td><td>${formatNumberHiddenK(grandTotals.thuong)}</td><td class="${grandFinalAmountClass}">${formatNumberHiddenK(grandTotals.finalAmount)}</td></tr>`; return `<table border="1"><thead><tr><th style="width: 8%;">STT</th><th style="width: 12%;">ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th><th>XSKT</th><th>Thưởng</th><th>Tiền</th></tr></thead><tbody>${body}</tbody><tfoot>${footer}</tfoot></table>`; }
+        
+        function renderSummaryTable({ groupedData, grandTotals }) { 
+            let body = ''; 
+            let stt = 1; 
+            const sortedGroupedData = [...groupedData.entries()].sort((a, b) => parseInt(a[0], 10) - parseInt(b[0], 10)); 
+            for (const [groupKey, group] of sortedGroupedData) { 
+                group.agents.forEach((agent, index) => { 
+                    const agentData = agent.data; 
+                    const finalAmount = agentData.totalRevenue - agentData.totalCommission - agentData.thuong; 
+                    const isFirstInGroup = index === 0; 
+                    const sttCell = isFirstInGroup ? `<td>${stt}</td>` : '<td></td>'; 
+                    let finalAmountCellContent = finalAmount < 0 ? `<span class="negative-value">${formatNumberHiddenK(finalAmount)}</span>` : formatNumberHiddenK(finalAmount); 
+                    
+                    // === THAY ĐỔI LOGIC HIỂN THỊ TỔNG NHÓM ===
+                    // Chỉ thêm tổng nhóm (trong ngoặc) nếu đây là dòng cuối VÀ nhóm có nhiều hơn 1 thành viên
+                    if (index === group.agents.length - 1 && group.agents.length > 1) {
+                        finalAmountCellContent += ` <strong style="color: var(--primary-color);">(${formatNumberHiddenK(group.groupTotal)})</strong>`; 
+                    } 
+                    // === KẾT THÚC THAY ĐỔI ===
+
+                    body += `<tr ${isFirstInGroup ? 'class="group-start-row"' : ''}>${sttCell}<td>${agent.code}</td><td>${formatNumberHiddenK(agentData.lotoDB)}</td><td>${formatNumberHiddenK(agentData.lotoCap)}</td><td>${formatNumberHiddenK(agentData.c3_23)}</td><td>${formatNumberHiddenK(agentData.c2_27)}</td><td>${formatNumberHiddenK(agentData.xskt)}</td><td>${formatNumberHiddenK(agentData.thuong)}</td><td>${finalAmountCellContent}</td></tr>`; 
+                }); 
+                stt++; 
+            } 
+            const grandFinalAmountClass = grandTotals.finalAmount >= 0 ? 'final-amount-positive' : 'final-amount-negative'; 
+            const footer = `<tr><td colspan="2">TỔNG CỘNG</td><td>${formatNumberHiddenK(grandTotals.lotoDB)}</td><td>${formatNumberHiddenK(grandTotals.lotoCap)}</td><td>${formatNumberHiddenK(grandTotals.c3_23)}</td><td>${formatNumberHiddenK(grandTotals.c2_27)}</td><td>${formatNumberHiddenK(grandTotals.xskt)}</td><td>${formatNumberHiddenK(grandTotals.thuong)}</td><td class="${grandFinalAmountClass}">${formatNumberHiddenK(grandTotals.finalAmount)}</td></tr>`; 
+            return `<table border="1"><thead><tr><th style="width: 8%;">STT</th><th style="width: 12%;">ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th><th>XSKT</th><th>Thưởng</th><th>Tiền</th></tr></thead><tbody>${body}</tbody><tfoot>${footer}</tfoot></table>`; 
+        }
+
         function generateSummaryView() { if (excelData1.length === 0 && excelData2.length === 0) return; const summaryData = processSummaryData(); const tableHTML = renderSummaryTable(summaryData); DOM.summaryTableContainer.innerHTML = tableHTML; DOM.summaryDate.textContent = dateRangeText; }
 
         // ===== DETAILED REPORT VIEW LOGIC (Không đổi) =====
@@ -984,3 +1012,4 @@
 
 </body>
 </html>
+
