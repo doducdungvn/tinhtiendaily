@@ -212,6 +212,51 @@
         border: none;
     }
 
+    /* === THAY ĐỔI: CSS cho nút cuộn === */
+    #scrollToTopBtn, #scrollToBottomBtn {
+        display: none; /* Ẩn ban đầu */
+        position: fixed;
+        right: 20px;
+        z-index: 1001;
+        border: none;
+        outline: none;
+        background-color: var(--header-bg);
+        color: white;
+        cursor: pointer;
+        padding: 0; /* Xóa padding */
+        border-radius: 50%; /* Làm tròn */
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        
+        /* THAY ĐỔI: Chỉnh kích thước nhỏ lại */
+        width: 40px; 
+        height: 40px;
+        font-size: 16px;
+        line-height: 40px; /* Căn giữa icon */
+        text-align: center;
+    }
+    
+    #scrollToTopBtn {
+        bottom: 20px;
+    }
+
+    #scrollToBottomBtn {
+        top: 20px; /* THÊM MỚI: Vị trí nút cuộn xuống */
+    }
+    
+    #scrollToTopBtn.show, #scrollToBottomBtn.show {
+        display: block;
+        opacity: 0.8;
+    }
+
+    #scrollToTopBtn:hover, #scrollToBottomBtn:hover {
+        opacity: 1;
+        background-color: var(--primary-dark);
+    }
+    /* === KẾT THÚC THAY ĐỔI === */
+
+
     @media (max-width: 768px) {
         body { margin: 0; padding: 10px; font-size: 4vw; -webkit-text-size-adjust: 100%; }
         .page { padding: 10px; margin: 10px auto; }
@@ -448,6 +493,11 @@
       </div>
     </div>
 
+  <!-- THÊM MỚI: Nút cuộn lên đầu trang -->
+  <button id="scrollToTopBtn" title="Cuộn lên đầu trang">&#9650;</button>
+  <!-- THÊM MỚI: Nút cuộn xuống dưới -->
+  <button id="scrollToBottomBtn" title="Cuộn xuống dưới">&#9660;</button>
+
   <script>
     'use strict';
 
@@ -504,7 +554,9 @@
             reloadFile1: document.getElementById('reloadFile1'),
             reloadFile2: document.getElementById('reloadFile2'),
             btnReloadSubmit: document.getElementById('btnReloadSubmit'),
-            logoContainers: document.querySelectorAll('.simple-animated-logo') // Đã thêm
+            logoContainers: document.querySelectorAll('.simple-animated-logo'), 
+            scrollToTopBtn: document.getElementById('scrollToTopBtn'), // <-- THÊM MỚI
+            scrollToBottomBtn: document.getElementById('scrollToBottomBtn') // <-- THÊM MỚI
         };
         
         const manualFormOrder = [
@@ -560,8 +612,111 @@
             reader.readAsArrayBuffer(file);
         }
 
-        // ===== SUMMARY VIEW LOGIC (Không đổi) =====
-        function processSummaryData() { const individualAgentData = new Map(); const initializeAgent = (code) => { if (!individualAgentData.has(code)) { individualAgentData.set(code, { totalRevenue: 0, totalCommission: 0, lotoDB: 0, lotoCap: 0, c2_27: 0, c3_23: 0, xskt: 0, thuong: 0 }); } }; excelData1.forEach(row => { const agentCode = String(row.__EMPTY || '').trim(); if (!agentCode || !/\d/.test(agentCode)) return; initializeAgent(agentCode); const data = individualAgentData.get(agentCode); const loto_db_rev = parseFloat(row.__EMPTY_2) || 0; const lo_cap_rev = parseFloat(row.__EMPTY_6) || 0; const c2_27_rev = parseFloat(row.__EMPTY_8) || 0; const c3_23_rev = parseFloat(row.__EMPTY_10) || 0; data.lotoDB += loto_db_rev; data.lotoCap += lo_cap_rev; data.c2_27 += c2_27_rev; data.c3_23 += c3_23_rev; data.thuong += parseFloat(row.__EMPTY_14) || 0; data.totalRevenue += loto_db_rev + lo_cap_rev + c2_27_rev + c3_23_rev; data.totalCommission += (loto_db_rev * 0.08) + (lo_cap_rev * 0.10) + (c2_27_rev * 0.10) + (c3_23_rev * 0.10); }); excelData2.forEach(row => { const agentCode = String(row.__EMPTY || row.__EMPTY_1 || '').trim(); if (!agentCode || !/\d/.test(agentCode)) return; initializeAgent(agentCode); const data = individualAgentData.get(agentCode); const xsktRevenue = (parseFloat(row.__EMPTY_7) || 0) * 1000; data.xskt += xsktRevenue; data.totalRevenue += xsktRevenue; data.totalCommission += xsktRevenue * 0.10; }); const getAgentNumber = (code) => String(code).match(/\d+$/)?.[0] || code; const getAgentParts = (code) => { const num = getAgentNumber(code); const prefix = String(code).replace(num, ''); return { num: parseInt(num, 10), prefix }; }; const sortedKeys = [...individualAgentData.keys()].sort((a, b) => { const partsA = getAgentParts(a); const partsB = getAgentParts(b); if (partsA.num !== partsB.num) return partsA.num - partsB.num; return partsA.prefix.localeCompare(partsB.prefix); }); const groupedData = new Map(); sortedKeys.forEach(agentCode => { const groupKey = getAgentNumber(agentCode); if (!groupedData.has(groupKey)) { groupedData.set(groupKey, { agents: [], groupTotal: 0 }); } const group = groupedData.get(groupKey); const agentDetails = individualAgentData.get(agentCode); const finalAmount = agentDetails.totalRevenue - agentDetails.totalCommission - agentDetails.thuong; group.agents.push({ code: agentCode, data: agentDetails }); group.groupTotal += finalAmount; }); const grandTotals = { lotoDB: 0, lotoCap: 0, c3_23: 0, c2_27: 0, xskt: 0, thuong: 0, finalAmount: 0 }; individualAgentData.forEach(data => { grandTotals.lotoDB += data.lotoDB; grandTotals.lotoCap += data.lotoCap; grandTotals.c3_23 += data.c3_23; grandTotals.c2_27 += data.c2_27; grandTotals.xskt += data.xskt; grandTotals.thuong += data.thuong; grandTotals.finalAmount += data.totalRevenue - data.totalCommission - data.thuong; }); return { groupedData, grandTotals }; }
+        // ===== SUMMARY VIEW LOGIC =====
+        function processSummaryData() { 
+            const individualAgentData = new Map(); 
+            const initializeAgent = (code) => { 
+                if (!individualAgentData.has(code)) { 
+                    individualAgentData.set(code, { totalRevenue: 0, totalCommission: 0, lotoDB: 0, lotoCap: 0, c2_27: 0, c3_23: 0, xskt: 0, thuong: 0 }); 
+                } 
+            }; 
+            excelData1.forEach(row => { 
+                const agentCode = String(row.__EMPTY || '').trim(); 
+                if (!agentCode || !/\d/.test(agentCode)) return; 
+                initializeAgent(agentCode); 
+                const data = individualAgentData.get(agentCode); 
+                const loto_db_rev = parseFloat(row.__EMPTY_2) || 0; 
+                const lo_cap_rev = parseFloat(row.__EMPTY_6) || 0; 
+                const c2_27_rev = parseFloat(row.__EMPTY_8) || 0; 
+                const c3_23_rev = parseFloat(row.__EMPTY_10) || 0; 
+                data.lotoDB += loto_db_rev; 
+                data.lotoCap += lo_cap_rev; 
+                data.c2_27 += c2_27_rev; 
+                data.c3_23 += c3_23_rev; 
+                data.thuong += parseFloat(row.__EMPTY_14) || 0; 
+                data.totalRevenue += loto_db_rev + lo_cap_rev + c2_27_rev + c3_23_rev; 
+                data.totalCommission += (loto_db_rev * 0.08) + (lo_cap_rev * 0.10) + (c2_27_rev * 0.10) + (c3_23_rev * 0.10); 
+            }); 
+            excelData2.forEach(row => { 
+                const agentCode = String(row.__EMPTY || row.__EMPTY_1 || '').trim(); 
+                if (!agentCode || !/\d/.test(agentCode)) return; 
+                initializeAgent(agentCode); 
+                const data = individualAgentData.get(agentCode); 
+                const xsktRevenue = (parseFloat(row.__EMPTY_7) || 0) * 1000; 
+                data.xskt += xsktRevenue; 
+                data.totalRevenue += xsktRevenue; 
+                data.totalCommission += xsktRevenue * 0.10; 
+            }); 
+            
+            // === THAY ĐỔI MỚI: Lọc ra các đại lý không có dữ liệu (toàn số 0) ===
+            const keysToDelete = [];
+            individualAgentData.forEach((data, key) => {
+                // Kiểm tra xem tất cả các trường doanh thu và thưởng có bằng 0 không
+                const isAllZero = data.lotoDB === 0 &&
+                                  data.lotoCap === 0 &&
+                                  data.c3_23 === 0 &&
+                                  data.c2_27 === 0 &&
+                                  data.xskt === 0 &&
+                                  data.thuong === 0;
+                
+                // Nếu tất cả đều là 0, đánh dấu để xóa
+                if (isAllZero) {
+                    keysToDelete.push(key);
+                }
+            });
+
+            // Xóa các đại lý đã đánh dấu
+            keysToDelete.forEach(key => {
+                individualAgentData.delete(key);
+            });
+            // === KẾT THÚC THAY ĐỔI ===
+
+            const getAgentNumberString = (code) => String(code).match(/\d+$/)?.[0] || code; // Lấy chuỗi số
+            
+            const getAgentParts = (code) => { 
+                const numStr = getAgentNumberString(code); // Lấy chuỗi số, ví dụ "01"
+                const prefix = String(code).replace(numStr, ''); 
+                return { num: parseInt(numStr, 10), prefix }; // Lưu giá trị số, ví dụ 1
+            }; 
+            
+            const sortedKeys = [...individualAgentData.keys()].sort((a, b) => { 
+                const partsA = getAgentParts(a); 
+                const partsB = getAgentParts(b); 
+                if (partsA.num !== partsB.num) return partsA.num - partsB.num; 
+                return partsA.prefix.localeCompare(partsB.prefix); 
+            }); 
+            
+            const groupedData = new Map(); 
+            
+            sortedKeys.forEach(agentCode => { 
+                // === THAY ĐỔI: Gộp nhóm bằng GIÁ TRỊ SỐ ===
+                const numericMatch = String(agentCode).match(/\d+$/);
+                const groupKey = numericMatch ? parseInt(numericMatch[0], 10) : agentCode; // Dùng giá trị số (ví dụ: 1) làm key
+
+                if (!groupedData.has(groupKey)) { 
+                    groupedData.set(groupKey, { agents: [], groupTotal: 0 }); 
+                } 
+                const group = groupedData.get(groupKey);
+                // === KẾT THÚC THAY ĐỔI ===
+                
+                const agentDetails = individualAgentData.get(agentCode); 
+                const finalAmount = agentDetails.totalRevenue - agentDetails.totalCommission - agentDetails.thuong; 
+                group.agents.push({ code: agentCode, data: agentDetails }); 
+                group.groupTotal += finalAmount; 
+            }); 
+            
+            const grandTotals = { lotoDB: 0, lotoCap: 0, c3_23: 0, c2_27: 0, xskt: 0, thuong: 0, finalAmount: 0 }; 
+            individualAgentData.forEach(data => { 
+                grandTotals.lotoDB += data.lotoDB; 
+                grandTotals.lotoCap += data.lotoCap; 
+                grandTotals.c3_23 += data.c3_23; 
+                grandTotals.c2_27 += data.c2_27; 
+                grandTotals.xskt += data.xskt; 
+                grandTotals.thuong += data.thuong; 
+                grandTotals.finalAmount += data.totalRevenue - data.totalCommission - data.thuong; 
+            }); 
+            return { groupedData, grandTotals }; 
+        }
         
         function renderSummaryTable({ groupedData, grandTotals }) { 
             let body = ''; 
@@ -593,9 +748,47 @@
 
         function generateSummaryView() { if (excelData1.length === 0 && excelData2.length === 0) return; const summaryData = processSummaryData(); const tableHTML = renderSummaryTable(summaryData); DOM.summaryTableContainer.innerHTML = tableHTML; DOM.summaryDate.textContent = dateRangeText; }
 
-        // ===== DETAILED REPORT VIEW LOGIC (Không đổi) =====
+        // ===== DETAILED REPORT VIEW LOGIC =====
         function resetState(soSo) { state.currentSoSo = soSo; state.baseTongDT = 0; state.baseTongHH = 0; state.baseThuong = 0; state.extraBonus = 0; state.extraDebt = 0; state.addedTickets = []; state.accountCodes.clear(); }
-        function processDetailedReportData(soSo) { const filterBySoSo = (row) => { const agentCode = String(row.__EMPTY || row.__EMPTY_1 || '').trim(); if (!agentCode) return false; const numericPartMatch = agentCode.match(/\d+$/); if (!numericPartMatch) return false; return numericPartMatch[0] === soSo; }; const filtered1 = excelData1.filter(filterBySoSo); const filtered2 = excelData2.filter(filterBySoSo); if (filtered1.length === 0 && filtered2.length === 0) return null; resetState(soSo); const totalsFromExcel = { lotoDB: 0, loCap: 0, c2_27: 0, c3_23: 0, thuong: 0, xskt: 0 }; filtered1.forEach(row => { state.accountCodes.add(String(row.__EMPTY).trim()); totalsFromExcel.lotoDB += parseFloat(row.__EMPTY_2) || 0; totalsFromExcel.loCap += parseFloat(row.__EMPTY_6) || 0; totalsFromExcel.c2_27 += parseFloat(row.__EMPTY_8) || 0; totalsFromExcel.c3_23 += parseFloat(row.__EMPTY_10) || 0; totalsFromExcel.thuong += parseFloat(row.__EMPTY_14) || 0; }); filtered2.forEach(row => { state.accountCodes.add(String(row.__EMPTY || row.__EMPTY_1).trim()); totalsFromExcel.xskt += (parseFloat(row.__EMPTY_7) || 0) * 1000; }); const loto_db_com = totalsFromExcel.lotoDB * 0.08; const lo_cap_com = totalsFromExcel.loCap * 0.10; const c2_27_com = totalsFromExcel.c2_27 * 0.10; const c3_23_com = totalsFromExcel.c3_23 * 0.10; const xskt_com = totalsFromExcel.xskt * 0.10; state.baseTongDT = totalsFromExcel.lotoDB + totalsFromExcel.loCap + totalsFromExcel.c2_27 + totalsFromExcel.c3_23 + totalsFromExcel.xskt; state.baseTongHH = loto_db_com + lo_cap_com + c2_27_com + c3_23_com + xskt_com; state.baseThuong = totalsFromExcel.thuong; return { totals: totalsFromExcel, commissions: { loto_db_com, lo_cap_com, c2_27_com, c3_23_com, xskt_com } }; }
+        function processDetailedReportData(soSo) { 
+            const filterBySoSo = (row) => { 
+                const agentCode = String(row.__EMPTY || row.__EMPTY_1 || '').trim(); 
+                if (!agentCode) return false; 
+                const numericPartMatch = agentCode.match(/\d+$/); 
+                if (!numericPartMatch) return false; 
+                
+                // === THAY ĐỔI: So sánh giá trị số thay vì văn bản ===
+                return parseInt(numericPartMatch[0], 10) === parseInt(soSo, 10); 
+                // === KẾT THÚC THAY ĐỔI ===
+            }; 
+            const filtered1 = excelData1.filter(filterBySoSo); 
+            const filtered2 = excelData2.filter(filterBySoSo); 
+            if (filtered1.length === 0 && filtered2.length === 0) return null; 
+            resetState(soSo); 
+            const totalsFromExcel = { lotoDB: 0, loCap: 0, c2_27: 0, c3_23: 0, thuong: 0, xskt: 0 }; 
+            filtered1.forEach(row => { 
+                state.accountCodes.add(String(row.__EMPTY).trim()); 
+                totalsFromExcel.lotoDB += parseFloat(row.__EMPTY_2) || 0; 
+                totalsFromExcel.loCap += parseFloat(row.__EMPTY_6) || 0; 
+                totalsFromExcel.c2_27 += parseFloat(row.__EMPTY_8) || 0; 
+                totalsFromExcel.c3_23 += parseFloat(row.__EMPTY_10) || 0; 
+                totalsFromExcel.thuong += parseFloat(row.__EMPTY_14) || 0; 
+            }); 
+            filtered2.forEach(row => { 
+                state.accountCodes.add(String(row.__EMPTY || row.__EMPTY_1).trim()); 
+                totalsFromExcel.xskt += (parseFloat(row.__EMPTY_7) || 0) * 1000; 
+            }); 
+            const loto_db_com = totalsFromExcel.lotoDB * 0.08; 
+            const lo_cap_com = totalsFromExcel.loCap * 0.10; 
+            const c2_27_com = totalsFromExcel.c2_27 * 0.10; 
+            const c3_23_com = totalsFromExcel.c3_23 * 0.10; 
+            const xskt_com = totalsFromExcel.xskt * 0.10; 
+            state.baseTongDT = totalsFromExcel.lotoDB + totalsFromExcel.loCap + totalsFromExcel.c2_27 + totalsFromExcel.c3_23 + totalsFromExcel.xskt; 
+            state.baseTongHH = loto_db_com + lo_cap_com + c2_27_com + c3_23_com + xskt_com; 
+            state.baseThuong = totalsFromExcel.thuong; 
+            return { totals: totalsFromExcel, commissions: { loto_db_com, lo_cap_com, c2_27_com, c3_23_com, xskt_com } }; 
+        }
+        
         function renderDetailedReport(data, manualDateRange = null) { 
             const { totals, commissions } = data; 
             const displayDate = manualDateRange !== null ? manualDateRange : dateRangeText; 
@@ -679,6 +872,18 @@
             DOM.reloadFile2.addEventListener('change', (e) => handleFile(e.target.files[0], 2, 'reloadFile2'));
             DOM.btnReloadSubmit.addEventListener('click', submitReload);
 
+            // === THÊM MỚI: Sự kiện cho nút cuộn lên đầu ===
+            DOM.scrollToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            // === THÊM MỚI: Sự kiện cho nút cuộn xuống dưới ===
+            DOM.scrollToBottomBtn.addEventListener('click', () => {
+                window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+            });
+
+            window.addEventListener('scroll', handleScrollButtonVisibility);
+            // === KẾT THÚC THÊM MỚI ===
+
             loopLogoAnimation(); // Bắt đầu animation logo lần đầu tiên
         }
         
@@ -734,6 +939,29 @@
         
         /* XÓA BỎ: Hàm toggleSummaryViewMode */
         
+        // === THÊM MỚI: Hàm xử lý hiển thị nút cuộn lên đầu ===
+        function handleScrollButtonVisibility() {
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight;
+            const clientHeight = document.documentElement.clientHeight;
+            const summarySectionVisible = DOM.summarySection.style.display !== 'none';
+            
+            // Logic cho nút Lên Đầu
+            if (scrollTop > 200 && summarySectionVisible) {
+                DOM.scrollToTopBtn.classList.add('show');
+            } else {
+                DOM.scrollToTopBtn.classList.remove('show');
+            }
+
+            // Logic cho nút Xuống Dưới
+            if (scrollTop < (scrollHeight - clientHeight - 200) && summarySectionVisible) {
+                DOM.scrollToBottomBtn.classList.add('show');
+            } else {
+                DOM.scrollToBottomBtn.classList.remove('show');
+            }
+        }
+        // === KẾT THÚC THÊM MỚI ===
+
         function createDetailedReport() { 
             hideManualInputModal(); 
             const soSo = DOM.soSoInput.value.trim(); 
@@ -820,6 +1048,16 @@
             
             if(activeBtn) activeBtn.classList.add('active'); 
             else DOM.navSummary.classList.add('active'); // Mặc định
+
+            // === THÊM MỚI: Cập nhật hiển thị nút cuộn lên đầu ===
+            if (sectionId !== 'summarySection') {
+                DOM.scrollToTopBtn.classList.remove('show');
+                DOM.scrollToBottomBtn.classList.remove('show'); // <-- THÊM MỚI
+            } else {
+                // Kiểm tra ngay lập tức xem có nên hiển thị nút không
+                handleScrollButtonVisibility();
+            }
+            // === KẾT THÚC THÊM MỚI ===
         }
         function toggleActionChoices() { if (DOM.toggleChoicesBtn.textContent.includes('Thêm')) { DOM.actionChoices.style.display = 'grid'; DOM.toggleChoicesBtn.textContent = 'Xoá hết Thưởng/Nợ'; DOM.toggleChoicesBtn.className = 'danger'; } else { document.getElementById('extraBonusRow')?.remove(); document.getElementById('extraDebtRow')?.remove(); state.extraBonus = 0; state.extraDebt = 0; updateDetailedReportView(); DOM.actionChoices.style.display = 'none'; DOM.toggleChoicesBtn.textContent = 'Thêm tiền Thưởng/Nợ'; DOM.toggleChoicesBtn.className = 'secondary'; } updateActionButtons(); }
         function updateActionButtons() { DOM.actionChoices.innerHTML = `${document.getElementById('extraBonusRow') ? `<button class="danger" data-action="remove-bonus">Xoá Thưởng thêm</button>` : `<button data-action="add-bonus">Thêm tiền Thưởng</button>`}${document.getElementById('extraDebtRow') ? `<button class="danger" data-action="remove-debt">Xoá tiền Nợ</button>` : `<button data-action="add-debt">Thêm tiền Nợ</button>`}`; }
