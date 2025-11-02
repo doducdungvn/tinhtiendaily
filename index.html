@@ -222,6 +222,13 @@
         th, td { padding: 8px; font-size: 4vw; word-break: break-word; }
         .so-so { font-size: 6vw; word-break: break-all; }
         tr.final-amount-positive td, tr.final-amount-negative td { font-size: 6.8vw !important; padding: 11px 7px !important; }
+        
+        /* === THAY ĐỔI: Chỉnh cỡ chữ "Phải nộp" trên di động === */
+        tr.final-amount-positive td#ketQuaLabel {
+            font-size: 6vw !important;
+            white-space: nowrap;
+        }
+
         .bang-chu-cell { font-size: 3vw !important; }
         .copyright { font-size: 3vw; }
         
@@ -598,7 +605,36 @@
             DOM.reportContainer.innerHTML = `<table><tr><td class="header" style="width: 33.33%;">Thanh toán tiền Đại Lý:</td><td class="so-so">${[...state.accountCodes].join(', ')}</td></tr><tr><td class="header">Thời gian:</td><td>${displayDate}</td></tr></table><br><table class="report-table"><thead><tr><th>Loại hình</th><th>Doanh thu</th><th>Hoa hồng</th></tr></thead><tbody><tr><td>Lô tô Đặc biệt</td><td>${formatNumberHiddenK(totals.lotoDB)}</td><td>${formatCommissionCellHiddenK(totals.lotoDB, commissions.loto_db_com)}</td></tr><tr><td>Lô cặp</td><td>${formatNumberHiddenK(totals.loCap)}</td><td>${formatCommissionCellHiddenK(totals.loCap, commissions.lo_cap_com)}</td></tr><tr><td>2/27</td><td>${formatNumberHiddenK(totals.c2_27)}</td><td>${formatCommissionCellHiddenK(totals.c2_27, commissions.c2_27_com)}</td></tr><tr><td>3/23</td><td>${formatNumberHiddenK(totals.c3_23)}</td><td>${formatCommissionCellHiddenK(totals.c3_23, commissions.c3_23_com)}</td></tr>${xsktRowHTML}<tr id="tongCongRow"><td>Tổng cộng</td><td id="tongDT"></td><td id="tongHH"></td></tr><tr id="mainBonusRow"><td>Thưởng</td><td colspan="2" id="thuong">${formatNumberHiddenK(state.baseThuong)}</td></tr><tr id="finalResultRow"><td id="ketQuaLabel"></td><td id="ketQuaValue" colspan="2"></td></tr><tr id="bangChuRow" class="header"><td>Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr></tbody></table><div id="copyrightInReport" class="copyright" style="display: none;">© 2025 ZENG FINANCE</div>`; 
             // === KẾT THÚC THAY ĐỔI ===
         }
-        function updateDetailedReportView() { if (!state.currentSoSo) return; const addedRevenue = state.addedTickets.reduce((sum, t) => sum + t.doanhThu, 0); const addedCommission = state.addedTickets.reduce((sum, t) => sum + t.hoaHong, 0); const tongDT_Moi = state.baseTongDT + addedRevenue; const tongHH_Moi = state.baseTongHH + addedCommission; const tongDTElement = document.getElementById('tongDT'); const tongHHElement = document.getElementById('tongHH'); if (tongDTElement) tongDTElement.textContent = formatNumberHiddenK(tongDT_Moi); if (tongHHElement) tongHHElement.textContent = formatNumberHiddenK(tongHH_Moi); const phaiNop = tongDT_Moi - tongHH_Moi - state.baseThuong - state.extraBonus + state.extraDebt; const resultRow = document.getElementById('finalResultRow'); const ketQuaLabel = document.getElementById('ketQuaLabel'); const ketQuaValue = document.getElementById('ketQuaValue'); const ketQuaBangChu = document.getElementById('ketQuaBangChu'); if (!resultRow || !ketQuaLabel || !ketQuaValue || !ketQuaBangChu) return; resultRow.className = phaiNop >= 0 ? 'final-amount-positive' : 'final-amount-negative'; if (phaiNop >= 0) { const lamTron = Math.ceil(phaiNop / 1000) * 1000; ketQuaLabel.textContent = 'Phải nộp:'; ketQuaValue.textContent = formatNumberHiddenK(lamTron); ketQuaBangChu.textContent = docso(lamTron) + " đồng"; } else { const layVe = Math.abs(phaiNop); const khongLamTron = parseInt(layVe / 1000) * 1000; ketQuaLabel.textContent = 'Lấy về:'; ketQuaValue.textContent = formatNumberHiddenK(khongLamTron); ketQuaBangChu.textContent = docso(khongLamTron) + " đồng"; } }
+        function updateDetailedReportView() { 
+            if (!state.currentSoSo) return; 
+            const addedRevenue = state.addedTickets.reduce((sum, t) => sum + t.doanhThu, 0); 
+            const addedCommission = state.addedTickets.reduce((sum, t) => sum + t.hoaHong, 0); 
+            const tongDT_Moi = state.baseTongDT + addedRevenue; 
+            const tongHH_Moi = state.baseTongHH + addedCommission; 
+            const tongDTElement = document.getElementById('tongDT'); 
+            const tongHHElement = document.getElementById('tongHH'); 
+            if (tongDTElement) tongDTElement.textContent = formatNumberHiddenK(tongDT_Moi); 
+            if (tongHHElement) tongHHElement.textContent = formatNumberHiddenK(tongHH_Moi); 
+            const phaiNop = tongDT_Moi - tongHH_Moi - state.baseThuong - state.extraBonus + state.extraDebt; 
+            const resultRow = document.getElementById('finalResultRow'); 
+            const ketQuaLabel = document.getElementById('ketQuaLabel'); 
+            const ketQuaValue = document.getElementById('ketQuaValue'); 
+            const ketQuaBangChu = document.getElementById('ketQuaBangChu'); 
+            if (!resultRow || !ketQuaLabel || !ketQuaValue || !ketQuaBangChu) return; 
+            resultRow.className = phaiNop >= 0 ? 'final-amount-positive' : 'final-amount-negative'; 
+            if (phaiNop >= 0) { 
+                const lamTron = Math.ceil(phaiNop / 1000) * 1000; 
+                ketQuaLabel.textContent = 'Phải nộp'; /* <-- THAY ĐỔI: Bỏ dấu : */
+                ketQuaValue.textContent = formatNumberHiddenK(lamTron); 
+                ketQuaBangChu.textContent = docso(lamTron) + " đồng"; 
+            } else { 
+                const layVe = Math.abs(phaiNop); 
+                const khongLamTron = parseInt(layVe / 1000) * 1000; 
+                ketQuaLabel.textContent = 'Lấy về'; /* <-- THAY ĐỔI: Bỏ dấu : */
+                ketQuaValue.textContent = formatNumberHiddenK(khongLamTron); 
+                ketQuaBangChu.textContent = docso(khongLamTron) + " đồng"; 
+            } 
+        }
 
         // ===== UI EVENT HANDLERS & CONTROLLERS =====
         function initializeApp() {
