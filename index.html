@@ -365,20 +365,20 @@
 
     <!-- THÊM NÚT NẠP LẠI -->
     <div class="main-nav">
-        <button id="navSummary" class="active">Xem Tổng Kết</button>
-        <button id="navReport">Tạo Báo Cáo</button>
-        <button id="navSell">Bán Vé</button>
+        <button id="navSummary" class="active">Báo cáo Tổng kết</button>
+        <button id="navReport">Báo cáo Chi tiết</button> <!-- THAY ĐỔI: Sửa tên nút -->
+        <button id="navSell">Bán thêm vé</button>
         <button id="navReload" class="warning">Nạp lại Excel</button>
     </div>
 
     <div id="summarySection" class="main-section">
-        <h3>Bảng Tổng Kết</h3>
+        <h3>Bảng Báo Cáo Tổng Kết</h3>
         <h4 id="summaryDate" class="report-date"></h4>
         <!-- DI CHUYỂN NÚT XUỐNG DƯỚI -->
         <div id="summaryTableContainer"></div>
         <div class="summary-actions">
             <button id="btnCopySummary" class="success">Copy Ảnh</button>
-            <button id="btnSaveSummary" class="secondary">Lưu ảnh</button>
+            <button id="btnSaveSummary" class="secondary">Tải ảnh</button>
         </div>
     </div>
 
@@ -399,14 +399,14 @@
         
         <div id="reportContainer"></div>
         <div id="actionButtonContainer">
-            <button id="btnCopyReport">Sao chép để Gửi</button>
+            <button id="btnCopyReport">Copy Ảnh</button>
             <button id="toggleChoicesBtn" class="secondary">Thêm tiền Thưởng/Nợ</button>
             <div id="actionChoices"></div>
         </div>
     </div>
 
     <div id="sellSection" class="main-section" style="display: none;">
-        <h3>Bán Vé (Thêm vào Báo cáo chi tiết)</h3>
+        <h3>Bán thêm Vé (Thêm vào Báo cáo chi tiết)</h3>
         <p class="context-note">Vé sẽ được thêm vào báo cáo chi tiết đang được hiển thị.</p>
         <div id="sellTicketControls" class="controls-panel">
             <div>
