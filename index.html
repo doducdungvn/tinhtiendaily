@@ -50,7 +50,7 @@
     h2 { font-size: 26px; font-weight: 600; }
     h3 { font-size: 20px; font-weight: 500; } 
     h4 { margin-top: 0; text-align: center; color: var(--text-color); font-weight: 500;}
-    .report-date { text-align:center; font-weight: normal; margin-top: -12px; margin-bottom: 16px; color: var(--text-light); }
+    .report-date { text-align:center; font-weight: normal; margin-top: -12px; margin-bottom: 16px; color: var(--text-light); line-height: 1.5; } /* THAY ĐỔI: Thêm line-height */
 
     /* --- CSS CHO LOGO ZENG™ ANIMATED (PHIÊN BẢN MỚI) --- */
     .simple-animated-logo {
@@ -162,6 +162,10 @@
     #summaryTableContainer tfoot tr td {
         background-color: var(--header-bg);
         color: var(--header-text);
+    }
+    /* === THÊM MỚI: Làm đậm số sổ đại lý (cột 2) === */
+    #summaryTableContainer tbody td:nth-child(2) {
+        font-weight: 500;
     }
     .negative-value { color: var(--danger-color); }
 
@@ -372,7 +376,8 @@
     </div>
 
     <div id="summarySection" class="main-section">
-        <h3>Bảng Báo Cáo Tổng Kết</h3>
+        <!-- === THAY ĐỔI: Tiêu đề === -->
+        <h3>Bảng Báo Cáo Tổng Tiền</h3>
         <h4 id="summaryDate" class="report-date"></h4>
         <!-- DI CHUYỂN NÚT XUỐNG DƯỚI -->
         <div id="summaryTableContainer"></div>
@@ -718,7 +723,8 @@
                 group.groupTotal += finalAmount; 
             }); 
             
-            const grandTotals = { lotoDB: 0, lotoCap: 0, c3_23: 0, c2_27: 0, xskt: 0, thuong: 0, finalAmount: 0 }; 
+            // === THAY ĐỔI: Thêm totalRevenue vào grandTotals ===
+            const grandTotals = { lotoDB: 0, lotoCap: 0, c3_23: 0, c2_27: 0, xskt: 0, thuong: 0, finalAmount: 0, totalRevenue: 0 }; 
             individualAgentData.forEach(data => { 
                 grandTotals.lotoDB += data.lotoDB; 
                 grandTotals.lotoCap += data.lotoCap; 
@@ -726,6 +732,7 @@
                 grandTotals.c2_27 += data.c2_27; 
                 grandTotals.xskt += data.xskt; 
                 grandTotals.thuong += data.thuong; 
+                grandTotals.totalRevenue += data.totalRevenue; // <-- THÊM DÒNG NÀY
                 grandTotals.finalAmount += data.totalRevenue - data.totalCommission - data.thuong; 
             }); 
             return { groupedData, grandTotals }; 
@@ -743,10 +750,9 @@
                     const sttCell = isFirstInGroup ? `<td>${stt}</td>` : '<td></td>'; 
                     let finalAmountCellContent = finalAmount < 0 ? `<span class="negative-value">${formatNumberHiddenK(finalAmount)}</span>` : formatNumberHiddenK(finalAmount); 
                     
-                    // === THAY ĐỔI LOGIC HIỂN THỊ TỔNG NHÓM ===
-                    // Chỉ thêm tổng nhóm (trong ngoặc) nếu đây là dòng cuối VÀ nhóm có nhiều hơn 1 thành viên
+                    // === THAY ĐỔI LOGIC HIỂN THỊ TỔNG NHÓM (Xuống dòng) ===
                     if (index === group.agents.length - 1 && group.agents.length > 1) {
-                        finalAmountCellContent += ` <strong style="color: var(--primary-color);">(${formatNumberHiddenK(group.groupTotal)})</strong>`; 
+                        finalAmountCellContent += `<br><strong style="color: var(--primary-color); font-size: 0.9em;">(${formatNumberHiddenK(group.groupTotal)})</strong>`; 
                     } 
                     // === KẾT THÚC THAY ĐỔI ===
 
@@ -759,7 +765,17 @@
             return `<table border="1"><thead><tr><th style="width: 8%;">STT</th><th style="width: 12%;">ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th><th>XSKT</th><th>Thưởng</th><th>Tiền</th></tr></thead><tbody>${body}</tbody><tfoot>${footer}</tfoot></table>`; 
         }
 
-        function generateSummaryView() { if (excelData1.length === 0 && excelData2.length === 0) return; const summaryData = processSummaryData(); const tableHTML = renderSummaryTable(summaryData); DOM.summaryTableContainer.innerHTML = tableHTML; DOM.summaryDate.textContent = dateRangeText; }
+        function generateSummaryView() { 
+            if (excelData1.length === 0 && excelData2.length === 0) return; 
+            const summaryData = processSummaryData(); 
+            const tableHTML = renderSummaryTable(summaryData); 
+            DOM.summaryTableContainer.innerHTML = tableHTML; 
+            
+            // === THAY ĐỔI: Thêm Tổng Doanh Số (Style mới) ===
+            const totalRevenueFormatted = formatNumberFull(summaryData.grandTotals.totalRevenue); // <-- THAY ĐỔI HÀM
+            DOM.summaryDate.innerHTML = `${dateRangeText} <br> <span style="font-weight: 500; color: var(--text-color);">Tổng Doanh Số: <span style="font-weight: 600; color: var(--danger-color);">${totalRevenueFormatted}</span></span>`;
+            // === KẾT THÚC THAY ĐỔI ===
+        }
 
         // ===== DETAILED REPORT VIEW LOGIC =====
         function resetState(soSo) { state.currentSoSo = soSo; state.baseTongDT = 0; state.baseTongHH = 0; state.baseThuong = 0; state.extraBonus = 0; state.extraDebt = 0; state.addedTickets = []; state.accountCodes.clear(); }
@@ -1276,6 +1292,13 @@
             }, 50); // <-- Đợi 50ms
         }
         
+        // === THÊM MỚI: Hàm format số đầy đủ ===
+        function formatNumberFull(num) { 
+            num = parseFloat(num); 
+            if (isNaN(num) || num === 0) return "0"; 
+            return parseInt(num).toLocaleString("vi-VN"); 
+        }
+        
         function formatNumberHiddenK(num) { num = parseFloat(num); if (isNaN(num) || num === 0 || Math.abs(num) < 1000) return "0"; return parseInt(num / 1000).toLocaleString("vi-VN"); }
         function formatCommissionCellHiddenK(revenue, commission) { revenue = parseFloat(revenue); commission = parseFloat(commission); if (!revenue || revenue === 0 || isNaN(revenue) || isNaN(commission)) return formatNumberHiddenK(commission); const percentage = Math.round((commission / revenue) * 100); return `<i style="color: #E57373; font-weight: normal;">(${percentage}%)</i> ${formatNumberHiddenK(commission)}`; }
         
@@ -1336,4 +1359,3 @@
 
 </body>
 </html>
-
