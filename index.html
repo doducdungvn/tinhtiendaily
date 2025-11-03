@@ -201,6 +201,19 @@
         margin-top: 10px; /* Thêm khoảng cách với input bên trên */
     }
 
+    /* === THÊM MỚI: Grid cho bộ lọc trên PC === */
+    .filter-grid-container {
+        display: grid;
+        grid-template-columns: 1fr; /* 1-col default (mobile) */
+        gap: 15px;
+    }
+    .filter-column {
+        display: flex;
+        flex-direction: column;
+        gap: 10px; /* Khoảng cách giữa label, input, button */
+    }
+    /* === KẾT THÚC THÊM MỚI === */
+
     .manual-grid { display: grid; grid-template-columns: auto 1fr; gap: 15px; align-items: center; }
     .manual-grid label { text-align: right; font-size: 15px; }
     .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: var(--modal-overlay-bg); padding-top: 60px; animation: fadeIn 0.3s ease-out; }
@@ -269,6 +282,22 @@
     }
     /* === KẾT THÚC THAY ĐỔI === */
 
+    /* === THÊM MỚI: Media Query cho bố cục PC của bộ lọc === */
+    @media (min-width: 768px) {
+        .filter-grid-container {
+            grid-template-columns: 1fr 1fr; /* 2-col trên PC */
+        }
+        .filter-column {
+            height: 100%; /* Đảm bảo các cột có chiều cao bằng nhau */
+        }
+        .filter-column textarea {
+            flex-grow: 1; /* Giúp textarea lấp đầy không gian */
+        }
+        .filter-column .inline-form {
+            margin-top: auto; /* Đẩy mục chọn xuống dưới cùng của cột 2 */
+        }
+    }
+
 
     @media (max-width: 768px) {
         body { margin: 0; padding: 10px; font-size: 4vw; -webkit-text-size-adjust: 100%; }
@@ -306,14 +335,14 @@
 #summaryTableContainer th,
 #summaryTableContainer td {
     font-size: 2vw; /* Giảm cỡ chữ (mặc định 3.8vw) */
-    padding: 3.5px;     /* Giảm đệm (mặc định 8px) */
+    padding: 3px;     /* Giảm đệm (mặc định 8px) */
 }
 
       
         /* --- CSS MỚI: Cỡ chữ Tổng Tiền (Mobile) --- */
         #summaryTableContainer tfoot .final-amount-positive,
         #summaryTableContainer tfoot .final-amount-negative {
-            font-size: 4vw; /* Giảm cỡ chữ (mặc định 3.8vw) */
+            font-size: 3vw; /* Giảm cỡ chữ (mặc định 3.8vw) */
             padding: 5px;     /* Giảm đệm (mặc định 8px) */
         }
     }
@@ -376,10 +405,38 @@
     </div>
 
     <div id="summarySection" class="main-section">
-        <!-- === THAY ĐỔI: Tiêu đề === -->
-        <h3>Bảng Báo Cáo Tổng Tiền</h3>
+        
+        <!-- === THAY ĐỔI: Bảng điều khiển Định nghĩa Vùng (ĐÃ DI CHUYỂN LÊN TRÊN) === -->
+        <div class="controls-panel" style="margin-bottom: 15px; padding: 15px;">
+            <!-- === THÊM MỚI: Grid container cho bộ lọc === -->
+            <div class="filter-grid-container">
+                <!-- Cột 1: Định nghĩa -->
+                <div class="filter-column">
+                    <label for="regionDefinitionsInput">Định nghĩa vùng (Mỗi vùng 1 dòng):</label>
+                    <textarea id="regionDefinitionsInput" rows="4" placeholder="Ví dụ:&#10;huyện Ý Yên: 550_599+650_699+6999&#10;huyện Vụ Bản: 200_299+350_450"></textarea>
+                    <button id="btnSaveRegions" class="success">Lưu Định nghĩa</button>
+                </div>
+                
+                <!-- Cột 2: Lựa chọn -->
+                <div class="filter-column">
+                    <label for="regionSelect">Chọn Đơn vị:</label>
+                    <div class="inline-form" style="flex-wrap: nowrap;"> <!-- Ngăn nút xuống dòng -->
+                        <select id="regionSelect" style="flex-grow: 1;">
+                            <option value="all">--- Tất cả ---</option>
+                            <!-- Vùng sẽ được thêm bằng JavaScript -->
+                        </select>
+                        <button id="btnClearSummaryFilter" class="secondary" style="flex-grow: 0; margin-left: 10px;">Xoá lọc</button>
+                    </div>
+                </div>
+            </div>
+            <!-- XÓA BỎ <hr> và các label/input cũ -->
+        </div>
+        <!-- === KẾT THÚC THAY ĐỔI === -->
+
+        <!-- === THAY ĐỔI: Tiêu đề (ID MỚI) (ĐÃ DI CHUYỂN XUỐNG DƯỚI) === -->
+        <h3 id="summaryTitle">Bảng Báo Cáo Tổng Tiền:</h3>
         <h4 id="summaryDate" class="report-date"></h4>
-        <!-- DI CHUYỂN NÚT XUỐNG DƯỚI -->
+        
         <div id="summaryTableContainer"></div>
         <div class="summary-actions">
             <button id="btnCopySummary" class="success">Copy Ảnh</button>
@@ -524,6 +581,7 @@
         let excelData1 = [];
         let excelData2 = [];
         let dateRangeText = "Chưa có ngày";
+        let regionDefinitions = {}; // <-- THÊM MỚI: Để lưu định nghĩa vùng
 
         const state = {
             currentSoSo: null, baseTongDT: 0, baseTongHH: 0, baseThuong: 0,
@@ -574,7 +632,14 @@
             btnReloadSubmit: document.getElementById('btnReloadSubmit'),
             logoContainers: document.querySelectorAll('.simple-animated-logo'), 
             scrollToTopBtn: document.getElementById('scrollToTopBtn'), // <-- THÊM MỚI
-            scrollToBottomBtn: document.getElementById('scrollToBottomBtn') // <-- THÊM MỚI
+            scrollToBottomBtn: document.getElementById('scrollToBottomBtn'), // <-- THÊM MỚI
+            
+            // === THAY ĐỔI: DOM cho bộ lọc vùng ===
+            regionDefinitionsInput: document.getElementById('regionDefinitionsInput'),
+            btnSaveRegions: document.getElementById('btnSaveRegions'),
+            regionSelect: document.getElementById('regionSelect'),
+            btnClearSummaryFilter: document.getElementById('btnClearSummaryFilter'),
+            summaryTitle: document.getElementById('summaryTitle'), // <-- THÊM MỚI
         };
         
         const manualFormOrder = [
@@ -631,7 +696,8 @@
         }
 
         // ===== SUMMARY VIEW LOGIC =====
-        function processSummaryData() { 
+        // === THAY ĐỔI: Thêm `filterRules` làm tham số ===
+        function processSummaryData(filterRules) { 
             const individualAgentData = new Map(); 
             const initializeAgent = (code) => { 
                 if (!individualAgentData.has(code)) { 
@@ -689,6 +755,22 @@
             });
             // === KẾT THÚC THAY ĐỔI ===
 
+            // === THÊM MỚI: Áp dụng bộ lọc (NẾU CÓ) ===
+            const filteredAgentData = new Map();
+            if (filterRules) {
+                individualAgentData.forEach((data, agentCode) => {
+                    if (agentMatchesFilter(agentCode, filterRules)) {
+                        filteredAgentData.set(agentCode, data);
+                    }
+                });
+            } else {
+                // Nếu không lọc, chỉ cần sao chép map
+                individualAgentData.forEach((data, agentCode) => {
+                    filteredAgentData.set(agentCode, data);
+                });
+            }
+            // === KẾT THÚC THÊM MỚI ===
+
             const getAgentNumberString = (code) => String(code).match(/\d+$/)?.[0] || code; // Lấy chuỗi số
             
             const getAgentParts = (code) => { 
@@ -697,7 +779,8 @@
                 return { num: parseInt(numStr, 10), prefix }; // Lưu giá trị số, ví dụ 1
             }; 
             
-            const sortedKeys = [...individualAgentData.keys()].sort((a, b) => { 
+            // === THAY ĐỔI: Sắp xếp dựa trên 'filteredAgentData' ===
+            const sortedKeys = [...filteredAgentData.keys()].sort((a, b) => { // <-- THAY ĐỔI: dùng filteredAgentData
                 const partsA = getAgentParts(a); 
                 const partsB = getAgentParts(b); 
                 if (partsA.num !== partsB.num) return partsA.num - partsB.num; 
@@ -717,15 +800,16 @@
                 const group = groupedData.get(groupKey);
                 // === KẾT THÚC THAY ĐỔI ===
                 
-                const agentDetails = individualAgentData.get(agentCode); 
+                // === THAY ĐỔI: Lấy chi tiết từ 'filteredAgentData' ===
+                const agentDetails = filteredAgentData.get(agentCode); // <-- THAY ĐỔI: dùng filteredAgentData
                 const finalAmount = agentDetails.totalRevenue - agentDetails.totalCommission - agentDetails.thuong; 
                 group.agents.push({ code: agentCode, data: agentDetails }); 
                 group.groupTotal += finalAmount; 
             }); 
             
-            // === THAY ĐỔI: Thêm totalRevenue vào grandTotals ===
+            // === THAY ĐỔI: Tính tổng Grand Totals dựa trên 'filteredAgentData' ===
             const grandTotals = { lotoDB: 0, lotoCap: 0, c3_23: 0, c2_27: 0, xskt: 0, thuong: 0, finalAmount: 0, totalRevenue: 0 }; 
-            individualAgentData.forEach(data => { 
+            filteredAgentData.forEach(data => { // <-- THAY ĐỔI: dùng filteredAgentData
                 grandTotals.lotoDB += data.lotoDB; 
                 grandTotals.lotoCap += data.lotoCap; 
                 grandTotals.c3_23 += data.c3_23; 
@@ -767,12 +851,31 @@
 
         function generateSummaryView() { 
             if (excelData1.length === 0 && excelData2.length === 0) return; 
-            const summaryData = processSummaryData(); 
+
+            // === THAY ĐỔI: Lấy quy tắc lọc từ Select dropdown ===
+            const selectedRegion = DOM.regionSelect.value;
+            let filterRules = null;
+            if (selectedRegion !== 'all') {
+                filterRules = regionDefinitions[selectedRegion]; // Lấy quy tắc đã lưu
+            }
+            // === KẾT THÚC THAY ĐỔI ===
+
+            // === THAY ĐỔI: Truyền filterRules vào processSummaryData ===
+            const summaryData = processSummaryData(filterRules); // <-- THAY ĐỔI
+            
             const tableHTML = renderSummaryTable(summaryData); 
             DOM.summaryTableContainer.innerHTML = tableHTML; 
             
-            // === THAY ĐỔI: Thêm Tổng Doanh Số (Style mới) ===
+            // === THAY ĐỔI: Cập nhật tiêu đề và Tổng Doanh Số (Style mới) ===
             const totalRevenueFormatted = formatNumberFull(summaryData.grandTotals.totalRevenue); // <-- THAY ĐỔI HÀM
+            
+            // === THAY ĐỔI: Cập nhật text của tiêu đề ===
+            if (selectedRegion === 'all') {
+                DOM.summaryTitle.textContent = 'Bảng Báo Cáo Tổng Tiền:'; // Thêm dấu :
+            } else {
+                DOM.summaryTitle.textContent = `Bảng Báo Cáo Tổng Tiền: ${selectedRegion}`; // Bỏ "đơn vị"
+            }
+
             DOM.summaryDate.innerHTML = `${dateRangeText} <br> <span style="font-weight: 500; color: var(--text-color);">Tổng Doanh Số: <span style="font-weight: 600; color: var(--danger-color);">${totalRevenueFormatted}</span></span>`;
             // === KẾT THÚC THAY ĐỔI ===
         }
@@ -860,7 +963,17 @@
 
         // ===== UI EVENT HANDLERS & CONTROLLERS =====
         function initializeApp() {
-            DOM.btnLoadData.addEventListener('click', () => { if (excelData1.length === 0 && excelData2.length === 0) { showNotification("Vui lòng chọn ít nhất một file excel!", 'error'); return; } generateSummaryView(); DOM.homePage.style.display = 'none'; DOM.mainPage.style.display = 'block'; showSection('reportSection'); loopLogoAnimation(); });
+            DOM.btnLoadData.addEventListener('click', () => { 
+                if (excelData1.length === 0 && excelData2.length === 0) { 
+                    showNotification("Vui lòng chọn ít nhất một file excel!", 'error'); 
+                    return; 
+                } 
+                generateSummaryView(); // <-- Sẽ chạy với bộ lọc "Tất cả" mặc định
+                DOM.homePage.style.display = 'none'; 
+                DOM.mainPage.style.display = 'block'; 
+                showSection('reportSection'); 
+                loopLogoAnimation(); 
+            });
             DOM.navSummary.addEventListener('click', () => showSection('summarySection'));
             DOM.navReport.addEventListener('click', () => showSection('reportSection'));
             DOM.navSell.addEventListener('click', () => showSection('sellSection'));
@@ -900,6 +1013,17 @@
             DOM.reloadFile1.addEventListener('change', (e) => handleFile(e.target.files[0], 1, 'reloadFile1'));
             DOM.reloadFile2.addEventListener('change', (e) => handleFile(e.target.files[0], 2, 'reloadFile2'));
             DOM.btnReloadSubmit.addEventListener('click', submitReload);
+
+            // === THÊM MỚI: Sự kiện cho Định nghĩa Vùng ===
+            DOM.btnSaveRegions.addEventListener('click', parseAndSaveRegions);
+            DOM.regionSelect.addEventListener('change', generateSummaryView); // Tự động lọc khi chọn
+            // === THAY ĐỔI: Cập nhật sự kiện Xoá lọc ===
+            DOM.btnClearSummaryFilter.addEventListener('click', () => {
+                DOM.regionSelect.value = 'all';
+                generateSummaryView(); // Chạy lại với bộ lọc rỗng
+            });
+            // === KẾT THÚC THÊM MỚI ===
+
 
             // === THÊM MỚI: Sự kiện cho nút cuộn lên đầu ===
             DOM.scrollToTopBtn.addEventListener('click', () => {
@@ -1036,7 +1160,7 @@
                  showNotification("Bạn chưa chọn file Excel nào để nạp.", 'error');
                  return;
             }
-            generateSummaryView(); 
+            generateSummaryView(); // <-- Sẽ chạy với bộ lọc "Tất cả" mặc định
             DOM.reportContainer.innerHTML = '';
             DOM.actionButtonContainer.style.display = 'none';
             DOM.soSoInput.value = '';
@@ -1112,6 +1236,49 @@
         }
         function addTicketToReport() { if (!state.currentSoSo) { showNotification("Vui lòng tạo hoặc mở một báo cáo chi tiết trước khi thêm vé!", 'error'); return; } const quantity = parseInt(DOM.sellQuantityInput.value, 10); if (!quantity || quantity <= 0) { showNotification("Vui lòng nhập số lượng vé hợp lệ!", 'error'); return; } let typeName = ''; const ticketType = document.querySelector('input[name="sellTicketType"]:checked').value; if (ticketType === 'xo-so') { typeName = 'Xổ số'; } else if (ticketType === 've-boc') { typeName = 'Vé bóc'; } else { typeName = DOM.customTicketName.value.trim(); if (!typeName) { showNotification('Vui lòng nhập tên loại hình!', 'error'); return; } } let price = 0; const priceType = document.querySelector('input[name="sellPrice"]:checked').value; if (priceType === 'custom-price') { price = parseFloat(DOM.customTicketPrice.value.replace(/\D/g, '')) || 0; if (price <= 0) { showNotification('Vui lòng nhập giá bán hợp lệ!', 'error'); return; } } else { price = parseFloat(priceType); } let commissionRate = 0; const commissionType = document.querySelector('input[name="commissionRate"]:checked').value; if (commissionType === 'custom-commission') { commissionRate = parseFloat(DOM.customCommissionPercent.value) / 100 || 0; if (commissionRate <= 0) { showNotification('Vui lòng nhập % hoa hồng hợp lệ!', 'error'); return; } } else { commissionRate = parseFloat(commissionType); } const doanhThu = quantity * price; const hoaHong = doanhThu * commissionRate; const formattedName = `${typeName} (${(price / 1000).toLocaleString('vi-VN')}k) [${quantity} vé]`; const newTicket = { id: Date.now(), doanhThu, hoaHong, name: formattedName }; state.addedTickets.push(newTicket); const newRow = document.createElement('tr'); newRow.className = 'added-ticket-row'; newRow.dataset.ticketId = newTicket.id; newRow.innerHTML = `<td>${newTicket.name}</td><td>${formatNumberHiddenK(doanhThu)}</td><td>${formatCommissionCellHiddenK(doanhThu, hoaHong)}</td>`; const tongCongRow = document.getElementById('tongCongRow'); if (!tongCongRow) { showNotification('Lỗi: Không tìm thấy bảng báo cáo để thêm vé.', 'error'); return; } tongCongRow.parentNode.insertBefore(newRow, tongCongRow); updateDetailedReportView(); DOM.sellQuantityInput.value = ''; newRow.scrollIntoView({ behavior: 'smooth', block: 'center' }); showSection('reportSection'); showNotification('Đã thêm vé vào báo cáo!', 'success'); }
         
+        // === THÊM MỚI: Hàm lưu và phân tích Định nghĩa Vùng ===
+        function parseAndSaveRegions() {
+            const text = DOM.regionDefinitionsInput.value;
+            regionDefinitions = {}; // Xóa định nghĩa cũ
+            
+            // Xóa các option cũ (giữ lại option "Tất cả")
+            while (DOM.regionSelect.options.length > 1) {
+                DOM.regionSelect.remove(1);
+            }
+
+            const lines = text.split('\n');
+            let regionsAdded = 0;
+
+            lines.forEach(line => {
+                const colonIndex = line.indexOf(':');
+                if (colonIndex > 0) { // Phải có dấu : và tên vùng không được rỗng
+                    const name = line.substring(0, colonIndex).trim();
+                    const rulesString = line.substring(colonIndex + 1).trim();
+                    
+                    if (name && rulesString) {
+                        const parsedRules = parseFilterString(rulesString);
+                        if (parsedRules) {
+                            regionDefinitions[name] = parsedRules;
+                            
+                            // Thêm vào dropdown
+                            const option = document.createElement('option');
+                            option.value = name;
+                            option.textContent = name;
+                            DOM.regionSelect.appendChild(option);
+                            regionsAdded++;
+                        }
+                    }
+                }
+            });
+
+            if (regionsAdded > 0) {
+                showNotification(`Đã lưu thành công ${regionsAdded} vùng.`, 'success');
+            } else {
+                showNotification('Không tìm thấy định nghĩa vùng hợp lệ.', 'info');
+            }
+        }
+        // === KẾT THÚC THÊM MỚI ===
+
         // --- UTILITY FUNCTIONS ---
 
         // === HÀM MỚI: Để lưu ảnh về máy ===
@@ -1128,8 +1295,10 @@
             // Ẩn các nút điều khiển
             const elementsToHideTemporarily = [];
             const actions = element.querySelector('.summary-actions'); 
+            const filterControls = element.querySelector('.controls-panel'); // <-- THÊM MỚI: Ẩn cả bộ lọc
             const reportActions = document.getElementById('actionButtonContainer'); 
             if (actions) elementsToHideTemporarily.push(actions);
+            if (filterControls) elementsToHideTemporarily.push(filterControls); // <-- THÊM MỚI
             if (reportActions && element === DOM.reportContainer) elementsToHideTemporarily.push(reportActions);
             
             // === CẬP NHẬT: Dùng display: none thay vì visibility: hidden ===
@@ -1213,8 +1382,10 @@
             if (buttonElement) buttonElement.textContent = 'Đang tạo ảnh...';
             const elementsToHideTemporarily = [];
             const actions = element.querySelector('.summary-actions'); 
+            const filterControls = element.querySelector('.controls-panel'); // <-- THÊM MỚI: Ẩn cả bộ lọc
             const reportActions = document.getElementById('actionButtonContainer'); 
             if (actions) elementsToHideTemporarily.push(actions);
+            if (filterControls) elementsToHideTemporarily.push(filterControls); // <-- THÊM MỚI
             if (reportActions && element === DOM.reportContainer) elementsToHideTemporarily.push(reportActions);
 
             // === CẬP NHẬT: Dùng display: none thay vì visibility: hidden ===
@@ -1302,6 +1473,62 @@
         function formatNumberHiddenK(num) { num = parseFloat(num); if (isNaN(num) || num === 0 || Math.abs(num) < 1000) return "0"; return parseInt(num / 1000).toLocaleString("vi-VN"); }
         function formatCommissionCellHiddenK(revenue, commission) { revenue = parseFloat(revenue); commission = parseFloat(commission); if (!revenue || revenue === 0 || isNaN(revenue) || isNaN(commission)) return formatNumberHiddenK(commission); const percentage = Math.round((commission / revenue) * 100); return `<i style="color: #E57373; font-weight: normal;">(${percentage}%)</i> ${formatNumberHiddenK(commission)}`; }
         
+        // === THÊM MỚI: Hàm xử lý lọc ===
+        function parseFilterString(filterString) {
+            if (!filterString || filterString.trim() === '') {
+                return null; // Không có bộ lọc
+            }
+            const rules = [];
+            const parts = filterString.split('+'); // Tách bằng dấu +
+            
+            parts.forEach(part => {
+                part = part.trim();
+                if (!part) return;
+
+                // === THAY ĐỔI: Sử dụng '_' thay vì '.' ===
+                if (part.includes('_')) {
+                    // Đây là một khoảng, ví dụ: "550_599"
+                    const range = part.split('_');
+                    const min = parseInt(range[0], 10);
+                    const max = parseInt(range[1], 10);
+                    if (!isNaN(min) && !isNaN(max) && min <= max) {
+                        rules.push({ min, max });
+                    }
+                } else {
+                    // Đây là một số đơn, ví dụ: "6999"
+                    const num = parseInt(part, 10);
+                    if (!isNaN(num)) {
+                        rules.push({ min: num, max: num });
+                    }
+                }
+            });
+            
+            return rules.length > 0 ? rules : null;
+        }
+
+        function agentMatchesFilter(agentCode, filterRules) {
+            if (!filterRules) {
+                return true; // Nếu không có quy tắc, tất cả đều khớp
+            }
+
+            // Lấy phần số của agentCode, ví dụ "550" từ "DL 550" hoặc "550"
+            const numericMatch = String(agentCode).match(/\d+$/);
+            if (!numericMatch) {
+                return false; // Mã đại lý không có số, không thể lọc
+            }
+            const agentNum = parseInt(numericMatch[0], 10);
+
+            // Kiểm tra xem số đại lý có khớp với BẤT KỲ quy tắc nào không
+            for (const rule of filterRules) {
+                if (agentNum >= rule.min && agentNum <= rule.max) {
+                    return true; // Khớp một quy tắc
+                }
+            }
+            
+            return false; // Không khớp quy tắc nào
+        }
+        // === KẾT THÚC THÊM MỚI ===
+
         function docso(numberStr) {
             const num = String(numberStr).replace(/[.,]/g, '');
             if (num === '0') return 'Không';
@@ -1359,3 +1586,4 @@
 
 </body>
 </html>
+
