@@ -846,7 +846,7 @@
             } 
             const grandFinalAmountClass = grandTotals.finalAmount >= 0 ? 'final-amount-positive' : 'final-amount-negative'; 
             const footer = `<tr><td colspan="2">TỔNG CỘNG</td><td>${formatNumberHiddenK(grandTotals.lotoDB)}</td><td>${formatNumberHiddenK(grandTotals.lotoCap)}</td><td>${formatNumberHiddenK(grandTotals.c3_23)}</td><td>${formatNumberHiddenK(grandTotals.c2_27)}</td><td>${formatNumberHiddenK(grandTotals.xskt)}</td><td>${formatNumberHiddenK(grandTotals.thuong)}</td><td class="${grandFinalAmountClass}">${formatNumberHiddenK(grandTotals.finalAmount)}</td></tr>`; 
-            return `<table border="1"><thead><tr><th style="width: 8%;">STT</th><th style="width: 12%;">ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th><th>XSKT</th><th>Thưởng</th><th>Tiền</th></tr></thead><tbody>${body}</tbody><tfoot>${footer}</tfoot></table>`; 
+            return `<table border="1"><thead><tr><th style="width: 8%;">STT</th><th style="width: 12%;">ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th><th>XSKT</th><th>Thưởng</th><th>Tiền nộp</th></tr></thead><tbody>${body}</tbody><tfoot>${footer}</tfoot></table>`; 
         }
 
         function generateSummaryView() { 
