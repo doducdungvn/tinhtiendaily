@@ -57,7 +57,6 @@
         text-align: center; margin-bottom: 15px; margin-top: 10px;
         font-size: 32px; font-weight: 700; 
         color: var(--logo-color); /* Màu khởi đầu */
-        overflow: hidden; 
         /* Thêm transition cho việc đổi màu mượt mà */
         transition: color 0.5s ease-in-out;
     }
@@ -86,7 +85,7 @@
     .controls-panel { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--container-bg); }
     label { font-weight: 500; color: var(--text-color); }
     input[type="text"], input[type="file"], input[type="number"], select, button, textarea { padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border-color); width: 100%; box-sizing: border-box; font-size: 16px; transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
-    input:focus, textarea:focus { border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(26, 188, 156, 0.2); outline: none; }
+    input:focus, textarea:focus, select:focus { border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(26, 188, 156, 0.2); outline: none; }
     input[type="file"] { background-color: #fdfdfe; cursor: pointer; }
     input[type="file"]:hover { border-color: var(--secondary-dark); }
     input[type="file"].loaded { background-color: var(--success-light-bg); border-color: var(--success-color); }
@@ -95,12 +94,14 @@
     button:active { transform: scale(0.98); filter: brightness(90%); }
     button.secondary { background-color: var(--secondary-color); color: var(--text-color); }
     button.secondary:hover { background-color: var(--secondary-dark); filter: brightness(105%);}
-    button.success { background-color: var(--success-color); }
+    button.success { background-color: var(--success-color); color: white;}
     button.success:hover { background-color: #27ae60; } 
-    button.danger { background-color: var(--danger-color); }
+    button.danger { background-color: var(--danger-color); color: white;}
     button.danger:hover { background-color: #c0392b; } 
-    button.warning { background-color: var(--warning-color); }
+    button.warning { background-color: var(--warning-color); color: white;}
     button.warning:hover { background-color: #e67e22; } 
+    button.info { background-color: var(--info-color); color: white;}
+    button.info:hover { background-color: #2980b9; } 
     
     /* CẬP NHẬT THANH NAV CHÍNH */
     .main-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
@@ -272,7 +273,7 @@
         h2 { font-size: 6vw; } h3 { font-size: 5vw; } label { font-size: 4vw; }
         .simple-animated-logo { font-size: 8vw; } 
         .main-page-logo { font-size: 6vw; margin-bottom: 15px; } /* Logo nhỏ hơn trên mobile */
-        input, button, textarea { padding: 10px 12px; font-size: 4vw; }
+        input, button, textarea, select { padding: 10px 12px; font-size: 4vw; }
         th, td { padding: 8px; font-size: 4vw; word-break: break-word; }
         .so-so { font-size: 6vw; word-break: break-all; }
         tr.final-amount-positive td, tr.final-amount-negative td { font-size: 6.8vw !important; padding: 11px 7px !important; }
@@ -296,23 +297,26 @@
         .modal-close-btn { top: 8px; right: 12px; font-size: 24px; }
         #notification-area { top: 10px; right: 10px; }
         .notification { font-size: 3.8vw; padding: 10px 15px;}
-        /* XÓA BỎ: .inline-form > button { flex-basis: 48%; } */
-
-/* --- CHỈNH KÍCH CỠ BẢNG TỔNG KẾT (ĐIỆN THOẠI) --- */
-#summaryTableContainer th,
-#summaryTableContainer td {
-    font-size: 2.5vw; /* Giảm cỡ chữ (mặc định 3.8vw) */
-    padding: 4px;     /* Giảm đệm (mặc định 8px) */
-}
-
-      
-        /* --- CSS MỚI: Cỡ chữ Tổng Tiền (Mobile) --- */
-        #summaryTableContainer tfoot .final-amount-positive,
-        #summaryTableContainer tfoot .final-amount-negative {
-            font-size: 4vw; /* Giảm cỡ chữ (mặc định 3.8vw) */
-            padding: 5px;     /* Giảm đệm (mặc định 8px) */
+        
+        /* --- ĐẢM BẢO CHẾ ĐỘ 1 CỘT TRÊN MOBILE --- */
+        #filter-controls-container {
+            grid-template-columns: 1fr; 
+            gap: 15px; /* Điều chỉnh khoảng cách giữa 2 panel */
         }
     }
+    
+    /* === THÊM CSS GRID CHO 2 CỘT TRÊN DESKTOP === */
+    #filter-controls-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    /* Chỉnh lại padding của panel bên trong container */
+    #filter-controls-container .controls-panel {
+        margin-bottom: 0;
+    }
+    
     @media (min-width: 769px) { #mainPage { max-width: 1200px; } }
     @media print { body * { visibility: hidden; } #summaryTableContainer, #summaryTableContainer * { visibility: visible; } #summaryTableContainer { position: absolute; left: 0; top: 0; width: 100%; overflow: visible; } table { font-size: 10pt; } th, td { padding: 4px; } button, a, #notification-area, .modal-overlay, #loading-indicator { display: none !important; } }
   </style>
@@ -372,8 +376,37 @@
     </div>
 
     <div id="summarySection" class="main-section">
+        
+        <!-- === CONTAINER MỚI CHO 2 KHU VỰC LỌC/ĐỊNH NGHĨA (Song song trên desktop) === -->
+        <div id="filter-controls-container">
+            
+            <!-- 1. KHU VỰC ĐỊNH NGHĨA PHẠM VI -->
+            <div class="controls-panel" style="padding: 15px;">
+                <label for="areaDefinitionInput">Định nghĩa Phạm vi/Đơn vị (Lưu cục bộ):</label>
+                <textarea id="areaDefinitionInput" rows="4" placeholder="Ví dụ:
+Huyện Ý Yên: 550,559-660+699+770
+Huyện Vụ Bản: 450,499+350-399+6889" style="margin-bottom: 10px;"></textarea>
+                <button id="btnSaveAreaDefinition" class="secondary" style="width: 100%;">Lưu Định Nghĩa</button>
+            </div>
+            
+            <!-- 2. KHU VỰC CHỌN ĐƠN VỊ VÀ LỌC -->
+            <div class="controls-panel" style="padding: 15px;">
+                <label for="areaSelect">Chọn Đơn vị/Phạm vi để lọc:</label>
+                <div class="inline-form">
+                    <select id="areaSelect">
+                        <!-- Options sẽ được JS thêm vào -->
+                        <option value="">--- Tất cả Đại lý (Mặc định) ---</option>
+                    </select>
+                    <button id="btnFilterSummary" class="info" style="width: auto; flex: 0 1 auto;">Lọc</button>
+                </div>
+            </div>
+
+        </div>
+        <!-- === KẾT THÚC CONTAINER LỌC === -->
+        
         <h3>Bảng Báo Cáo Tổng Kết</h3>
         <h4 id="summaryDate" class="report-date"></h4>
+        
         <!-- DI CHUYỂN NÚT XUỐNG DƯỚI -->
         <div id="summaryTableContainer"></div>
         <div class="summary-actions">
@@ -519,6 +552,9 @@
         let excelData1 = [];
         let excelData2 = [];
         let dateRangeText = "Chưa có ngày";
+        // Định nghĩa các khu vực lọc (Đơn vị)
+        let areaDefinitions = {}; // { 'Huyện A': '550-559+660+6999', ... }
+        const AREA_DEFINITION_STORAGE_KEY = 'zeng_area_definitions'; // Khóa localStorage
 
         const state = {
             currentSoSo: null, baseTongDT: 0, baseTongHH: 0, baseThuong: 0,
@@ -536,8 +572,7 @@
             summaryDate: document.getElementById('summaryDate'), soSoInput: document.getElementById('soSoInput'),
             btnCreateReport: document.getElementById('btnCreateReport'), reportContainer: document.getElementById('reportContainer'),
             actionButtonContainer: document.getElementById('actionButtonContainer'), btnCopySummary: document.getElementById('btnCopySummary'),
-            btnSaveSummary: document.getElementById('btnSaveSummary'), // <-- ĐÃ THAY ĐỔI
-            /* XÓA BỎ: btnToggleSummaryView */
+            btnSaveSummary: document.getElementById('btnSaveSummary'), 
             btnCopyReport: document.getElementById('btnCopyReport'),
             toggleChoicesBtn: document.getElementById('toggleChoicesBtn'), actionChoices: document.getElementById('actionChoices'),
             btnAddTicket: document.getElementById('btnAddTicket'), sellQuantityInput: document.getElementById('sellQuantityInput'),
@@ -568,8 +603,14 @@
             reloadFile2: document.getElementById('reloadFile2'),
             btnReloadSubmit: document.getElementById('btnReloadSubmit'),
             logoContainers: document.querySelectorAll('.simple-animated-logo'), 
-            scrollToTopBtn: document.getElementById('scrollToTopBtn'), // <-- THÊM MỚI
-            scrollToBottomBtn: document.getElementById('scrollToBottomBtn') // <-- THÊM MỚI
+            scrollToTopBtn: document.getElementById('scrollToTopBtn'), 
+            scrollToBottomBtn: document.getElementById('scrollToBottomBtn'), 
+            // === PHẦN TỬ LỌC MỚI ===
+            areaDefinitionInput: document.getElementById('areaDefinitionInput'),
+            btnSaveAreaDefinition: document.getElementById('btnSaveAreaDefinition'),
+            areaSelect: document.getElementById('areaSelect'),
+            btnFilterSummary: document.getElementById('btnFilterSummary')
+            // === KẾT THÚC PHẦN TỬ LỌC MỚI ===
         };
         
         const manualFormOrder = [
@@ -577,7 +618,151 @@
             'manualC227', 'manualC323', 'manualThuong'
         ];
 
-        // ===== CORE LOGIC: FILE HANDLING =====
+        // ===== UTILITY FUNCTIONS FOR FILTERING =====
+        /**
+         * Phân tích chuỗi lọc (ví dụ: "550,559-660+6999") thành một mảng các số sổ đơn lẻ và các phạm vi [min, max].
+         * Phân tách phạm vi: khoảng trắng (\\s+), dấu trừ (-), dấu cộng (+).
+         * Phân tách số đầu/cuối: dấu trừ (-), dấu phẩy (,), dấu chấm (.).
+         * @param {string} rangeString - Chuỗi chứa một hoặc nhiều phạm vi/số sổ.
+         * @returns {Array<[number, number]>} Mảng các phạm vi số sổ hợp lệ. Phạm vi đơn lẻ được lưu dưới dạng [số, số].
+         */
+        function parseRangeString(rangeString) {
+            if (!rangeString) return [];
+
+            const ranges = [];
+            
+            // 1. Chuẩn hóa chuỗi: Thay thế các ký tự phân tách phạm vi (+, -) bằng dấu cách, sau đó chia chuỗi thành các token.
+            const normalizedRangeString = rangeString.trim().replace(/[+\-]/g, ' ');
+            const tokens = normalizedRangeString.split(/\s+/).filter(token => token);
+
+            for (const token of tokens) {
+                // Tách token bằng các ký tự phân tách số đầu/cuối (-, , .)
+                const parts = token.split(/[-.,]/).map(p => parseInt(p.trim(), 10)).filter(n => !isNaN(n));
+                
+                if (parts.length === 2) {
+                    // Phạm vi (ví dụ: 550,559)
+                    ranges.push([Math.min(parts[0], parts[1]), Math.max(parts[0], parts[1])]);
+                } else if (parts.length === 1) {
+                    // Số sổ đơn lẻ (ví dụ: 6999)
+                    ranges.push([parts[0], parts[0]]);
+                }
+            }
+            return ranges;
+        }
+
+        /**
+         * Kiểm tra xem một số sổ có nằm trong bất kỳ phạm vi nào không.
+         * @param {number} soSo - Số sổ cần kiểm tra.
+         * @param {Array<[number, number]>} ranges - Mảng các phạm vi [min, max].
+         * @returns {boolean} True nếu số sổ nằm trong ít nhất một phạm vi.
+         */
+        function isSoSoInRange(soSo, ranges) {
+            if (ranges.length === 0) return true; // Nếu không có phạm vi nào, chấp nhận tất cả.
+            
+            for (const [min, max] of ranges) {
+                if (soSo >= min && soSo <= max) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        /**
+         * Tải định nghĩa khu vực từ localStorage và cập nhật DOM.
+         */
+        function loadAreaDefinitions() {
+            try {
+                const storedData = localStorage.getItem(AREA_DEFINITION_STORAGE_KEY);
+                if (storedData) {
+                    const parsedData = parseAreaDefinitions(storedData);
+                    areaDefinitions = parsedData;
+                    DOM.areaDefinitionInput.value = storedData; // Hiển thị nguyên bản trong textarea
+                    populateAreaSelect();
+                } else {
+                    // Nếu chưa có, sử dụng ví dụ ban đầu và lưu lại
+                    const defaultText = `Huyện Ý Yên: 550,559-660+6999+770
+Huyện Vụ Bản: 450,499+350-399+6889+7670`;
+                    areaDefinitions = parseAreaDefinitions(defaultText);
+                    DOM.areaDefinitionInput.value = defaultText;
+                    saveAreaDefinitions();
+                }
+            } catch (e) {
+                console.error("Lỗi khi tải định nghĩa khu vực:", e);
+                showNotification("Lỗi tải định nghĩa khu vực. Đã xóa dữ liệu cũ.", 'error');
+                localStorage.removeItem(AREA_DEFINITION_STORAGE_KEY);
+                areaDefinitions = {};
+            }
+        }
+
+        /**
+         * Lưu định nghĩa khu vực từ DOM vào localStorage và cập nhật state/dropdown.
+         */
+        function saveAreaDefinitions() {
+            const rawText = DOM.areaDefinitionInput.value.trim();
+            if (!rawText) {
+                areaDefinitions = {};
+                localStorage.removeItem(AREA_DEFINITION_STORAGE_KEY);
+                populateAreaSelect();
+                showNotification("Đã xóa định nghĩa khu vực.", 'info');
+                return;
+            }
+
+            try {
+                // Kiểm tra định dạng cơ bản: Tên Khu vực: Chuỗi phạm vi/số sổ
+                areaDefinitions = parseAreaDefinitions(rawText);
+                localStorage.setItem(AREA_DEFINITION_STORAGE_KEY, rawText);
+                populateAreaSelect();
+                showNotification("Đã lưu định nghĩa khu vực thành công!", 'success');
+            } catch (e) {
+                console.error("Lỗi khi lưu định nghĩa khu vực:", e);
+                showNotification("Lỗi: Định dạng định nghĩa không hợp lệ. Vui lòng kiểm tra lại.", 'error');
+            }
+        }
+        
+        /**
+         * Phân tích văn bản định nghĩa khu vực thành đối tượng JS.
+         * @param {string} rawText - Văn bản thô từ textarea.
+         * @returns {Object} {Tên Khu vực: Chuỗi phạm vi, ...}
+         */
+        function parseAreaDefinitions(rawText) {
+             const definitions = {};
+             const lines = rawText.trim().split('\n');
+             for (const line of lines) {
+                 const trimmedLine = line.trim();
+                 if (!trimmedLine || trimmedLine.startsWith('//') || trimmedLine.startsWith('#')) continue; // Bỏ qua dòng trống/comment
+
+                 const parts = trimmedLine.split(':');
+                 if (parts.length >= 2) {
+                     const areaName = parts[0].trim();
+                     // Lấy phần sau dấu hai chấm (có thể có nhiều dấu hai chấm)
+                     const rangeString = parts.slice(1).join(':').trim(); 
+                     if (areaName && rangeString) {
+                         definitions[areaName] = rangeString;
+                     }
+                 }
+             }
+             return definitions;
+        }
+
+        /**
+         * Cập nhật dropdown lựa chọn khu vực.
+         */
+        function populateAreaSelect() {
+            const select = DOM.areaSelect;
+            select.innerHTML = '<option value="">--- Tất cả Đại lý (Mặc định) ---</option>';
+
+            const sortedKeys = Object.keys(areaDefinitions).sort();
+            for (const areaName of sortedKeys) {
+                const option = document.createElement('option');
+                option.value = areaDefinitions[areaName]; // Giá trị là chuỗi phạm vi
+                option.textContent = areaName;
+                select.appendChild(option);
+            }
+        }
+        // ===== END UTILITY FUNCTIONS FOR FILTERING =====
+
+
+        // ===== CORE LOGIC: FILE HANDLING (Unchanged) =====
         function handleFile(file, fileNumber, inputId) {
             if (!file) return;
             showLoading(); 
@@ -625,8 +810,12 @@
             reader.readAsArrayBuffer(file);
         }
 
-        // ===== SUMMARY VIEW LOGIC =====
-        function processSummaryData() { 
+        // ===== SUMMARY VIEW LOGIC (Updated to use flexible parsing) =====
+        function processSummaryData(rangeString = '') { 
+            // === LOGIC LỌC MỚI: Phân tích các phạm vi ===
+            const filterRanges = parseRangeString(rangeString);
+            // === KẾT THÚC LOGIC LỌC MỚI ===
+            
             const individualAgentData = new Map(); 
             const initializeAgent = (code) => { 
                 if (!individualAgentData.has(code)) { 
@@ -643,7 +832,7 @@
                 const c2_27_rev = parseFloat(row.__EMPTY_8) || 0; 
                 const c3_23_rev = parseFloat(row.__EMPTY_10) || 0; 
                 data.lotoDB += loto_db_rev; 
-                data.lotoCap += lo_cap_rev; 
+                data.loCap += lo_cap_rev; 
                 data.c2_27 += c2_27_rev; 
                 data.c3_23 += c3_23_rev; 
                 data.thuong += parseFloat(row.__EMPTY_14) || 0; 
@@ -661,10 +850,9 @@
                 data.totalCommission += xsktRevenue * 0.10; 
             }); 
             
-            // === THAY ĐỔI MỚI: Lọc ra các đại lý không có dữ liệu (toàn số 0) ===
+            // Lọc ra các đại lý không có dữ liệu (toàn số 0)
             const keysToDelete = [];
             individualAgentData.forEach((data, key) => {
-                // Kiểm tra xem tất cả các trường doanh thu và thưởng có bằng 0 không
                 const isAllZero = data.lotoDB === 0 &&
                                   data.lotoCap === 0 &&
                                   data.c3_23 === 0 &&
@@ -672,7 +860,6 @@
                                   data.xskt === 0 &&
                                   data.thuong === 0;
                 
-                // Nếu tất cả đều là 0, đánh dấu để xóa
                 if (isAllZero) {
                     keysToDelete.push(key);
                 }
@@ -682,14 +869,13 @@
             keysToDelete.forEach(key => {
                 individualAgentData.delete(key);
             });
-            // === KẾT THÚC THAY ĐỔI ===
 
             const getAgentNumberString = (code) => String(code).match(/\d+$/)?.[0] || code; // Lấy chuỗi số
             
             const getAgentParts = (code) => { 
-                const numStr = getAgentNumberString(code); // Lấy chuỗi số, ví dụ "01"
+                const numStr = getAgentNumberString(code); 
                 const prefix = String(code).replace(numStr, ''); 
-                return { num: parseInt(numStr, 10), prefix }; // Lưu giá trị số, ví dụ 1
+                return { num: parseInt(numStr, 10), prefix }; 
             }; 
             
             const sortedKeys = [...individualAgentData.keys()].sort((a, b) => { 
@@ -702,15 +888,20 @@
             const groupedData = new Map(); 
             
             sortedKeys.forEach(agentCode => { 
-                // === THAY ĐỔI: Gộp nhóm bằng GIÁ TRỊ SỐ ===
                 const numericMatch = String(agentCode).match(/\d+$/);
                 const groupKey = numericMatch ? parseInt(numericMatch[0], 10) : agentCode; // Dùng giá trị số (ví dụ: 1) làm key
+
+                // === ÁP DỤNG LỌC SỐ SỔ MỚI: Kiểm tra số sổ có nằm trong phạm vi nào không ===
+                const soSoNumeric = numericMatch ? parseInt(numericMatch[0], 10) : null;
+                if (soSoNumeric !== null && !isSoSoInRange(soSoNumeric, filterRanges)) {
+                    return; // Bỏ qua đại lý này nếu không nằm trong bất kỳ phạm vi nào
+                }
+                // === KẾT THÚC ÁP DỤNG LỌC ===
 
                 if (!groupedData.has(groupKey)) { 
                     groupedData.set(groupKey, { agents: [], groupTotal: 0 }); 
                 } 
                 const group = groupedData.get(groupKey);
-                // === KẾT THÚC THAY ĐỔI ===
                 
                 const agentDetails = individualAgentData.get(agentCode); 
                 const finalAmount = agentDetails.totalRevenue - agentDetails.totalCommission - agentDetails.thuong; 
@@ -719,22 +910,32 @@
             }); 
             
             const grandTotals = { lotoDB: 0, lotoCap: 0, c3_23: 0, c2_27: 0, xskt: 0, thuong: 0, finalAmount: 0 }; 
-            individualAgentData.forEach(data => { 
-                grandTotals.lotoDB += data.lotoDB; 
-                grandTotals.lotoCap += data.lotoCap; 
-                grandTotals.c3_23 += data.c3_23; 
-                grandTotals.c2_27 += data.c2_27; 
-                grandTotals.xskt += data.xskt; 
-                grandTotals.thuong += data.thuong; 
-                grandTotals.finalAmount += data.totalRevenue - data.totalCommission - data.thuong; 
-            }); 
+            // Tính lại tổng cộng chỉ dựa trên các đại lý còn lại sau khi lọc
+            groupedData.forEach(group => {
+                group.agents.forEach(agent => {
+                    const data = agent.data;
+                    grandTotals.lotoDB += data.lotoDB; 
+                    grandTotals.lotoCap += data.lotoCap; 
+                    grandTotals.c3_23 += data.c3_23; 
+                    grandTotals.c2_27 += data.c2_27; 
+                    grandTotals.xskt += data.xskt; 
+                    grandTotals.thuong += data.thuong; 
+                    grandTotals.finalAmount += data.totalRevenue - data.totalCommission - data.thuong; 
+                });
+            });
+            
             return { groupedData, grandTotals }; 
         }
         
         function renderSummaryTable({ groupedData, grandTotals }) { 
             let body = ''; 
             let stt = 1; 
-            const sortedGroupedData = [...groupedData.entries()].sort((a, b) => parseInt(a[0], 10) - parseInt(b[0], 10)); 
+            const sortedGroupedData = [...groupedData.entries()].sort((a, b) => {
+                // Đảm bảo so sánh số sổ là số, không phải chuỗi
+                const keyA = typeof a[0] === 'number' ? a[0] : Infinity;
+                const keyB = typeof b[0] === 'number' ? b[0] : Infinity;
+                return keyA - keyB;
+            }); 
             for (const [groupKey, group] of sortedGroupedData) { 
                 group.agents.forEach((agent, index) => { 
                     const agentData = agent.data; 
@@ -743,12 +944,10 @@
                     const sttCell = isFirstInGroup ? `<td>${stt}</td>` : '<td></td>'; 
                     let finalAmountCellContent = finalAmount < 0 ? `<span class="negative-value">${formatNumberHiddenK(finalAmount)}</span>` : formatNumberHiddenK(finalAmount); 
                     
-                    // === THAY ĐỔI LOGIC HIỂN THỊ TỔNG NHÓM ===
                     // Chỉ thêm tổng nhóm (trong ngoặc) nếu đây là dòng cuối VÀ nhóm có nhiều hơn 1 thành viên
                     if (index === group.agents.length - 1 && group.agents.length > 1) {
                         finalAmountCellContent += ` <strong style="color: var(--primary-color);">(${formatNumberHiddenK(group.groupTotal)})</strong>`; 
                     } 
-                    // === KẾT THÚC THAY ĐỔI ===
 
                     body += `<tr ${isFirstInGroup ? 'class="group-start-row"' : ''}>${sttCell}<td>${agent.code}</td><td>${formatNumberHiddenK(agentData.lotoDB)}</td><td>${formatNumberHiddenK(agentData.lotoCap)}</td><td>${formatNumberHiddenK(agentData.c3_23)}</td><td>${formatNumberHiddenK(agentData.c2_27)}</td><td>${formatNumberHiddenK(agentData.xskt)}</td><td>${formatNumberHiddenK(agentData.thuong)}</td><td>${finalAmountCellContent}</td></tr>`; 
                 }); 
@@ -759,9 +958,48 @@
             return `<table border="1"><thead><tr><th style="width: 8%;">STT</th><th style="width: 12%;">ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th><th>XSKT</th><th>Thưởng</th><th>Tiền</th></tr></thead><tbody>${body}</tbody><tfoot>${footer}</tfoot></table>`; 
         }
 
-        function generateSummaryView() { if (excelData1.length === 0 && excelData2.length === 0) return; const summaryData = processSummaryData(); const tableHTML = renderSummaryTable(summaryData); DOM.summaryTableContainer.innerHTML = tableHTML; DOM.summaryDate.textContent = dateRangeText; }
+        function generateSummaryView(range = '') { 
+            if (excelData1.length === 0 && excelData2.length === 0) {
+                showNotification("Chưa có dữ liệu Excel được nạp!", 'error'); 
+                return;
+            }
+            
+            // Sử dụng tham số range để lọc
+            const summaryData = processSummaryData(range); 
+            
+            const tableHTML = renderSummaryTable(summaryData); 
+            DOM.summaryTableContainer.innerHTML = tableHTML; 
+            
+            // Cập nhật thông báo lọc
+            const areaName = DOM.areaSelect.options[DOM.areaSelect.selectedIndex]?.textContent;
+            let currentFilter = areaName && areaName.includes('Tất cả') ? "" : areaName;
+            
+            // Cập nhật thẻ H4 để chứa ngày và tên khu vực lọc (nếu có)
+            DOM.summaryDate.innerHTML = `Ngày: ${dateRangeText}`;
+            if (currentFilter) {
+                // Thêm tên khu vực lọc vào tiêu đề báo cáo
+                DOM.summaryDate.innerHTML += ` | ${currentFilter}`; 
+            }
+            
+            // Cập nhật H3 để bao gồm cả tên khu vực nếu đang lọc
+            DOM.summarySection.querySelector('h3').textContent = `Bảng Báo Cáo Tổng Kết`; 
+            if(currentFilter) {
+                // Đặt tên khu vực lọc vào thẻ h3
+                DOM.summarySection.querySelector('h3').textContent = `Bảng Báo Cáo Tổng Kết (${currentFilter})`;
+            }
 
-        // ===== DETAILED REPORT VIEW LOGIC =====
+            // === ĐÃ XÓA LOGIC DI CHUYỂN DOM TẠI ĐÂY ===
+            // Logic di chuyển DOM cũ đã bị xóa để tiêu đề giữ nguyên vị trí dưới khu vực điều khiển
+            // const h3 = DOM.summarySection.querySelector('h3');
+            // const h4 = DOM.summaryDate;
+            // const filterContainer = document.getElementById('filter-controls-container');
+            // if (h3 && filterContainer) { filterContainer.parentNode.insertBefore(h3, filterContainer); }
+            // if (h4 && filterContainer) { filterContainer.parentNode.insertBefore(h4, filterContainer); }
+            // ===========================================
+            
+        }
+        
+        // ===== DETAILED REPORT VIEW LOGIC (Unchanged) =====
         function resetState(soSo) { state.currentSoSo = soSo; state.baseTongDT = 0; state.baseTongHH = 0; state.baseThuong = 0; state.extraBonus = 0; state.extraDebt = 0; state.addedTickets = []; state.accountCodes.clear(); }
         function processDetailedReportData(soSo) { 
             const filterBySoSo = (row) => { 
@@ -770,9 +1008,7 @@
                 const numericPartMatch = agentCode.match(/\d+$/); 
                 if (!numericPartMatch) return false; 
                 
-                // === THAY ĐỔI: So sánh giá trị số thay vì văn bản ===
                 return parseInt(numericPartMatch[0], 10) === parseInt(soSo, 10); 
-                // === KẾT THÚC THAY ĐỔI ===
             }; 
             const filtered1 = excelData1.filter(filterBySoSo); 
             const filtered2 = excelData2.filter(filterBySoSo); 
@@ -807,9 +1043,7 @@
             const displayDate = manualDateRange !== null ? manualDateRange : dateRangeText; 
             const xsktRowHTML = totals.xskt > 0 ? `<tr><td>Xổ số kiến thiết</td><td>${formatNumberHiddenK(totals.xskt)}</td><td>${formatCommissionCellHiddenK(totals.xskt, commissions.xskt_com)}</td></tr>` : ''; 
             
-            // === THAY ĐỔI: Thêm id="bangChuRow" vào dòng "Bằng chữ" ===
             DOM.reportContainer.innerHTML = `<table><tr><td class="header" style="width: 33.33%;">Thanh toán tiền Đại Lý:</td><td class="so-so">${[...state.accountCodes].join(', ')}</td></tr><tr><td class="header">Thời gian:</td><td>${displayDate}</td></tr></table><br><table class="report-table"><thead><tr><th>Loại hình</th><th>Doanh thu</th><th>Hoa hồng</th></tr></thead><tbody><tr><td>Lô tô Đặc biệt</td><td>${formatNumberHiddenK(totals.lotoDB)}</td><td>${formatCommissionCellHiddenK(totals.lotoDB, commissions.loto_db_com)}</td></tr><tr><td>Lô cặp</td><td>${formatNumberHiddenK(totals.loCap)}</td><td>${formatCommissionCellHiddenK(totals.loCap, commissions.lo_cap_com)}</td></tr><tr><td>2/27</td><td>${formatNumberHiddenK(totals.c2_27)}</td><td>${formatCommissionCellHiddenK(totals.c2_27, commissions.c2_27_com)}</td></tr><tr><td>3/23</td><td>${formatNumberHiddenK(totals.c3_23)}</td><td>${formatCommissionCellHiddenK(totals.c3_23, commissions.c3_23_com)}</td></tr>${xsktRowHTML}<tr id="tongCongRow"><td>Tổng cộng</td><td id="tongDT"></td><td id="tongHH"></td></tr><tr id="mainBonusRow"><td>Thưởng</td><td colspan="2" id="thuong">${formatNumberHiddenK(state.baseThuong)}</td></tr><tr id="finalResultRow"><td id="ketQuaLabel"></td><td id="ketQuaValue" colspan="2"></td></tr><tr id="bangChuRow" class="header"><td>Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr></tbody></table><div id="copyrightInReport" class="copyright" style="display: none;">© 2025 ZENG FINANCE</div>`; 
-            // === KẾT THÚC THAY ĐỔI ===
         }
         function updateDetailedReportView() { 
             if (!state.currentSoSo) return; 
@@ -830,21 +1064,62 @@
             resultRow.className = phaiNop >= 0 ? 'final-amount-positive' : 'final-amount-negative'; 
             if (phaiNop >= 0) { 
                 const lamTron = Math.ceil(phaiNop / 1000) * 1000; 
-                ketQuaLabel.textContent = 'Phải nộp'; /* <-- THAY ĐỔI: Bỏ dấu : */
+                ketQuaLabel.textContent = 'Phải nộp'; 
                 ketQuaValue.textContent = formatNumberHiddenK(lamTron); 
                 ketQuaBangChu.textContent = docso(lamTron) + " đồng"; 
             } else { 
                 const layVe = Math.abs(phaiNop); 
                 const khongLamTron = parseInt(layVe / 1000) * 1000; 
-                ketQuaLabel.textContent = 'Lấy về'; /* <-- THAY ĐỔI: Bỏ dấu : */
+                ketQuaLabel.textContent = 'Lấy về'; 
                 ketQuaValue.textContent = formatNumberHiddenK(khongLamTron); 
                 ketQuaBangChu.textContent = docso(khongLamTron) + " đồng"; 
             } 
         }
 
-        // ===== UI EVENT HANDLERS & CONTROLLERS =====
+        // ===== UI EVENT HANDLERS & CONTROLLERS (Updated for Select/Textarea) =====
+        function handleFilterSummary() {
+            // Lấy giá trị chuỗi phạm vi từ select box
+            const range = DOM.areaSelect.value;
+            const areaName = DOM.areaSelect.options[DOM.areaSelect.selectedIndex]?.textContent;
+
+            if (range && !Object.values(areaDefinitions).includes(range)) {
+                // Đây là lỗi nếu value không khớp với bất kỳ định nghĩa nào ngoài giá trị mặc định ("")
+                showNotification("Lỗi: Giá trị lọc không hợp lệ. Vui lòng chọn lại.", 'error');
+                return;
+            }
+
+            generateSummaryView(range);
+        }
+
         function initializeApp() {
-            DOM.btnLoadData.addEventListener('click', () => { if (excelData1.length === 0 && excelData2.length === 0) { showNotification("Vui lòng chọn ít nhất một file excel!", 'error'); return; } generateSummaryView(); DOM.homePage.style.display = 'none'; DOM.mainPage.style.display = 'block'; showSection('reportSection'); loopLogoAnimation(); });
+            // Tải định nghĩa khu vực lần đầu
+            loadAreaDefinitions();
+
+            DOM.btnLoadData.addEventListener('click', () => { 
+                if (excelData1.length === 0 && excelData2.length === 0) { 
+                    showNotification("Vui lòng chọn ít nhất một file excel!", 'error'); 
+                    return; 
+                } 
+                DOM.areaSelect.value = ""; // Reset dropdown về mặc định
+                generateSummaryView(''); // Gọi để hiển thị tất cả ban đầu
+                DOM.homePage.style.display = 'none'; 
+                DOM.mainPage.style.display = 'block'; 
+                showSection('summarySection'); // Mặc định chuyển sang Summary
+                loopLogoAnimation(); 
+            });
+            
+            // === SỰ KIỆN ĐỊNH NGHĨA KHU VỰC ===
+            DOM.btnSaveAreaDefinition.addEventListener('click', saveAreaDefinitions);
+            
+            // === SỰ KIỆN LỌC BẢNG TỔNG KẾT ===
+            DOM.btnFilterSummary.addEventListener('click', handleFilterSummary);
+            DOM.areaSelect.addEventListener('change', handleFilterSummary); // Tự động lọc khi chọn option
+            
+            // Xóa sự kiện Enter trên ô nhập cũ, vì giờ là Select/Textarea
+            /* DOM.soSoRangeInput.addEventListener('keydown', ...) */ 
+
+            // ... (Phần còn lại của initializeApp không đổi)
+            
             DOM.navSummary.addEventListener('click', () => showSection('summarySection'));
             DOM.navReport.addEventListener('click', () => showSection('reportSection'));
             DOM.navSell.addEventListener('click', () => showSection('sellSection'));
@@ -855,7 +1130,6 @@
             DOM.btnShowManualReport.addEventListener('click', showManualInputModal);
             DOM.btnShowManualReport_inline.addEventListener('click', showManualInputModal);
             DOM.btnCreateManualReport.addEventListener('click', createManualReport);
-            DOM.btnClearManualReport.addEventListener('click', clearManualReportForm); 
             manualFormOrder.forEach(id => { const element = document.getElementById(id); if (element) { element.addEventListener('keydown', handleManualFormEnter); } });
             document.querySelectorAll('.manual-currency').forEach(input => { input.addEventListener('input', (e) => { const value = e.target.value.replace(/\D/g, ''); e.target.dataset.value = value; e.target.value = value ? parseInt(value, 10).toLocaleString('vi-VN') : ''; }); });
             
@@ -864,10 +1138,9 @@
             
             DOM.btnCopySummary.addEventListener('click', () => copyElementAsImage('#summarySection', 'Copy ảnh tổng kết thành công!', DOM.btnCopySummary));
             
-            /* XÓA BỎ: Event listener cho nút chuyển chế độ */
-            
             DOM.btnCopyReport.addEventListener('click', () => copyElementAsImage('#reportContainer', 'Copy ảnh báo cáo thành công!', DOM.btnCopyReport));
             DOM.toggleChoicesBtn.addEventListener('click', toggleActionChoices);
+            DOM.actionChoices.addEventListener('click', (e) => { const action = e.target.dataset.action; if (!action) return; const actionMap = { 'add-bonus': () => createDynamicInputRow('bonus'), 'remove-bonus': () => { document.getElementById('extraBonusRow')?.remove(); state.extraBonus = 0; updateDetailedReportView(); }, 'add-debt': () => createDynamicInputRow('debt'), 'remove-debt': () => { document.getElementById('extraDebtRow')?.remove(); state.extraDebt = 0; updateDetailedReportView(); } }; actionMap[action]?.(); updateActionButtons(); });
             DOM.sellTicketTypeRadios.forEach(radio => radio.addEventListener('change', handleSellOptionsChange));
             DOM.sellPriceRadios.forEach(radio => radio.addEventListener('change', handleSellOptionsChange));
             DOM.commissionRateRadios.forEach(radio => radio.addEventListener('change', handleSellOptionsChange));
@@ -885,22 +1158,16 @@
             DOM.reloadFile2.addEventListener('change', (e) => handleFile(e.target.files[0], 2, 'reloadFile2'));
             DOM.btnReloadSubmit.addEventListener('click', submitReload);
 
-            // === THÊM MỚI: Sự kiện cho nút cuộn lên đầu ===
-            DOM.scrollToTopBtn.addEventListener('click', () => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-            // === THÊM MỚI: Sự kiện cho nút cuộn xuống dưới ===
-            DOM.scrollToBottomBtn.addEventListener('click', () => {
-                window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
-            });
+            // Sự kiện cho nút cuộn
+            DOM.scrollToTopBtn.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+            DOM.scrollToBottomBtn.addEventListener('click', () => { window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' }); });
 
             window.addEventListener('scroll', handleScrollButtonVisibility);
-            // === KẾT THÚC THÊM MỚI ===
-
+            
             loopLogoAnimation(); // Bắt đầu animation logo lần đầu tiên
         }
         
-        // --- LOGIC ANIMATION LOGO MỚI ---
+        // --- LOGIC ANIMATION LOGO MỚI (Unchanged) ---
         function getRandomColor() {
             const h = Math.floor(Math.random() * 360); // Hue (0-359)
             const s = Math.floor(Math.random() * 30) + 70; // Saturation (70-100)
@@ -950,9 +1217,7 @@
         }
         // --- KẾT THÚC LOGIC LOGO ---
         
-        /* XÓA BỎ: Hàm toggleSummaryViewMode */
-        
-        // === THÊM MỚI: Hàm xử lý hiển thị nút cuộn lên đầu ===
+        // Hàm xử lý hiển thị nút cuộn lên đầu (Unchanged)
         function handleScrollButtonVisibility() {
             const scrollTop = window.scrollY || document.documentElement.scrollTop;
             const scrollHeight = document.documentElement.scrollHeight;
@@ -973,7 +1238,6 @@
                 DOM.scrollToBottomBtn.classList.remove('show');
             }
         }
-        // === KẾT THÚC THÊM MỚI ===
 
         function createDetailedReport() { 
             hideManualInputModal(); 
@@ -994,7 +1258,7 @@
         function handleManualFormEnter(event) { if (event.key !== 'Enter') return; event.preventDefault(); const currentId = event.target.id; const currentIndex = manualFormOrder.indexOf(currentId); if (currentIndex === -1) return; if (currentIndex < manualFormOrder.length - 1) { const nextId = manualFormOrder[currentIndex + 1]; document.getElementById(nextId)?.focus(); } else { DOM.btnCreateManualReport.click(); } } 
         function clearManualReportForm() { manualFormOrder.forEach(id => { const element = document.getElementById(id); if (element) { element.value = ''; if (element.dataset.value) { element.dataset.value = ''; } } }); document.getElementById('manualAgentName').focus(); } 
         
-        // Modal functions
+        // Modal functions (Unchanged)
         function showManualInputModal() {
             clearManualReportForm(); 
             DOM.manualInputModal.style.display = 'block';
@@ -1008,7 +1272,7 @@
             DOM.imagePreviewHolder.src = ''; 
         }
 
-        // --- HÀM CHO VIỆC NẠP LẠI EXCEL ---
+        // --- HÀM CHO VIỆC NẠP LẠI EXCEL (Unchanged) ---
         function showReloadModal() {
             DOM.reloadModal.style.display = 'block';
             DOM.reloadFile1.value = ''; DOM.reloadFile2.value = '';
@@ -1020,7 +1284,7 @@
                  showNotification("Bạn chưa chọn file Excel nào để nạp.", 'error');
                  return;
             }
-            generateSummaryView(); 
+            generateSummaryView(''); 
             DOM.reportContainer.innerHTML = '';
             DOM.actionButtonContainer.style.display = 'none';
             DOM.soSoInput.value = '';
@@ -1052,29 +1316,23 @@
             
             [DOM.navSummary, DOM.navReport, DOM.navSell, DOM.navReload].forEach(b => b.classList.remove('active')); 
             
-            // Tìm nút nav tương ứng
             let activeBtn;
             if (sectionId === 'summarySection') activeBtn = DOM.navSummary;
             else if (sectionId === 'reportSection') activeBtn = DOM.navReport;
             else if (sectionId === 'sellSection') activeBtn = DOM.navSell;
-            // Không làm active nút "Nạp lại"
             
             if(activeBtn) activeBtn.classList.add('active'); 
-            else DOM.navSummary.classList.add('active'); // Mặc định
+            else DOM.navSummary.classList.add('active'); 
 
-            // === THÊM MỚI: Cập nhật hiển thị nút cuộn lên đầu ===
             if (sectionId !== 'summarySection') {
                 DOM.scrollToTopBtn.classList.remove('show');
-                DOM.scrollToBottomBtn.classList.remove('show'); // <-- THÊM MỚI
+                DOM.scrollToBottomBtn.classList.remove('show'); 
             } else {
-                // Kiểm tra ngay lập tức xem có nên hiển thị nút không
                 handleScrollButtonVisibility();
             }
-            // === KẾT THÚC THÊM MỚI ===
         }
         function toggleActionChoices() { if (DOM.toggleChoicesBtn.textContent.includes('Thêm')) { DOM.actionChoices.style.display = 'grid'; DOM.toggleChoicesBtn.textContent = 'Xoá hết Thưởng/Nợ'; DOM.toggleChoicesBtn.className = 'danger'; } else { document.getElementById('extraBonusRow')?.remove(); document.getElementById('extraDebtRow')?.remove(); state.extraBonus = 0; state.extraDebt = 0; updateDetailedReportView(); DOM.actionChoices.style.display = 'none'; DOM.toggleChoicesBtn.textContent = 'Thêm tiền Thưởng/Nợ'; DOM.toggleChoicesBtn.className = 'secondary'; } updateActionButtons(); }
         function updateActionButtons() { DOM.actionChoices.innerHTML = `${document.getElementById('extraBonusRow') ? `<button class="danger" data-action="remove-bonus">Xoá Thưởng thêm</button>` : `<button data-action="add-bonus">Thêm tiền Thưởng</button>`}${document.getElementById('extraDebtRow') ? `<button class="danger" data-action="remove-debt">Xoá tiền Nợ</button>` : `<button data-action="add-debt">Thêm tiền Nợ</button>`}`; }
-        DOM.actionChoices.addEventListener('click', (e) => { const action = e.target.dataset.action; if (!action) return; const actionMap = { 'add-bonus': () => createDynamicInputRow('bonus'), 'remove-bonus': () => { document.getElementById('extraBonusRow')?.remove(); state.extraBonus = 0; updateDetailedReportView(); }, 'add-debt': () => createDynamicInputRow('debt'), 'remove-debt': () => { document.getElementById('extraDebtRow')?.remove(); state.extraDebt = 0; updateDetailedReportView(); } }; actionMap[action]?.(); updateActionButtons(); });
         function createDynamicInputRow(type) { const isBonus = type === 'bonus'; const existingRow = document.getElementById(isBonus ? 'extraBonusRow' : 'extraDebtRow'); if (existingRow) return; const mainBonusRow = document.getElementById('mainBonusRow'); if (!mainBonusRow) return; const newRow = document.createElement('tr'); newRow.id = isBonus ? 'extraBonusRow' : 'extraDebtRow'; if (!isBonus) newRow.className = 'old-debt'; const nameCellHTML = isBonus ? `<td style="display: flex; align-items: center;"><textarea class="dynamic-input" style="color: var(--success-color);" placeholder="Nhập tên thưởng..." rows="1"></textarea></td>` : `<td style="vertical-align: middle;">Nợ cũ</td>`; newRow.innerHTML = `${nameCellHTML}<td colspan="2"><input type="text" class="dynamic-input" style="color: ${isBonus ? 'var(--success-color)' : 'var(--danger-color)'};" data-type="${type}" placeholder="Nhập số tiền..." inputmode="numeric"></td>`; const anchorRow = document.getElementById('extraBonusRow') || mainBonusRow; anchorRow.insertAdjacentElement('afterend', newRow); const input = newRow.querySelector('input'); input.addEventListener('input', handleDynamicInputChange); input.addEventListener('focus', (e) => e.target.value = (parseFloat(e.target.dataset.fullValue) || 0).toLocaleString('vi-VN')); input.addEventListener('blur', (e) => e.target.value = formatNumberHiddenK(e.target.dataset.fullValue || '0')); input.focus(); } 
         function handleDynamicInputChange(e) { const input = e.target; const rawValue = input.value.replace(/[^\d-]/g, ''); const num = parseInt(rawValue, 10) || 0; input.dataset.fullValue = num; input.value = num.toLocaleString('vi-VN'); /* Show full value while typing */ if (input.dataset.type === 'bonus') state.extraBonus = num; else if (input.dataset.type === 'debt') state.extraDebt = num; updateDetailedReportView(); }
         
@@ -1098,7 +1356,7 @@
         
         // --- UTILITY FUNCTIONS ---
 
-        // === HÀM MỚI: Để lưu ảnh về máy ===
+        // Hàm saveElementAsImage đã được cập nhật (Unchanged)
         async function saveElementAsImage(selector, filename, buttonElement = null) {
             const element = document.querySelector(selector);
             if (!element || !element.innerHTML.trim()) {
@@ -1113,16 +1371,18 @@
             const elementsToHideTemporarily = [];
             const actions = element.querySelector('.summary-actions'); 
             const reportActions = document.getElementById('actionButtonContainer'); 
+            const filterControls = document.querySelector('#summarySection #filter-controls-container');
             if (actions) elementsToHideTemporarily.push(actions);
             if (reportActions && element === DOM.reportContainer) elementsToHideTemporarily.push(reportActions);
             
-            // === CẬP NHẬT: Dùng display: none thay vì visibility: hidden ===
+            // Ẩn toàn bộ container lọc khi chụp ảnh
+            if (filterControls && element === DOM.summarySection) elementsToHideTemporarily.push(filterControls); 
+
             elementsToHideTemporarily.forEach(el => el.style.display = 'none');
             
             const copyright = document.getElementById('copyrightInReport');
             if (copyright && element === DOM.reportContainer) copyright.style.display = 'block'; 
 
-            // === CẬP NHẬT: Xử lý chụp nội dung cuộn (Logic mới) ===
             let mainPage, tableContainer, table, summarySectionEl;
             let originalPageMaxWidth, originalSummarySectionWidth, originalTableContainerWidth, originalTableContainerOverflow;
 
@@ -1146,10 +1406,7 @@
                     tableContainer.style.overflowX = 'visible';
                 }
             }
-            // === KẾT THÚC CẬP NHẬT ===
 
-
-            // === CẬP NHẬT: Thêm setTimeout để chờ trình duyệt vẽ lại ===
             setTimeout(async () => {
                 try {
                     const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
@@ -1175,21 +1432,20 @@
                 } finally {
                     // Hiển thị lại các nút đã ẩn
                     if (copyright) copyright.style.display = 'none';
-                    // === CẬP NHẬT: Khôi phục display ===
                     elementsToHideTemporarily.forEach(el => el.style.display = ''); 
 
-                    // === CẬP NHẬT: Khôi phục cài đặt cuộn (bên trong finally) ===
+                    // Khôi phục cài đặt cuộn
                     if (mainPage && summarySectionEl && tableContainer) {
                         mainPage.style.maxWidth = originalPageMaxWidth;
                         summarySectionEl.style.width = originalSummarySectionWidth;
                         tableContainer.style.width = originalTableContainerWidth;
                         tableContainer.style.overflowX = originalTableContainerOverflow;
                     }
-                    // === KẾT THÚC CẬP NHẬT ===
                 }
-            }, 50); // <-- Đợi 50ms
+            }, 50); 
         }
         
+        // Hàm copyElementAsImage đã được cập nhật (Unchanged)
         async function copyElementAsImage(selector, message, buttonElement = null) {
             const element = document.querySelector(selector);
             if (!element || !element.innerHTML.trim()) return showNotification("Chưa có nội dung để sao chép!", 'info');
@@ -1198,16 +1454,18 @@
             const elementsToHideTemporarily = [];
             const actions = element.querySelector('.summary-actions'); 
             const reportActions = document.getElementById('actionButtonContainer'); 
+            const filterControls = document.querySelector('#summarySection #filter-controls-container');
             if (actions) elementsToHideTemporarily.push(actions);
             if (reportActions && element === DOM.reportContainer) elementsToHideTemporarily.push(reportActions);
+            
+            // Ẩn toàn bộ container lọc khi chụp ảnh
+            if (filterControls && element === DOM.summarySection) elementsToHideTemporarily.push(filterControls); 
 
-            // === CẬP NHẬT: Dùng display: none thay vì visibility: hidden ===
             elementsToHideTemporarily.forEach(el => el.style.display = 'none');
             
             const copyright = document.getElementById('copyrightInReport');
             if (copyright && element === DOM.reportContainer) copyright.style.display = 'block'; 
 
-            // === CẬP NHẬT: Xử lý chụp nội dung cuộn (Logic mới) ===
             let mainPage, tableContainer, table, summarySectionEl;
             let originalPageMaxWidth, originalSummarySectionWidth, originalTableContainerWidth, originalTableContainerOverflow;
 
@@ -1231,9 +1489,7 @@
                     tableContainer.style.overflowX = 'visible';
                 }
             }
-            // === KẾT THÚC CẬP NHẬT ===
 
-            // === CẬP NHẬT: Thêm setTimeout để chờ trình duyệt vẽ lại ===
             setTimeout(async () => {
                 try {
                     const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
@@ -1261,19 +1517,17 @@
                     if (buttonElement) buttonElement.textContent = originalButtonText;
                 } finally {
                     if (copyright) copyright.style.display = 'none';
-                    // === CẬP NHẬT: Khôi phục display ===
                     elementsToHideTemporarily.forEach(el => el.style.display = ''); 
 
-                    // === CẬP NHẬT: Khôi phục cài đặt cuộn (bên trong finally) ===
+                    // Khôi phục cài đặt cuộn
                     if (mainPage && summarySectionEl && tableContainer) {
                         mainPage.style.maxWidth = originalPageMaxWidth;
                         summarySectionEl.style.width = originalSummarySectionWidth;
                         tableContainer.style.width = originalTableContainerWidth;
                         tableContainer.style.overflowX = originalTableContainerOverflow;
                     }
-                    // === KẾT THÚC CẬP NHẬT ===
                 }
-            }, 50); // <-- Đợi 50ms
+            }, 50); 
         }
         
         function formatNumberHiddenK(num) { num = parseFloat(num); if (isNaN(num) || num === 0 || Math.abs(num) < 1000) return "0"; return parseInt(num / 1000).toLocaleString("vi-VN"); }
@@ -1336,4 +1590,3 @@
 
 </body>
 </html>
-
