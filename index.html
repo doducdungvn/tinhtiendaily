@@ -87,6 +87,14 @@
     label { font-weight: 500; color: var(--text-color); }
     input[type="text"], input[type="file"], input[type="number"], select, button, textarea { padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border-color); width: 100%; box-sizing: border-box; font-size: 16px; transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
     input:focus, textarea:focus { border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(26, 188, 156, 0.2); outline: none; }
+    
+    /* === THÊM MỚI: Style cho textarea bị vô hiệu hóa === */
+    textarea:disabled {
+        background-color: var(--neutral-light-bg);
+        color: var(--text-light);
+        cursor: not-allowed;
+    }
+
     input[type="file"] { background-color: #fdfdfe; cursor: pointer; }
     input[type="file"]:hover { border-color: var(--secondary-dark); }
     input[type="file"].loaded { background-color: var(--success-light-bg); border-color: var(--success-color); }
@@ -281,6 +289,18 @@
         background-color: var(--primary-dark);
     }
     /* === KẾT THÚC THAY ĐỔI === */
+    
+    /* === THÊM MỚI: CSS cho Tiêu đề Báo cáo === */
+    #summaryTitle {
+        font-size: 18px; /* Nhỏ hơn h3 (20px) */
+    }
+    .region-name {
+        display: inline-block; /* Ngăn ngắt dòng giữa chừng */
+        color: var(--primary-dark);
+        font-weight: 600;
+    }
+    /* === KẾT THÚC THÊM MỚI === */
+
 
     /* === THÊM MỚI: Media Query cho bố cục PC của bộ lọc === */
     @media (min-width: 768px) {
@@ -315,6 +335,12 @@
             font-size: 6vw !important;
             white-space: nowrap;
         }
+        
+        /* === THÊM MỚI: CSS Tiêu đề cho Mobile === */
+        #summaryTitle {
+            font-size: 4.5vw; /* Nhỏ hơn h3 (5vw) */
+        }
+        /* === KẾT THÚC THÊM MỚI === */
 
         .bang-chu-cell { font-size: 3vw !important; }
         .copyright { font-size: 3vw; }
@@ -342,7 +368,7 @@
         /* --- CSS MỚI: Cỡ chữ Tổng Tiền (Mobile) --- */
         #summaryTableContainer tfoot .final-amount-positive,
         #summaryTableContainer tfoot .final-amount-negative {
-            font-size: 3vw; /* Giảm cỡ chữ (mặc định 3.8vw) */
+            font-size: 4vw; /* <--- CHỈNH CỠ CHỮ ĐIỆN THOẠI Ở ĐÂY */
             padding: 5px;     /* Giảm đệm (mặc định 8px) */
         }
     }
@@ -434,7 +460,7 @@
         <!-- === KẾT THÚC THAY ĐỔI === -->
 
         <!-- === THAY ĐỔI: Tiêu đề (ID MỚI) (ĐÃ DI CHUYỂN XUỐNG DƯỚI) === -->
-        <h4 id="summaryTitle">Bảng Báo Cáo Tổng Tiền:</h4>
+        <h3 id="summaryTitle">Bảng Báo Cáo Tổng Tiền:</h3>
         <h4 id="summaryDate" class="report-date"></h4>
         
         <div id="summaryTableContainer"></div>
@@ -568,6 +594,22 @@
       </div>
     </div>
 
+    <!-- === THÊM MỚI: Modal Mật khẩu === -->
+    <div id="passwordModal" class="modal-overlay">
+      <div class="modal-content">
+        <span id="closePasswordModalBtn" class="modal-close-btn">&times;</span>
+        <div class="controls-panel" style="border: none; box-shadow: none; padding: 10px 0;"> 
+            <h4 style="margin-top:0; text-align:center;">Yêu cầu Mật khẩu</h4>
+            <label for="passwordInput">Vui lòng nhập mật khẩu để chỉnh sửa:</label>
+            <input type="password" id="passwordInput" style="font-size: 18px;">
+            <div class="form-actions" style="margin-top: 15px;">
+                <button id="cancelPasswordBtn" class="secondary">Huỷ</button>
+                <button id="btnSubmitPassword" class="success">Xác nhận</button>
+            </div>
+        </div>
+      </div>
+    </div>
+
   <!-- THÊM MỚI: Nút cuộn lên đầu trang -->
   <button id="scrollToTopBtn" title="Cuộn lên đầu trang">&#9650;</button>
   <!-- THÊM MỚI: Nút cuộn xuống dưới -->
@@ -582,6 +624,7 @@
         let excelData2 = [];
         let dateRangeText = "Chưa có ngày";
         let regionDefinitions = {}; // <-- THÊM MỚI: Để lưu định nghĩa vùng
+        let isRegionLocked = false; // <-- THÊM MỚI: Trạng thái khoá
 
         const state = {
             currentSoSo: null, baseTongDT: 0, baseTongHH: 0, baseThuong: 0,
@@ -640,6 +683,13 @@
             regionSelect: document.getElementById('regionSelect'),
             btnClearSummaryFilter: document.getElementById('btnClearSummaryFilter'),
             summaryTitle: document.getElementById('summaryTitle'), // <-- THÊM MỚI
+            
+            // === THÊM MỚI: DOM cho modal mật khẩu ===
+            passwordModal: document.getElementById('passwordModal'),
+            closePasswordModalBtn: document.getElementById('closePasswordModalBtn'),
+            passwordInput: document.getElementById('passwordInput'),
+            btnSubmitPassword: document.getElementById('btnSubmitPassword'),
+            cancelPasswordBtn: document.getElementById('cancelPasswordBtn'),
         };
         
         const manualFormOrder = [
@@ -822,6 +872,7 @@
             return { groupedData, grandTotals }; 
         }
         
+        // === THAY ĐỔI: Cập nhật hàm renderSummaryTable ===
         function renderSummaryTable({ groupedData, grandTotals }) { 
             let body = ''; 
             let stt = 1; 
@@ -840,14 +891,20 @@
                     } 
                     // === KẾT THÚC THAY ĐỔI ===
 
-                    body += `<tr ${isFirstInGroup ? 'class="group-start-row"' : ''}>${sttCell}<td>${agent.code}</td><td>${formatNumberHiddenK(agentData.lotoDB)}</td><td>${formatNumberHiddenK(agentData.lotoCap)}</td><td>${formatNumberHiddenK(agentData.c3_23)}</td><td>${formatNumberHiddenK(agentData.c2_27)}</td><td>${formatNumberHiddenK(agentData.xskt)}</td><td>${formatNumberHiddenK(agentData.thuong)}</td><td>${finalAmountCellContent}</td></tr>`; 
+                    // === THAY ĐỔI: Thêm cột Dsố (totalRevenue) ===
+                    body += `<tr ${isFirstInGroup ? 'class="group-start-row"' : ''}>${sttCell}<td>${agent.code}</td><td>${formatNumberHiddenK(agentData.lotoDB)}</td><td>${formatNumberHiddenK(agentData.lotoCap)}</td><td>${formatNumberHiddenK(agentData.c3_23)}</td><td>${formatNumberHiddenK(agentData.c2_27)}</td><td>${formatNumberHiddenK(agentData.xskt)}</td><td>${formatNumberHiddenK(agentData.totalRevenue)}</td><td>${formatNumberHiddenK(agentData.thuong)}</td><td>${finalAmountCellContent}</td></tr>`; 
                 }); 
                 stt++; 
             } 
             const grandFinalAmountClass = grandTotals.finalAmount >= 0 ? 'final-amount-positive' : 'final-amount-negative'; 
-            const footer = `<tr><td colspan="2">TỔNG CỘNG</td><td>${formatNumberHiddenK(grandTotals.lotoDB)}</td><td>${formatNumberHiddenK(grandTotals.lotoCap)}</td><td>${formatNumberHiddenK(grandTotals.c3_23)}</td><td>${formatNumberHiddenK(grandTotals.c2_27)}</td><td>${formatNumberHiddenK(grandTotals.xskt)}</td><td>${formatNumberHiddenK(grandTotals.thuong)}</td><td class="${grandFinalAmountClass}">${formatNumberHiddenK(grandTotals.finalAmount)}</td></tr>`; 
-            return `<table border="1"><thead><tr><th style="width: 8%;">STT</th><th style="width: 12%;">ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th><th>XSKT</th><th>Thưởng</th><th>Tiền nộp</th></tr></thead><tbody>${body}</tbody><tfoot>${footer}</tfoot></table>`; 
+            
+            // === THAY ĐỔI: Thêm cột Dsố vào footer ===
+            const footer = `<tr><td colspan="2">TỔNG CỘNG</td><td>${formatNumberHiddenK(grandTotals.lotoDB)}</td><td>${formatNumberHiddenK(grandTotals.lotoCap)}</td><td>${formatNumberHiddenK(grandTotals.c3_23)}</td><td>${formatNumberHiddenK(grandTotals.c2_27)}</td><td>${formatNumberHiddenK(grandTotals.xskt)}</td><td>${formatNumberHiddenK(grandTotals.totalRevenue)}</td><td>${formatNumberHiddenK(grandTotals.thuong)}</td><td class="${grandFinalAmountClass}">${formatNumberHiddenK(grandTotals.finalAmount)}</td></tr>`; 
+            
+            // === THAY ĐỔI: Thêm cột Dsố vào header và đổi "Tiền" thành "Tiền nộp" ===
+            return `<table border="1"><thead><tr><th style="width: 8%;">STT</th><th style="width: 12%;">ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th><th>XSKT</th><th>Dsố</th><th>Thưởng</th><th>Tiền nộp</th></tr></thead><tbody>${body}</tbody><tfoot>${footer}</tfoot></table>`; 
         }
+        // === KẾT THÚC THAY ĐỔI ===
 
         function generateSummaryView() { 
             if (excelData1.length === 0 && excelData2.length === 0) return; 
@@ -869,15 +926,16 @@
             // === THAY ĐỔI: Cập nhật tiêu đề và Tổng Doanh Số (Style mới) ===
             const totalRevenueFormatted = formatNumberFull(summaryData.grandTotals.totalRevenue); // <-- THAY ĐỔI HÀM
             
-            // === THAY ĐỔI: Cập nhật text của tiêu đề ===
+            // === THAY ĐỔI: Cập nhật text của tiêu đề (dùng innerHTML) ===
+            const baseTitle = 'Bảng Báo Cáo Tổng Tiền:';
             if (selectedRegion === 'all') {
-                DOM.summaryTitle.textContent = 'Bảng Báo Cáo Tổng Tiền:'; // Thêm dấu :
+                DOM.summaryTitle.innerHTML = baseTitle;
             } else {
-                DOM.summaryTitle.textContent = `Bảng Báo Cáo Tổng Tiền: ${selectedRegion}`; // Bỏ "đơn vị"
+                DOM.summaryTitle.innerHTML = `${baseTitle} <span class="region-name">${selectedRegion}</span>`;
             }
+            // === KẾT THÚC THAY ĐỔI ===
 
             DOM.summaryDate.innerHTML = `${dateRangeText} <br> <span style="font-weight: 500; color: var(--text-color);">Tổng Doanh Số: <span style="font-weight: 600; color: var(--danger-color);">${totalRevenueFormatted}</span></span>`;
-            // === KẾT THÚC THAY ĐỔI ===
         }
 
         // ===== DETAILED REPORT VIEW LOGIC =====
@@ -1014,15 +1072,26 @@
             DOM.reloadFile2.addEventListener('change', (e) => handleFile(e.target.files[0], 2, 'reloadFile2'));
             DOM.btnReloadSubmit.addEventListener('click', submitReload);
 
-            // === THÊM MỚI: Sự kiện cho Định nghĩa Vùng ===
-            DOM.btnSaveRegions.addEventListener('click', parseAndSaveRegions);
+            // === THAY ĐỔI: Sự kiện cho Định nghĩa Vùng & Mật khẩu ===
+            DOM.btnSaveRegions.addEventListener('click', handleRegionButtonPress); // <-- THAY ĐỔI
             DOM.regionSelect.addEventListener('change', generateSummaryView); // Tự động lọc khi chọn
-            // === THAY ĐỔI: Cập nhật sự kiện Xoá lọc ===
             DOM.btnClearSummaryFilter.addEventListener('click', () => {
                 DOM.regionSelect.value = 'all';
                 generateSummaryView(); // Chạy lại với bộ lọc rỗng
             });
-            // === KẾT THÚC THÊM MỚI ===
+            
+            // Listener cho modal mật khẩu
+            DOM.closePasswordModalBtn.addEventListener('click', hidePasswordModal);
+            DOM.cancelPasswordBtn.addEventListener('click', hidePasswordModal);
+            DOM.passwordModal.addEventListener('click', (e) => { if (e.target === DOM.passwordModal) hidePasswordModal(); });
+            DOM.btnSubmitPassword.addEventListener('click', checkPassword);
+            DOM.passwordInput.addEventListener('keydown', (e) => { 
+                if (e.key === 'Enter') { 
+                    e.preventDefault(); // Ngăn hành vi mặc định của Enter (nếu có)
+                    checkPassword(); 
+                } 
+            });
+            // === KẾT THÚC THAY ĐỔI ===
 
 
             // === THÊM MỚI: Sự kiện cho nút cuộn lên đầu ===
@@ -1035,6 +1104,10 @@
             });
 
             window.addEventListener('scroll', handleScrollButtonVisibility);
+            // === KẾT THÚC THÊM MỚI ===
+
+            // === THÊM MỚI: Tải định nghĩa vùng đã lưu ===
+            loadSavedRegions();
             // === KẾT THÚC THÊM MỚI ===
 
             loopLogoAnimation(); // Bắt đầu animation logo lần đầu tiên
@@ -1236,8 +1309,80 @@
         }
         function addTicketToReport() { if (!state.currentSoSo) { showNotification("Vui lòng tạo hoặc mở một báo cáo chi tiết trước khi thêm vé!", 'error'); return; } const quantity = parseInt(DOM.sellQuantityInput.value, 10); if (!quantity || quantity <= 0) { showNotification("Vui lòng nhập số lượng vé hợp lệ!", 'error'); return; } let typeName = ''; const ticketType = document.querySelector('input[name="sellTicketType"]:checked').value; if (ticketType === 'xo-so') { typeName = 'Xổ số'; } else if (ticketType === 've-boc') { typeName = 'Vé bóc'; } else { typeName = DOM.customTicketName.value.trim(); if (!typeName) { showNotification('Vui lòng nhập tên loại hình!', 'error'); return; } } let price = 0; const priceType = document.querySelector('input[name="sellPrice"]:checked').value; if (priceType === 'custom-price') { price = parseFloat(DOM.customTicketPrice.value.replace(/\D/g, '')) || 0; if (price <= 0) { showNotification('Vui lòng nhập giá bán hợp lệ!', 'error'); return; } } else { price = parseFloat(priceType); } let commissionRate = 0; const commissionType = document.querySelector('input[name="commissionRate"]:checked').value; if (commissionType === 'custom-commission') { commissionRate = parseFloat(DOM.customCommissionPercent.value) / 100 || 0; if (commissionRate <= 0) { showNotification('Vui lòng nhập % hoa hồng hợp lệ!', 'error'); return; } } else { commissionRate = parseFloat(commissionType); } const doanhThu = quantity * price; const hoaHong = doanhThu * commissionRate; const formattedName = `${typeName} (${(price / 1000).toLocaleString('vi-VN')}k) [${quantity} vé]`; const newTicket = { id: Date.now(), doanhThu, hoaHong, name: formattedName }; state.addedTickets.push(newTicket); const newRow = document.createElement('tr'); newRow.className = 'added-ticket-row'; newRow.dataset.ticketId = newTicket.id; newRow.innerHTML = `<td>${newTicket.name}</td><td>${formatNumberHiddenK(doanhThu)}</td><td>${formatCommissionCellHiddenK(doanhThu, hoaHong)}</td>`; const tongCongRow = document.getElementById('tongCongRow'); if (!tongCongRow) { showNotification('Lỗi: Không tìm thấy bảng báo cáo để thêm vé.', 'error'); return; } tongCongRow.parentNode.insertBefore(newRow, tongCongRow); updateDetailedReportView(); DOM.sellQuantityInput.value = ''; newRow.scrollIntoView({ behavior: 'smooth', block: 'center' }); showSection('reportSection'); showNotification('Đã thêm vé vào báo cáo!', 'success'); }
         
-        // === THÊM MỚI: Hàm lưu và phân tích Định nghĩa Vùng ===
-        function parseAndSaveRegions() {
+        // === THÊM MỚI: Các hàm quản lý khóa mật khẩu ===
+        function lockRegions() {
+            DOM.regionDefinitionsInput.disabled = true;
+            DOM.btnSaveRegions.textContent = 'Mở khoá Định nghĩa';
+            DOM.btnSaveRegions.classList.remove('success');
+            DOM.btnSaveRegions.classList.add('warning');
+            isRegionLocked = true;
+        }
+
+        function unlockRegions() {
+            DOM.regionDefinitionsInput.disabled = false;
+            DOM.btnSaveRegions.textContent = 'Lưu Định nghĩa';
+            DOM.btnSaveRegions.classList.remove('warning');
+            DOM.btnSaveRegions.classList.add('success');
+            isRegionLocked = false;
+            DOM.regionDefinitionsInput.focus();
+        }
+
+        function showPasswordModal() {
+            DOM.passwordInput.value = '';
+            DOM.passwordModal.style.display = 'block';
+            DOM.passwordInput.focus();
+        }
+
+        function hidePasswordModal() {
+            DOM.passwordModal.style.display = 'none';
+        }
+
+        function checkPassword() {
+            const pass = DOM.passwordInput.value;
+            // === THAY ĐỔI: Mật khẩu là "admin" ===
+            if (pass === 'admin') {
+                hidePasswordModal();
+                unlockRegions();
+                showNotification('Đã mở khoá. Bạn có thể chỉnh sửa.', 'success');
+            } else {
+                showNotification('Mật khẩu không đúng!', 'error');
+                DOM.passwordInput.value = '';
+                DOM.passwordInput.focus();
+            }
+        }
+
+        function handleRegionButtonPress() {
+            if (isRegionLocked) {
+                showPasswordModal();
+            } else {
+                // Đây là hành động "Lưu"
+                parseAndSaveRegions(false); 
+            }
+        }
+        // === KẾT THÚC THÊM MỚI ===
+
+        // === THAY ĐỔI: Hàm tải định nghĩa vùng từ localStorage ===
+        function loadSavedRegions() {
+            try {
+                const savedDefinitions = localStorage.getItem('zengAppRegionDefinitions');
+                // === THAY ĐỔI: Kiểm tra nếu có dữ liệu thì mới khoá ===
+                if (savedDefinitions && savedDefinitions.trim() !== '') { 
+                    DOM.regionDefinitionsInput.value = savedDefinitions;
+                    parseAndSaveRegions(true); // true = silent mode (không hiển thị thông báo)
+                    lockRegions(); // <-- Khoá lại khi tải
+                } else {
+                    unlockRegions(); // <-- Mở nếu không có gì
+                }
+            } catch (error) {
+                console.error("Lỗi khi tải từ localStorage:", error);
+                showNotification('Không thể tải định nghĩa đã lưu.', 'error');
+                unlockRegions(); // Mở khoá nếu có lỗi
+            }
+        }
+        // === KẾT THÚC THAY ĐỔI ===
+
+        // === THAY ĐỔI: Hàm lưu và phân tích Định nghĩa Vùng (thêm silent và localStorage) ===
+        function parseAndSaveRegions(silent = false) {
             const text = DOM.regionDefinitionsInput.value;
             regionDefinitions = {}; // Xóa định nghĩa cũ
             
@@ -1271,13 +1416,34 @@
                 }
             });
 
-            if (regionsAdded > 0) {
-                showNotification(`Đã lưu thành công ${regionsAdded} vùng.`, 'success');
-            } else {
-                showNotification('Không tìm thấy định nghĩa vùng hợp lệ.', 'info');
+            // === THÊM MỚI: Lưu vào localStorage ===
+            try {
+                localStorage.setItem('zengAppRegionDefinitions', text);
+            } catch (error) {
+                console.error("Lỗi khi lưu vào localStorage:", error);
+                if (!silent) {
+                    showNotification('Không thể lưu định nghĩa vĩnh viễn (lỗi trình duyệt).', 'error');
+                }
+                return; // Dừng nếu không lưu được
+            }
+            // === KẾT THÚC THÊM MỚI ===
+
+            if (!silent) { // Chỉ hiển thị thông báo nếu không ở chế độ 'silent'
+                if (regionsAdded > 0) {
+                    showNotification(`Đã lưu thành công ${regionsAdded} vùng.`, 'success');
+                } else {
+                    showNotification('Không tìm thấy định nghĩa vùng hợp lệ.', 'info');
+                }
+                
+                // === THÊM MỚI: Tự động khoá lại sau khi lưu ===
+                if (text.trim() !== '') {
+                    lockRegions();
+                } else {
+                    unlockRegions(); // Nếu lưu rỗng thì mở khoá
+                }
             }
         }
-        // === KẾT THÚC THÊM MỚI ===
+        // === KẾT THÚC THAY ĐỔI ===
 
         // --- UTILITY FUNCTIONS ---
 
@@ -1586,4 +1752,5 @@
 
 </body>
 </html>
+
 
