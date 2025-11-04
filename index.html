@@ -845,7 +845,8 @@
                 const groupKey = numericMatch ? parseInt(numericMatch[0], 10) : agentCode; // Dùng giá trị số (ví dụ: 1) làm key
 
                 if (!groupedData.has(groupKey)) { 
-                    groupedData.set(groupKey, { agents: [], groupTotal: 0 }); 
+                    // === THAY ĐỔI: Thêm groupTotalRevenue ===
+                    groupedData.set(groupKey, { agents: [], groupTotal: 0, groupTotalRevenue: 0 }); 
                 } 
                 const group = groupedData.get(groupKey);
                 // === KẾT THÚC THAY ĐỔI ===
@@ -855,6 +856,7 @@
                 const finalAmount = agentDetails.totalRevenue - agentDetails.totalCommission - agentDetails.thuong; 
                 group.agents.push({ code: agentCode, data: agentDetails }); 
                 group.groupTotal += finalAmount; 
+                group.groupTotalRevenue += agentDetails.totalRevenue; // <-- THÊM DÒNG NÀY
             }); 
             
             // === THAY ĐỔI: Tính tổng Grand Totals dựa trên 'filteredAgentData' ===
@@ -885,14 +887,21 @@
                     const sttCell = isFirstInGroup ? `<td>${stt}</td>` : '<td></td>'; 
                     let finalAmountCellContent = finalAmount < 0 ? `<span class="negative-value">${formatNumberHiddenK(finalAmount)}</span>` : formatNumberHiddenK(finalAmount); 
                     
+                    // === THÊM MỚI: Logic cho cột Dsố (Theo yêu cầu mới) ===
+                    let dsoCellContent = formatNumberHiddenK(agentData.totalRevenue);
+                    // === KẾT THÚC THÊM MỚI ===
+
                     // === THAY ĐỔI LOGIC HIỂN THỊ TỔNG NHÓM (Xuống dòng) ===
                     if (index === group.agents.length - 1 && group.agents.length > 1) {
                         finalAmountCellContent += `<br><strong style="color: var(--primary-color); font-size: 0.9em;">(${formatNumberHiddenK(group.groupTotal)})</strong>`; 
+                        
+                        // === THÊM MỚI: Thêm tổng cho cột Dsố (Theo yêu cầu mới) ===
+                        dsoCellContent += `<br><strong style="color: var(--primary-color); font-size: 0.9em;">(${formatNumberHiddenK(group.groupTotalRevenue)})</strong>`;
                     } 
                     // === KẾT THÚC THAY ĐỔI ===
 
-                    // === THAY ĐỔI: Thêm cột Dsố (totalRevenue) ===
-                    body += `<tr ${isFirstInGroup ? 'class="group-start-row"' : ''}>${sttCell}<td>${agent.code}</td><td>${formatNumberHiddenK(agentData.lotoDB)}</td><td>${formatNumberHiddenK(agentData.lotoCap)}</td><td>${formatNumberHiddenK(agentData.c3_23)}</td><td>${formatNumberHiddenK(agentData.c2_27)}</td><td>${formatNumberHiddenK(agentData.xskt)}</td><td>${formatNumberHiddenK(agentData.totalRevenue)}</td><td>${formatNumberHiddenK(agentData.thuong)}</td><td>${finalAmountCellContent}</td></tr>`; 
+                    // === THAY ĐỔI: Thêm cột Dsố (dsoCellContent) ===
+                    body += `<tr ${isFirstInGroup ? 'class="group-start-row"' : ''}>${sttCell}<td>${agent.code}</td><td>${formatNumberHiddenK(agentData.lotoDB)}</td><td>${formatNumberHiddenK(agentData.lotoCap)}</td><td>${formatNumberHiddenK(agentData.c3_23)}</td><td>${formatNumberHiddenK(agentData.c2_27)}</td><td>${formatNumberHiddenK(agentData.xskt)}</td><td>${dsoCellContent}</td><td>${formatNumberHiddenK(agentData.thuong)}</td><td>${finalAmountCellContent}</td></tr>`; 
                 }); 
                 stt++; 
             } 
