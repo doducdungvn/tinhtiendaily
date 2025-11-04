@@ -425,7 +425,7 @@
 
     <!-- THÊM NÚT NẠP LẠI -->
     <div class="main-nav">
-        <button id="navSummary" class="active">Báo cáo Tổng kết</button>
+        <button id="navSummary" class="active">Báo cáo Tổng hợp</button>
         <button id="navReport">Báo cáo Chi tiết</button> <!-- THAY ĐỔI: Sửa tên nút -->
         <button id="navSell">Bán thêm vé</button>
         <button id="navReload" class="warning">Nạp lại Excel</button>
@@ -461,7 +461,7 @@
         <!-- === KẾT THÚC THAY ĐỔI === -->
 
         <!-- === THAY ĐỔI: Tiêu đề (ID MỚI) (ĐÃ DI CHUYỂN XUỐNG DƯỚI) === -->
-        <h3 id="summaryTitle">Bảng Báo Cáo Tổng Tiền:</h3>
+        <h3 id="summaryTitle">Bảng Báo Cáo Tổng Hợp:</h3>
         <h4 id="summaryDate" class="report-date"></h4>
         
         <div id="summaryTableContainer"></div>
@@ -747,7 +747,8 @@
         }
 
         // ===== SUMMARY VIEW LOGIC =====
-        // === THAY ĐỔI: Thêm `filterRules` làm tham số ===
+        
+        // === CẬP NHẬT HÀM NÀY ===
         function processSummaryData(filterRules) { 
             const individualAgentData = new Map(); 
             const initializeAgent = (code) => { 
@@ -783,10 +784,8 @@
                 data.totalCommission += xsktRevenue * 0.10; 
             }); 
             
-            // === THAY ĐỔI MỚI: Lọc ra các đại lý không có dữ liệu (toàn số 0) ===
             const keysToDelete = [];
             individualAgentData.forEach((data, key) => {
-                // Kiểm tra xem tất cả các trường doanh thu và thưởng có bằng 0 không
                 const isAllZero = data.lotoDB === 0 &&
                                   data.lotoCap === 0 &&
                                   data.c3_23 === 0 &&
@@ -794,19 +793,15 @@
                                   data.xskt === 0 &&
                                   data.thuong === 0;
                 
-                // Nếu tất cả đều là 0, đánh dấu để xóa
                 if (isAllZero) {
                     keysToDelete.push(key);
                 }
             });
 
-            // Xóa các đại lý đã đánh dấu
             keysToDelete.forEach(key => {
                 individualAgentData.delete(key);
             });
-            // === KẾT THÚC THAY ĐỔI ===
 
-            // === THÊM MỚI: Áp dụng bộ lọc (NẾU CÓ) ===
             const filteredAgentData = new Map();
             if (filterRules) {
                 individualAgentData.forEach((data, agentCode) => {
@@ -815,23 +810,20 @@
                     }
                 });
             } else {
-                // Nếu không lọc, chỉ cần sao chép map
                 individualAgentData.forEach((data, agentCode) => {
                     filteredAgentData.set(agentCode, data);
                 });
             }
-            // === KẾT THÚC THÊM MỚI ===
 
-            const getAgentNumberString = (code) => String(code).match(/\d+$/)?.[0] || code; // Lấy chuỗi số
+            const getAgentNumberString = (code) => String(code).match(/\d+$/)?.[0] || code; 
             
             const getAgentParts = (code) => { 
-                const numStr = getAgentNumberString(code); // Lấy chuỗi số, ví dụ "01"
+                const numStr = getAgentNumberString(code); 
                 const prefix = String(code).replace(numStr, ''); 
-                return { num: parseInt(numStr, 10), prefix }; // Lưu giá trị số, ví dụ 1
+                return { num: parseInt(numStr, 10), prefix }; 
             }; 
             
-            // === THAY ĐỔI: Sắp xếp dựa trên 'filteredAgentData' ===
-            const sortedKeys = [...filteredAgentData.keys()].sort((a, b) => { // <-- THAY ĐỔI: dùng filteredAgentData
+            const sortedKeys = [...filteredAgentData.keys()].sort((a, b) => { 
                 const partsA = getAgentParts(a); 
                 const partsB = getAgentParts(b); 
                 if (partsA.num !== partsB.num) return partsA.num - partsB.num; 
@@ -841,85 +833,110 @@
             const groupedData = new Map(); 
             
             sortedKeys.forEach(agentCode => { 
-                // === THAY ĐỔI: Gộp nhóm bằng GIÁ TRỊ SỐ ===
                 const numericMatch = String(agentCode).match(/\d+$/);
-                const groupKey = numericMatch ? parseInt(numericMatch[0], 10) : agentCode; // Dùng giá trị số (ví dụ: 1) làm key
+                const groupKey = numericMatch ? parseInt(numericMatch[0], 10) : agentCode; 
 
                 if (!groupedData.has(groupKey)) { 
-                    // === THAY ĐỔI: Thêm groupTotalRevenue và groupTotalThuong ===
-                    groupedData.set(groupKey, { agents: [], groupTotal: 0, groupTotalRevenue: 0, groupTotalThuong: 0 }); 
+                    // === THAY ĐỔI: Thêm các group total mới ===
+                    groupedData.set(groupKey, { 
+                        agents: [], 
+                        groupTotal: 0, 
+                        groupTotalRevenue: 0, 
+                        groupTotalThuong: 0,
+                        // === THÊM MỚI TẠI ĐÂY ===
+                        groupLotoDB: 0,
+                        groupLotoCap: 0,
+                        groupC3_23: 0,
+                        groupC2_27: 0,
+                        groupXSKT: 0
+                        // === KẾT THÚC THÊM MỚI ===
+                    }); 
                 } 
                 const group = groupedData.get(groupKey);
-                // === KẾT THÚC THAY ĐỔI ===
                 
-                // === THAY ĐỔI: Lấy chi tiết từ 'filteredAgentData' ===
-                const agentDetails = filteredAgentData.get(agentCode); // <-- THAY ĐỔI: dùng filteredAgentData
+                const agentDetails = filteredAgentData.get(agentCode); 
                 const finalAmount = agentDetails.totalRevenue - agentDetails.totalCommission - agentDetails.thuong; 
                 group.agents.push({ code: agentCode, data: agentDetails }); 
                 group.groupTotal += finalAmount; 
-                group.groupTotalRevenue += agentDetails.totalRevenue; // <-- THÊM DÒNG NÀY
-                group.groupTotalThuong += agentDetails.thuong; // <-- THÊM DÒNG NÀY (YÊU CẦU MỚI)
+                group.groupTotalRevenue += agentDetails.totalRevenue; 
+                group.groupTotalThuong += agentDetails.thuong; 
+                
+                // === THÊM MỚI: Tính tổng các cột mới ===
+                group.groupLotoDB += agentDetails.lotoDB;
+                group.groupLotoCap += agentDetails.lotoCap;
+                group.groupC3_23 += agentDetails.c3_23;
+                group.groupC2_27 += agentDetails.c2_27;
+                group.groupXSKT += agentDetails.xskt;
+                // === KẾT THÚC THÊM MỚI ===
             }); 
             
-            // === THAY ĐỔI: Tính tổng Grand Totals dựa trên 'filteredAgentData' ===
             const grandTotals = { lotoDB: 0, lotoCap: 0, c3_23: 0, c2_27: 0, xskt: 0, thuong: 0, finalAmount: 0, totalRevenue: 0 }; 
-            filteredAgentData.forEach(data => { // <-- THAY ĐỔI: dùng filteredAgentData
+            filteredAgentData.forEach(data => { 
                 grandTotals.lotoDB += data.lotoDB; 
                 grandTotals.lotoCap += data.lotoCap; 
                 grandTotals.c3_23 += data.c3_23; 
                 grandTotals.c2_27 += data.c2_27; 
                 grandTotals.xskt += data.xskt; 
                 grandTotals.thuong += data.thuong; 
-                grandTotals.totalRevenue += data.totalRevenue; // <-- THÊM DÒNG NÀY
+                grandTotals.totalRevenue += data.totalRevenue; 
                 grandTotals.finalAmount += data.totalRevenue - data.totalCommission - data.thuong; 
             }); 
             return { groupedData, grandTotals }; 
         }
         
-        // === THAY ĐỔI: Cập nhật hàm renderSummaryTable ===
+        // === CẬP NHẬT HÀM NÀY ===
         function renderSummaryTable({ groupedData, grandTotals }) { 
             let body = ''; 
             let stt = 1; 
             const sortedGroupedData = [...groupedData.entries()].sort((a, b) => parseInt(a[0], 10) - parseInt(b[0], 10)); 
+            
             for (const [groupKey, group] of sortedGroupedData) { 
                 group.agents.forEach((agent, index) => { 
                     const agentData = agent.data; 
                     const finalAmount = agentData.totalRevenue - agentData.totalCommission - agentData.thuong; 
                     const isFirstInGroup = index === 0; 
                     const sttCell = isFirstInGroup ? `<td>${stt}</td>` : '<td></td>'; 
+
+                    // === THAY ĐỔI: Tạo biến cho nội dung từng ô ===
+                    let lotoDBCellContent = formatNumberHiddenK(agentData.lotoDB);
+                    let lotoCapCellContent = formatNumberHiddenK(agentData.lotoCap);
+                    let c3_23CellContent = formatNumberHiddenK(agentData.c3_23);
+                    let c2_27CellContent = formatNumberHiddenK(agentData.c2_27);
+                    let xsktCellContent = formatNumberHiddenK(agentData.xskt);
+                    let dsoCellContent = formatNumberHiddenK(agentData.totalRevenue);
+                    let thuongCellContent = formatNumberHiddenK(agentData.thuong);
                     let finalAmountCellContent = finalAmount < 0 ? `<span class="negative-value">${formatNumberHiddenK(finalAmount)}</span>` : formatNumberHiddenK(finalAmount); 
                     
-                    // === THÊM MỚI: Logic cho cột Dsố (Theo yêu cầu mới) ===
-                    let dsoCellContent = formatNumberHiddenK(agentData.totalRevenue);
-                    // === THÊM MỚI: Logic cho cột Thưởng (Theo yêu cầu mới) ===
-                    let thuongCellContent = formatNumberHiddenK(agentData.thuong);
-                    // === KẾT THÚC THÊM MỚI ===
-
-                    // === THAY ĐỔI LOGIC HIỂN THỊ TỔNG NHÓM (Xuống dòng) ===
+                    // === THAY ĐỔI: Thêm logic cho TẤT CẢ các cột ===
                     if (index === group.agents.length - 1 && group.agents.length > 1) {
-                        finalAmountCellContent += `<br><strong style="color: var(--primary-color); font-size: 0.9em;">(${formatNumberHiddenK(group.groupTotal)})</strong>`; 
+                        const groupTotalStyle = `<br><strong style="color: var(--primary-color); font-size: 0.9em;">`; // Định nghĩa style 1 lần
                         
-                        // === THÊM MỚI: Thêm tổng cho cột Dsố (Theo yêu cầu mới) ===
-                        dsoCellContent += `<br><strong style="color: var(--primary-color); font-size: 0.9em;">(${formatNumberHiddenK(group.groupTotalRevenue)})</strong>`;
-                        // === THÊM MỚI: Thêm tổng cho cột Thưởng (Theo yêu cầu mới) ===
-                        thuongCellContent += `<br><strong style="color: var(--primary-color); font-size: 0.9em;">(${formatNumberHiddenK(group.groupTotalThuong)})</strong>`;
+                        // Thêm tổng cho các cột mới
+                        lotoDBCellContent   += `${groupTotalStyle}(${formatNumberHiddenK(group.groupLotoDB)})</strong>`;
+                        lotoCapCellContent  += `${groupTotalStyle}(${formatNumberHiddenK(group.groupLotoCap)})</strong>`;
+                        c3_23CellContent    += `${groupTotalStyle}(${formatNumberHiddenK(group.groupC3_23)})</strong>`;
+                        c2_27CellContent    += `${groupTotalStyle}(${formatNumberHiddenK(group.groupC2_27)})</strong>`;
+                        xsktCellContent     += `${groupTotalStyle}(${formatNumberHiddenK(group.groupXSKT)})</strong>`;
+                        
+                        // Các cột tổng cũ
+                        dsoCellContent      += `${groupTotalStyle}(${formatNumberHiddenK(group.groupTotalRevenue)})</strong>`;
+                        thuongCellContent   += `${groupTotalStyle}(${formatNumberHiddenK(group.groupTotalThuong)})</strong>`;
+                        finalAmountCellContent += `${groupTotalStyle}(${formatNumberHiddenK(group.groupTotal)})</strong>`; 
                     } 
                     // === KẾT THÚC THAY ĐỔI ===
 
-                    // === THAY ĐỔI: Thêm cột Dsố (dsoCellContent) và Thưởng (thuongCellContent) ===
-                    body += `<tr ${isFirstInGroup ? 'class="group-start-row"' : ''}>${sttCell}<td>${agent.code}</td><td>${formatNumberHiddenK(agentData.lotoDB)}</td><td>${formatNumberHiddenK(agentData.lotoCap)}</td><td>${formatNumberHiddenK(agentData.c3_23)}</td><td>${formatNumberHiddenK(agentData.c2_27)}</td><td>${formatNumberHiddenK(agentData.xskt)}</td><td>${dsoCellContent}</td><td>${thuongCellContent}</td><td>${finalAmountCellContent}</td></tr>`; 
+                    // === THAY ĐỔI: Dùng các biến nội dung ô ở đây ===
+                    body += `<tr ${isFirstInGroup ? 'class="group-start-row"' : ''}>${sttCell}<td>${agent.code}</td><td>${lotoDBCellContent}</td><td>${lotoCapCellContent}</td><td>${c3_23CellContent}</td><td>${c2_27CellContent}</td><td>${xsktCellContent}</td><td>${dsoCellContent}</td><td>${thuongCellContent}</td><td>${finalAmountCellContent}</td></tr>`; 
                 }); 
                 stt++; 
             } 
             const grandFinalAmountClass = grandTotals.finalAmount >= 0 ? 'final-amount-positive' : 'final-amount-negative'; 
             
-            // === THAY ĐỔI: Thêm cột Dsố vào footer ===
             const footer = `<tr><td colspan="2">TỔNG CỘNG</td><td>${formatNumberHiddenK(grandTotals.lotoDB)}</td><td>${formatNumberHiddenK(grandTotals.lotoCap)}</td><td>${formatNumberHiddenK(grandTotals.c3_23)}</td><td>${formatNumberHiddenK(grandTotals.c2_27)}</td><td>${formatNumberHiddenK(grandTotals.xskt)}</td><td>${formatNumberHiddenK(grandTotals.totalRevenue)}</td><td>${formatNumberHiddenK(grandTotals.thuong)}</td><td class="${grandFinalAmountClass}">${formatNumberHiddenK(grandTotals.finalAmount)}</td></tr>`; 
             
-            // === THAY ĐỔI: Thêm cột Dsố vào header và đổi "Tiền" thành "Tiền nộp" ===
             return `<table border="1"><thead><tr><th style="width: 8%;">STT</th><th style="width: 12%;">ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th><th>XSKT</th><th>Dsố</th><th>Thưởng</th><th>Tiền nộp</th></tr></thead><tbody>${body}</tbody><tfoot>${footer}</tfoot></table>`; 
         }
-        // === KẾT THÚC THAY ĐỔI ===
+        // === KẾT THÚC CẬP NHẬT ===
 
         function generateSummaryView() { 
             if (excelData1.length === 0 && excelData2.length === 0) return; 
@@ -951,7 +968,7 @@
             }
             
             // === THAY ĐỔI: Cập nhật text của tiêu đề (dùng innerHTML) ===
-            const baseTitle = 'Bảng Báo Cáo Tổng Tiền:';
+            const baseTitle = 'Bảng Báo Cáo Tổng Hợp:';
             if (selectedRegion === 'all') {
                 DOM.summaryTitle.innerHTML = baseTitle;
             } else {
@@ -1780,5 +1797,3 @@
 
 </body>
 </html>
-
-
