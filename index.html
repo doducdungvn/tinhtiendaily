@@ -180,8 +180,8 @@
     /* --- CSS MỚI: Cỡ chữ Tổng Tiền (Bảng Tổng Kết) --- */
     #summaryTableContainer tfoot .final-amount-positive,
     #summaryTableContainer tfoot .final-amount-negative {
-        font-size: 21px; /* <--- CHỈNH CỠ CHỮ MÁY TÍNH Ở ĐÂY */
-        font-weight: 630; /* Đậm hơn một chút */
+        /* font-size: 21px; */ /* <--- ĐÃ XÓA THEO YÊU CẦU */
+        font-weight: 700; /* Đậm hơn các tổng khác (600) */
     }
 
     /* === THAY ĐỔI: Chỉnh nền dòng "Phải nộp" (đỏ) và "Lấy về" (xanh) === */
@@ -368,8 +368,9 @@
         /* --- CSS MỚI: Cỡ chữ Tổng Tiền (Mobile) --- */
         #summaryTableContainer tfoot .final-amount-positive,
         #summaryTableContainer tfoot .final-amount-negative {
-            font-size: 4vw; /* <--- CHỈNH CỠ CHỮ ĐIỆN THOẠI Ở ĐÂY */
-            padding: 5px;     /* Giảm đệm (mặc định 8px) */
+            font-size: 2vw; /* <--- THAY ĐỔI: Bằng với các tổng khác */
+            font-weight: 700; /* Đậm hơn các tổng khác (600) */
+            padding: 3px;     /* Giảm đệm (giống các ô khác) */
         }
     }
     @media (min-width: 769px) { #mainPage { max-width: 1200px; } }
@@ -845,8 +846,8 @@
                 const groupKey = numericMatch ? parseInt(numericMatch[0], 10) : agentCode; // Dùng giá trị số (ví dụ: 1) làm key
 
                 if (!groupedData.has(groupKey)) { 
-                    // === THAY ĐỔI: Thêm groupTotalRevenue ===
-                    groupedData.set(groupKey, { agents: [], groupTotal: 0, groupTotalRevenue: 0 }); 
+                    // === THAY ĐỔI: Thêm groupTotalRevenue và groupTotalThuong ===
+                    groupedData.set(groupKey, { agents: [], groupTotal: 0, groupTotalRevenue: 0, groupTotalThuong: 0 }); 
                 } 
                 const group = groupedData.get(groupKey);
                 // === KẾT THÚC THAY ĐỔI ===
@@ -857,6 +858,7 @@
                 group.agents.push({ code: agentCode, data: agentDetails }); 
                 group.groupTotal += finalAmount; 
                 group.groupTotalRevenue += agentDetails.totalRevenue; // <-- THÊM DÒNG NÀY
+                group.groupTotalThuong += agentDetails.thuong; // <-- THÊM DÒNG NÀY (YÊU CẦU MỚI)
             }); 
             
             // === THAY ĐỔI: Tính tổng Grand Totals dựa trên 'filteredAgentData' ===
@@ -889,6 +891,8 @@
                     
                     // === THÊM MỚI: Logic cho cột Dsố (Theo yêu cầu mới) ===
                     let dsoCellContent = formatNumberHiddenK(agentData.totalRevenue);
+                    // === THÊM MỚI: Logic cho cột Thưởng (Theo yêu cầu mới) ===
+                    let thuongCellContent = formatNumberHiddenK(agentData.thuong);
                     // === KẾT THÚC THÊM MỚI ===
 
                     // === THAY ĐỔI LOGIC HIỂN THỊ TỔNG NHÓM (Xuống dòng) ===
@@ -897,11 +901,13 @@
                         
                         // === THÊM MỚI: Thêm tổng cho cột Dsố (Theo yêu cầu mới) ===
                         dsoCellContent += `<br><strong style="color: var(--primary-color); font-size: 0.9em;">(${formatNumberHiddenK(group.groupTotalRevenue)})</strong>`;
+                        // === THÊM MỚI: Thêm tổng cho cột Thưởng (Theo yêu cầu mới) ===
+                        thuongCellContent += `<br><strong style="color: var(--primary-color); font-size: 0.9em;">(${formatNumberHiddenK(group.groupTotalThuong)})</strong>`;
                     } 
                     // === KẾT THÚC THAY ĐỔI ===
 
-                    // === THAY ĐỔI: Thêm cột Dsố (dsoCellContent) ===
-                    body += `<tr ${isFirstInGroup ? 'class="group-start-row"' : ''}>${sttCell}<td>${agent.code}</td><td>${formatNumberHiddenK(agentData.lotoDB)}</td><td>${formatNumberHiddenK(agentData.lotoCap)}</td><td>${formatNumberHiddenK(agentData.c3_23)}</td><td>${formatNumberHiddenK(agentData.c2_27)}</td><td>${formatNumberHiddenK(agentData.xskt)}</td><td>${dsoCellContent}</td><td>${formatNumberHiddenK(agentData.thuong)}</td><td>${finalAmountCellContent}</td></tr>`; 
+                    // === THAY ĐỔI: Thêm cột Dsố (dsoCellContent) và Thưởng (thuongCellContent) ===
+                    body += `<tr ${isFirstInGroup ? 'class="group-start-row"' : ''}>${sttCell}<td>${agent.code}</td><td>${formatNumberHiddenK(agentData.lotoDB)}</td><td>${formatNumberHiddenK(agentData.lotoCap)}</td><td>${formatNumberHiddenK(agentData.c3_23)}</td><td>${formatNumberHiddenK(agentData.c2_27)}</td><td>${formatNumberHiddenK(agentData.xskt)}</td><td>${dsoCellContent}</td><td>${thuongCellContent}</td><td>${finalAmountCellContent}</td></tr>`; 
                 }); 
                 stt++; 
             } 
@@ -933,7 +939,16 @@
             DOM.summaryTableContainer.innerHTML = tableHTML; 
             
             // === THAY ĐỔI: Cập nhật tiêu đề và Tổng Doanh Số (Style mới) ===
-            const totalRevenueFormatted = formatNumberFull(summaryData.grandTotals.totalRevenue); // <-- THAY ĐỔI HÀM
+            const totalRevenue = summaryData.grandTotals.totalRevenue;
+            const totalThuong = summaryData.grandTotals.thuong;
+
+            const totalRevenueFormattedK = formatNumberHiddenK(totalRevenue);
+            const totalThuongFormattedK = formatNumberHiddenK(totalThuong);
+            
+            let thuongPercentage = 0;
+            if (totalRevenue !== 0) {
+                thuongPercentage = (totalThuong / totalRevenue) * 100;
+            }
             
             // === THAY ĐỔI: Cập nhật text của tiêu đề (dùng innerHTML) ===
             const baseTitle = 'Bảng Báo Cáo Tổng Tiền:';
@@ -944,7 +959,11 @@
             }
             // === KẾT THÚC THAY ĐỔI ===
 
-            DOM.summaryDate.innerHTML = `${dateRangeText} <br> <span style="font-weight: 500; color: var(--text-color);">Tổng Doanh Số: <span style="font-weight: 600; color: var(--danger-color);">${totalRevenueFormatted}</span></span>`;
+            // === THAY ĐỔI: Hiển thị Doanh số và Trả thưởng (theo yêu cầu mới) ===
+            const revenueSpan = `<span style="font-weight: 500; color: var(--text-color);">Doanh số: <span style="font-weight: 600; color: var(--danger-color);">${totalRevenueFormattedK}</span></span>`;
+            const thuongSpan = `<span style="font-weight: 500; color: var(--text-color); margin-left: 15px;">Trả thưởng: <span style="font-weight: 600; color: var(--primary-dark);">${totalThuongFormattedK}</span> (${thuongPercentage.toFixed(1)}%)</span>`;
+
+            DOM.summaryDate.innerHTML = `${dateRangeText} <br> ${revenueSpan} ${thuongSpan}`;
         }
 
         // ===== DETAILED REPORT VIEW LOGIC =====
