@@ -758,6 +758,10 @@
         let dateRangeText = "Chưa có ngày";
         let regionDefinitions = {}; 
         let isRegionLocked = false; 
+        
+        // Biến tạm để lưu trữ dữ liệu excel mới được chọn trong modal reload
+        let tempReloadData1 = null; 
+        let tempReloadData2 = null;
 
         const state = {
             currentSoSo: null, baseTongDT: 0, baseTongHH: 0, baseThuong: 0,
@@ -835,9 +839,297 @@
             'manualC227', 'manualC323', 'manualThuong'
         ];
 
-        // ===== CORE LOGIC: FILE HANDLING =====
-        function handleFile(file, fileNumber, inputId) {
-            if (!file) return;
+        // --- Notification System ---
+        function showNotification(message, type = 'info', duration = 3000) { const notification = document.createElement('div'); notification.className = `notification ${type}`; notification.textContent = message; DOM.notificationArea.appendChild(notification); notification.offsetHeight; notification.classList.add('show'); setTimeout(() => { notification.classList.remove('show'); notification.addEventListener('transitionend', () => notification.remove()); }, duration); }
+
+        // --- Loading Indicator ---
+        function showLoading() { DOM.loadingIndicator.style.display = 'block'; }
+        function hideLoading() { DOM.loadingIndicator.style.display = 'none'; }
+
+        // --- UTILITY FUNCTIONS ---
+        function formatNumberFull(num) { 
+            num = parseFloat(num); 
+            if (isNaN(num) || num === 0) return "0"; 
+            return parseInt(num).toLocaleString("vi-VN"); 
+        }
+        
+        function formatNumberHiddenK(num) { num = parseFloat(num); if (isNaN(num) || num === 0 || Math.abs(num) < 1000) return "0"; return parseInt(num / 1000).toLocaleString("vi-VN"); }
+        function formatCommissionCellHiddenK(revenue, commission) { revenue = parseFloat(revenue); commission = parseFloat(commission); if (!revenue || revenue === 0 || isNaN(revenue) || isNaN(commission)) return formatNumberHiddenK(commission); const percentage = Math.round((commission / revenue) * 100); return `<i style="color: #E57373; font-weight: normal;">(${percentage}%)</i> ${formatNumberHiddenK(commission)}`; }
+        
+        function parseFilterString(filterString) {
+            if (!filterString || filterString.trim() === '') {
+                return null; 
+            }
+
+            const rules = [];
+            const parts = filterString.split('+'); 
+            
+            parts.forEach(part => {
+                part = part.trim();
+                if (!part) return;
+
+                if (part.includes('_')) {
+                    const range = part.split('_');
+                    const min = parseInt(range[0], 10);
+                    const max = parseInt(range[1], 10);
+                    if (!isNaN(min) && !isNaN(max) && min <= max) {
+                        rules.push({ min, max });
+                    }
+                } else {
+                    const num = parseInt(part, 10);
+                    if (!isNaN(num)) {
+                        rules.push({ min: num, max: num });
+                    }
+                }
+            });
+            
+            return rules.length > 0 ? rules : null;
+        }
+
+        function agentMatchesFilter(agentCode, filterRules) {
+            if (!filterRules) {
+                return true; 
+            }
+
+            const numericMatch = String(agentCode).match(/\d+$/);
+            if (!numericMatch) {
+                return false; 
+            }
+            const agentNum = parseInt(numericMatch[0], 10);
+
+            for (const rule of filterRules) {
+                if (agentNum >= rule.min && agentNum <= rule.max) {
+                    return true; 
+                }
+            }
+            
+            return false; 
+        }
+
+        function docso(numberStr) {
+            const num = String(numberStr).replace(/[.,]/g, '');
+            if (num === '0') return 'Không';
+            if (num === '' || isNaN(parseInt(num))) return '';
+            const words = ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"];
+            const units = ["", "nghìn", "triệu", "tỷ"];
+            const readChunk = (chunkStr, isFirstChunk) => {
+                if (!chunkStr || parseInt(chunkStr, 10) === 0) return "";
+                let n = chunkStr.padStart(3, '0').split('').map(Number);
+                if (chunkStr.length < 3 && isFirstChunk) { 
+                    if (chunkStr.length === 1) n = [0, 0, Number(chunkStr)];
+                    else if (chunkStr.length === 2) n = [0, Number(chunkStr[0]), Number(chunkStr[1])];
+                }
+                const [tram, chuc, donvi] = n; let str = "";
+                if (tram > 0) { str += words[tram] + " trăm "; } 
+                else if (!isFirstChunk && (chuc > 0 || donvi > 0)) { str += "không trăm "; }
+                if (chuc === 0 && donvi !== 0) { if (tram > 0 || !isFirstChunk) str += "linh "; } 
+                else if (chuc === 1) { str += "mười "; } 
+                else if (chuc > 1) { str += words[chuc] + " mươi "; }
+                if (donvi > 0) {
+                     if (chuc === 0) {
+                         if((tram > 0 || !isFirstChunk) && parseInt(chunkStr, 10) > 0) str += words[donvi]; 
+                         else if (isFirstChunk) str+= words[donvi]; 
+                     }
+                     else if (chuc === 1) { 
+                        if (donvi === 1) str += "một"; 
+                        else if (donvi === 5) str += "lăm"; 
+                        else str += words[donvi];
+                    } else { 
+                        if (donvi === 1) str += "mốt"; 
+                        else if (donvi === 5) str += "lăm"; 
+                        else str += words[donvi];
+                    }
+                }
+                return str.trim();
+            };
+            const chunks = []; let tempNum = num;
+            while (tempNum.length > 0) { chunks.unshift(tempNum.substring(Math.max(0, tempNum.length - 3))); tempNum = tempNum.substring(0, tempNum.length - 3); }
+            if (chunks.length > units.length) return "Số quá lớn";
+            let result = chunks.map((chunk, i) => { const text = readChunk(chunk, i === 0); if (text) { return text + " " + units[chunks.length - 1 - i]; } return ""; }).filter(Boolean).join(" ").replace(/\s+/g, ' ').trim();
+            return result.charAt(0).toUpperCase() + result.slice(1);
+        }
+        
+        async function saveElementAsImage(selector, filename, buttonElement = null) {
+            const element = document.querySelector(selector);
+            if (!element || !element.innerHTML.trim()) {
+                showNotification("Chưa có nội dung để lưu!", 'info');
+                return;
+            }
+
+            const originalButtonText = buttonElement ? buttonElement.textContent : '';
+            if (buttonElement) buttonElement.textContent = 'Đang tạo ảnh...';
+
+            const elementsToHideTemporarily = [];
+            const actions = element.querySelector('.summary-actions'); 
+            const filterControls = element.querySelector('.controls-panel'); 
+            const reportActions = document.getElementById('actionButtonContainer'); 
+            if (actions) elementsToHideTemporarily.push(actions);
+            if (filterControls) elementsToHideTemporarily.push(filterControls); 
+            if (reportActions && element === DOM.reportContainer) elementsToHideTemporarily.push(reportActions);
+            
+            elementsToHideTemporarily.forEach(el => el.style.display = 'none');
+            
+            const copyright = document.getElementById('copyrightInReport');
+            if (copyright && element === DOM.reportContainer) copyright.style.display = 'block'; 
+
+            let mainPage, tableContainer, table, summarySectionEl;
+            let originalPageMaxWidth, originalSummarySectionWidth, originalTableContainerWidth, originalTableContainerOverflow;
+
+            if (selector === '#summarySection') {
+                mainPage = DOM.mainPage;
+                summarySectionEl = DOM.summarySection;
+                tableContainer = DOM.summaryTableContainer;
+                table = tableContainer.querySelector('table');
+                
+                if (mainPage && summarySectionEl && tableContainer && table) {
+                    originalPageMaxWidth = mainPage.style.maxWidth;
+                    originalSummarySectionWidth = summarySectionEl.style.width;
+                    originalTableContainerWidth = tableContainer.style.width;
+                    originalTableContainerOverflow = tableContainer.style.overflowX;
+
+                    mainPage.style.maxWidth = 'none';
+                    const scrollW = table.scrollWidth + 2; 
+                    
+                    summarySectionEl.style.width = `${scrollW}px`;
+                    tableContainer.style.width = `${scrollW}px`;
+                    tableContainer.style.overflowX = 'visible';
+                }
+            }
+
+            setTimeout(async () => {
+                try {
+                    const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
+                    const dataUrl = canvas.toDataURL('image/png');
+                    
+                    const link = document.createElement('a');
+                    link.href = dataUrl;
+                    link.download = filename; 
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    showNotification('Đã lưu ảnh thành công!', 'success');
+                    if (buttonElement) {
+                        buttonElement.textContent = 'Đã lưu!';
+                        setTimeout(() => { if(buttonElement) buttonElement.textContent = originalButtonText; }, 2000);
+                    }
+
+                } catch (err) {
+                    console.error('Lỗi tạo ảnh:', err);
+                    showNotification('Đã xảy ra lỗi khi tạo ảnh.', 'error');
+                    if (buttonElement) buttonElement.textContent = originalButtonText;
+                } finally {
+                    if (copyright) copyright.style.display = 'none';
+                    elementsToHideTemporarily.forEach(el => el.style.display = ''); 
+
+                    if (mainPage && summarySectionEl && tableContainer) {
+                        mainPage.style.maxWidth = originalPageMaxWidth;
+                        summarySectionEl.style.width = originalSummarySectionWidth;
+                        tableContainer.style.width = originalTableContainerWidth;
+                        tableContainer.style.overflowX = originalTableContainerOverflow;
+                    }
+                }
+            }, 50); 
+        }
+        
+        async function copyElementAsImage(selector, message, buttonElement = null) {
+            const element = document.querySelector(selector);
+            if (!element || !element.innerHTML.trim()) return showNotification("Chưa có nội dung để sao chép!", 'info');
+            const originalButtonText = buttonElement ? buttonElement.textContent : '';
+            if (buttonElement) buttonElement.textContent = 'Đang tạo ảnh...';
+            const elementsToHideTemporarily = [];
+            const actions = element.querySelector('.summary-actions'); 
+            const filterControls = element.querySelector('.controls-panel'); 
+            const reportActions = document.getElementById('actionButtonContainer'); 
+            if (actions) elementsToHideTemporarily.push(actions);
+            if (filterControls) elementsToHideTemporarily.push(filterControls); 
+            if (reportActions && element === DOM.reportContainer) elementsToHideTemporarily.push(reportActions);
+
+            elementsToHideTemporarily.forEach(el => el.style.display = 'none');
+            
+            const copyright = document.getElementById('copyrightInReport');
+            if (copyright && element === DOM.reportContainer) copyright.style.display = 'block'; 
+
+            let mainPage, tableContainer, table, summarySectionEl;
+            let originalPageMaxWidth, originalSummarySectionWidth, originalTableContainerWidth, originalTableContainerOverflow;
+
+            if (selector === '#summarySection') {
+                mainPage = DOM.mainPage;
+                summarySectionEl = DOM.summarySection;
+                tableContainer = DOM.summaryTableContainer;
+                table = tableContainer.querySelector('table');
+                
+                if (mainPage && summarySectionEl && tableContainer && table) {
+                    originalPageMaxWidth = mainPage.style.maxWidth;
+                    originalSummarySectionWidth = summarySectionEl.style.width;
+                    originalTableContainerWidth = tableContainer.style.width;
+                    originalTableContainerOverflow = tableContainer.style.overflowX;
+
+                    mainPage.style.maxWidth = 'none';
+                    const scrollW = table.scrollWidth + 2; 
+                    
+                    summarySectionEl.style.width = `${scrollW}px`;
+                    tableContainer.style.width = `${scrollW}px`;
+                    tableContainer.style.overflowX = 'visible';
+                }
+            }
+
+            setTimeout(async () => {
+                try {
+                    const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
+                    canvas.toBlob(async (blob) => {
+                        try {
+                            if (navigator.clipboard && navigator.clipboard.write) {
+                                await navigator.clipboard.write([ new ClipboardItem({ 'image/png': blob }) ]);
+                                showNotification(message, 'success');
+                                if (buttonElement) {
+                                    buttonElement.textContent = 'Đã Copy!';
+                                    setTimeout(() => { if(buttonElement) buttonElement.textContent = originalButtonText; }, 2000);
+                                }
+                            } else { throw new Error('Clipboard API không được hỗ trợ.'); }
+                        } catch (writeErr) {
+                            console.error('Lỗi khi dùng navigator.clipboard.write:', writeErr);
+                            showNotification('Không thể tự động copy, vui lòng copy thủ công!', 'info');
+                            DOM.imagePreviewHolder.src = canvas.toDataURL('image/png');
+                            DOM.imagePreviewModal.style.display = 'block';
+                            if (buttonElement) buttonElement.textContent = originalButtonText;
+                        }
+                    }, 'image/png');
+                } catch (err) {
+                    console.error('Lỗi tạo ảnh:', err);
+                    showNotification('Đã xảy ra lỗi khi tạo ảnh.', 'error');
+                    if (buttonElement) buttonElement.textContent = originalButtonText;
+                } finally {
+                    if (copyright) copyright.style.display = 'none';
+                    elementsToHideTemporarily.forEach(el => el.style.display = ''); 
+
+                    if (mainPage && summarySectionEl && tableContainer) {
+                        mainPage.style.maxWidth = originalPageMaxWidth;
+                        summarySectionEl.style.width = originalSummarySectionWidth;
+                        tableContainer.style.width = originalTableContainerWidth;
+                        tableContainer.style.overflowX = originalTableContainerOverflow;
+                    }
+                }
+            }, 50); 
+        }
+
+        // ===== FILE HANDLING / DATA PROCESSING =====
+        
+        /**
+         * Xử lý file excel được chọn
+         * @param {File} file 
+         * @param {number} fileNumber - 1 cho Biểu 31, 2 cho Biểu 35
+         * @param {string} inputId - ID của input file (dùng cho loading/class)
+         * @param {boolean} isReloadModal - Nếu là modal nạp lại, không gán trực tiếp vào excelData1/2
+         */
+        function handleFile(file, fileNumber, inputId, isReloadModal = false) {
+            if (!file) {
+                 if (isReloadModal) {
+                    if (fileNumber === 1) tempReloadData1 = null;
+                    else tempReloadData2 = null;
+                 }
+                return;
+            }
             showLoading(); 
             const fileInput = document.getElementById(inputId); 
             const reader = new FileReader();
@@ -850,24 +1142,36 @@
                     
                     const jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
                     if (!jsonData || jsonData.length === 0) { throw new Error("File không có dữ liệu hoặc định dạng không hợp lệ."); }
-                    if (fileNumber === 1) {
-                        excelData1 = jsonData;
-                        let dateRow = jsonData.find(r => Object.values(r).some(v => typeof v === "string" && v.includes("Tõ ngµy")));
-                        if (dateRow) {
-                            let text = Object.values(dateRow).find(v => typeof v === "string" && v.includes("Tõ ngµy"));
-                            let matchRange = text.match(/Tõ ngµy\s*(\d{2}\/\d{2})\/\d{4}.*®Õn ngµy\s*(\d{2}\/\d{2})\/\d{4}/);
-                            if (matchRange) { dateRangeText = matchRange[1] === matchRange[2] ? `Ngày ${matchRange[1]}` : `Từ ${matchRange[1]} đến ${matchRange[2]}`; }
-                        } else {
-                            let singleDateRow = jsonData.find(r => Object.values(r).some(v => typeof v === "string" && v.match(/(\d{2}\/\d{2}\/\d{4})/i)));
-                            if (singleDateRow) {
-                                let singleText = Object.values(singleDateRow).find(v => typeof v === "string" && v.match(/(\d{2}\/\d{2}\/\d{4})/i));
-                                let matchSingle = singleText.match(/(\d{2}\/\d{2}\/\d{4})/i);
-                                if (matchSingle) { dateRangeText = `Ngày ${matchSingle[1].substring(0, 5)}`; }
-                            }
-                        }
+                    
+                    // Xử lý logic nạp dữ liệu dựa trên modal hay trang chủ
+                    if (isReloadModal) {
+                         if (fileNumber === 1) {
+                             tempReloadData1 = { data: jsonData, name: file.name };
+                         } else {
+                             tempReloadData2 = { data: jsonData, name: file.name };
+                         }
                     } else {
-                        excelData2 = jsonData;
+                        // Logic nạp dữ liệu ban đầu
+                        if (fileNumber === 1) {
+                            excelData1 = jsonData;
+                            let dateRow = jsonData.find(r => Object.values(r).some(v => typeof v === "string" && v.includes("Tõ ngµy")));
+                            if (dateRow) {
+                                let text = Object.values(dateRow).find(v => typeof v === "string" && v.includes("Tõ ngµy"));
+                                let matchRange = text.match(/Tõ ngµy\s*(\d{2}\/\d{2})\/\d{4}.*®Õn ngµy\s*(\d{2}\/\d{2})\/\d{4}/);
+                                if (matchRange) { dateRangeText = matchRange[1] === matchRange[2] ? `Ngày ${matchRange[1]}` : `Từ ${matchRange[1]} đến ${matchRange[2]}`; }
+                            } else {
+                                let singleDateRow = jsonData.find(r => Object.values(r).some(v => typeof v === "string" && v.match(/(\d{2}\/\d{2}\/\d{4})/i)));
+                                if (singleDateRow) {
+                                    let singleText = Object.values(singleDateRow).find(v => typeof v === "string" && v.match(/(\d{2}\/\d{2}\/\d{4})/i));
+                                    let matchSingle = singleText.match(/(\d{2}\/\d{2}\/\d{4})/i);
+                                    if (matchSingle) { dateRangeText = `Ngày ${matchSingle[1].substring(0, 5)}`; }
+                                }
+                            }
+                        } else {
+                            excelData2 = jsonData;
+                        }
                     }
+
                     showNotification(`Đã nạp dữ liệu ${file.name} thành công!`, 'success');
                     if (fileInput) fileInput.classList.add('loaded'); 
                 } catch (error) {
@@ -885,7 +1189,7 @@
             reader.readAsArrayBuffer(file);
         }
 
-        // ===== SUMMARY VIEW LOGIC =====
+        // --- SUMMARY REPORT GENERATION ---
         function processSummaryData(regionFilterRules, revenueFilter) { 
             const individualAgentData = new Map(); 
             const initializeAgent = (code) => { 
@@ -1163,7 +1467,7 @@
             DOM.summaryDate.innerHTML = `${dateRangeText} <br> ${revenueSpan} ${thuongSpan}`;
         }
 
-        // ===== DETAILED REPORT VIEW LOGIC =====
+        // --- DETAILED REPORT GENERATION ---
         function resetState(soSo) { state.currentSoSo = soSo; state.baseTongDT = 0; state.baseTongHH = 0; state.baseThuong = 0; state.extraBonus = 0; state.extraDebt = 0; state.addedTickets = []; state.accountCodes.clear(); }
         function processDetailedReportData(soSo) { 
             const filterBySoSo = (row) => { 
@@ -1239,236 +1543,7 @@
                 ketQuaBangChu.textContent = docso(khongLamTron) + " đồng"; 
             } 
         }
-
-        // ===== UI EVENT HANDLERS & CONTROLLERS =====
-        function updateFilterStatus() {
-            const isDefaultSort = DOM.sortSelect.value === 'default';
-            // Lấy giá trị data-value, nếu rỗng hoặc undefined thì coi là 0 (mặc định)
-            const isDefaultMinRevenue = !DOM.minRevenueInput.dataset.value || parseFloat(DOM.minRevenueInput.dataset.value) === 0;
-            const isDefaultMaxRevenue = !DOM.maxRevenueInput.dataset.value || parseFloat(DOM.maxRevenueInput.dataset.value) === 0;
-            const isDefaultRegion = DOM.regionSelect.value === 'all';
-
-            const isDefault = isDefaultSort && isDefaultMinRevenue && isDefaultMaxRevenue && isDefaultRegion;
-
-            const btn = DOM.btnClearRevenueFilter;
-            if (isDefault) {
-                btn.classList.remove('danger');
-                btn.classList.add('secondary');
-            } else {
-                btn.classList.remove('secondary');
-                btn.classList.add('danger');
-            }
-        }
         
-        function initializeApp() {
-            DOM.btnLoadData.addEventListener('click', () => { 
-                if (excelData1.length === 0 && excelData2.length === 0) { 
-                    showNotification("Vui lòng chọn ít nhất một file excel!", 'error'); 
-                    return; 
-                } 
-                generateSummaryView(); 
-                DOM.homePage.style.display = 'none'; 
-                DOM.mainPage.style.display = 'block'; 
-                showSection('reportSection'); 
-                loopLogoAnimation(); 
-            });
-            DOM.navSummary.addEventListener('click', () => showSection('summarySection'));
-            DOM.navReport.addEventListener('click', () => showSection('reportSection'));
-            DOM.navSell.addEventListener('click', () => showSection('sellSection'));
-            DOM.excelFile1.addEventListener('change', (e) => handleFile(e.target.files[0], 1, 'excelFile1'));
-            DOM.excelFile2.addEventListener('change', (e) => handleFile(e.target.files[0], 2, 'excelFile2'));
-            DOM.btnCreateReport.addEventListener('click', createDetailedReport);
-            DOM.soSoInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.target.blur(); createDetailedReport(); } });
-            
-            // Lắng nghe sự kiện cho các input tiền tệ
-            document.querySelectorAll('.manual-currency').forEach(input => { 
-                input.addEventListener('input', (e) => { 
-                    const value = e.target.value.replace(/\D/g, ''); 
-                    e.target.dataset.value = value; 
-                    e.target.value = value ? parseInt(value, 10).toLocaleString('vi-VN') : ''; 
-                    updateFilterStatus(); // Cập nhật trạng thái nút
-                }); 
-            });
-            
-            DOM.btnShowManualReport.addEventListener('click', showManualInputModal);
-            DOM.btnShowManualReport_inline.addEventListener('click', showManualInputModal);
-            DOM.btnCreateManualReport.addEventListener('click', createManualReport);
-            DOM.btnClearManualReport.addEventListener('click', clearManualReportForm); 
-            manualFormOrder.forEach(id => { const element = document.getElementById(id); if (element) { element.addEventListener('keydown', handleManualFormEnter); } });
-            
-            DOM.btnSaveSummary.addEventListener('click', () => saveElementAsImage('#summarySection', 'Báo-cáo-Tổng-kết.png', DOM.btnSaveSummary));
-            
-            DOM.btnCopySummary.addEventListener('click', () => copyElementAsImage('#summarySection', 'Copy ảnh tổng kết thành công!', DOM.btnCopySummary));
-            
-            DOM.btnCopyReport.addEventListener('click', () => copyElementAsImage('#reportContainer', 'Copy ảnh báo cáo thành công!', DOM.btnCopyReport));
-            DOM.toggleChoicesBtn.addEventListener('click', toggleActionChoices);
-            DOM.sellTicketTypeRadios.forEach(radio => radio.addEventListener('change', handleSellOptionsChange));
-            DOM.sellPriceRadios.forEach(radio => radio.addEventListener('change', handleSellOptionsChange));
-            DOM.commissionRateRadios.forEach(radio => radio.addEventListener('change', handleSellOptionsChange));
-            DOM.customTicketPrice.addEventListener('input', (e) => { const value = e.target.value.replace(/\D/g, ''); e.target.value = value ? parseInt(value, 10).toLocaleString('vi-VN') : ''; });
-            DOM.sellQuantityInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); DOM.btnAddTicket.click(); } });
-            DOM.btnAddTicket.addEventListener('click', addTicketToReport);
-            DOM.closeModalBtn.addEventListener('click', hideManualInputModal);
-            DOM.manualInputModal.addEventListener('click', (event) => { if (event.target === DOM.manualInputModal) { hideManualInputModal(); } });
-            DOM.closePreviewModalBtn.addEventListener('click', hideImagePreviewModal);
-            DOM.imagePreviewModal.addEventListener('click', (event) => { if (event.target === DOM.imagePreviewModal) { hideImagePreviewModal(); } });
-            DOM.navReload.addEventListener('click', showReloadModal);
-            DOM.closeReloadModalBtn.addEventListener('click', hideReloadModal);
-            DOM.reloadModal.addEventListener('click', (e) => { if (e.target === DOM.reloadModal) hideReloadModal(); });
-            DOM.reloadFile1.addEventListener('change', (e) => handleFile(e.target.files[0], 1, 'reloadFile1'));
-            DOM.reloadFile2.addEventListener('change', (e) => handleFile(e.target.files[0], 2, 'reloadFile2'));
-            DOM.btnReloadSubmit.addEventListener('click', submitReload);
-
-            // === Sự kiện cho Định nghĩa Vùng & Mật khẩu ===
-            DOM.btnSaveRegions.addEventListener('click', handleRegionButtonPress); 
-            DOM.regionSelect.addEventListener('change', () => {
-                generateSummaryView();
-                updateFilterStatus(); // Cập nhật trạng thái nút
-            }); 
-            
-            // Listener cho modal mật khẩu
-            DOM.closePasswordModalBtn.addEventListener('click', hidePasswordModal);
-            DOM.cancelPasswordBtn.addEventListener('click', hidePasswordModal);
-            DOM.passwordModal.addEventListener('click', (e) => { if (e.target === DOM.passwordModal) hidePasswordModal(); });
-            DOM.btnSubmitPassword.addEventListener('click', checkPassword);
-            DOM.passwordInput.addEventListener('keydown', (e) => { 
-                if (e.key === 'Enter') { 
-                    e.preventDefault(); 
-                    checkPassword(); 
-                } 
-            });
-
-            // === Sự kiện cho nút cuộn lên/xuống ===
-            DOM.scrollToTopBtn.addEventListener('click', () => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-            DOM.scrollToBottomBtn.addEventListener('click', () => {
-                window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
-            });
-
-            window.addEventListener('scroll', handleScrollButtonVisibility);
-
-            loadSavedRegions();
-
-            // === Sự kiện cho bộ lọc doanh số (Tự động lọc) ===
-            DOM.sortSelect.addEventListener('change', () => {
-                generateSummaryView();
-                updateFilterStatus(); // Cập nhật trạng thái nút
-            }); 
-            
-            DOM.minRevenueInput.addEventListener('keydown', (e) => { 
-                if (e.key === 'Enter') {
-                    e.preventDefault(); 
-                    DOM.maxRevenueInput.focus(); 
-                } 
-            });
-            DOM.minRevenueInput.addEventListener('blur', () => {
-                generateSummaryView();
-                updateFilterStatus(); // Cập nhật trạng thái nút
-            }); 
-
-            DOM.maxRevenueInput.addEventListener('keydown', (e) => { 
-                if (e.key === 'Enter') {
-                    e.preventDefault(); 
-                    e.target.blur(); 
-                } 
-            });
-            DOM.maxRevenueInput.addEventListener('blur', () => {
-                generateSummaryView();
-                updateFilterStatus(); // Cập nhật trạng thái nút
-            }); 
-            
-            // === ĐÃ CẬP NHẬT: Thêm thao tác đặt lại 'Chọn Đơn vị' khi ấn 'Về mặc định' ===
-            DOM.btnClearRevenueFilter.addEventListener('click', () => {
-                DOM.sortSelect.value = 'default';
-                DOM.minRevenueInput.value = '';
-                if(DOM.minRevenueInput.dataset) DOM.minRevenueInput.dataset.value = ''; 
-                DOM.maxRevenueInput.value = '';
-                if(DOM.maxRevenueInput.dataset) DOM.maxRevenueInput.dataset.value = ''; 
-                
-                // THAO TÁC MỚI
-                DOM.regionSelect.value = 'all';
-                
-                generateSummaryView();
-                updateFilterStatus(); // Cập nhật trạng thái nút về mặc định
-            });
-
-            // Khởi tạo trạng thái nút lần đầu
-            updateFilterStatus();
-            loopLogoAnimation(); 
-        }
-        
-        // --- LOGIC ANIMATION LOGO MỚI ---
-        function getRandomColor() {
-            const h = Math.floor(Math.random() * 360); 
-            const s = Math.floor(Math.random() * 30) + 70; 
-            const l = Math.floor(Math.random() * 20) + 40; 
-            return `hsl(${h}, ${s}%, ${l}%)`;
-        }
-
-        async function loopLogoAnimation() {
-            try {
-                const spans = document.querySelectorAll('.simple-animated-logo span');
-                if (spans.length === 0) return; 
-
-                const chars = Array.from(spans);
-                const delay = (ms) => new Promise(res => setTimeout(res, ms));
-
-                // Phase 1: Fade In (từng ký tự)
-                for (let i = 0; i < chars.length; i++) {
-                    chars[i].style.opacity = '1';
-                    chars[i].style.transform = 'translateY(0)';
-                    await delay(150); 
-                }
-                
-                // Phase 2: Đợi
-                await delay(3000); 
-
-                // Phase 3: Fade Out (cùng lúc)
-                chars.forEach(span => {
-                    span.style.opacity = '0';
-                    span.style.transform = 'translateY(15px)';
-                });
-
-                // Đợi fade out hoàn tất
-                await delay(600); 
-
-                // Phase 4: Đổi màu
-                const newColor = getRandomColor();
-                DOM.logoContainers.forEach(logo => {
-                    logo.style.color = newColor;
-                });
-                
-                // Lặp lại
-                setTimeout(loopLogoAnimation, 100); 
-
-            } catch (error) {
-                console.error("Lỗi animation logo:", error);
-            }
-        }
-        // --- KẾT THÚC LOGIC LOGO ---
-        
-        function handleScrollButtonVisibility() {
-            const scrollTop = window.scrollY || document.documentElement.scrollTop;
-            const scrollHeight = document.documentElement.scrollHeight;
-            const clientHeight = document.documentElement.clientHeight;
-            const summarySectionVisible = DOM.summarySection.style.display !== 'none';
-            
-            // Logic cho nút Lên Đầu
-            if (scrollTop > 200 && summarySectionVisible) {
-                DOM.scrollToTopBtn.classList.add('show');
-            } else {
-                DOM.scrollToTopBtn.classList.remove('show');
-            }
-
-            // Logic cho nút Xuống Dưới
-            if (scrollTop < (scrollHeight - clientHeight - 200) && summarySectionVisible) {
-                DOM.scrollToBottomBtn.classList.add('show');
-            } else {
-                DOM.scrollToBottomBtn.classList.remove('show');
-            }
-        }
-
         function createDetailedReport() { 
             hideManualInputModal(); 
             const soSo = DOM.soSoInput.value.trim(); 
@@ -1485,45 +1560,11 @@
             updateActionButtons(); 
             DOM.reportContainer.scrollIntoView({ behavior: 'smooth' }); 
         }
+        
+        // --- MANUAL INPUT FUNCTIONS ---
         function handleManualFormEnter(event) { if (event.key !== 'Enter') return; event.preventDefault(); const currentId = event.target.id; const currentIndex = manualFormOrder.indexOf(currentId); if (currentIndex === -1) return; if (currentIndex < manualFormOrder.length - 1) { const nextId = manualFormOrder[currentIndex + 1]; document.getElementById(nextId)?.focus(); } else { DOM.btnCreateManualReport.click(); } } 
         function clearManualReportForm() { manualFormOrder.forEach(id => { const element = document.getElementById(id); if (element) { element.value = ''; if (element.dataset.value) { element.dataset.value = ''; } } }); document.getElementById('manualAgentName').focus(); } 
         
-        // Modal functions
-        function showManualInputModal() {
-            clearManualReportForm(); 
-            DOM.manualInputModal.style.display = 'block';
-            document.getElementById('manualAgentName').focus(); 
-        }
-        function hideManualInputModal() {
-            DOM.manualInputModal.style.display = 'none';
-        }
-        function hideImagePreviewModal() {
-            DOM.imagePreviewModal.style.display = 'none';
-            DOM.imagePreviewHolder.src = ''; 
-        }
-
-        // --- HÀM CHO VIỆC NẠP LẠI EXCEL ---
-        function showReloadModal() {
-            DOM.reloadModal.style.display = 'block';
-            DOM.reloadFile1.value = ''; DOM.reloadFile2.value = '';
-            DOM.reloadFile1.classList.remove('loaded'); DOM.reloadFile2.classList.remove('loaded');
-        }
-        function hideReloadModal() { DOM.reloadModal.style.display = 'none'; }
-        function submitReload() {
-            if (DOM.reloadFile1.files.length === 0 && excelData1.length === 0 && DOM.reloadFile2.files.length === 0 && excelData2.length === 0) {
-                 showNotification("Bạn chưa chọn file Excel nào để nạp.", 'error');
-                 return;
-            }
-            generateSummaryView(); 
-            DOM.reportContainer.innerHTML = '';
-            DOM.actionButtonContainer.style.display = 'none';
-            DOM.soSoInput.value = '';
-            state.currentSoSo = null;
-            hideReloadModal();
-            showSection('summarySection');
-            showNotification("Đã nạp lại dữ liệu Excel thành công!", 'success');
-        }
-
         function createManualReport() { 
             const agentName = DOM.manualAgentName.value.trim(); if (!agentName) return showNotification("Vui lòng nhập Tên Đại Lý!", 'error'); 
             const totals = { lotoDB: (parseFloat(DOM.manualLotoDB.dataset.value) || 0) * 1000, loCap: (parseFloat(DOM.manualLoCap.dataset.value) || 0) * 1000, c2_27: (parseFloat(DOM.manualC227.dataset.value) || 0) * 1000, c3_23: (parseFloat(DOM.manualC323.dataset.value) || 0) * 1000, thuong: parseFloat(DOM.manualThuong.dataset.value) || 0, xskt: 0 }; 
@@ -1538,54 +1579,104 @@
             DOM.reportContainer.scrollIntoView({ behavior: 'smooth' }); 
             showNotification('Đã thêm báo cáo thủ công thành công!', 'success');
         }
-        
-        function showSection(sectionId) { 
-            [DOM.summarySection, DOM.reportSection, DOM.sellSection].forEach(s => s.style.display = 'none'); 
-            const sectionToShow = document.getElementById(sectionId);
-            if(sectionToShow) sectionToShow.style.display = 'block';
-            
-            [DOM.navSummary, DOM.navReport, DOM.navSell, DOM.navReload].forEach(b => b.classList.remove('active')); 
-            
-            let activeBtn;
-            if (sectionId === 'summarySection') activeBtn = DOM.navSummary;
-            else if (sectionId === 'reportSection') activeBtn = DOM.navReport;
-            else if (sectionId === 'sellSection') activeBtn = DOM.navSell;
-            
-            if(activeBtn) activeBtn.classList.add('active'); 
-            else DOM.navSummary.classList.add('active'); 
 
-            if (sectionId !== 'summarySection') {
-                DOM.scrollToTopBtn.classList.remove('show');
-                DOM.scrollToBottomBtn.classList.remove('show'); 
-            } else {
-                handleScrollButtonVisibility();
-            }
+        // --- RELOAD MODAL FUNCTIONS ---
+        function showReloadModal() {
+            // Reset các biến tạm và input trong modal khi mở
+            tempReloadData1 = null; 
+            tempReloadData2 = null;
+            DOM.reloadFile1.value = ''; 
+            DOM.reloadFile2.value = '';
+            DOM.reloadFile1.classList.remove('loaded'); 
+            DOM.reloadFile2.classList.remove('loaded');
+            
+            // Đồng bộ trạng thái "loaded" từ input file gốc (trên trang chủ)
+            if (DOM.excelFile1.classList.contains('loaded')) DOM.reloadFile1.classList.add('loaded');
+            if (DOM.excelFile2.classList.contains('loaded')) DOM.reloadFile2.classList.add('loaded');
+
+            DOM.reloadModal.style.display = 'block';
         }
-        function toggleActionChoices() { if (DOM.toggleChoicesBtn.textContent.includes('Thêm')) { DOM.actionChoices.style.display = 'grid'; DOM.toggleChoicesBtn.textContent = 'Xoá hết Thưởng/Nợ'; DOM.toggleChoicesBtn.className = 'danger'; } else { document.getElementById('extraBonusRow')?.remove(); document.getElementById('extraDebtRow')?.remove(); state.extraBonus = 0; state.extraDebt = 0; updateDetailedReportView(); DOM.actionChoices.style.display = 'none'; DOM.toggleChoicesBtn.textContent = 'Thêm tiền Thưởng/Nợ'; DOM.toggleChoicesBtn.className = 'secondary'; } updateActionButtons(); }
-        function updateActionButtons() { DOM.actionChoices.innerHTML = `${document.getElementById('extraBonusRow') ? `<button class="danger" data-action="remove-bonus">Xoá Thưởng thêm</button>` : `<button data-action="add-bonus">Thêm tiền Thưởng</button>`}${document.getElementById('extraDebtRow') ? `<button class="danger" data-action="remove-debt">Xoá tiền Nợ</button>` : `<button data-action="add-debt">Thêm tiền Nợ</button>`}`; }
-        DOM.actionChoices.addEventListener('click', (e) => { const action = e.target.dataset.action; if (!action) return; const actionMap = { 'add-bonus': () => createDynamicInputRow('bonus'), 'remove-bonus': () => { document.getElementById('extraBonusRow')?.remove(); state.extraBonus = 0; updateDetailedReportView(); }, 'add-debt': () => createDynamicInputRow('debt'), 'remove-debt': () => { document.getElementById('extraDebtRow')?.remove(); state.extraDebt = 0; updateDetailedReportView(); } }; actionMap[action]?.(); updateActionButtons(); });
-        function createDynamicInputRow(type) { const isBonus = type === 'bonus'; const existingRow = document.getElementById(isBonus ? 'extraBonusRow' : 'extraDebtRow'); if (existingRow) return; const mainBonusRow = document.getElementById('mainBonusRow'); if (!mainBonusRow) return; const newRow = document.createElement('tr'); newRow.id = isBonus ? 'extraBonusRow' : 'extraDebtRow'; if (!isBonus) newRow.className = 'old-debt'; const nameCellHTML = isBonus ? `<td style="display: flex; align-items: center;"><textarea class="dynamic-input" style="color: var(--success-color);" placeholder="Nhập tên thưởng..." rows="1"></textarea></td>` : `<td style="vertical-align: middle;">Nợ cũ</td>`; newRow.innerHTML = `${nameCellHTML}<td colspan="2"><input type="text" class="dynamic-input" style="color: ${isBonus ? 'var(--success-color)' : 'var(--danger-color)'};" data-type="${type}" placeholder="Nhập số tiền..." inputmode="numeric"></td>`; const anchorRow = document.getElementById('extraBonusRow') || mainBonusRow; anchorRow.insertAdjacentElement('afterend', newRow); const input = newRow.querySelector('input'); input.addEventListener('input', handleDynamicInputChange); input.addEventListener('focus', (e) => e.target.value = (parseFloat(e.target.dataset.fullValue) || 0).toLocaleString('vi-VN')); input.addEventListener('blur', (e) => e.target.value = formatNumberHiddenK(e.target.dataset.fullValue || '0')); input.focus(); } 
-        function handleDynamicInputChange(e) { const input = e.target; const rawValue = input.value.replace(/[^\d-]/g, ''); const num = parseInt(rawValue, 10) || 0; input.dataset.fullValue = num; input.value = num.toLocaleString('vi-VN'); /* Show full value while typing */ if (input.dataset.type === 'bonus') state.extraBonus = num; else if (input.dataset.type === 'debt') state.extraDebt = num; updateDetailedReportView(); }
         
-        function handleSellOptionsChange(event) {
-            const ticketType = document.querySelector('input[name="sellTicketType"]:checked').value;
-            const priceType = document.querySelector('input[name="sellPrice"]:checked').value;
-            const commissionType = document.querySelector('input[name="commissionRate"]:checked').value;
-            DOM.customTicketName.style.display = ticketType === 'custom-name' ? 'block' : 'none';
-            DOM.customTicketPrice.style.display = priceType === 'custom-price' ? 'block' : 'none';
-            DOM.customCommissionPercent.style.display = commissionType === 'custom-commission' ? 'block' : 'none';
-            if (event && event.isTrusted && event.target.name === 'sellTicketType') {
-                DOM.sellQuantityInput.value = '';
-                switch (ticketType) {
-                    case 'xo-so': document.querySelector('input[name="sellPrice"][value="10000"]').checked = true; document.querySelector('input[name="commissionRate"][value="0.10"]').checked = true; DOM.customTicketPrice.style.display = 'none'; DOM.customCommissionPercent.style.display = 'none'; DOM.sellQuantityInput.focus(); break;
-                    case 've-boc': document.querySelector('input[name="sellPrice"][value="5000"]').checked = true; document.querySelector('input[name="commissionRate"][value="0.12"]').checked = true; DOM.customTicketPrice.style.display = 'none'; DOM.customCommissionPercent.style.display = 'none'; DOM.sellQuantityInput.focus(); break;
-                    case 'custom-name': DOM.customTicketName.focus(); break;
+        function hideReloadModal() { 
+            // Reset các input file trong modal khi đóng
+            DOM.reloadFile1.value = '';
+            DOM.reloadFile2.value = '';
+            DOM.reloadFile1.classList.remove('loaded');
+            DOM.reloadFile2.classList.remove('loaded');
+            DOM.reloadModal.style.display = 'none'; 
+        }
+        
+        /**
+         * Xử lý việc nạp dữ liệu từ các file trong tempReloadData vào excelData chính
+         * và xóa dữ liệu cũ nếu không được nạp lại
+         */
+        async function reloadAndProcessData() {
+            let file1Success = false;
+            let file2Success = false;
+            
+            // 1. Nạp file 1 (Biểu 31 - Lô tô)
+            if (tempReloadData1) {
+                excelData1 = tempReloadData1.data;
+                DOM.excelFile1.classList.add('loaded');
+                // Cập nhật dateRangeText từ file 1 mới
+                let dateRow = excelData1.find(r => Object.values(r).some(v => typeof v === "string" && v.includes("Tõ ngµy")));
+                if (dateRow) {
+                    let text = Object.values(dateRow).find(v => typeof v === "string" && v.includes("Tõ ngµy"));
+                    let matchRange = text.match(/Tõ ngµy\s*(\d{2}\/\d{2})\/\d{4}.*®Õn ngµy\s*(\d{2}\/\d{2})\/\d{4}/);
+                    if (matchRange) { dateRangeText = matchRange[1] === matchRange[2] ? `Ngày ${matchRange[1]}` : `Từ ${matchRange[1]} đến ${matchRange[2]}`; }
                 }
+                file1Success = true;
+            } else {
+                excelData1 = [];
+                DOM.excelFile1.classList.remove('loaded');
             }
+
+            // 2. Nạp file 2 (Biểu 35 - XSKT)
+            if (tempReloadData2) {
+                excelData2 = tempReloadData2.data;
+                DOM.excelFile2.classList.add('loaded');
+                file2Success = true;
+            } else {
+                excelData2 = [];
+                DOM.excelFile2.classList.remove('loaded');
+            }
+
+            if (!file1Success && !file2Success) {
+                showNotification("Không có dữ liệu Excel nào được nạp.", 'error');
+                return false;
+            }
+            
+            return true;
         }
-        function addTicketToReport() { if (!state.currentSoSo) { showNotification("Vui lòng tạo hoặc mở một báo cáo chi tiết trước khi thêm vé!", 'error'); return; } const quantity = parseInt(DOM.sellQuantityInput.value, 10); if (!quantity || quantity <= 0) { showNotification("Vui lòng nhập số lượng vé hợp lệ!", 'error'); return; } let typeName = ''; const ticketType = document.querySelector('input[name="sellTicketType"]:checked').value; if (ticketType === 'xo-so') { typeName = 'Xổ số'; } else if (ticketType === 've-boc') { typeName = 'Vé bóc'; } else { typeName = DOM.customTicketName.value.trim(); if (!typeName) { showNotification('Vui lòng nhập tên loại hình!', 'error'); return; } } let price = 0; const priceType = document.querySelector('input[name="sellPrice"]:checked').value; if (priceType === 'custom-price') { price = parseFloat(DOM.customTicketPrice.value.replace(/\D/g, '')) || 0; if (price <= 0) { showNotification('Vui lòng nhập giá bán hợp lệ!', 'error'); return; } } else { price = parseFloat(priceType); } let commissionRate = 0; const commissionType = document.querySelector('input[name="commissionRate"]:checked').value; if (commissionType === 'custom-commission') { commissionRate = parseFloat(DOM.customCommissionPercent.value) / 100 || 0; if (commissionRate <= 0) { showNotification('Vui lòng nhập % hoa hồng hợp lệ!', 'error'); return; } } else { commissionRate = parseFloat(commissionType); } const doanhThu = quantity * price; const hoaHong = doanhThu * commissionRate; const formattedName = `${typeName} (${(price / 1000).toLocaleString('vi-VN')}k) [${quantity} vé]`; const newTicket = { id: Date.now(), doanhThu, hoaHong, name: formattedName }; state.addedTickets.push(newTicket); const newRow = document.createElement('tr'); newRow.className = 'added-ticket-row'; newRow.dataset.ticketId = newTicket.id; newRow.innerHTML = `<td>${newTicket.name}</td><td>${formatNumberHiddenK(doanhThu)}</td><td>${formatCommissionCellHiddenK(doanhThu, hoaHong)}</td>`; const tongCongRow = document.getElementById('tongCongRow'); if (!tongCongRow) { showNotification('Lỗi: Không tìm thấy bảng báo cáo để thêm vé.', 'error'); return; } tongCongRow.parentNode.insertBefore(newRow, tongCongRow); updateDetailedReportView(); DOM.sellQuantityInput.value = ''; newRow.scrollIntoView({ behavior: 'smooth', block: 'center' }); showSection('reportSection'); showNotification('Đã thêm vé vào báo cáo!', 'success'); }
-        
-        // === Các hàm quản lý khóa mật khẩu ===
+
+        async function submitReload() {
+             hideReloadModal();
+             showLoading();
+
+             // Chờ 1 chút cho Loading indicator hiện lên
+             await new Promise(resolve => setTimeout(resolve, 50));
+             
+             // Xử lý nạp dữ liệu từ các biến tạm
+             const success = await reloadAndProcessData();
+
+             if (success) {
+                // Tạo lại Báo cáo Tổng hợp với dữ liệu mới
+                generateSummaryView(); 
+                
+                // Xóa Báo cáo Chi tiết cũ
+                DOM.reportContainer.innerHTML = '';
+                DOM.actionButtonContainer.style.display = 'none';
+                DOM.soSoInput.value = '';
+                state.currentSoSo = null;
+                
+                showSection('summarySection'); // Chuyển về tab Báo cáo Tổng hợp
+                showNotification("Đã nạp lại dữ liệu Excel thành công!", 'success');
+             }
+             
+             hideLoading();
+        }
+
+        // --- REGION LOCKING FUNCTIONS ---
         function lockRegions() {
             DOM.regionLockContainer.classList.add('locked'); 
             DOM.btnSaveRegions.textContent = 'Mở khoá Định nghĩa';
@@ -1709,279 +1800,328 @@
             updateFilterStatus(); // Cập nhật trạng thái nút sau khi lưu
         }
 
-        // --- UTILITY FUNCTIONS ---
-        async function saveElementAsImage(selector, filename, buttonElement = null) {
-            const element = document.querySelector(selector);
-            if (!element || !element.innerHTML.trim()) {
-                showNotification("Chưa có nội dung để lưu!", 'info');
-                return;
+        // --- UI/EVENT FUNCTIONS ---
+        function updateFilterStatus() {
+            const isDefaultSort = DOM.sortSelect.value === 'default';
+            // Lấy giá trị data-value, nếu rỗng hoặc undefined thì coi là 0 (mặc định)
+            const isDefaultMinRevenue = !DOM.minRevenueInput.dataset.value || parseFloat(DOM.minRevenueInput.dataset.value) === 0;
+            const isDefaultMaxRevenue = !DOM.maxRevenueInput.dataset.value || parseFloat(DOM.maxRevenueInput.dataset.value) === 0;
+            const isDefaultRegion = DOM.regionSelect.value === 'all';
+
+            const isDefault = isDefaultSort && isDefaultMinRevenue && isDefaultMaxRevenue && isDefaultRegion;
+
+            const btn = DOM.btnClearRevenueFilter;
+            if (isDefault) {
+                btn.classList.remove('danger');
+                btn.classList.add('secondary');
+            } else {
+                btn.classList.remove('secondary');
+                btn.classList.add('danger');
             }
-
-            const originalButtonText = buttonElement ? buttonElement.textContent : '';
-            if (buttonElement) buttonElement.textContent = 'Đang tạo ảnh...';
-
-            const elementsToHideTemporarily = [];
-            const actions = element.querySelector('.summary-actions'); 
-            const filterControls = element.querySelector('.controls-panel'); 
-            const reportActions = document.getElementById('actionButtonContainer'); 
-            if (actions) elementsToHideTemporarily.push(actions);
-            if (filterControls) elementsToHideTemporarily.push(filterControls); 
-            if (reportActions && element === DOM.reportContainer) elementsToHideTemporarily.push(reportActions);
-            
-            elementsToHideTemporarily.forEach(el => el.style.display = 'none');
-            
-            const copyright = document.getElementById('copyrightInReport');
-            if (copyright && element === DOM.reportContainer) copyright.style.display = 'block'; 
-
-            let mainPage, tableContainer, table, summarySectionEl;
-            let originalPageMaxWidth, originalSummarySectionWidth, originalTableContainerWidth, originalTableContainerOverflow;
-
-            if (selector === '#summarySection') {
-                mainPage = DOM.mainPage;
-                summarySectionEl = DOM.summarySection;
-                tableContainer = DOM.summaryTableContainer;
-                table = tableContainer.querySelector('table');
-                
-                if (mainPage && summarySectionEl && tableContainer && table) {
-                    originalPageMaxWidth = mainPage.style.maxWidth;
-                    originalSummarySectionWidth = summarySectionEl.style.width;
-                    originalTableContainerWidth = tableContainer.style.width;
-                    originalTableContainerOverflow = tableContainer.style.overflowX;
-
-                    mainPage.style.maxWidth = 'none';
-                    const scrollW = table.scrollWidth + 2; 
-                    
-                    summarySectionEl.style.width = `${scrollW}px`;
-                    tableContainer.style.width = `${scrollW}px`;
-                    tableContainer.style.overflowX = 'visible';
-                }
-            }
-
-            setTimeout(async () => {
-                try {
-                    const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
-                    const dataUrl = canvas.toDataURL('image/png');
-                    
-                    const link = document.createElement('a');
-                    link.href = dataUrl;
-                    link.download = filename; 
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-
-                    showNotification('Đã lưu ảnh thành công!', 'success');
-                    if (buttonElement) {
-                        buttonElement.textContent = 'Đã lưu!';
-                        setTimeout(() => { if(buttonElement) buttonElement.textContent = originalButtonText; }, 2000);
-                    }
-
-                } catch (err) {
-                    console.error('Lỗi tạo ảnh:', err);
-                    showNotification('Đã xảy ra lỗi khi tạo ảnh.', 'error');
-                    if (buttonElement) buttonElement.textContent = originalButtonText;
-                } finally {
-                    if (copyright) copyright.style.display = 'none';
-                    elementsToHideTemporarily.forEach(el => el.style.display = ''); 
-
-                    if (mainPage && summarySectionEl && tableContainer) {
-                        mainPage.style.maxWidth = originalPageMaxWidth;
-                        summarySectionEl.style.width = originalSummarySectionWidth;
-                        tableContainer.style.width = originalTableContainerWidth;
-                        tableContainer.style.overflowX = originalTableContainerOverflow;
-                    }
-                }
-            }, 50); 
         }
         
-        async function copyElementAsImage(selector, message, buttonElement = null) {
-            const element = document.querySelector(selector);
-            if (!element || !element.innerHTML.trim()) return showNotification("Chưa có nội dung để sao chép!", 'info');
-            const originalButtonText = buttonElement ? buttonElement.textContent : '';
-            if (buttonElement) buttonElement.textContent = 'Đang tạo ảnh...';
-            const elementsToHideTemporarily = [];
-            const actions = element.querySelector('.summary-actions'); 
-            const filterControls = element.querySelector('.controls-panel'); 
-            const reportActions = document.getElementById('actionButtonContainer'); 
-            if (actions) elementsToHideTemporarily.push(actions);
-            if (filterControls) elementsToHideTemporarily.push(filterControls); 
-            if (reportActions && element === DOM.reportContainer) elementsToHideTemporarily.push(reportActions);
+        function loopLogoAnimation() {
+            // Logic Animation Logo (unchanged)
+            // ...
+            try {
+                const spans = document.querySelectorAll('.simple-animated-logo span');
+                if (spans.length === 0) return; 
 
-            elementsToHideTemporarily.forEach(el => el.style.display = 'none');
-            
-            const copyright = document.getElementById('copyrightInReport');
-            if (copyright && element === DOM.reportContainer) copyright.style.display = 'block'; 
+                const chars = Array.from(spans);
+                const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
-            let mainPage, tableContainer, table, summarySectionEl;
-            let originalPageMaxWidth, originalSummarySectionWidth, originalTableContainerWidth, originalTableContainerOverflow;
+                function getRandomColor() {
+                    const h = Math.floor(Math.random() * 360); 
+                    const s = Math.floor(Math.random() * 30) + 70; 
+                    const l = Math.floor(Math.random() * 20) + 40; 
+                    return `hsl(${h}, ${s}%, ${l}%)`;
+                }
 
-            if (selector === '#summarySection') {
-                mainPage = DOM.mainPage;
-                summarySectionEl = DOM.summarySection;
-                tableContainer = DOM.summaryTableContainer;
-                table = tableContainer.querySelector('table');
-                
-                if (mainPage && summarySectionEl && tableContainer && table) {
-                    originalPageMaxWidth = mainPage.style.maxWidth;
-                    originalSummarySectionWidth = summarySectionEl.style.width;
-                    originalTableContainerWidth = tableContainer.style.width;
-                    originalTableContainerOverflow = tableContainer.style.overflowX;
-
-                    mainPage.style.maxWidth = 'none';
-                    const scrollW = table.scrollWidth + 2; 
+                (async function animate() {
+                    // Phase 1: Fade In (từng ký tự)
+                    for (let i = 0; i < chars.length; i++) {
+                        chars[i].style.opacity = '1';
+                        chars[i].style.transform = 'translateY(0)';
+                        await delay(150); 
+                    }
                     
-                    summarySectionEl.style.width = `${scrollW}px`;
-                    tableContainer.style.width = `${scrollW}px`;
-                    tableContainer.style.overflowX = 'visible';
-                }
+                    // Phase 2: Đợi
+                    await delay(3000); 
+
+                    // Phase 3: Fade Out (cùng lúc)
+                    chars.forEach(span => {
+                        span.style.opacity = '0';
+                        span.style.transform = 'translateY(15px)';
+                    });
+
+                    // Đợi fade out hoàn tất
+                    await delay(600); 
+
+                    // Phase 4: Đổi màu
+                    const newColor = getRandomColor();
+                    DOM.logoContainers.forEach(logo => {
+                        logo.style.color = newColor;
+                    });
+                    
+                    // Lặp lại
+                    setTimeout(animate, 100); 
+                })();
+
+            } catch (error) {
+                console.error("Lỗi animation logo:", error);
             }
-
-            setTimeout(async () => {
-                try {
-                    const canvas = await html2canvas(element, { backgroundColor: "#ffffff", scale: 2 });
-                    canvas.toBlob(async (blob) => {
-                        try {
-                            if (navigator.clipboard && navigator.clipboard.write) {
-                                await navigator.clipboard.write([ new ClipboardItem({ 'image/png': blob }) ]);
-                                showNotification(message, 'success');
-                                if (buttonElement) {
-                                    buttonElement.textContent = 'Đã Copy!';
-                                    setTimeout(() => { if(buttonElement) buttonElement.textContent = originalButtonText; }, 2000);
-                                }
-                            } else { throw new Error('Clipboard API không được hỗ trợ.'); }
-                        } catch (writeErr) {
-                            console.error('Lỗi khi dùng navigator.clipboard.write:', writeErr);
-                            showNotification('Không thể tự động copy, vui lòng copy thủ công!', 'info');
-                            DOM.imagePreviewHolder.src = canvas.toDataURL('image/png');
-                            DOM.imagePreviewModal.style.display = 'block';
-                            if (buttonElement) buttonElement.textContent = originalButtonText;
-                        }
-                    }, 'image/png');
-                } catch (err) {
-                    console.error('Lỗi tạo ảnh:', err);
-                    showNotification('Đã xảy ra lỗi khi tạo ảnh.', 'error');
-                    if (buttonElement) buttonElement.textContent = originalButtonText;
-                } finally {
-                    if (copyright) copyright.style.display = 'none';
-                    elementsToHideTemporarily.forEach(el => el.style.display = ''); 
-
-                    if (mainPage && summarySectionEl && tableContainer) {
-                        mainPage.style.maxWidth = originalPageMaxWidth;
-                        summarySectionEl.style.width = originalSummarySectionWidth;
-                        tableContainer.style.width = originalTableContainerWidth;
-                        tableContainer.style.overflowX = originalTableContainerOverflow;
-                    }
-                }
-            }, 50); 
         }
         
-        function formatNumberFull(num) { 
-            num = parseFloat(num); 
-            if (isNaN(num) || num === 0) return "0"; 
-            return parseInt(num).toLocaleString("vi-VN"); 
-        }
-        
-        function formatNumberHiddenK(num) { num = parseFloat(num); if (isNaN(num) || num === 0 || Math.abs(num) < 1000) return "0"; return parseInt(num / 1000).toLocaleString("vi-VN"); }
-        function formatCommissionCellHiddenK(revenue, commission) { revenue = parseFloat(revenue); commission = parseFloat(commission); if (!revenue || revenue === 0 || isNaN(revenue) || isNaN(commission)) return formatNumberHiddenK(commission); const percentage = Math.round((commission / revenue) * 100); return `<i style="color: #E57373; font-weight: normal;">(${percentage}%)</i> ${formatNumberHiddenK(commission)}`; }
-        
-        function parseFilterString(filterString) {
-            if (!filterString || filterString.trim() === '') {
-                return null; 
-            }
-
-            const rules = [];
-            const parts = filterString.split('+'); 
+        function handleScrollButtonVisibility() {
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight;
+            const clientHeight = document.documentElement.clientHeight;
+            const summarySectionVisible = DOM.summarySection.style.display !== 'none';
             
-            parts.forEach(part => {
-                part = part.trim();
-                if (!part) return;
+            // Logic cho nút Lên Đầu
+            if (scrollTop > 200 && summarySectionVisible) {
+                DOM.scrollToTopBtn.classList.add('show');
+            } else {
+                DOM.scrollToTopBtn.classList.remove('show');
+            }
 
-                if (part.includes('_')) {
-                    const range = part.split('_');
-                    const min = parseInt(range[0], 10);
-                    const max = parseInt(range[1], 10);
-                    if (!isNaN(min) && !isNaN(max) && min <= max) {
-                        rules.push({ min, max });
-                    }
-                } else {
-                    const num = parseInt(part, 10);
-                    if (!isNaN(num)) {
-                        rules.push({ min: num, max: num });
-                    }
+            // Logic cho nút Xuống Dưới
+            if (scrollTop < (scrollHeight - clientHeight - 200) && summarySectionVisible) {
+                DOM.scrollToBottomBtn.classList.add('show');
+            } else {
+                DOM.scrollToBottomBtn.classList.remove('show');
+            }
+        }
+
+        function showManualInputModal() {
+            clearManualReportForm(); 
+            DOM.manualInputModal.style.display = 'block';
+            document.getElementById('manualAgentName').focus(); 
+        }
+        function hideManualInputModal() {
+            DOM.manualInputModal.style.display = 'none';
+        }
+        function hideImagePreviewModal() {
+            DOM.imagePreviewModal.style.display = 'none';
+            DOM.imagePreviewHolder.src = ''; 
+        }
+
+        function showSection(sectionId) { 
+            [DOM.summarySection, DOM.reportSection, DOM.sellSection].forEach(s => s.style.display = 'none'); 
+            const sectionToShow = document.getElementById(sectionId);
+            if(sectionToShow) sectionToShow.style.display = 'block';
+            
+            [DOM.navSummary, DOM.navReport, DOM.navSell, DOM.navReload].forEach(b => b.classList.remove('active')); 
+            
+            let activeBtn;
+            if (sectionId === 'summarySection') activeBtn = DOM.navSummary;
+            else if (sectionId === 'reportSection') activeBtn = DOM.navReport;
+            else if (sectionId === 'sellSection') activeBtn = DOM.navSell;
+            
+            if(activeBtn) activeBtn.classList.add('active'); 
+            else DOM.navSummary.classList.add('active'); 
+
+            if (sectionId !== 'summarySection') {
+                DOM.scrollToTopBtn.classList.remove('show');
+                DOM.scrollToBottomBtn.classList.remove('show'); 
+            } else {
+                handleScrollButtonVisibility();
+            }
+        }
+
+        function toggleActionChoices() { if (DOM.toggleChoicesBtn.textContent.includes('Thêm')) { DOM.actionChoices.style.display = 'grid'; DOM.toggleChoicesBtn.textContent = 'Xoá hết Thưởng/Nợ'; DOM.toggleChoicesBtn.className = 'danger'; } else { document.getElementById('extraBonusRow')?.remove(); document.getElementById('extraDebtRow')?.remove(); state.extraBonus = 0; state.extraDebt = 0; updateDetailedReportView(); DOM.actionChoices.style.display = 'none'; DOM.toggleChoicesBtn.textContent = 'Thêm tiền Thưởng/Nợ'; DOM.toggleChoicesBtn.className = 'secondary'; } updateActionButtons(); }
+        function updateActionButtons() { DOM.actionChoices.innerHTML = `${document.getElementById('extraBonusRow') ? `<button class="danger" data-action="remove-bonus">Xoá Thưởng thêm</button>` : `<button data-action="add-bonus">Thêm tiền Thưởng</button>`}${document.getElementById('extraDebtRow') ? `<button class="danger" data-action="remove-debt">Xoá tiền Nợ</button>` : `<button data-action="add-debt">Thêm tiền Nợ</button>`}`; }
+        
+        function handleDynamicInputChange(e) { const input = e.target; const rawValue = input.value.replace(/[^\d-]/g, ''); const num = parseInt(rawValue, 10) || 0; input.dataset.fullValue = num; input.value = num.toLocaleString('vi-VN'); /* Show full value while typing */ if (input.dataset.type === 'bonus') state.extraBonus = num; else if (input.dataset.type === 'debt') state.extraDebt = num; updateDetailedReportView(); }
+        
+        function handleSellOptionsChange(event) {
+            const ticketType = document.querySelector('input[name="sellTicketType"]:checked').value;
+            const priceType = document.querySelector('input[name="sellPrice"]:checked').value;
+            const commissionType = document.querySelector('input[name="commissionRate"]:checked').value;
+            DOM.customTicketName.style.display = ticketType === 'custom-name' ? 'block' : 'none';
+            DOM.customTicketPrice.style.display = priceType === 'custom-price' ? 'block' : 'none';
+            DOM.customCommissionPercent.style.display = commissionType === 'custom-commission' ? 'block' : 'none';
+            if (event && event.isTrusted && event.target.name === 'sellTicketType') {
+                DOM.sellQuantityInput.value = '';
+                switch (ticketType) {
+                    case 'xo-so': document.querySelector('input[name="sellPrice"][value="10000"]').checked = true; document.querySelector('input[name="commissionRate"][value="0.10"]').checked = true; DOM.customTicketPrice.style.display = 'none'; DOM.customCommissionPercent.style.display = 'none'; DOM.sellQuantityInput.focus(); break;
+                    case 've-boc': document.querySelector('input[name="sellPrice"][value="5000"]').checked = true; document.querySelector('input[name="commissionRate"][value="0.12"]').checked = true; DOM.customTicketPrice.style.display = 'none'; DOM.customCommissionPercent.style.display = 'none'; DOM.sellQuantityInput.focus(); break;
+                    case 'custom-name': DOM.customTicketName.focus(); break;
                 }
+            }
+        }
+        function addTicketToReport() { if (!state.currentSoSo) { showNotification("Vui lòng tạo hoặc mở một báo cáo chi tiết trước khi thêm vé!", 'error'); return; } const quantity = parseInt(DOM.sellQuantityInput.value, 10); if (!quantity || quantity <= 0) { showNotification("Vui lòng nhập số lượng vé hợp lệ!", 'error'); return; } let typeName = ''; const ticketType = document.querySelector('input[name="sellTicketType"]:checked').value; if (ticketType === 'xo-so') { typeName = 'Xổ số'; } else if (ticketType === 've-boc') { typeName = 'Vé bóc'; } else { typeName = DOM.customTicketName.value.trim(); if (!typeName) { showNotification('Vui lòng nhập tên loại hình!', 'error'); return; } } let price = 0; const priceType = document.querySelector('input[name="sellPrice"]:checked').value; if (priceType === 'custom-price') { price = parseFloat(DOM.customTicketPrice.value.replace(/\D/g, '')) || 0; if (price <= 0) { showNotification('Vui lòng nhập giá bán hợp lệ!', 'error'); return; } } else { price = parseFloat(priceType); } let commissionRate = 0; const commissionType = document.querySelector('input[name="commissionRate"]:checked').value; if (commissionType === 'custom-commission') { commissionRate = parseFloat(DOM.customCommissionPercent.value) / 100 || 0; if (commissionRate <= 0) { showNotification('Vui lòng nhập % hoa hồng hợp lệ!', 'error'); return; } } else { commissionRate = parseFloat(commissionType); } const doanhThu = quantity * price; const hoaHong = doanhThu * commissionRate; const formattedName = `${typeName} (${(price / 1000).toLocaleString('vi-VN')}k) [${quantity} vé]`; const newTicket = { id: Date.now(), doanhThu, hoaHong, name: formattedName }; state.addedTickets.push(newTicket); const newRow = document.createElement('tr'); newRow.className = 'added-ticket-row'; newRow.dataset.ticketId = newTicket.id; newRow.innerHTML = `<td>${newTicket.name}</td><td>${formatNumberHiddenK(doanhThu)}</td><td>${formatCommissionCellHiddenK(doanhThu, hoaHong)}</td>`; const tongCongRow = document.getElementById('tongCongRow'); if (!tongCongRow) { showNotification('Lỗi: Không tìm thấy bảng báo cáo để thêm vé.', 'error'); return; } tongCongRow.parentNode.insertBefore(newRow, tongCongRow); updateDetailedReportView(); DOM.sellQuantityInput.value = ''; newRow.scrollIntoView({ behavior: 'smooth', block: 'center' }); showSection('reportSection'); showNotification('Đã thêm vé vào báo cáo!', 'success'); }
+        
+        function createDynamicInputRow(type) { 
+            const isBonus = type === 'bonus'; 
+            const existingRow = document.getElementById(isBonus ? 'extraBonusRow' : 'extraDebtRow'); 
+            if (existingRow) return; 
+            const mainBonusRow = document.getElementById('mainBonusRow'); 
+            if (!mainBonusRow) return; 
+            const newRow = document.createElement('tr'); 
+            newRow.id = isBonus ? 'extraBonusRow' : 'extraDebtRow'; 
+            if (!isBonus) newRow.className = 'old-debt'; 
+            const nameCellHTML = isBonus ? `<td style="display: flex; align-items: center;"><textarea class="dynamic-input" style="color: var(--success-color);" placeholder="Nhập tên thưởng..." rows="1"></textarea></td>` : `<td style="vertical-align: middle;">Nợ cũ</td>`; 
+            newRow.innerHTML = `${nameCellHTML}<td colspan="2"><input type="text" class="dynamic-input" style="color: ${isBonus ? 'var(--success-color)' : 'var(--danger-color)'};" data-type="${type}" placeholder="Nhập số tiền..." inputmode="numeric"></td>`; 
+            const anchorRow = document.getElementById('extraBonusRow') || mainBonusRow; 
+            anchorRow.insertAdjacentElement('afterend', newRow); 
+            const input = newRow.querySelector('input'); 
+            input.addEventListener('input', handleDynamicInputChange); 
+            input.addEventListener('focus', (e) => e.target.value = (parseFloat(e.target.dataset.fullValue) || 0).toLocaleString('vi-VN')); 
+            input.addEventListener('blur', (e) => e.target.value = formatNumberHiddenK(e.target.dataset.fullValue || '0')); 
+            input.focus(); 
+        }
+
+        function initializeApp() {
+            DOM.btnLoadData.addEventListener('click', () => { 
+                if (excelData1.length === 0 && excelData2.length === 0) { 
+                    showNotification("Vui lòng chọn ít nhất một file excel!", 'error'); 
+                    return; 
+                } 
+                generateSummaryView(); 
+                DOM.homePage.style.display = 'none'; 
+                DOM.mainPage.style.display = 'block'; 
+                showSection('reportSection'); 
+                loopLogoAnimation(); 
+            });
+            DOM.navSummary.addEventListener('click', () => showSection('summarySection'));
+            DOM.navReport.addEventListener('click', () => showSection('reportSection'));
+            DOM.navSell.addEventListener('click', () => showSection('sellSection'));
+            DOM.excelFile1.addEventListener('change', (e) => handleFile(e.target.files[0], 1, 'excelFile1'));
+            DOM.excelFile2.addEventListener('change', (e) => handleFile(e.target.files[0], 2, 'excelFile2'));
+            DOM.btnCreateReport.addEventListener('click', createDetailedReport);
+            DOM.soSoInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.target.blur(); createDetailedReport(); } });
+            
+            // Lắng nghe sự kiện cho các input tiền tệ
+            document.querySelectorAll('.manual-currency').forEach(input => { 
+                input.addEventListener('input', (e) => { 
+                    const value = e.target.value.replace(/\D/g, ''); 
+                    e.target.dataset.value = value; 
+                    e.target.value = value ? parseInt(value, 10).toLocaleString('vi-VN') : ''; 
+                    updateFilterStatus(); // Cập nhật trạng thái nút
+                }); 
             });
             
-            return rules.length > 0 ? rules : null;
-        }
-
-        function agentMatchesFilter(agentCode, filterRules) {
-            if (!filterRules) {
-                return true; 
-            }
-
-            const numericMatch = String(agentCode).match(/\d+$/);
-            if (!numericMatch) {
-                return false; 
-            }
-            const agentNum = parseInt(numericMatch[0], 10);
-
-            for (const rule of filterRules) {
-                if (agentNum >= rule.min && agentNum <= rule.max) {
-                    return true; 
-                }
-            }
+            DOM.btnShowManualReport.addEventListener('click', showManualInputModal);
+            DOM.btnShowManualReport_inline.addEventListener('click', showManualInputModal);
+            DOM.btnCreateManualReport.addEventListener('click', createManualReport);
+            DOM.btnClearManualReport.addEventListener('click', clearManualReportForm); 
+            manualFormOrder.forEach(id => { const element = document.getElementById(id); if (element) { element.addEventListener('keydown', handleManualFormEnter); } });
             
-            return false; 
-        }
+            DOM.btnSaveSummary.addEventListener('click', () => saveElementAsImage('#summarySection', 'Báo-cáo-Tổng-kết.png', DOM.btnSaveSummary));
+            
+            DOM.btnCopySummary.addEventListener('click', () => copyElementAsImage('#summarySection', 'Copy ảnh tổng kết thành công!', DOM.btnCopySummary));
+            
+            DOM.btnCopyReport.addEventListener('click', () => copyElementAsImage('#reportContainer', 'Copy ảnh báo cáo thành công!', DOM.btnCopyReport));
+            DOM.toggleChoicesBtn.addEventListener('click', toggleActionChoices);
+            DOM.actionChoices.addEventListener('click', (e) => { 
+                const action = e.target.dataset.action; 
+                if (!action) return; 
+                const actionMap = { 
+                    'add-bonus': () => createDynamicInputRow('bonus'), 
+                    'remove-bonus': () => { document.getElementById('extraBonusRow')?.remove(); state.extraBonus = 0; updateDetailedReportView(); }, 
+                    'add-debt': () => createDynamicInputRow('debt'), 
+                    'remove-debt': () => { document.getElementById('extraDebtRow')?.remove(); state.extraDebt = 0; updateDetailedReportView(); } 
+                }; 
+                actionMap[action]?.(); 
+                updateActionButtons(); 
+            });
 
-        function docso(numberStr) {
-            const num = String(numberStr).replace(/[.,]/g, '');
-            if (num === '0') return 'Không';
-            if (num === '' || isNaN(parseInt(num))) return '';
-            const words = ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"];
-            const units = ["", "nghìn", "triệu", "tỷ"];
-            const readChunk = (chunkStr, isFirstChunk) => {
-                if (!chunkStr || parseInt(chunkStr, 10) === 0) return "";
-                let n = chunkStr.padStart(3, '0').split('').map(Number);
-                if (chunkStr.length < 3 && isFirstChunk) { 
-                    if (chunkStr.length === 1) n = [0, 0, Number(chunkStr)];
-                    else if (chunkStr.length === 2) n = [0, Number(chunkStr[0]), Number(chunkStr[1])];
-                }
-                const [tram, chuc, donvi] = n; let str = "";
-                if (tram > 0) { str += words[tram] + " trăm "; } 
-                else if (!isFirstChunk && (chuc > 0 || donvi > 0)) { str += "không trăm "; }
-                if (chuc === 0 && donvi !== 0) { if (tram > 0 || !isFirstChunk) str += "linh "; } 
-                else if (chuc === 1) { str += "mười "; } 
-                else if (chuc > 1) { str += words[chuc] + " mươi "; }
-                if (donvi > 0) {
-                     if (chuc === 0) {
-                         if((tram > 0 || !isFirstChunk) && parseInt(chunkStr, 10) > 0) str += words[donvi]; 
-                         else if (isFirstChunk) str+= words[donvi]; 
-                     }
-                     else if (chuc === 1) { 
-                        if (donvi === 1) str += "một"; 
-                        else if (donvi === 5) str += "lăm"; 
-                        else str += words[donvi];
-                    } else { 
-                        if (donvi === 1) str += "mốt"; 
-                        else if (donvi === 5) str += "lăm"; 
-                        else str += words[donvi];
-                    }
-                }
-                return str.trim();
-            };
-            const chunks = []; let tempNum = num;
-            while (tempNum.length > 0) { chunks.unshift(tempNum.substring(Math.max(0, tempNum.length - 3))); tempNum = tempNum.substring(0, tempNum.length - 3); }
-            if (chunks.length > units.length) return "Số quá lớn";
-            let result = chunks.map((chunk, i) => { const text = readChunk(chunk, i === 0); if (text) { return text + " " + units[chunks.length - 1 - i]; } return ""; }).filter(Boolean).join(" ").replace(/\s+/g, ' ').trim();
-            return result.charAt(0).toUpperCase() + result.slice(1);
-        }
-        
-        // --- Notification System ---
-        function showNotification(message, type = 'info', duration = 3000) { const notification = document.createElement('div'); notification.className = `notification ${type}`; notification.textContent = message; DOM.notificationArea.appendChild(notification); notification.offsetHeight; notification.classList.add('show'); setTimeout(() => { notification.classList.remove('show'); notification.addEventListener('transitionend', () => notification.remove()); }, duration); }
+            DOM.sellTicketTypeRadios.forEach(radio => radio.addEventListener('change', handleSellOptionsChange));
+            DOM.sellPriceRadios.forEach(radio => radio.addEventListener('change', handleSellOptionsChange));
+            DOM.commissionRateRadios.forEach(radio => radio.addEventListener('change', handleSellOptionsChange));
+            DOM.customTicketPrice.addEventListener('input', (e) => { const value = e.target.value.replace(/\D/g, ''); e.target.value = value ? parseInt(value, 10).toLocaleString('vi-VN') : ''; });
+            DOM.sellQuantityInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); DOM.btnAddTicket.click(); } });
+            DOM.btnAddTicket.addEventListener('click', addTicketToReport);
+            DOM.closeModalBtn.addEventListener('click', hideManualInputModal);
+            DOM.manualInputModal.addEventListener('click', (event) => { if (event.target === DOM.manualInputModal) { hideManualInputModal(); } });
+            DOM.closePreviewModalBtn.addEventListener('click', hideImagePreviewModal);
+            DOM.imagePreviewModal.addEventListener('click', (event) => { if (event.target === DOM.imagePreviewModal) { hideImagePreviewModal(); } });
+            DOM.navReload.addEventListener('click', showReloadModal);
+            DOM.closeReloadModalBtn.addEventListener('click', hideReloadModal); // Nút đóng (X)
+            DOM.reloadModal.addEventListener('click', (e) => { if (e.target === DOM.reloadModal) hideReloadModal(); }); // Click ngoài modal
+            DOM.reloadFile1.addEventListener('change', (e) => handleFile(e.target.files[0], 1, 'reloadFile1', true));
+            DOM.reloadFile2.addEventListener('change', (e) => handleFile(e.target.files[0], 2, 'reloadFile2', true));
+            DOM.btnReloadSubmit.addEventListener('click', submitReload);
 
-        // --- Loading Indicator ---
-        function showLoading() { DOM.loadingIndicator.style.display = 'block'; }
-        function hideLoading() { DOM.loadingIndicator.style.display = 'none'; }
+            // === Sự kiện cho Định nghĩa Vùng & Mật khẩu ===
+            DOM.btnSaveRegions.addEventListener('click', handleRegionButtonPress); 
+            DOM.regionSelect.addEventListener('change', () => {
+                generateSummaryView();
+                updateFilterStatus(); // Cập nhật trạng thái nút
+            }); 
+            
+            // Listener cho modal mật khẩu
+            DOM.closePasswordModalBtn.addEventListener('click', hidePasswordModal);
+            DOM.cancelPasswordBtn.addEventListener('click', hidePasswordModal);
+            DOM.passwordModal.addEventListener('click', (e) => { if (e.target === DOM.passwordModal) hidePasswordModal(); });
+            DOM.btnSubmitPassword.addEventListener('click', checkPassword);
+            DOM.passwordInput.addEventListener('keydown', (e) => { 
+                if (e.key === 'Enter') { 
+                    e.preventDefault(); 
+                    checkPassword(); 
+                } 
+            });
+
+            // === Sự kiện cho nút cuộn lên/xuống ===
+            DOM.scrollToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            DOM.scrollToBottomBtn.addEventListener('click', () => {
+                window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+            });
+
+            window.addEventListener('scroll', handleScrollButtonVisibility);
+
+            loadSavedRegions();
+
+            // === Sự kiện cho bộ lọc doanh số (Tự động lọc) ===
+            DOM.sortSelect.addEventListener('change', () => {
+                generateSummaryView();
+                updateFilterStatus(); // Cập nhật trạng thái nút
+            }); 
+            
+            DOM.minRevenueInput.addEventListener('keydown', (e) => { 
+                if (e.key === 'Enter') {
+                    e.preventDefault(); 
+                    DOM.maxRevenueInput.focus(); 
+                } 
+            });
+            DOM.minRevenueInput.addEventListener('blur', () => {
+                generateSummaryView();
+                updateFilterStatus(); // Cập nhật trạng thái nút
+            }); 
+
+            DOM.maxRevenueInput.addEventListener('keydown', (e) => { 
+                if (e.key === 'Enter') {
+                    e.preventDefault(); 
+                    e.target.blur(); 
+                } 
+            });
+            DOM.maxRevenueInput.addEventListener('blur', () => {
+                generateSummaryView();
+                updateFilterStatus(); // Cập nhật trạng thái nút
+            }); 
+            
+            // === ĐÃ CẬP NHẬT: Thêm thao tác đặt lại 'Chọn Đơn vị' khi ấn 'Về mặc định' ===
+            DOM.btnClearRevenueFilter.addEventListener('click', () => {
+                DOM.sortSelect.value = 'default';
+                DOM.minRevenueInput.value = '';
+                if(DOM.minRevenueInput.dataset) DOM.minRevenueInput.dataset.value = ''; 
+                DOM.maxRevenueInput.value = '';
+                if(DOM.maxRevenueInput.dataset) DOM.maxRevenueInput.dataset.value = ''; 
+                
+                // THAO TÁC MỚI
+                DOM.regionSelect.value = 'all';
+                
+                generateSummaryView();
+                updateFilterStatus(); // Cập nhật trạng thái nút về mặc định
+            });
+
+            // Khởi tạo trạng thái nút lần đầu
+            updateFilterStatus();
+            loopLogoAnimation(); 
+        }
         
         document.addEventListener('DOMContentLoaded', initializeApp);
 
