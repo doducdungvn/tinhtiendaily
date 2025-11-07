@@ -436,8 +436,9 @@
         .copyright { font-size: 3vw; }
         
         .dynamic-input { font-size: 4.2vw !important; }
-        .manual-grid { grid-template-columns: 1fr; }
-        .manual-grid label { text-align: left; }
+        
+        /* === THAY ĐỔI: Đã xóa .manual-grid và .manual-grid label để dùng chung CSS desktop (gọn hơn) === */
+        
         .modal-content { width: 95%; padding: 20px; }
         .modal-close-btn { top: 8px; right: 12px; font-size: 24px; }
         #notification-area { top: 10px; right: 10px; }
@@ -483,14 +484,16 @@
         
         /* === THAY ĐỔI MỚI: Làm khung modal nhỏ lại trên mobile === */
         #reloadModal .modal-content, 
-        #passwordModal .modal-content {
+        #passwordModal .modal-content,
+        #manualInputModal .modal-content { /* <-- ĐÃ THÊM VÀO */
             width: 80%;
             max-width: 320px;
             padding: 15px; /* Giảm padding */
         }
         
         #reloadModal .controls-panel, 
-        #passwordModal .controls-panel {
+        #passwordModal .controls-panel,
+        #manualInputModal .controls-panel { /* <-- ĐÃ THÊM VÀO */
             padding-left: 0;
             padding-right: 0;
         }
@@ -972,16 +975,36 @@
                 const groupKey = numericMatch ? parseInt(numericMatch[0], 10) : agentCode; 
 
                 if (!groupedData.has(groupKey)) { 
-                    groupedData.set(groupKey, { agents: [], groupTotal: 0, groupTotalRevenue: 0, groupTotalThuong: 0 }); 
+                    // === THAY ĐỔI (START): Khởi tạo thêm các trường tổng loại hình ===
+                    groupedData.set(groupKey, { 
+                        agents: [], 
+                        groupTotal: 0, 
+                        groupTotalRevenue: 0, 
+                        groupTotalThuong: 0,
+                        groupTotalLotoDB: 0,
+                        groupTotalLotoCap: 0,
+                        groupTotalC3_23: 0,
+                        groupTotalC2_27: 0,
+                        groupTotalXSKT: 0
+                    }); 
+                    // === THAY ĐỔI (END) ===
                 } 
                 const group = groupedData.get(groupKey);
                 
                 const agentDetails = filteredAgentData.get(agentCode); 
                 const finalAmount = agentDetails.totalRevenue - agentDetails.totalCommission - agentDetails.thuong; 
                 group.agents.push({ code: agentCode, data: agentDetails }); 
+
+                // === THAY ĐỔI (START): Cộng dồn các tổng của nhóm ===
                 group.groupTotal += finalAmount; 
                 group.groupTotalRevenue += agentDetails.totalRevenue; 
-                group.groupTotalThuong += agentDetails.thuong; 
+                group.groupTotalThuong += agentDetails.thuong;
+                group.groupTotalLotoDB += agentDetails.lotoDB;
+                group.groupTotalLotoCap += agentDetails.lotoCap;
+                group.groupTotalC3_23 += agentDetails.c3_23;
+                group.groupTotalC2_27 += agentDetails.c2_27;
+                group.groupTotalXSKT += agentDetails.xskt;
+                // === THAY ĐỔI (END) ===
             }); 
             
             // === Áp dụng BỘ LỌC DOANH SỐ theo TỔNG NHÓM ===
@@ -1051,17 +1074,32 @@
                     const sttCell = isFirstInGroup ? `<td>${stt}</td>` : '<td></td>'; 
                     let finalAmountCellContent = finalAmount < 0 ? `<span class="negative-value">${formatNumberHiddenK(finalAmount)}</span>` : formatNumberHiddenK(finalAmount); 
                     
+                    // === THAY ĐỔI (START): Khởi tạo nội dung cho các ô ===
+                    let lotoDbCellContent = formatNumberHiddenK(agentData.lotoDB);
+                    let loCapCellContent = formatNumberHiddenK(agentData.lotoCap);
+                    let c3_23CellContent = formatNumberHiddenK(agentData.c3_23);
+                    let c2_27CellContent = formatNumberHiddenK(agentData.c2_27);
+                    let xsktCellContent = formatNumberHiddenK(agentData.xskt);
                     let dsoCellContent = formatNumberHiddenK(agentData.totalRevenue);
                     let thuongCellContent = formatNumberHiddenK(agentData.thuong);
 
+                    // === THAY ĐỔI (START): Thêm tổng nhóm cho tất cả các cột nếu là dòng cuối và nhóm có > 1 đại lý ===
                     if (index === group.agents.length - 1 && group.agents.length > 1) {
-                        finalAmountCellContent += `<br><strong style="color: var(--primary-color); font-size: 0.9em;">(${formatNumberHiddenK(group.groupTotal)})</strong>`; 
+                        const totalStyle = `<br><strong style="color: var(--primary-color); font-size: 0.9em;">`;
                         
-                        dsoCellContent += `<br><strong style="color: var(--primary-color); font-size: 0.9em;">(${formatNumberHiddenK(group.groupTotalRevenue)})</strong>`;
-                        thuongCellContent += `<br><strong style="color: var(--primary-color); font-size: 0.9em;">(${formatNumberHiddenK(group.groupTotalThuong)})</strong>`;
+                        lotoDbCellContent += `${totalStyle}(${formatNumberHiddenK(group.groupTotalLotoDB)})</strong>`;
+                        loCapCellContent += `${totalStyle}(${formatNumberHiddenK(group.groupTotalLotoCap)})</strong>`;
+                        c3_23CellContent += `${totalStyle}(${formatNumberHiddenK(group.groupTotalC3_23)})</strong>`;
+                        c2_27CellContent += `${totalStyle}(${formatNumberHiddenK(group.groupTotalC2_27)})</strong>`;
+                        xsktCellContent += `${totalStyle}(${formatNumberHiddenK(group.groupTotalXSKT)})</strong>`;
+                        dsoCellContent += `${totalStyle}(${formatNumberHiddenK(group.groupTotalRevenue)})</strong>`;
+                        thuongCellContent += `${totalStyle}(${formatNumberHiddenK(group.groupTotalThuong)})</strong>`;
+                        finalAmountCellContent += `${totalStyle}(${formatNumberHiddenK(group.groupTotal)})</strong>`; 
                     } 
+                    // === THAY ĐỔI (END) ===
 
-                    body += `<tr ${isFirstInGroup ? 'class="group-start-row"' : ''}>${sttCell}<td>${agent.code}</td><td>${formatNumberHiddenK(agentData.lotoDB)}</td><td>${formatNumberHiddenK(agentData.lotoCap)}</td><td>${formatNumberHiddenK(agentData.c3_23)}</td><td>${formatNumberHiddenK(agentData.c2_27)}</td><td>${formatNumberHiddenK(agentData.xskt)}</td><td>${dsoCellContent}</td><td>${thuongCellContent}</td><td>${finalAmountCellContent}</td></tr>`; 
+                    // === THAY ĐỔI: Sử dụng nội dung đã tạo ===
+                    body += `<tr ${isFirstInGroup ? 'class="group-start-row"' : ''}>${sttCell}<td>${agent.code}</td><td>${lotoDbCellContent}</td><td>${loCapCellContent}</td><td>${c3_23CellContent}</td><td>${c2_27CellContent}</td><td>${xsktCellContent}</td><td>${dsoCellContent}</td><td>${thuongCellContent}</td><td>${finalAmountCellContent}</td></tr>`; 
                 }); 
                 stt++; 
             } 
