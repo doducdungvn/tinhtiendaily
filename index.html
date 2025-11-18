@@ -76,6 +76,7 @@
         font-weight: normal; color: var(--text-light); 
     }
 
+
     .controls-panel { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--container-bg); }
     label { font-weight: 500; color: var(--text-color); }
     input[type="text"], input[type="file"], input[type="number"], select, button, textarea { padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border-color); width: 100%; box-sizing: border-box; font-size: 16px; transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
@@ -170,15 +171,22 @@
     .region-lock-container.locked label[for="regionDefinitionsInput"] { display: none !important; }
     .region-lock-container.locked #btnSaveRegions { display: block !important; }
     
-    /* CSS MỚI CHO PHẦN NỢ */
+    /* CSS CHO PHẦN NỢ */
     .debt-mode-selector {
         display: flex;
-        gap: 20px;
+        gap: 10px;
         margin-bottom: 10px;
         padding: 10px;
         background-color: var(--neutral-light-bg);
         border-radius: 6px;
         border: 1px solid var(--border-color);
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+    .debt-mode-selector .options {
+        display: flex;
+        gap: 15px;
     }
     .debt-mode-selector label {
         display: flex;
@@ -248,6 +256,7 @@
         h2 { font-size: 6vw; } h3 { font-size: 5vw; } label { font-size: 4vw; }
         .simple-animated-logo { font-size: 8vw; } 
         .main-page-logo { font-size: 6vw; margin-bottom: 15px; } 
+
         input, button, textarea { padding: 10px 12px; font-size: 4vw; }
         th, td { padding: 8px; font-size: 4vw; word-break: break-word; }
         .so-so { font-size: 6vw; word-break: break-all; }
@@ -335,8 +344,11 @@
                          <label>Quản lý Nợ:</label>
                          
                          <div class="debt-mode-selector">
-                            <label><input type="radio" name="debtMode" value="manual"> Nhập thủ công</label>
-                            <label><input type="radio" name="debtMode" value="excel"> Nhập Excel (tienno.xls)</label>
+                            <div class="options">
+                                <label><input type="radio" name="debtMode" value="manual"> Nhập thủ công</label>
+                                <label><input type="radio" name="debtMode" value="excel"> Nhập Excel (tienno.xls)</label>
+                            </div>
+                            <button id="btnClearDebt" class="danger" style="padding: 6px 15px; width: auto; margin-left: auto;">Xóa Nợ</button>
                          </div>
 
                          <div id="debtManualContainer" style="display: none;">
@@ -612,6 +624,7 @@
             debtExcelContainer: document.getElementById('debtExcelContainer'),
             debtFile: document.getElementById('debtFile'),
             debtModeRadios: document.querySelectorAll('input[name="debtMode"]'),
+            btnClearDebt: document.getElementById('btnClearDebt'),
 
             passwordModal: document.getElementById('passwordModal'),
             closePasswordModalBtn: document.getElementById('closePasswordModalBtn'),
@@ -968,7 +981,7 @@
             return { groupedData: finalGroupedData, grandTotals }; 
         }
         
-        function renderSummaryTable({ groupedData, grandTotals }, sortMode = 'default') { 
+        function renderSummaryTable({ groupedData, grandTotals }, sortMode = 'default', hasXSKT = false, hasDebt = false) { 
             let body = ''; 
             let stt = 1; 
             
@@ -992,10 +1005,12 @@
                     let loCapCellContent = formatNumberHiddenK(agentData.lotoCap);
                     let c3_23CellContent = formatNumberHiddenK(agentData.c3_23);
                     let c2_27CellContent = formatNumberHiddenK(agentData.c2_27);
-                    let xsktCellContent = formatNumberHiddenK(agentData.xskt);
                     let dsoCellContent = formatNumberHiddenK(agentData.totalRevenue);
                     let thuongCellContent = formatNumberHiddenK(agentData.thuong);
-                    let debtCellContent = formatNumberHiddenK(agentData.debt); 
+
+                    // Xử lý cột XSKT và Nợ
+                    let xsktCellContent = hasXSKT ? `<td>${formatNumberHiddenK(agentData.xskt)}</td>` : '';
+                    let debtCellContent = hasDebt ? `<td>${formatNumberHiddenK(agentData.debt)}</td>` : '';
 
                     if (index === group.agents.length - 1 && group.agents.length > 1) {
                         const totalStyle = `<br><strong style="color: var(--primary-color); font-size: 0.9em;">`;
@@ -1003,22 +1018,69 @@
                         loCapCellContent += `${totalStyle}(${formatNumberHiddenK(group.groupTotalLotoCap)})</strong>`;
                         c3_23CellContent += `${totalStyle}(${formatNumberHiddenK(group.groupTotalC3_23)})</strong>`;
                         c2_27CellContent += `${totalStyle}(${formatNumberHiddenK(group.groupTotalC2_27)})</strong>`;
-                        xsktCellContent += `${totalStyle}(${formatNumberHiddenK(group.groupTotalXSKT)})</strong>`;
                         dsoCellContent += `${totalStyle}(${formatNumberHiddenK(group.groupTotalRevenue)})</strong>`;
                         thuongCellContent += `${totalStyle}(${formatNumberHiddenK(group.groupTotalThuong)})</strong>`;
-                        debtCellContent += `${totalStyle}(${formatNumberHiddenK(group.groupTotalDebt)})</strong>`; 
                         finalAmountCellContent += `${totalStyle}(${formatNumberHiddenK(group.groupTotal)})</strong>`; 
-                    } 
+                        
+                        if (hasXSKT) {
+                            xsktCellContent = `<td>${formatNumberHiddenK(agentData.xskt)}${totalStyle}(${formatNumberHiddenK(group.groupTotalXSKT)})</strong></td>`;
+                        }
+                        if (hasDebt) {
+                            debtCellContent = `<td>${formatNumberHiddenK(agentData.debt)}${totalStyle}(${formatNumberHiddenK(group.groupTotalDebt)})</strong></td>`;
+                        }
+                    } else {
+                        // Nếu không phải dòng cuối, wrap lại trong td cho đúng chuẩn
+                         if (hasXSKT) xsktCellContent = `<td>${formatNumberHiddenK(agentData.xskt)}</td>`;
+                         if (hasDebt) debtCellContent = `<td>${formatNumberHiddenK(agentData.debt)}</td>`;
+                    }
 
-                    body += `<tr ${isFirstInGroup ? 'class="group-start-row"' : ''}>${sttCell}<td>${agent.code}</td><td>${lotoDbCellContent}</td><td>${loCapCellContent}</td><td>${c3_23CellContent}</td><td>${c2_27CellContent}</td><td>${xsktCellContent}</td><td>${dsoCellContent}</td><td>${thuongCellContent}</td><td>${debtCellContent}</td><td>${finalAmountCellContent}</td></tr>`; 
+                    body += `<tr ${isFirstInGroup ? 'class="group-start-row"' : ''}>
+                        ${sttCell}
+                        <td>${agent.code}</td>
+                        <td>${lotoDbCellContent}</td>
+                        <td>${loCapCellContent}</td>
+                        <td>${c3_23CellContent}</td>
+                        <td>${c2_27CellContent}</td>
+                        ${xsktCellContent}
+                        <td>${dsoCellContent}</td>
+                        <td>${thuongCellContent}</td>
+                        ${debtCellContent}
+                        <td>${finalAmountCellContent}</td>
+                    </tr>`; 
                 }); 
                 stt++; 
             } 
             const grandFinalAmountClass = grandTotals.finalAmount >= 0 ? 'final-amount-positive' : 'final-amount-negative'; 
             
-            const footer = `<tr><td colspan="2">TỔNG CỘNG</td><td>${formatNumberHiddenK(grandTotals.lotoDB)}</td><td>${formatNumberHiddenK(grandTotals.lotoCap)}</td><td>${formatNumberHiddenK(grandTotals.c3_23)}</td><td>${formatNumberHiddenK(grandTotals.c2_27)}</td><td>${formatNumberHiddenK(grandTotals.xskt)}</td><td>${formatNumberHiddenK(grandTotals.totalRevenue)}</td><td>${formatNumberHiddenK(grandTotals.thuong)}</td><td>${formatNumberHiddenK(grandTotals.totalDebt)}</td><td class="${grandFinalAmountClass}">${formatNumberHiddenK(grandTotals.finalAmount)}</td></tr>`; 
+            let footer = `<tr>
+                <td colspan="2">TỔNG CỘNG</td>
+                <td>${formatNumberHiddenK(grandTotals.lotoDB)}</td>
+                <td>${formatNumberHiddenK(grandTotals.lotoCap)}</td>
+                <td>${formatNumberHiddenK(grandTotals.c3_23)}</td>
+                <td>${formatNumberHiddenK(grandTotals.c2_27)}</td>`;
             
-            return `<table border="1"><thead><tr><th style="width: 8%;">STT</th><th style="width: 12%;">ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th><th>XSKT</th><th>Dsố</th><th>Thưởng</th><th>Nợ</th><th>Tiền nộp</th></tr></thead><tbody>${body}</tbody><tfoot>${footer}</tfoot></table>`; 
+            if (hasXSKT) footer += `<td>${formatNumberHiddenK(grandTotals.xskt)}</td>`;
+            
+            footer += `<td>${formatNumberHiddenK(grandTotals.totalRevenue)}</td>
+                <td>${formatNumberHiddenK(grandTotals.thuong)}</td>`;
+            
+            if (hasDebt) footer += `<td>${formatNumberHiddenK(grandTotals.totalDebt)}</td>`;
+                
+            footer += `<td class="${grandFinalAmountClass}">${formatNumberHiddenK(grandTotals.finalAmount)}</td></tr>`; 
+            
+            let header = `<thead><tr>
+                <th style="width: 8%;">STT</th>
+                <th style="width: 12%;">ĐL</th>
+                <th>LTô</th>
+                <th>LCặp</th>
+                <th>3/23</th>
+                <th>2/27</th>`;
+            if (hasXSKT) header += `<th>XSKT</th>`;
+            header += `<th>Dsố</th><th>Thưởng</th>`;
+            if (hasDebt) header += `<th>Nợ</th>`;
+            header += `<th>Tiền nộp</th></tr></thead>`;
+
+            return `<table border="1">${header}<tbody>${body}</tbody><tfoot>${footer}</tfoot></table>`; 
         }
 
         function generateSummaryView() { 
@@ -1038,7 +1100,12 @@
             const sortMode = DOM.sortSelect.value;
 
             const summaryData = processSummaryData(regionFilterRules, revenueFilter); 
-            const tableHTML = renderSummaryTable(summaryData, sortMode); 
+            
+            // Xác định trạng thái hiển thị cột
+            const hasXSKT = excelData2.length > 0;
+            const hasDebt = debtData.size > 0;
+
+            const tableHTML = renderSummaryTable(summaryData, sortMode, hasXSKT, hasDebt); 
             DOM.summaryTableContainer.innerHTML = tableHTML; 
             
             const totalRevenue = summaryData.grandTotals.totalRevenue;
@@ -1163,6 +1230,25 @@
             
             // Listener cho file Excel Nợ
             DOM.debtFile.addEventListener('change', (e) => handleDebtFile(e.target.files[0]));
+            
+            // Listener cho nút xóa Nợ (Đã cập nhật hành động ẩn ô nhập)
+            DOM.btnClearDebt.addEventListener('click', () => {
+                // 1. Clear Data
+                debtData.clear();
+                DOM.debtInput.value = '';
+                DOM.debtFile.value = '';
+                
+                // 2. Hide Containers
+                DOM.debtManualContainer.style.display = 'none';
+                DOM.debtExcelContainer.style.display = 'none';
+                
+                // 3. Reset Radio Buttons
+                DOM.debtModeRadios.forEach(radio => radio.checked = false);
+                
+                // 4. Update UI/Notify
+                showNotification('Đã xóa toàn bộ dữ liệu Nợ.', 'info');
+                generateSummaryView();
+            });
 
             DOM.closePasswordModalBtn.addEventListener('click', hidePasswordModal);
             DOM.cancelPasswordBtn.addEventListener('click', hidePasswordModal);
