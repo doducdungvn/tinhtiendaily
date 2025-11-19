@@ -633,7 +633,7 @@
             DOM.reportContainer.innerHTML = `<table><tr><td class="header" width="33%">Đại Lý:</td><td class="so-so">${[...state.accountCodes].join(', ')}</td></tr><tr><td class="header">Ngày:</td><td>${customDate||dateRangeText}</td></tr></table><br>
             <table class="report-table"><thead><tr><th>Loại</th><th>Doanh thu</th><th>Hoa hồng</th></tr></thead><tbody>
             <tr><td>Lôtô ĐB</td><td>${formatNumberHiddenK(t.lotoDB)}</td><td>${formatCommissionCellHiddenK(t.lotoDB,c.ldb)}</td></tr>
-            <tr><td>Lô cặp</td><td>${formatNumberHiddenK(t.loCap)}</td><td>${formatCommissionCellHiddenK(t.loCap,c.lc)}</td></tr>
+            <tr><td>Lôtô cặp</td><td>${formatNumberHiddenK(t.loCap)}</td><td>${formatCommissionCellHiddenK(t.loCap,c.lc)}</td></tr>
             <tr><td>2/27</td><td>${formatNumberHiddenK(t.c227)}</td><td>${formatCommissionCellHiddenK(t.c227,c.c2)}</td></tr>
             <tr><td>3/23</td><td>${formatNumberHiddenK(t.c323)}</td><td>${formatCommissionCellHiddenK(t.c323,c.c3)}</td></tr>
             ${xsktHtml}
@@ -711,7 +711,7 @@
                 updateDetailedView(); 
                 DOM.sellQuantityInput.value = ''; 
                 showNotification("Đã thêm vé thành công!", 'success'); 
-                showSection('reportSection'); // Auto switch to report tab
+                showSection('reportSection'); 
             } else {
                 showNotification("Lỗi: Không tìm thấy bảng báo cáo!", 'error');
             }
@@ -757,7 +757,7 @@
                 spanGroups.forEach(group => {
                     group.forEach(s => { s.style.transition = 'none'; s.style.opacity = '0'; s.style.transform = 'translateY(20px)'; s.style.color = color; });
                 });
-                void containers[0].offsetWidth; // Trigger reflow
+                void containers[0].offsetWidth; 
 
                 const delayStep = 100;
                 const maxIndex = spanGroups[0].length; 
@@ -791,20 +791,16 @@
             runLogoAnimation(); 
         });
 
-        runLogoAnimation(); // Start on homepage
+        runLogoAnimation(); 
 
         // Listeners
-        DOM.navSummary.onclick=()=>showSection('summarySection'); DOM.navReport.onclick=()=>showSection('reportSection'); DOM.navSell.onclick=()=>showSection('sellSection');
+        DOM.navSummary.onclick=()=>showSection('summarySection'); DOM.navReport.onclick=()=>showSection('reportSection'); 
+        DOM.navSell.onclick=()=>{ showSection('sellSection'); DOM.sellQuantityInput.focus(); }; // Auto focus quantity
+        
         DOM.excelFile1.onchange=(e)=>handleFile(e.target.files[0],1,'excelFile1'); DOM.excelFile2.onchange=(e)=>handleFile(e.target.files[0],2,'excelFile2');
         DOM.btnCreateReport.onclick=createReport; DOM.soSoInput.onkeydown=(e)=>{if(e.key==='Enter')createReport()};
         
-        // FIX: Button Show Manual Report (Thêm báo cáo)
-        if(DOM.btnShowManualReport_inline) {
-             DOM.btnShowManualReport_inline.onclick = () => {
-                 DOM.manualInputModal.style.display = 'block';
-                 DOM.manualAgentName.focus();
-             };
-        }
+        if(DOM.btnShowManualReport_inline) { DOM.btnShowManualReport_inline.onclick = () => { DOM.manualInputModal.style.display = 'block'; DOM.manualAgentName.focus(); }; }
         DOM.btnShowManualReport.onclick=()=>{DOM.manualInputModal.style.display='block';DOM.manualAgentName.focus()}; DOM.closeModalBtn.onclick=()=>{DOM.manualInputModal.style.display='none'};
         
         DOM.btnCreateManualReport.onclick=()=>{
@@ -854,7 +850,7 @@
         window.onscroll=()=>{ const s=window.scrollY; DOM.scrollToTopBtn.style.display=s>200?'block':'none'; DOM.scrollToBottomBtn.style.display=s<(document.body.scrollHeight-window.innerHeight-200)?'block':'none'; };
         DOM.scrollToTopBtn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'}); DOM.scrollToBottomBtn.onclick=()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
 
-        // FIX "Bán thêm vé" UI & Focus
+        // SELL TICKET UI LOGIC
         DOM.sellTicketTypeRadios.forEach(r=>r.addEventListener('change', (e)=>{
             const v=e.target.value; DOM.customTicketName.style.display=v==='custom-name'?'block':'none'; 
             if(v==='ve-boc'){ document.querySelector('input[name="sellPrice"][value="5000"]').checked=true; DOM.customTicketPrice.style.display='none'; DOM.sellQuantityInput.focus(); } 
@@ -870,11 +866,25 @@
         DOM.customTicketPrice.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); DOM.sellQuantityInput.focus(); } });
         DOM.customTicketPrice.oninput=(e)=>{e.target.value=e.target.value.replace(/\D/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,".")};
 
-        // SỰ KIỆN: Ấn Enter ở ô số lượng -> Thêm vé
         DOM.sellQuantityInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') { e.preventDefault(); addTicket(); } });
-        
-        // SỰ KIỆN: Click nút thêm -> Thêm vé
         DOM.btnAddTicket.onclick = addTicket;
+
+        // MANUAL REPORT ENTER NAVIGATION
+        manualFormOrder.forEach((id, index) => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (index < manualFormOrder.length - 1) {
+                            document.getElementById(manualFormOrder[index + 1]).focus();
+                        } else {
+                            DOM.btnCreateManualReport.click();
+                        }
+                    }
+                });
+            }
+        });
 
     })();
   </script>
