@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo cáo thu tiền - ZENG™</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    /* --- BẢNG MÀU --- */
+    :root {
+        --primary-color: #1abc9c; --primary-dark: #16a085;
+        --secondary-color: #bdc3c7; --secondary-dark: #95a5a6;
+        --header-bg: #34495e; --header-text: #ecf0f1;
+        --body-bg: #ecf0f1; --container-bg: #ffffff;
+        --text-color: #2c3e50; --text-light: #7f8c8d;
+        --border-color: #dfe6e9;
+        --success-color: #2ecc71; --danger-color: #e74c3c; --warning-color: #f39c12;
+        --logo-color: #e67e22;
+        --modal-overlay-bg: rgba(44, 62, 80, 0.7); 
+    }
+
+    /* --- CÀI ĐẶT CHUNG --- */
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 15px; background-color: var(--body-bg); color: var(--text-color); font-size: 16px; line-height: 1.6; }
+    .page { max-width: 600px; margin: 20px auto; padding: 15px; background-color: var(--container-bg); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    h2 { font-size: 26px; font-weight: 600; text-align: center; color: var(--header-bg); margin-bottom: 0.8em; }
+    h3 { font-size: 20px; font-weight: 500; text-align: center; color: var(--header-bg); margin-bottom: 0.8em; } 
+    h4 { margin-top: 0; text-align: center; color: var(--text-color); font-weight: 500;}
+    .report-date { text-align:center; font-weight: normal; margin-top: -12px; margin-bottom: 16px; color: var(--text-light); line-height: 1.5; } 
+
+    /* LOGO ANIMATION */
+    .simple-animated-logo { text-align: center; margin-bottom: 15px; margin-top: 10px; font-size: 32px; font-weight: 700; color: var(--logo-color); overflow: hidden; display: block; min-height: 40px; }
+    .main-page-logo { font-size: 24px; margin-top: 5px; margin-bottom: 10px; }
+    .simple-animated-logo span { opacity: 0; display: inline-block; transform: translateY(15px); transition: opacity 0.5s, transform 0.5s; }
+    .simple-animated-logo .tm { font-size: 0.5em; vertical-align: super; margin-left: 2px; font-weight: normal; color: var(--text-light); }
+
+    /* ONLINE BADGE (Nằm cạnh logo) */
+    .online-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        font-size: 13px; /* Chữ nhỏ vừa phải */
+        font-weight: normal;
+        color: var(--text-light);
+        background-color: #f0f2f5;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin-left: 10px;
+        vertical-align: middle;
+        position: relative;
+        top: -5px; /* Căn chỉnh cho cân với logo */
+        border: 1px solid #e1e4e8;
+    }
+    .online-dot {
+        width: 8px;
+        height: 8px;
+        background-color: var(--success-color);
+        border-radius: 50%;
+        box-shadow: 0 0 4px var(--success-color);
+        animation: pulseDot 2s infinite;
+    }
+    @keyframes pulseDot {
+        0% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.6; transform: scale(1.1); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+
+    .controls-panel { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--container-bg); }
+    label { font-weight: 500; color: var(--text-color); }
+    input, select, button, textarea { padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border-color); width: 100%; box-sizing: border-box; font-size: 16px; transition: 0.2s; }
+    input:focus, textarea:focus { border-color: var(--primary-color); outline: none; }
+    
+    input[type="file"] { background-color: #fdfdfe; cursor: pointer; }
+    input[type="file"].loaded { background-color: #eafaf1; border-color: var(--success-color); }
+    button { cursor: pointer; background: var(--primary-color); color: white; border: none; font-weight: 500; }
+    button:hover { background-color: var(--primary-dark); filter: brightness(110%); }
+    button:active { transform: scale(0.98); }
+    button.secondary { background-color: var(--secondary-color); color: var(--text-color); }
+    button.secondary:hover { background-color: var(--secondary-dark); }
+    button.success { background-color: var(--success-color); }
+    button.danger { background-color: var(--danger-color); }
+    button.warning { background-color: var(--warning-color); }
+    
+    /* NAV: 3 nút */
+    .main-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+    .main-nav button { background-color: var(--secondary-color); color: var(--text-color); }
+    .main-nav button.active { background-color: var(--primary-color); color: white; }
+
+    table { border-collapse: collapse; width: 100%; margin: 1px auto; background: var(--container-bg); border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    th, td { border: 1px solid var(--border-color); padding: 10px 12px; text-align: center; vertical-align: middle; }
+    th { background: var(--header-bg); color: var(--header-text); font-weight: 500; }
+    
+    /* FOOTER TỔNG HỢP */
+    tfoot td { background-color: var(--header-bg); color: var(--header-text); font-weight: 700; border-top: 2px solid var(--secondary-dark); }
+    
+    tr.group-start-row td { border-top: 2px solid var(--secondary-dark) !important; }
+    .header { font-weight: 500; background: var(--neutral-light-bg); }
+    .so-so { font-size: 32px; font-weight: 600; color: var(--warning-color); vertical-align: middle; }
+    
+    #tongCongRow { background-color: #FFC107; color: var(--text-color); font-weight: 600 !important;} 
+    #mainBonusRow { background-color: var(--success-color); color: #ffffff; font-weight: 600; } 
+    .added-ticket-row { background-color: #ffffff; } 
+    .bang-chu-cell { text-align: left !important; font-style: italic; padding-left: 15px !important; font-size: 10px; font-weight: normal; color: var(--text-light); }
+    #bangChuRow, #bangChuRow td { background: #ffffff !important; }
+
+    .ticket-type-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+    .ticket-type-selector label { display: flex; align-items: center; gap: 5px; font-weight: normal; cursor: pointer; }
+    .copyright { text-align: center; margin-top: 25px; font-size: 14px; color: var(--text-light); }
+    
+    /* Dynamic Inputs */
+    #actionButtonContainer, #actionChoices { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+    #actionChoices { grid-column: 1 / -1; margin-top: 15px; }
+    .dynamic-input { width: 100%; border: none; font-weight: 600; text-align: center; background: transparent; font-size: 17px; padding: 5px; }
+    textarea.dynamic-input { text-align: right; resize: none; } 
+    
+    /* Summary Table */
+    #summaryTableContainer { margin-top: 10px; overflow-x: auto; }
+    #summaryTableContainer table { width: auto; } 
+    #summaryTableContainer table th { position: sticky; top: 0; z-index: 1; }
+    #summaryTableContainer th, #summaryTableContainer td { white-space: nowrap; }
+    
+    .negative-value { color: var(--danger-color); }
+    .final-amount-positive { background-color: var(--danger-color) !important; color: #ffffff !important; }
+    .final-amount-negative { background-color: var(--success-color) !important; color: var(--danger-color) !important; }
+    tr.final-amount-positive td, tr.final-amount-negative td { font-size: 30px !important; font-weight: 600; padding: 15px 12px !important; }
+
+    .inline-form { display: flex; gap: 10px; align-items: center; flex-wrap: nowrap; }
+    .home-actions, .report-actions-grid, .summary-actions { display: grid; gap: 10px; }
+    .home-actions, .report-actions-grid { grid-template-columns: 1fr 1fr; }
+    .summary-actions { grid-template-columns: repeat(2, 1fr); margin-top: 20px; } 
+
+    /* NEW CSS: GROUP INPUT & BUTTONS IN ONE LINE (Đã chỉnh về lề trái) */
+    .input-group-row {
+        display: flex;
+        gap: 8px; 
+        align-items: center;
+        justify-content: flex-start; /* Căn lề trái */
+        width: 100%;
+        flex-wrap: nowrap;
+    }
+    
+    /* MẶC ĐỊNH TRÊN MÁY TÍNH: ~3cm */
+    .input-group-row input#soSoInput,
+    .input-group-row input#sellQuantityInput {
+        width: 115px !important; /* ~3cm (1cm ≈ 38px) */
+        flex: none; 
+    }
+
+    .input-group-row button {
+        width: auto; 
+        white-space: nowrap; 
+        padding: 12px 10px; 
+        flex-shrink: 0; 
+    }
+
+    /* Filter & Debt Styles */
+    .filter-grid-container, .revenue-filter-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+    .region-lock-container.locked #regionDefinitionsInput { display: none !important; }
+    
+    .debt-mode-selector { display: flex; gap: 10px; margin-bottom: 10px; padding: 10px; background-color: var(--neutral-light-bg); border-radius: 6px; border: 1px solid var(--border-color); align-items: center; justify-content: space-between; flex-wrap: wrap; }
+    .debt-mode-selector .options { display: flex; gap: 15px; }
+    
+    /* Modals */
+    .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--modal-overlay-bg); padding-top: 60px; overflow: auto; animation: fadeIn 0.3s; }
+    .modal-content { background-color: var(--container-bg); margin: auto; padding: 25px; border: 1px solid var(--border-color); width: 90%; max-width: 500px; border-radius: 8px; position: relative; animation: slideIn 0.3s; }
+    .modal-close-btn { position: absolute; top: 10px; right: 15px; font-size: 28px; cursor: pointer; }
+    
+    #notification-area { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+    .notification { padding: 12px 20px; border-radius: 6px; color: white; font-size: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.15); opacity: 0; transform: translateX(100%); transition: 0.3s; }
+    .notification.show { opacity: 1; transform: translateX(0); }
+    .notification.success { background-color: var(--success-color); }
+    .notification.error { background-color: var(--danger-color); }
+    .notification.info { background-color: var(--info-color); }
+    #loading-indicator { display: none; position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background-color: var(--header-bg); color: var(--header-text); padding: 8px 15px; border-radius: 4px; z-index: 2100; }
+    
+    /* === NÚT CUỘN (Giữa trái) === */
+    #scrollToTopBtn, #scrollToBottomBtn { 
+        display: none; position: fixed; left: 15px; right: auto; z-index: 1001; background-color: var(--header-bg); color: white; border: none; padding: 0; border-radius: 50%; width: 40px; height: 40px; text-align: center; line-height: 40px; cursor: pointer; opacity: 0.6; box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+    }
+    #scrollToTopBtn { top: calc(50% - 45px); bottom: auto; } 
+    #scrollToBottomBtn { top: calc(50% + 5px); bottom: auto; }
+
+    @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+    @keyframes slideIn { from {transform: translateY(-50px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+
+    @media (min-width: 768px) {
+        .filter-grid-container, .revenue-filter-grid { grid-template-columns: 1.5fr 1fr; }
+        .revenue-filter-col-left { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        #mainPage { max-width: 1200px; }
+    }
+    @media (max-width: 768px) {
+        body { padding: 10px; font-size: 4vw; }
+        .page { padding: 10px; margin: 10px auto; }
+        h2 { font-size: 6vw; } h3 { font-size: 5vw; }
+        input, button, textarea { padding: 10px 12px; font-size: 4vw; }
+        tr.final-amount-positive td, tr.final-amount-negative td { font-size: 6.8vw !important; padding: 11px 7px !important; }
+        .bang-chu-cell { font-size: 3vw !important; }
+        #summaryTableContainer th, #summaryTableContainer td { font-size: 2vw; padding: 3px; }
+        
+        /* === TRÊN ĐIỆN THOẠI: ~1.5cm === */
+        .input-group-row input#soSoInput,
+        .input-group-row input#sellQuantityInput {
+            width: 60px !important; /* ~1.5cm */
+        }
+    }
+    @media print { body * { visibility: hidden; } #summaryTableContainer, #summaryTableContainer * { visibility: visible; position: absolute; left: 0; top: 0; } button, #notification-area { display: none !important; } }
+  </style>
+</head>
+<body>
+
+  <div id="notification-area"></div>
+  <div id="loading-indicator">Đang xử lý...</div>
+
+  <div id="homePage" class="page">
+    <div class="simple-animated-logo">
+        <span>Z</span><span>E</span><span>N</span><span>G</span><span class="tm">™</span>
+        <div class="online-badge">
+            <span class="online-dot"></span> <span class="online-count">24</span>
+        </div>
+    </div>
+
+    <h2>Báo cáo Thu Tiền</h2>
+    <div class="controls-panel">
+        <label for="excelFile1">Chọn file Biểu 31 (Lô tô):</label>
+        <input type="file" id="excelFile1" accept=".xls,.xlsx">
+        <label for="excelFile2">Chọn file Biểu 35 (XSKT - Tùy chọn):</label>
+        <input type="file" id="excelFile2" accept=".xls,.xlsx">
+        <div class="home-actions" style="margin-top: 20px;">
+            <button id="btnShowManualReport" class="warning">Thêm Báo cáo</button>
+            <button id="btnLoadData" class="success">Nạp dữ liệu & Xem báo cáo</button>
+        </div>
+    </div>
+    <div class="copyright">© 2025 ZENG FINANCE</div>
+  </div>
+  
+  <div id="mainPage" class="page" style="display: none;">
+    <div class="simple-animated-logo main-page-logo">
+        <span>Z</span><span>E</span><span>N</span><span>G</span><span class="tm">™</span>
+        <div class="online-badge" style="font-size: 11px; padding: 1px 6px;">
+            <span class="online-dot" style="width:6px; height:6px;"></span> <span class="online-count">24</span>
+        </div>
+    </div>
+
+    <div class="main-nav">
+        <button id="navSummary" class="active">Báo cáo Tổng hợp</button>
+        <button id="navReport">Báo cáo Chi tiết</button> 
+        <button id="navSell">Bán thêm vé</button>
+    </div>
+
+    <div id="summarySection" class="main-section">
+        <div class="controls-panel" style="margin-bottom: 15px; padding: 15px;">
+            
+            <div class="filter-grid-container">
+                <div class="filter-column">
+                    <div id="regionLockContainer" class="region-lock-container">
+                        <div style="display: flex; justify-content: flex-start; align-items: center; gap: 10px; margin-bottom: 5px;">
+                            <label style="margin: 0;">Định nghĩa Vùng:</label>
+                            <button id="btnSaveRegions" class="success" style="padding: 4px 10px; font-size: 12px; width: auto;">Lưu Định nghĩa</button>
+                        </div>
+                        <textarea id="regionDefinitionsInput" rows="3" placeholder="Ví dụ:&#10;huyện Ý Yên: 550_599+650_699+6999"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div id="debtContainer" style="margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 15px;">
+                 <label style="color: var(--danger-color); font-weight: 600;">Quản lý Nợ cũ:</label>
+                 <div class="debt-mode-selector">
+                    <div class="options">
+                        <label><input type="radio" name="debtMode" value="manual"> Nhập thủ công</label>
+                        <label><input type="radio" name="debtMode" value="excel"> Nhập Excel (tienno.xls)</label>
+                    </div>
+                    <div style="display: flex; gap: 5px;">
+                        <button id="btnApplyDebt" class="warning" style="display:none; padding: 6px 15px; width: auto; font-size: 14px;">Cập nhật</button>
+                        <button id="btnClearDebt" class="danger" style="padding: 6px 15px; width: auto; font-size: 14px;">Xóa Nợ</button>
+                    </div>
+                 </div>
+
+                 <div id="debtManualContainer" style="display: none;">
+                     <label style="font-size: 0.9em; color: var(--text-light);">Nhập Mã+Tiền (VD: 980 1000)</label>
+                     <textarea id="debtInput" rows="3" placeholder="Ví dụ:&#10;980 1000&#10;966+200&#10;U999:500"></textarea>
+                 </div>
+
+                 <div id="debtExcelContainer" style="display: none;">
+                     <label for="debtFile" style="font-size: 0.9em; color: var(--text-light);">Chọn file tienno.xls (Cột A: Mã, Cột B: Tiền)</label>
+                     <input type="file" id="debtFile" accept=".xls,.xlsx">
+                 </div>
+                 <div id="debtStatusMsg" style="font-size: 14px; color: var(--success-color); font-weight: 500; margin-top: 5px; display: none;"></div>
+            </div>
+
+            <hr style="border-color: var(--border-color); margin: 20px 0 15px 0; border-style: dashed;">
+            
+            <div class="revenue-filter-grid">
+                <div class="revenue-filter-col-left filter-column">
+                    <div class="filter-column">
+                        <label>Sắp xếp theo:</label>
+                        <select id="sortSelect"><option value="default">Mặc định (Số sổ)</option><option value="revenue_desc">Doanh số (Cao đến Thấp)</option><option value="revenue_asc">Doanh số (Thấp đến Cao)</option></select>
+                    </div>
+                    <div class="filter-column">
+                        <label>Doanh số từ... trở lên:</label>
+                        <input type="text" id="minRevenueInput" class="manual-currency" inputmode="numeric" placeholder="Ví dụ: 300">
+                    </div>
+                    <div class="filter-column">
+                        <label>Doanh số từ... trở xuống:</label>
+                        <input type="text" id="maxRevenueInput" class="manual-currency" inputmode="numeric" placeholder="Để trống = Tối đa">
+                    </div>
+                </div>
+                
+                <div class="revenue-filter-col-right filter-column">
+                    <label>Chọn Đơn vị:</label>
+                    <div style="display: flex; gap: 5px; align-items: center;">
+                        <select id="regionSelect" style="flex-grow: 1; width: 100%;"><option value="all">--- Tất cả ---</option></select>
+                        <button id="btnClearRevenueFilter" class="secondary" style="padding: 6px 15px; font-size: 14px; white-space: nowrap; width: auto; flex-grow: 0;">Mặc định</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3 id="summaryTitle">Bảng Báo Cáo Tổng Hợp:</h3>
+        <h4 id="summaryDate" class="report-date"></h4>
+        <div id="summaryTableContainer"></div>
+        <div class="summary-actions">
+            <button id="btnCopySummary" class="success">Copy Ảnh</button>
+            <button id="btnSaveSummary" class="secondary">Tải ảnh</button>
+        </div>
+    </div>
+
+    <div id="reportSection" class="main-section" style="display: none;">
+        <h3>Tạo Báo Cáo Chi Tiết</h3>
+        <div class="controls-panel">
+            <label for="soSoInput">Nhập số sổ:</label>
+            <div class="input-group-row">
+                <input type="text" id="soSoInput" inputmode="numeric" placeholder="Số sổ...">
+                <button id="btnCreateReport">Tạo Báo Cáo</button>
+                <button id="btnShowManualReport_inline" class="warning">Thêm Báo Cáo</button>
+            </div>
+        </div>
+        <div id="reportContainer"></div>
+        <div id="actionButtonContainer">
+            <button id="btnCopyReport">Copy Ảnh</button>
+            <button id="toggleChoicesBtn" class="secondary">Thêm tiền Thưởng/Nợ</button>
+            <div id="actionChoices"></div>
+        </div>
+    </div>
+
+    <div id="sellSection" class="main-section" style="display: none;">
+        <h3>Bán thêm Vé</h3>
+        <p class="context-note">Vé sẽ được thêm vào báo cáo chi tiết đang được hiển thị.</p>
+        <div id="sellTicketControls" class="controls-panel">
+            <div>
+                <label>Loại hình:</label>
+                <div class="ticket-type-selector">
+                    <label><input type="radio" name="sellTicketType" value="xo-so" checked> Xổ số</label>
+                    <label><input type="radio" name="sellTicketType" value="ve-boc"> Vé bóc</label>
+                    <label><input type="radio" name="sellTicketType" value="custom-name"> Tự nhập tên</label>
+                </div>
+                <input type="text" id="customTicketName" placeholder="Nhập tên loại hình..." style="display:none; margin-top: 5px;">
+            </div>
+            <div>
+                <label>Giá bán:</label>
+                <div class="ticket-type-selector">
+                    <label><input type="radio" name="sellPrice" value="10000" checked> 10.000</label>
+                    <label><input type="radio" name="sellPrice" value="5000"> 5.000</label>
+                    <label><input type="radio" name="sellPrice" value="custom-price"> Tự nhập</label>
+                </div>
+                <input type="text" id="customTicketPrice" inputmode="numeric" placeholder="Nhập giá bán..." style="display:none; margin-top: 5px;">
+            </div>
+            <div>
+                <label>Số lượng:</label>
+                <div class="input-group-row">
+                    <input type="number" id="sellQuantityInput" placeholder="SL..." min="0">
+                    <button id="btnAddTicket" class="success">Thêm vé</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="copyright">© 2025 ZENG FINANCE</div>
+  </div>
+
+   <div id="manualInputModal" class="modal-overlay">
+     <div class="modal-content">
+       <span id="closeModalBtn" class="modal-close-btn">&times;</span>
+       <div class="controls-panel"> 
+           <h4 style="margin-top:0;">Thêm Báo Cáo Thủ Công</h4>
+           <div style="display: grid; gap: 10px;">
+               <input type="text" id="manualAgentName" placeholder="Tên Đại Lý">
+               <input type="text" id="manualDateRange" placeholder="Thời gian">
+               <input type="text" id="manualLotoDB" class="manual-currency" placeholder="Lô tô ĐB">
+               <input type="text" id="manualLoCap" class="manual-currency" placeholder="Lô cặp">
+               <input type="text" id="manualC227" class="manual-currency" placeholder="2/27">
+               <input type="text" id="manualC323" class="manual-currency" placeholder="3/23">
+               <input type="text" id="manualThuong" class="manual-currency" placeholder="Thưởng">
+           </div>
+           <div class="form-actions" style="margin-top:15px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+               <button id="btnClearManualReport" class="secondary">Xoá</button>
+               <button id="btnCreateManualReport" class="success">Thêm</button>
+           </div>
+       </div>
+     </div>
+   </div>
+
+   <div id="imagePreviewModal" class="modal-overlay">
+     <div class="modal-content">
+       <span id="closePreviewModalBtn" class="modal-close-btn">&times;</span>
+       <h4 style="margin-top:0; text-align:center;">Sao chép Ảnh</h4>
+       <img id="imagePreviewHolder" src="" style="width: 100%; border: 1px solid #ddd;">
+     </div>
+   </div>
+
+    <div id="passwordModal" class="modal-overlay">
+       <div class="modal-content">
+        <span id="closePasswordModalBtn" class="modal-close-btn">&times;</span>
+        <div class="controls-panel" style="border: none; padding: 10px 0;"> 
+            <h4 style="margin-top:0;">Yêu cầu Mật khẩu</h4>
+            <input type="password" id="passwordInput" style="font-size: 18px;">
+            <div style="margin-top: 15px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <button id="cancelPasswordBtn" class="secondary">Huỷ</button>
+                <button id="btnSubmitPassword" class="success">Xác nhận</button>
+            </div>
+        </div>
+      </div>
+    </div>
+
+  <button id="scrollToTopBtn">&#9650;</button>
+  <button id="scrollToBottomBtn">&#9660;</button>
+
+  <script>
+    'use strict';
+    (function() {
+        // ===== VARIABLES =====
+        let excelData1 = [], excelData2 = [];
+        let dateRangeText = "Chưa có ngày";
+        let regionDefinitions = {}, isRegionLocked = false; 
+        let debtData = new Map(), isDebtFromExcel = false; 
+        
+        const state = { currentSoSo: null, baseTongDT: 0, baseTongHH: 0, baseThuong: 0, extraBonus: 0, extraDebt: 0, addedTickets: [], accountCodes: new Set(), debtFromData: 0 };
+
+        // ===== DOM =====
+        const DOM = {
+            homePage: document.getElementById('homePage'), mainPage: document.getElementById('mainPage'),
+            excelFile1: document.getElementById('excelFile1'), excelFile2: document.getElementById('excelFile2'), btnLoadData: document.getElementById('btnLoadData'), 
+            navSummary: document.getElementById('navSummary'), navReport: document.getElementById('navReport'), navSell: document.getElementById('navSell'),
+            summarySection: document.getElementById('summarySection'), reportSection: document.getElementById('reportSection'), sellSection: document.getElementById('sellSection'),
+            summaryTableContainer: document.getElementById('summaryTableContainer'), summaryDate: document.getElementById('summaryDate'), summaryTitle: document.getElementById('summaryTitle'),
+            soSoInput: document.getElementById('soSoInput'), btnCreateReport: document.getElementById('btnCreateReport'), reportContainer: document.getElementById('reportContainer'),
+            actionButtonContainer: document.getElementById('actionButtonContainer'), actionChoices: document.getElementById('actionChoices'), toggleChoicesBtn: document.getElementById('toggleChoicesBtn'),
+            btnCopySummary: document.getElementById('btnCopySummary'), btnSaveSummary: document.getElementById('btnSaveSummary'), btnCopyReport: document.getElementById('btnCopyReport'),
+            btnAddTicket: document.getElementById('btnAddTicket'), sellQuantityInput: document.getElementById('sellQuantityInput'),
+            manualInputModal: document.getElementById('manualInputModal'), btnShowManualReport: document.getElementById('btnShowManualReport'), btnShowManualReport_inline: document.getElementById('btnShowManualReport_inline'),
+            btnCreateManualReport: document.getElementById('btnCreateManualReport'), btnClearManualReport: document.getElementById('btnClearManualReport'),
+            manualAgentName: document.getElementById('manualAgentName'), manualDateRange: document.getElementById('manualDateRange'), manualLotoDB: document.getElementById('manualLotoDB'), manualLoCap: document.getElementById('manualLoCap'), manualC227: document.getElementById('manualC227'), manualC323: document.getElementById('manualC323'), manualThuong: document.getElementById('manualThuong'),
+            sellTicketTypeRadios: document.querySelectorAll('input[name="sellTicketType"]'), sellPriceRadios: document.querySelectorAll('input[name="sellPrice"]'),
+            customTicketName: document.getElementById('customTicketName'), customTicketPrice: document.getElementById('customTicketPrice'),
+            closeModalBtn: document.getElementById('closeModalBtn'), notificationArea: document.getElementById('notification-area'), loadingIndicator: document.getElementById('loading-indicator'),
+            imagePreviewModal: document.getElementById('imagePreviewModal'), closePreviewModalBtn: document.getElementById('closePreviewModalBtn'), imagePreviewHolder: document.getElementById('imagePreviewHolder'),
+            logoContainers: document.querySelectorAll('.simple-animated-logo'), scrollToTopBtn: document.getElementById('scrollToTopBtn'), scrollToBottomBtn: document.getElementById('scrollToBottomBtn'),
+            regionLockContainer: document.getElementById('regionLockContainer'), regionDefinitionsInput: document.getElementById('regionDefinitionsInput'), btnSaveRegions: document.getElementById('btnSaveRegions'), regionSelect: document.getElementById('regionSelect'),
+            sortSelect: document.getElementById('sortSelect'), minRevenueInput: document.getElementById('minRevenueInput'), maxRevenueInput: document.getElementById('maxRevenueInput'), btnClearRevenueFilter: document.getElementById('btnClearRevenueFilter'),
+            // Debt DOM
+            debtInput: document.getElementById('debtInput'), debtManualContainer: document.getElementById('debtManualContainer'), debtExcelContainer: document.getElementById('debtExcelContainer'), debtFile: document.getElementById('debtFile'), 
+            debtModeRadios: document.querySelectorAll('input[name="debtMode"]'), btnClearDebt: document.getElementById('btnClearDebt'), debtStatusMsg: document.getElementById('debtStatusMsg'), btnApplyDebt: document.getElementById('btnApplyDebt'),
+            // Password
+            passwordModal: document.getElementById('passwordModal'), closePasswordModalBtn: document.getElementById('closePasswordModalBtn'), passwordInput: document.getElementById('passwordInput'), btnSubmitPassword: document.getElementById('btnSubmitPassword'), cancelPasswordBtn: document.getElementById('cancelPasswordBtn')
+        };
+        
+        const manualFormOrder = ['manualAgentName', 'manualDateRange', 'manualLotoDB', 'manualLoCap', 'manualC227', 'manualC323', 'manualThuong'];
+
+        // ===== UTILS =====
+        function showNotification(message, type='info', duration=3000) { const n=document.createElement('div'); n.className=`notification ${type}`; n.textContent=message; DOM.notificationArea.appendChild(n); n.offsetHeight; n.classList.add('show'); setTimeout(()=>{ n.classList.remove('show'); n.addEventListener('transitionend', ()=>n.remove()); }, duration); }
+        function showLoading() { DOM.loadingIndicator.style.display = 'block'; }
+        function hideLoading() { DOM.loadingIndicator.style.display = 'none'; }
+        function formatNumberFull(num) { num=parseFloat(num); if(isNaN(num)||num===0) return "0"; return parseInt(num).toLocaleString("vi-VN"); }
+        function formatNumberHiddenK(num) { num=parseFloat(num); if(isNaN(num)||num===0||Math.abs(num)<1000) return "0"; return parseInt(num/1000).toLocaleString("vi-VN"); }
+        function formatCommissionCellHiddenK(rev, com) { rev=parseFloat(rev); com=parseFloat(com); if(!rev||rev===0||isNaN(rev)||isNaN(com)) return formatNumberHiddenK(com); const p=Math.round((com/rev)*100); return `<i style="color:#E57373;font-weight:normal;">(${p}%)</i> ${formatNumberHiddenK(com)}`; }
+        
+        function docso(numberStr) {
+            const num = String(numberStr).replace(/[.,]/g, ''); if(num==='0') return 'Không'; if(num===''||isNaN(parseInt(num))) return '';
+            const words=["không","một","hai","ba","bốn","năm","sáu","bảy","tám","chín"], units=["","nghìn","triệu","tỷ"];
+            const readChunk=(s, first)=>{
+                if(!s||parseInt(s,10)===0) return ""; let n=s.padStart(3,'0').split('').map(Number);
+                if(s.length<3 && first) { if(s.length===1) n=[0,0,Number(s)]; else n=[0,Number(s[0]),Number(s[1])]; }
+                const [tr,ch,dv]=n; let str="";
+                if(tr>0) str+=words[tr]+" trăm "; else if(!first&&(ch>0||dv>0)) str+="không trăm ";
+                if(ch===0&&dv!==0) { if(tr>0||!first) str+="linh "; } else if(ch===1) str+="mười "; else if(ch>1) str+=words[ch]+" mươi ";
+                if(dv>0) { if(ch===0) { if((tr>0||!first)&&parseInt(s,10)>0) str+=words[dv]; else if(first) str+=words[dv]; } else if(ch===1) { if(dv===1) str+="một"; else if(dv===5) str+="lăm"; else str+=words[dv]; } else { if(dv===1) str+="mốt"; else if(dv===5) str+="lăm"; else str+=words[dv]; } }
+                return str.trim();
+            };
+            const chunks=[]; let tmp=num; while(tmp.length>3){ chunks.unshift(tmp.substring(Math.max(0,tmp.length-3))); tmp=tmp.substring(0,tmp.length-3); } chunks.unshift(tmp);
+            if(chunks.length>units.length) return "Số quá lớn";
+            let res=chunks.map((c,i)=>{ const t=readChunk(c,i===0); return t?t+" "+units[chunks.length-1-i]:""; }).filter(Boolean).join(" ").replace(/\s+/g,' ').trim();
+            return res.charAt(0).toUpperCase()+res.slice(1);
+        }
+
+        async function copyElementAsImage(sel, msg, btn) { 
+            const el=document.querySelector(sel); if(!el||!el.innerHTML.trim()) return showNotification("Chưa có nội dung!", 'info');
+            const oldTxt=btn?btn.textContent:''; if(btn) btn.textContent='Đang xử lý...';
+            const hiddenEls=[el.querySelector('.summary-actions'), el.querySelector('.controls-panel'), document.getElementById('actionButtonContainer')].filter(Boolean);
+            hiddenEls.forEach(e=>e.style.display='none'); const cp=document.getElementById('copyrightInReport'); if(cp && sel==='#reportContainer') cp.style.display='block';
+            
+            let originalOverflow = '';
+            if(sel==='#summarySection'){ 
+                const table = DOM.summaryTableContainer.querySelector('table');
+                if(table){
+                     originalOverflow = DOM.summaryTableContainer.style.overflowX;
+                     DOM.summaryTableContainer.style.width = `${table.scrollWidth + 20}px`;
+                     DOM.summaryTableContainer.style.overflowX = 'visible';
+                     DOM.summarySection.style.width = `${table.scrollWidth + 40}px`;
+                     DOM.mainPage.style.maxWidth = 'none';
+                }
+            }
+
+            setTimeout(async()=>{
+                try {
+                    const canvas=await html2canvas(el, {backgroundColor:"#ffffff", scale:2});
+                    canvas.toBlob(async(blob)=>{
+                        try { await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); showNotification(msg,'success'); }
+                        catch(err) { console.error(err); DOM.imagePreviewHolder.src=canvas.toDataURL(); DOM.imagePreviewModal.style.display='block'; showNotification('Copy thủ công từ ảnh dưới.', 'info'); }
+                    });
+                } catch(e){ console.error(e); showNotification('Lỗi tạo ảnh', 'error'); }
+                finally {
+                    if(cp) cp.style.display='none'; 
+                    hiddenEls.forEach(e=>e.style.display=''); 
+                    if(btn) btn.textContent=oldTxt;
+                    if(sel==='#summarySection'){ 
+                        DOM.summaryTableContainer.style.width = ''; 
+                        DOM.summaryTableContainer.style.overflowX = originalOverflow;
+                        DOM.summarySection.style.width = '';
+                        DOM.mainPage.style.maxWidth = '';
+                    }
+                }
+            }, 50);
+        }
+
+        // ===== DATA PROCESSING =====
+        function handleFile(file, num, inputId) {
+            if(!file) return;
+            showLoading(); const reader=new FileReader();
+            reader.onload=(e)=>{
+                try {
+                    const data=new Uint8Array(e.target.result); const wb=XLSX.read(data,{type:"array"}); const ws=wb.Sheets[wb.SheetNames[0]]; const json=XLSX.utils.sheet_to_json(ws,{defval:""});
+                    if(!json.length) throw new Error("File rỗng");
+                    if(num===1) { 
+                        excelData1=json; 
+                        let dr=json.find(r=>Object.values(r).some(v=>typeof v==="string" && v.includes("Tõ ngµy")));
+                        if(dr) { let txt=Object.values(dr).find(v=>typeof v==="string" && v.includes("Tõ ngµy")); let m=txt.match(/Tõ ngµy\s*(\d{2}\/\d{2})\/\d{4}.*®Õn ngµy\s*(\d{2}\/\d{2})\/\d{4}/); if(m) dateRangeText=(m[1]===m[2]?`Ngày ${m[1]}`:`Từ ${m[1]} đến ${m[2]}`); }
+                    } else excelData2=json;
+                    document.getElementById(inputId).classList.add('loaded'); showNotification("Đã nạp file thành công!",'success');
+                } catch(err) { console.error(err); showNotification("Lỗi đọc file: "+err.message,'error'); } finally { hideLoading(); }
+            }; reader.readAsArrayBuffer(file);
+        }
+
+        // DEBT LOGIC
+        function parseDebtData() {
+            const input=DOM.debtInput.value.trim(); debtData=new Map(); isDebtFromExcel=false;
+            if(!input) { DOM.debtStatusMsg.style.display='none'; generateSummaryView(); return; }
+            const lines=input.split('\n'); let count=0;
+            lines.forEach(l=>{
+                l=l.trim(); if(!l) return; const parts=l.split(/[+\/,:;=.\s]+/).filter(p=>p.trim()!=='');
+                if(parts.length>=2) {
+                    const code=parts[0].trim(), amtRaw=parseFloat(parts[1].trim().replace(/[.,]/g,''));
+                    if(code && !isNaN(amtRaw)) { debtData.set(code, amtRaw*1000); count++; }
+                }
+            });
+            DOM.debtStatusMsg.textContent=count>0?`Đã nhận: ${count} đại lý nợ.`:''; DOM.debtStatusMsg.style.display=count>0?'block':'none';
+            generateSummaryView();
+        }
+        
+        function handleDebtFile(file) {
+            if(!file) return; showLoading(); const r=new FileReader();
+            r.onload=(e)=>{
+                try {
+                    const d=new Uint8Array(e.target.result), wb=XLSX.read(d,{type:"array"}), ws=wb.Sheets[wb.SheetNames[0]], json=XLSX.utils.sheet_to_json(ws,{header:1});
+                    debtData=new Map(); isDebtFromExcel=true; let count=0;
+                    json.forEach(row=>{
+                        if(row.length>=2) {
+                            const c=String(row[0]).trim(); if(c.toLowerCase().includes("mã")||c==="") return;
+                            const amt=parseFloat(String(row[1]).replace(/[.,]/g,''));
+                            if(!isNaN(amt)) { debtData.set(c, amt*1000); count++; }
+                        }
+                    });
+                    if(count>0) { DOM.debtStatusMsg.textContent=`Excel: ${count} đại lý nợ.`; DOM.debtStatusMsg.style.display='block'; DOM.debtFile.classList.add('loaded'); generateSummaryView(); }
+                    else { showNotification("File nợ không hợp lệ",'warning'); isDebtFromExcel=false; }
+                } catch(err) { console.error(err); showNotification("Lỗi file nợ",'error'); } finally { hideLoading(); }
+            }; r.readAsArrayBuffer(file);
+        }
+
+        // REPORT LOGIC
+        function processSummaryData(regionRules, revFilter) {
+            const map=new Map();
+            const init=(c)=>{ if(!map.has(c)) map.set(c,{totRev:0,totCom:0,lotoDB:0,lotoCap:0,c227:0,c323:0,xskt:0,thuong:0,debt:0}); };
+            
+            excelData1.forEach(r=>{
+                const c=String(r.__EMPTY||'').trim(); if(!c||!/\d/.test(c)) return; init(c); const d=map.get(c);
+                const ldb=parseFloat(r.__EMPTY_2)||0, lc=parseFloat(r.__EMPTY_6)||0, c2=parseFloat(r.__EMPTY_8)||0, c3=parseFloat(r.__EMPTY_10)||0, th=parseFloat(r.__EMPTY_14)||0;
+                d.lotoDB+=ldb; d.lotoCap+=lc; d.c227+=c2; d.c323+=c3; d.thuong+=th; d.totRev+=ldb+lc+c2+c3; d.totCom+=(ldb*0.08)+(lc*0.1)+(c2*0.1)+(c3*0.1);
+            });
+            excelData2.forEach(r=>{
+                const c=String(r.__EMPTY||r.__EMPTY_1||'').trim(); if(!c||!/\d/.test(c)) return; init(c); const d=map.get(c);
+                const x=(parseFloat(r.__EMPTY_7)||0)*1000; d.xskt+=x; d.totRev+=x; d.totCom+=x*0.1;
+            });
+            debtData.forEach((v,k)=>{ init(k); map.get(k).debt=v; });
+            
+            const keys=[...map.keys()]; keys.forEach(k=>{ const d=map.get(k); if(d.totRev===0 && d.debt===0 && d.thuong===0) map.delete(k); });
+            
+            let filteredMap=new Map();
+            if(regionRules) map.forEach((v,k)=>{ 
+                const numMatch=String(k).match(/\d+$/); if(numMatch){ const n=parseInt(numMatch[0],10); if(regionRules.some(r=>n>=r.min && n<=r.max)) filteredMap.set(k,v); }
+            }); else filteredMap=map;
+
+            const sortedKeys=[...filteredMap.keys()].sort((a,b)=>{ 
+                const na=parseInt(String(a).match(/\d+$/)?.[0]||0), nb=parseInt(String(b).match(/\d+$/)?.[0]||0); return na-nb;
+            });
+            
+            const groups=new Map();
+            sortedKeys.forEach(k=>{
+                const gk=parseInt(String(k).match(/\d+$/)?.[0]||k); if(!groups.has(gk)) groups.set(gk,{agents:[],gt:0,gr:0,gth:0,gdb:0,gx:0});
+                const g=groups.get(gk), d=filteredMap.get(k), final=(d.totRev-d.totCom-d.thuong)+d.debt;
+                g.agents.push({code:k,data:d});
+                g.gt+=final; g.gr+=d.totRev; g.gth+=d.thuong; g.gdb+=d.lotoDB; g.gx+=d.xskt;
+            });
+
+            const finalGroups=new Map();
+            if(revFilter) groups.forEach((v,k)=>{ if(v.gr>=revFilter.min && v.gr<=revFilter.max) finalGroups.set(k,v); }); else return {groups, totals:{}};
+
+            const totals={rev:0, com:0, th:0, debt:0, final:0, lotoDB:0, lotoCap:0, c227:0, c323:0, xskt:0};
+            finalGroups.forEach(g=>{ g.agents.forEach(a=>{ 
+                const d=a.data; totals.rev+=d.totRev; totals.th+=d.thuong; totals.debt+=d.debt; 
+                totals.lotoDB+=d.lotoDB; totals.lotoCap+=d.lotoCap; totals.c227+=d.c227; totals.c323+=d.c323; totals.xskt+=d.xskt;
+                totals.final+=(d.totRev-d.totCom-d.thuong)+d.debt;
+            });});
+
+            return {groups:finalGroups, totals};
+        }
+
+        function generateSummaryView() {
+            if(!excelData1.length && !excelData2.length && debtData.size===0) return;
+            const regVal=DOM.regionSelect.value, rules=regVal!=='all'?regionDefinitions[regVal]:null;
+            const minV=parseFloat(DOM.minRevenueInput.dataset.value)||0, maxV=parseFloat(DOM.maxRevenueInput.dataset.value)||Infinity;
+            
+            const {groups, totals} = processSummaryData(rules, {min:minV*1000, max:maxV*1000});
+            const hasXSKT=excelData2.length>0, hasDebt=debtData.size>0;
+            
+            let html=`<thead><tr><th width="8%">STT</th><th width="12%">ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th>${hasXSKT?'<th>XSKT':''}<th>Dsố</th><th>Thưởng</th>${hasDebt?'<th>Nợ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
+            let stt=1, sortedGroups=[...groups.entries()];
+            const sortMode=DOM.sortSelect.value;
+            if(sortMode==='revenue_desc') sortedGroups.sort((a,b)=>b[1].gr - a[1].gr);
+            else if(sortMode==='revenue_asc') sortedGroups.sort((a,b)=>a[1].gr - b[1].gr);
+
+            sortedGroups.forEach(([gk, g])=>{
+                g.agents.forEach((ag, idx)=>{
+                    const d=ag.data, final=(d.totRev-d.totCom-d.thuong)+d.debt, isLast=idx===g.agents.length-1 && g.agents.length>1;
+                    const style=isLast?`<br><b style="color:var(--primary-color);font-size:0.9em">`:'';
+                    const endStyle=isLast?'</b>':'';
+                    html+=`<tr${idx===0?' class="group-start-row"':''}>
+                        <td>${idx===0?stt:''}</td><td>${ag.code}</td>
+                        <td>${formatNumberHiddenK(d.lotoDB)}${style}${isLast?`(${formatNumberHiddenK(g.gdb)})`:''}${endStyle}</td>
+                        <td>${formatNumberHiddenK(d.lotoCap)}</td><td>${formatNumberHiddenK(d.c323)}</td><td>${formatNumberHiddenK(d.c227)}</td>
+                        ${hasXSKT?`<td>${formatNumberHiddenK(d.xskt)}${style}${isLast?`(${formatNumberHiddenK(g.gx)})`:''}${endStyle}</td>`:''}
+                        <td>${formatNumberHiddenK(d.totRev)}${style}${isLast?`(${formatNumberHiddenK(g.gr)})`:''}${endStyle}</td>
+                        <td>${formatNumberHiddenK(d.thuong)}${style}${isLast?`(${formatNumberHiddenK(g.gth)})`:''}${endStyle}</td>
+                        ${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}
+                        <td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}${style}${isLast?`(${formatNumberHiddenK(g.gt)})`:''}${endStyle}</td>
+                    </tr>`;
+                }); stt++;
+            });
+            html+=`</tbody><tfoot><tr><td colspan="2">TỔNG</td><td>${formatNumberHiddenK(totals.lotoDB)}</td><td>${formatNumberHiddenK(totals.lotoCap)}</td><td>${formatNumberHiddenK(totals.c323)}</td><td>${formatNumberHiddenK(totals.c227)}</td>
+                ${hasXSKT?`<td>${formatNumberHiddenK(totals.xskt)}</td>`:''}<td>${formatNumberHiddenK(totals.rev)}</td><td>${formatNumberHiddenK(totals.th)}</td>
+                ${hasDebt?`<td>${formatNumberHiddenK(totals.debt)}</td>`:''}
+                <td class="${totals.final>=0?'final-amount-positive':'final-amount-negative'}">${formatNumberHiddenK(totals.final)}</td></tr></tfoot>`;
+            
+            DOM.summaryTableContainer.innerHTML=`<table border="1">${html}</table>`;
+            
+            // ĐÃ SỬA: Hiển thị "Tất Cả" nếu giá trị là 'all'
+            const displayRegion = regVal === 'all' ? 'Tất Cả' : regVal;
+            DOM.summaryTitle.innerHTML=`Bảng Tổng Hợp: <span class="region-name">${displayRegion}</span>`;
+            
+            let percent = totals.rev > 0 ? (totals.th / totals.rev * 100) : 0;
+            let pColor = percent <= 50 ? 'var(--success-color)' : 'var(--danger-color)'; 
+            let pString = `<span style="color:${pColor}">(${percent.toFixed(1)}%)</span>`;
+
+            DOM.summaryDate.innerHTML=`${dateRangeText}<br>Doanh số: <b style="color:var(--danger-color)">${formatNumberHiddenK(totals.rev)}</b> - Thưởng: <b style="color:var(--primary-dark)">${formatNumberHiddenK(totals.th)}</b> ${pString}`;
+        }
+
+        function resetState(soSo) { state.currentSoSo=soSo; state.baseTongDT=0; state.baseTongHH=0; state.baseThuong=0; state.extraBonus=0; state.extraDebt=0; state.addedTickets=[]; state.accountCodes=new Set(); state.debtFromData=0; }
+        
+        function processDetailedReport(soSo) {
+            const filter=(r)=>{ const c=String(r.__EMPTY||r.__EMPTY_1||'').trim(); return c && c.match(/\d+$/)?.[0]===soSo; };
+            const f1=excelData1.filter(filter), f2=excelData2.filter(filter), debtAmt=debtData.get(soSo)||0;
+            if(!f1.length && !f2.length && debtAmt===0) return null;
+            
+            resetState(soSo);
+            const t={lotoDB:0, loCap:0, c227:0, c323:0, thuong:0, xskt:0};
+            f1.forEach(r=>{ state.accountCodes.add(String(r.__EMPTY).trim()); t.lotoDB+=(parseFloat(r.__EMPTY_2)||0); t.loCap+=(parseFloat(r.__EMPTY_6)||0); t.c227+=(parseFloat(r.__EMPTY_8)||0); t.c323+=(parseFloat(r.__EMPTY_10)||0); t.thuong+=(parseFloat(r.__EMPTY_14)||0); });
+            f2.forEach(r=>{ state.accountCodes.add(String(r.__EMPTY||r.__EMPTY_1).trim()); t.xskt+=(parseFloat(r.__EMPTY_7)||0)*1000; });
+            
+            const c={ldb:t.lotoDB*0.08, lc:t.loCap*0.1, c2:t.c227*0.1, c3:t.c323*0.1, x:t.xskt*0.1};
+            state.baseTongDT=t.lotoDB+t.loCap+t.c227+t.c323+t.xskt; state.baseTongHH=c.ldb+c.lc+c.c2+c.c3+c.x; state.baseThuong=t.thuong; state.debtFromData=debtAmt;
+            if(!state.accountCodes.size && debtAmt>0) state.accountCodes.add(soSo);
+
+            return {t, c};
+        }
+
+        function renderDetailedReport(d, customDate) {
+            const {t, c} = d; const debtHtml = state.debtFromData>0 ? `<tr style="color:var(--danger-color)"><td>Nợ cũ</td><td colspan="2" style="font-weight:bold">${formatNumberHiddenK(state.debtFromData)}</td></tr>` : '';
+            const xsktHtml = t.xskt>0 ? `<tr><td>XSKT</td><td>${formatNumberHiddenK(t.xskt)}</td><td>${formatCommissionCellHiddenK(t.xskt,c.x)}</td></tr>`:'';
+            
+            DOM.reportContainer.innerHTML = `<table><tr><td class="header" width="33%">Đại Lý:</td><td class="so-so">${[...state.accountCodes].join(', ')}</td></tr><tr><td class="header">Ngày:</td><td>${customDate||dateRangeText}</td></tr></table><br>
+            <table class="report-table"><thead><tr><th>Loại</th><th>Doanh thu</th><th>Hoa hồng</th></tr></thead><tbody>
+            <tr><td>Lôtô ĐB</td><td>${formatNumberHiddenK(t.lotoDB)}</td><td>${formatCommissionCellHiddenK(t.lotoDB,c.ldb)}</td></tr>
+            <tr><td>Lôtô cặp</td><td>${formatNumberHiddenK(t.loCap)}</td><td>${formatCommissionCellHiddenK(t.loCap,c.lc)}</td></tr>
+            <tr><td>2/27</td><td>${formatNumberHiddenK(t.c227)}</td><td>${formatCommissionCellHiddenK(t.c227,c.c2)}</td></tr>
+            <tr><td>3/23</td><td>${formatNumberHiddenK(t.c323)}</td><td>${formatCommissionCellHiddenK(t.c323,c.c3)}</td></tr>
+            ${xsktHtml}
+            <tr id="tongCongRow"><td>Tổng cộng</td><td id="tongDT"></td><td id="tongHH"></td></tr>
+            <tr id="mainBonusRow"><td>Thưởng</td><td colspan="2">${formatNumberHiddenK(state.baseThuong)}</td></tr>
+            ${debtHtml}
+            <tr id="finalResultRow"><td id="ketQuaLabel"></td><td colspan="2" id="ketQuaValue"></td></tr>
+            <tr id="bangChuRow" class="header"><td>Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr>
+            </tbody></table><div id="copyrightInReport" class="copyright" style="display:none">© 2025 ZENG FINANCE</div>`;
+        }
+
+        function updateDetailedView() {
+            if(!state.currentSoSo) return;
+            const addRev=state.addedTickets.reduce((s,t)=>s+t.dt,0), addCom=state.addedTickets.reduce((s,t)=>s+t.hh,0);
+            const totDT=state.baseTongDT+addRev, totHH=state.baseTongHH+addCom;
+            const final = (totDT - totHH - state.baseThuong) + state.debtFromData - state.extraBonus + state.extraDebt;
+            
+            document.getElementById('tongDT').textContent=formatNumberHiddenK(totDT); document.getElementById('tongHH').textContent=formatNumberHiddenK(totHH);
+            const rRow=document.getElementById('finalResultRow'), lbl=document.getElementById('ketQuaLabel'), val=document.getElementById('ketQuaValue'), txt=document.getElementById('ketQuaBangChu');
+            rRow.className=final>=0?'final-amount-positive':'final-amount-negative';
+            
+            if(final>=0) {
+                const round=Math.ceil(final/1000)*1000; lbl.textContent='Phải nộp'; val.textContent=formatNumberHiddenK(round); txt.textContent=docso(round)+" đồng";
+            } else {
+                const abs=Math.abs(final), round=parseInt(abs/1000)*1000; lbl.textContent='Lấy về'; val.textContent=formatNumberHiddenK(round); txt.textContent=docso(round)+" đồng";
+            }
+        }
+
+        function createReport() {
+            DOM.manualInputModal.style.display='none'; const s=DOM.soSoInput.value.trim(); if(!s) return showNotification("Nhập số sổ!",'error');
+            const d=processDetailedReport(s); if(!d) return showNotification("Không có dữ liệu",'error');
+            renderDetailedReport(d); updateDetailedView(); 
+            DOM.actionButtonContainer.style.display='grid'; DOM.actionChoices.style.display='none'; DOM.toggleChoicesBtn.textContent='Thêm tiền Thưởng/Nợ'; DOM.toggleChoicesBtn.className='secondary';
+            DOM.reportContainer.scrollIntoView({behavior:'smooth'});
+        }
+
+        // MANUAL & DYNAMIC INPUTS - ADD TICKET FIX
+        function addTicket() {
+            if(!state.currentSoSo) return showNotification("Chưa có báo cáo để thêm vé!",'error');
+            
+            const q = parseInt(DOM.sellQuantityInput.value, 10);
+            if(!q || q <= 0) return showNotification("Số lượng không hợp lệ!",'error');
+            
+            let typeRad, priceRad;
+            try { typeRad = document.querySelector('input[name="sellTicketType"]:checked').value; } catch(e) { typeRad = 'xo-so'; }
+            try { priceRad = document.querySelector('input[name="sellPrice"]:checked').value; } catch(e) { priceRad = '10000'; }
+
+            let name = "";
+            if(typeRad === 'custom-name') {
+                name = DOM.customTicketName.value.trim();
+                if(!name) return showNotification("Vui lòng nhập tên loại hình!", 'error');
+            } else {
+                name = typeRad === 've-boc' ? 'Vé bóc' : 'Xổ số';
+            }
+
+            let price = 0;
+            if(priceRad === 'custom-price') {
+                price = parseFloat(DOM.customTicketPrice.value.replace(/\D/g, '')) || 0;
+                if(price <= 0) return showNotification("Vui lòng nhập giá bán hợp lệ!", 'error');
+            } else {
+                price = parseFloat(priceRad);
+            }
+            
+            let rate = typeRad === 've-boc' ? 0.12 : 0.10; 
+            const dt = q * price; 
+            const hh = dt * rate; 
+            
+            state.addedTickets.push({dt, hh});
+            const tr = document.createElement('tr'); tr.className = 'added-ticket-row'; 
+            tr.innerHTML = `<td>${name} (${formatNumberHiddenK(price)}k) [${q}]</td><td>${formatNumberHiddenK(dt)}</td><td>${formatCommissionCellHiddenK(dt, hh)}</td>`;
+            
+            const anchor = document.getElementById('tongCongRow');
+            if(anchor) {
+                anchor.parentNode.insertBefore(tr, anchor);
+                updateDetailedView(); 
+                DOM.sellQuantityInput.value = ''; 
+                showNotification("Đã thêm vé thành công!", 'success'); 
+                showSection('reportSection'); 
+            } else {
+                showNotification("Lỗi: Không tìm thấy bảng báo cáo!", 'error');
+            }
+        }
+
+        function toggleActions() {
+            const show=DOM.toggleChoicesBtn.textContent.includes('Thêm');
+            DOM.actionChoices.style.display=show?'grid':'none'; DOM.toggleChoicesBtn.textContent=show?'Đóng / Xoá hết':'Thêm tiền Thưởng/Nợ'; DOM.toggleChoicesBtn.className=show?'danger':'secondary';
+            if(!show) { document.getElementById('extraBonusRow')?.remove(); document.getElementById('extraDebtRow')?.remove(); state.extraBonus=0; state.extraDebt=0; updateDetailedView(); }
+            renderActionButtons();
+        }
+        function renderActionButtons() { DOM.actionChoices.innerHTML=`${document.getElementById('extraBonusRow')?`<button class="danger" onclick="removeRow('bonus')">Xoá Thưởng thêm</button>`:`<button onclick="addRow('bonus')">Thêm Thưởng</button>`}${document.getElementById('extraDebtRow')?`<button class="danger" onclick="removeRow('debt')">Xoá Nợ thêm</button>`:`<button onclick="addRow('debt')">Thêm Nợ</button>`}`; }
+        
+        window.addRow=(type)=>{
+            const isB=type==='bonus', rowId=isB?'extraBonusRow':'extraDebtRow', anchor=document.getElementById('extraBonusRow')||document.getElementById('mainBonusRow');
+            const tr=document.createElement('tr'); tr.id=rowId; 
+            tr.innerHTML=`<td>${isB?`<textarea class="dynamic-input" style="color:var(--success-color)" placeholder="Tên thưởng..." rows="1"></textarea>`:'Nợ thêm'}</td><td colspan="2"><input class="dynamic-input" style="color:${isB?'var(--success-color)':'var(--danger-color)'}" oninput="handleDynInp(this,'${type}')" placeholder="0"></td>`;
+            anchor.after(tr); renderActionButtons();
+        }
+        window.removeRow=(type)=>{ document.getElementById(type==='bonus'?'extraBonusRow':'extraDebtRow')?.remove(); if(type==='bonus') state.extraBonus=0; else state.extraDebt=0; updateDetailedView(); renderActionButtons(); }
+        window.handleDynInp=(el, type)=>{ const v=parseInt(el.value.replace(/\D/g,''))||0; el.value=v.toLocaleString('vi-VN'); if(type==='bonus') state.extraBonus=v; else state.extraDebt=v; updateDetailedView(); }
+
+        function showSection(id) { 
+            ['summarySection','reportSection','sellSection'].forEach(s=>DOM[s].style.display='none'); DOM[id].style.display='block'; 
+            [DOM.navSummary, DOM.navReport, DOM.navSell].forEach(n=>n.classList.remove('active'));
+            if(id==='summarySection') DOM.navSummary.classList.add('active'); else if(id==='reportSection') DOM.navReport.classList.add('active'); else DOM.navSell.classList.add('active');
+        }
+
+        // LOGO ANIMATION
+        async function runLogoAnimation() {
+            const containers = document.querySelectorAll('.simple-animated-logo');
+            if (containers.length === 0) return;
+            const getAllSpans = () => {
+                const all = [];
+                containers.forEach(c => { all.push(Array.from(c.querySelectorAll('span'))); });
+                return all;
+            };
+            while (true) {
+                const spanGroups = getAllSpans();
+                const hue = Math.floor(Math.random() * 360);
+                const color = `hsl(${hue}, 70%, 50%)`; 
+                
+                spanGroups.forEach(group => {
+                    group.forEach(s => { s.style.transition = 'none'; s.style.opacity = '0'; s.style.transform = 'translateY(20px)'; s.style.color = color; });
+                });
+                void containers[0].offsetWidth; 
+
+                const delayStep = 100;
+                const maxIndex = spanGroups[0].length; 
+                for (let i = 0; i < maxIndex; i++) {
+                    spanGroups.forEach(group => {
+                        if (group[i]) {
+                            group[i].style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                            setTimeout(() => { group[i].style.opacity = '1'; group[i].style.transform = 'translateY(0)'; }, i * delayStep);
+                        }
+                    });
+                }
+                const animationTime = (maxIndex * delayStep) + 500;
+                await new Promise(r => setTimeout(r, animationTime + 4000)); 
+
+                for (let i = 0; i < maxIndex; i++) {
+                    spanGroups.forEach(group => {
+                        if (group[i]) {
+                            group[i].style.transition = 'all 0.4s ease-in';
+                            setTimeout(() => { group[i].style.opacity = '0'; group[i].style.transform = 'translateY(-20px)'; }, i * 50);
+                        }
+                    });
+                }
+                await new Promise(r => setTimeout(r, 600)); 
+            }
+        }
+        
+        // === SIMULATE ONLINE COUNTER (NEW LOGIC: 1-98) ===
+        function updateOnlineCounter() {
+            const num = Math.floor(Math.random() * 98) + 1; // 1 to 98
+            document.querySelectorAll('.online-count').forEach(el => el.textContent = num);
+            setTimeout(updateOnlineCounter, Math.random() * 5000 + 3000);
+        }
+
+        // INITIALIZE
+        DOM.btnLoadData.addEventListener('click', ()=>{ 
+            if(!excelData1.length && !excelData2.length) return showNotification("Chọn ít nhất 1 file!",'error');
+            generateSummaryView(); DOM.homePage.style.display='none'; DOM.mainPage.style.display='block'; showSection('reportSection'); 
+            DOM.soSoInput.focus(); 
+            runLogoAnimation(); 
+        });
+
+        runLogoAnimation(); 
+        updateOnlineCounter();
+
+        // Listeners
+        DOM.navSummary.onclick=()=>showSection('summarySection'); 
+        
+        DOM.navReport.onclick=()=>{
+            showSection('reportSection');
+            DOM.soSoInput.focus();
+        };
+        
+        DOM.navSell.onclick=()=>{ showSection('sellSection'); DOM.sellQuantityInput.focus(); }; 
+        
+        DOM.excelFile1.onchange=(e)=>handleFile(e.target.files[0],1,'excelFile1'); DOM.excelFile2.onchange=(e)=>handleFile(e.target.files[0],2,'excelFile2');
+        DOM.btnCreateReport.onclick=createReport; DOM.soSoInput.onkeydown=(e)=>{if(e.key==='Enter')createReport()};
+        
+        if(DOM.btnShowManualReport_inline) { DOM.btnShowManualReport_inline.onclick = () => { DOM.manualInputModal.style.display = 'block'; DOM.manualAgentName.focus(); }; }
+        DOM.btnShowManualReport.onclick=()=>{DOM.manualInputModal.style.display='block';DOM.manualAgentName.focus()}; DOM.closeModalBtn.onclick=()=>{DOM.manualInputModal.style.display='none'};
+        
+        DOM.btnCreateManualReport.onclick=()=>{
+            const name=DOM.manualAgentName.value; if(!name) return; 
+            const t={lotoDB:(parseFloat(DOM.manualLotoDB.dataset.value)||0)*1000, loCap:(parseFloat(DOM.manualLoCap.dataset.value)||0)*1000, c227:(parseFloat(DOM.manualC227.dataset.value)||0)*1000, c323:(parseFloat(DOM.manualC323.dataset.value)||0)*1000, thuong:parseFloat(DOM.manualThuong.dataset.value)||0, xskt:0};
+            const c={ldb:t.lotoDB*.08, lc:t.loCap*.1, c2:t.c227*.1, c3:t.c323*.1, x:0};
+            resetState('manual'); state.accountCodes.add(name); state.baseTongDT=t.lotoDB+t.loCap+t.c227+t.c323; state.baseTongHH=c.ldb+c.lc+c.c2+c.c3; state.baseThuong=t.thuong;
+            DOM.homePage.style.display='none'; DOM.mainPage.style.display='block'; showSection('reportSection'); renderDetailedReport({t,c},DOM.manualDateRange.value); updateDetailedView(); DOM.manualInputModal.style.display='none';
+        };
+        document.querySelectorAll('.manual-currency').forEach(i=>i.oninput=(e)=>{const v=e.target.value.replace(/\D/g,'');e.target.dataset.value=v;e.target.value=v?parseInt(v).toLocaleString('vi-VN'):'';});
+
+        DOM.btnSaveSummary.onclick=()=>copyElementAsImage('#summarySection','Đã lưu ảnh',DOM.btnSaveSummary);
+        DOM.btnCopySummary.onclick=()=>copyElementAsImage('#summarySection','Đã copy ảnh',DOM.btnCopySummary);
+        DOM.btnCopyReport.onclick=()=>copyElementAsImage('#reportContainer','Đã copy ảnh',DOM.btnCopyReport);
+
+        DOM.debtModeRadios.forEach(r=>r.onchange=(e)=>{ DOM.debtManualContainer.style.display=e.target.value==='manual'?'block':'none'; DOM.debtExcelContainer.style.display=e.target.value==='excel'?'block':'none'; DOM.btnApplyDebt.style.display=e.target.value==='manual'?'block':'none'; debtData.clear(); DOM.debtStatusMsg.style.display='none'; generateSummaryView();});
+        DOM.debtFile.onchange=(e)=>handleDebtFile(e.target.files[0]);
+        DOM.btnClearDebt.onclick=()=>{debtData.clear(); DOM.debtInput.value=''; DOM.debtFile.value=''; DOM.debtManualContainer.style.display='none';DOM.debtExcelContainer.style.display='none';DOM.debtStatusMsg.style.display='none';DOM.debtModeRadios.forEach(r=>r.checked=false); DOM.btnApplyDebt.style.display='none'; generateSummaryView();};
+        DOM.btnApplyDebt.onclick=parseDebtData;
+
+        DOM.btnSaveRegions.onclick=()=>{ if(isRegionLocked) DOM.passwordModal.style.display='block'; else parseRegions(); };
+        DOM.btnSubmitPassword.onclick=()=>{ if(DOM.passwordInput.value==='admin'){ DOM.passwordModal.style.display='none'; isRegionLocked=false; DOM.regionLockContainer.classList.remove('locked'); DOM.btnSaveRegions.textContent='Lưu Định nghĩa'; DOM.btnSaveRegions.classList.remove('warning'); DOM.btnSaveRegions.classList.add('success'); } else showNotification('Sai mật khẩu','error'); };
+        DOM.closePasswordModalBtn.onclick=()=>{DOM.passwordModal.style.display='none'};
+        function parseRegions(){
+            const txt=DOM.regionDefinitionsInput.value; regionDefinitions={}; const lines=txt.split('\n');
+            DOM.regionSelect.innerHTML='<option value="all">--- Tất cả ---</option>';
+            lines.forEach(l=>{ const idx=l.indexOf(':'); if(idx>0){ const n=l.slice(0,idx).trim(), r=l.slice(idx+1).trim(); 
+                const rules=[]; r.split('+').forEach(p=>{ if(p.includes('_')){const[mi,ma]=p.split('_'); rules.push({min:+mi,max:+ma});} else rules.push({min:+p,max:+p}); });
+                if(rules.length){ regionDefinitions[n]=rules; const o=document.createElement('option'); o.value=n; o.text=n; DOM.regionSelect.add(o); }
+            }});
+            localStorage.setItem('zengRegions',txt); isRegionLocked=true; DOM.regionLockContainer.classList.add('locked'); DOM.btnSaveRegions.textContent='Mở khóa'; DOM.btnSaveRegions.classList.replace('success','warning');
+        }
+        const saved=localStorage.getItem('zengRegions'); if(saved){ DOM.regionDefinitionsInput.value=saved; parseRegions(); }
+        DOM.regionSelect.onchange=generateSummaryView; DOM.sortSelect.onchange=generateSummaryView;
+        DOM.minRevenueInput.onblur=generateSummaryView; DOM.maxRevenueInput.onblur=generateSummaryView;
+        
+        function updateFilterStatus() {
+            const isDefault = DOM.sortSelect.value === 'default' && !DOM.minRevenueInput.dataset.value && !DOM.maxRevenueInput.dataset.value && DOM.regionSelect.value === 'all';
+            const btn = DOM.btnClearRevenueFilter; btn.className = isDefault ? 'secondary' : 'danger';
+        }
+        
+        DOM.regionSelect.addEventListener('change', updateFilterStatus); DOM.sortSelect.addEventListener('change', updateFilterStatus);
+        DOM.minRevenueInput.addEventListener('blur', updateFilterStatus); DOM.maxRevenueInput.addEventListener('blur', updateFilterStatus);
+        
+        DOM.btnClearRevenueFilter.onclick=()=>{ DOM.sortSelect.value='default'; DOM.minRevenueInput.value=''; DOM.minRevenueInput.dataset.value=''; DOM.maxRevenueInput.value=''; DOM.maxRevenueInput.dataset.value=''; DOM.regionSelect.value='all'; generateSummaryView(); updateFilterStatus(); };
+
+        window.onscroll=()=>{ const s=window.scrollY; DOM.scrollToTopBtn.style.display=s>200?'block':'none'; DOM.scrollToBottomBtn.style.display=s<(document.body.scrollHeight-window.innerHeight-200)?'block':'none'; };
+        DOM.scrollToTopBtn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'}); DOM.scrollToBottomBtn.onclick=()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+
+        // SELL TICKET UI LOGIC
+        DOM.sellTicketTypeRadios.forEach(r=>r.addEventListener('change', (e)=>{
+            const v=e.target.value; DOM.customTicketName.style.display=v==='custom-name'?'block':'none'; 
+            if(v==='ve-boc'){ document.querySelector('input[name="sellPrice"][value="5000"]').checked=true; DOM.customTicketPrice.style.display='none'; DOM.sellQuantityInput.focus(); } 
+            else if(v==='xo-so'){ document.querySelector('input[name="sellPrice"][value="10000"]').checked=true; DOM.customTicketPrice.style.display='none'; DOM.sellQuantityInput.focus(); }
+            else if(v==='custom-name') { DOM.customTicketName.focus(); }
+        }));
+        DOM.sellPriceRadios.forEach(r=>r.addEventListener('change', (e)=>{
+            DOM.customTicketPrice.style.display=e.target.value==='custom-price'?'block':'none';
+            if(e.target.value==='custom-price') DOM.customTicketPrice.focus(); else DOM.sellQuantityInput.focus();
+        }));
+        
+        DOM.customTicketName.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); if(DOM.customTicketPrice.style.display!=='none') DOM.customTicketPrice.focus(); else DOM.sellQuantityInput.focus(); } });
+        DOM.customTicketPrice.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); DOM.sellQuantityInput.focus(); } });
+        DOM.customTicketPrice.oninput=(e)=>{e.target.value=e.target.value.replace(/\D/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,".")};
+
+        DOM.sellQuantityInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') { e.preventDefault(); addTicket(); } });
+        DOM.btnAddTicket.onclick = addTicket;
+
+        // MANUAL REPORT ENTER NAVIGATION
+        manualFormOrder.forEach((id, index) => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (index < manualFormOrder.length - 1) {
+                            document.getElementById(manualFormOrder[index + 1]).focus();
+                        } else {
+                            DOM.btnCreateManualReport.click();
+                        }
+                    }
+                });
+            }
+        });
+
+    })();
+  </script>
+</body>
+</html>
