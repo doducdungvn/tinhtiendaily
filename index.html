@@ -82,35 +82,33 @@
     .bang-chu-cell { text-align: left !important; font-style: italic; padding-left: 15px !important; font-size: 10px; font-weight: normal; color: var(--text-light); }
     #bangChuRow, #bangChuRow td { background: #ffffff !important; }
 
-    /* Tìm và sửa đoạn này trong thẻ <style> */
-.ticket-type-selector { 
-    display: flex; 
-    flex-wrap: wrap; /* Cho phép các nút tự xuống dòng nếu màn hình quá nhỏ */
-    gap: 15px; /* Khoảng cách giữa các nút */
-    align-items: center;
-}
-
-.ticket-type-selector label { 
-    display: flex; 
-    align-items: center; 
-    gap: 5px; 
-    font-weight: normal; 
-    cursor: pointer; 
-    white-space: nowrap; /* QUAN TRỌNG: Lệnh này cấm chữ bị ngắt dòng */
-}
-
-/* Thêm class này để căn chỉnh hàng ngang giữa Tiêu đề (Loại hình) và Các nút */
-.sell-row-container {
-    display: flex;
-    align-items: center; /* Căn giữa theo chiều dọc */
-    gap: 10px;
-    margin-bottom: 10px; /* Khoảng cách giữa các dòng nhập liệu */
-}
-
-.sell-row-container > label {
-    font-weight: bold;
-    min-width: 80px; /* Cố định độ rộng tiêu đề để các dòng thẳng cột nhau */
-}
+    /* --- CSS CHO BÁN VÉ HÀNG NGANG --- */
+    .ticket-type-selector { 
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 15px; 
+        align-items: center;
+        margin-top: 0 !important;
+    }
+    .ticket-type-selector label { 
+        display: flex; 
+        align-items: center; 
+        gap: 5px; 
+        font-weight: normal; 
+        cursor: pointer; 
+        white-space: nowrap; /* Không ngắt dòng chữ Xổ số */
+    }
+    .sell-row-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    .sell-row-container > label {
+        font-weight: bold;
+        min-width: 80px; /* Cố định độ rộng tiêu đề */
+        margin: 0;
+    }
     
     /* COPYRIGHT FOOTER */
     .main-copyright { text-align: center; margin-top: 30px; padding: 15px 0; font-size: 13px; color: var(--text-light); border-top: 1px dashed var(--border-color); width: 100%; }
@@ -118,8 +116,10 @@
     /* Dynamic Inputs */
     #actionButtonContainer { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
     #actionChoices { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; grid-column: 1 / -1; }
+    
+    /* Canh giữa cho ô Tên Thưởng */
     .dynamic-input { width: 100%; border: none; font-weight: 600; text-align: center; background: transparent; font-size: 17px; padding: 5px; }
-    textarea.dynamic-input { text-align: center; resize: none; }
+    textarea.dynamic-input { text-align: center; resize: none; } 
     
     /* Summary Table */
     #summaryTableContainer { margin-top: 10px; overflow-x: auto; }
@@ -185,32 +185,6 @@
         .input-group-row input#soSoInput, .input-group-row input#sellQuantityInput { width: 60px !important; }
     }
     @media print { body * { visibility: hidden; } #summaryTableContainer, #summaryTableContainer * { visibility: visible; position: absolute; left: 0; top: 0; } button, #notification-area, #scrollToTopBtn, #scrollToBottomBtn { display: none !important; } }
-  
-  /* --- CSS MỚI CHO PHẦN BÁN VÉ HÀNG NGANG --- */
-.sell-row-container {
-    display: flex;
-    align-items: center;
-    gap: 15px; /* Khoảng cách giữa chữ và nút */
-    flex-wrap: wrap; /* Tự xuống dòng nếu màn hình quá nhỏ */
-}
-.sell-row-container > label {
-    min-width: 70px; /* Cố định chiều rộng để các dòng thẳng hàng nhau */
-    margin: 0;
-    white-space: nowrap;
-}
-.ticket-type-selector {
-    margin-top: 0 !important; /* Bỏ khoảng cách thừa */
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-/* Ẩn input tự nhập đẹp hơn */
-#customTicketName, #customTicketPrice {
-    margin-top: 8px !important;
-    width: 100%;
-}
-  
-  
   </style>
 </head>
 <body>
@@ -343,36 +317,54 @@
     <div id="sellSection" class="main-section" style="display: none;">
         <h3>Bán thêm Vé</h3>
         <p class="context-note">Vé sẽ được thêm vào báo cáo chi tiết đang được hiển thị.</p>
+        
         <div id="sellTicketControls" class="controls-panel">
-    <div class="sell-row-container">
-        <label>Loại hình:</label> <div class="ticket-type-selector">
-            <label><input type="radio" name="sellTicketType" value="xo-so" checked> Xổ số</label>
-            <label><input type="radio" name="sellTicketType" value="ve-boc"> Vé bóc</label>
-            <label><input type="radio" name="sellTicketType" value="custom-name"> Tự nhập tên</label>
-        </div>
-    </div>
-    <div style="padding-left: 90px; margin-bottom: 10px;"> <input type="text" id="customTicketName" placeholder="Nhập tên loại hình..." style="display:none;">
-    </div>
+            <div class="sell-row-container">
+                <label>Loại hình:</label>
+                <div class="ticket-type-selector">
+                    <label><input type="radio" name="sellTicketType" value="xo-so" checked> Xổ số</label>
+                    <label><input type="radio" name="sellTicketType" value="ve-boc"> Vé bóc</label>
+                    <label><input type="radio" name="sellTicketType" value="custom-name"> Tự nhập tên</label>
+                </div>
+            </div>
+            <div style="padding-left: 90px; margin-bottom: 5px;">
+                <input type="text" id="customTicketName" placeholder="Nhập tên loại hình..." style="display:none;">
+            </div>
 
-    <div class="sell-row-container">
-        <label>Giá bán:</label> <div class="ticket-type-selector">
-            <label><input type="radio" name="sellPrice" value="10000" checked> 10.000</label>
-            <label><input type="radio" name="sellPrice" value="5000"> 5.000</label>
-            <label><input type="radio" name="sellPrice" value="custom-price"> Tự nhập</label>
-        </div>
-    </div>
-    <div style="padding-left: 90px; margin-bottom: 10px;">
-        <input type="text" id="customTicketPrice" inputmode="numeric" placeholder="Nhập giá bán..." style="display:none;">
-    </div>
+            <div class="sell-row-container">
+                <label>Giá bán:</label>
+                <div class="ticket-type-selector">
+                    <label><input type="radio" name="sellPrice" value="10000" checked> 10.000</label>
+                    <label><input type="radio" name="sellPrice" value="20000"> 20.000</label>
+                    <label><input type="radio" name="sellPrice" value="5000"> 5.000</label>
+                    <label><input type="radio" name="sellPrice" value="custom-price"> Tự nhập giá</label>
+                </div>
+            </div>
+            <div style="padding-left: 90px; margin-bottom: 5px;">
+                <input type="text" id="customTicketPrice" inputmode="numeric" placeholder="Nhập giá bán..." style="display:none;">
+            </div>
 
-    <div class="sell-row-container">
-        <label>Số lượng:</label>
-        <div class="input-group-row" style="flex-grow: 1; max-width: 200px;">
-            <input type="number" id="sellQuantityInput" placeholder="SL..." min="0">
-            <button id="btnAddTicket" class="success">Thêm vé</button>
+            <div class="sell-row-container">
+                <label>Hoa hồng:</label>
+                <div class="ticket-type-selector">
+                    <label><input type="radio" name="sellRate" value="10" checked> 10%</label>
+                    <label><input type="radio" name="sellRate" value="12"> 12%</label>
+                    <label><input type="radio" name="sellRate" value="custom-rate"> Tự nhập %</label>
+                </div>
+            </div>
+            <div style="padding-left: 90px; margin-bottom: 10px;">
+                <input type="number" id="customTicketRate" placeholder="Nhập % hoa hồng (VD: 15)..." style="display:none;">
+            </div>
+
+            <div class="sell-row-container">
+                <label>Số lượng:</label>
+                <div class="input-group-row" style="flex-grow: 1; max-width: 250px;">
+                    <input type="number" id="sellQuantityInput" placeholder="Số lượng..." min="0">
+                    <button id="btnAddTicket" class="success">Thêm vé</button>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
+
     </div>
     <div class="main-copyright">© 2025 ZENG FINANCE</div>
   </div>
@@ -448,7 +440,9 @@
             btnCreateManualReport: document.getElementById('btnCreateManualReport'), btnClearManualReport: document.getElementById('btnClearManualReport'),
             manualAgentName: document.getElementById('manualAgentName'), manualDateRange: document.getElementById('manualDateRange'), manualLotoDB: document.getElementById('manualLotoDB'), manualLoCap: document.getElementById('manualLoCap'), manualC227: document.getElementById('manualC227'), manualC323: document.getElementById('manualC323'), manualThuong: document.getElementById('manualThuong'),
             sellTicketTypeRadios: document.querySelectorAll('input[name="sellTicketType"]'), sellPriceRadios: document.querySelectorAll('input[name="sellPrice"]'),
-            customTicketName: document.getElementById('customTicketName'), customTicketPrice: document.getElementById('customTicketPrice'),
+            customTicketName: document.getElementById('customTicketName'), customTicketPrice: document.getElementById('customTicketPrice'), customTicketRate: document.getElementById('customTicketRate'),
+            sellRateRadios: document.querySelectorAll('input[name="sellRate"]'),
+            
             closeModalBtn: document.getElementById('closeModalBtn'), notificationArea: document.getElementById('notification-area'), loadingIndicator: document.getElementById('loading-indicator'),
             imagePreviewModal: document.getElementById('imagePreviewModal'), closePreviewModalBtn: document.getElementById('closePreviewModalBtn'), imagePreviewHolder: document.getElementById('imagePreviewHolder'),
             logoContainers: document.querySelectorAll('.simple-animated-logo'), scrollToTopBtn: document.getElementById('scrollToTopBtn'), scrollToBottomBtn: document.getElementById('scrollToBottomBtn'),
@@ -687,25 +681,58 @@
 
         function addTicket() {
             if(!state.currentSoSo) return showNotification("Chưa có báo cáo để thêm vé!",'error');
+            
             const q = parseInt(DOM.sellQuantityInput.value, 10);
             if(!q || q <= 0) return showNotification("Số lượng không hợp lệ!",'error');
-            let typeRad, priceRad;
+
+            let typeRad;
             try { typeRad = document.querySelector('input[name="sellTicketType"]:checked').value; } catch(e) { typeRad = 'xo-so'; }
-            try { priceRad = document.querySelector('input[name="sellPrice"]:checked').value; } catch(e) { priceRad = '10000'; }
             let name = "";
-            if(typeRad === 'custom-name') { name = DOM.customTicketName.value.trim(); if(!name) return showNotification("Vui lòng nhập tên loại hình!", 'error'); } 
-            else { name = typeRad === 've-boc' ? 'Vé bóc' : 'Xổ số'; }
-            let price = 0;
-            if(priceRad === 'custom-price') { price = parseFloat(DOM.customTicketPrice.value.replace(/\D/g, '')) || 0; if(price <= 0) return showNotification("Vui lòng nhập giá bán hợp lệ!", 'error'); } 
-            else { price = parseFloat(priceRad); }
-            let rate = typeRad === 've-boc' ? 0.12 : 0.10; 
-            const dt = q * price, hh = dt * rate; 
+            if(typeRad === 'custom-name') { 
+                name = DOM.customTicketName.value.trim(); 
+                if(!name) return showNotification("Vui lòng nhập tên loại hình!", 'error'); 
+            } else { 
+                name = typeRad === 've-boc' ? 'Vé bóc' : 'Xổ số'; 
+            }
+
+            let priceRad, price = 0;
+            try { priceRad = document.querySelector('input[name="sellPrice"]:checked').value; } catch(e) { priceRad = '10000'; }
+            
+            if(priceRad === 'custom-price') { 
+                price = parseFloat(DOM.customTicketPrice.value.replace(/\D/g, '')) || 0; 
+                if(price <= 0) return showNotification("Vui lòng nhập giá bán hợp lệ!", 'error'); 
+            } else { 
+                price = parseFloat(priceRad); 
+            }
+
+            let rateRad, ratePercent = 0;
+            try { rateRad = document.querySelector('input[name="sellRate"]:checked').value; } catch(e) { rateRad = '10'; }
+
+            if (rateRad === 'custom-rate') {
+                ratePercent = parseFloat(DOM.customTicketRate.value);
+                if (isNaN(ratePercent) || ratePercent < 0) return showNotification("Vui lòng nhập % hoa hồng hợp lệ!", 'error');
+            } else {
+                ratePercent = parseFloat(rateRad);
+            }
+
+            const dt = q * price; 
+            const hh = dt * (ratePercent / 100); 
+
             state.addedTickets.push({dt, hh});
             const tr = document.createElement('tr'); tr.className = 'added-ticket-row'; 
+            // CẬP NHẬT: Đã bỏ phần hiển thị - HH % thừa
             tr.innerHTML = `<td>${name} (${formatNumberHiddenK(price)}k) [${q} vé]</td><td>${formatNumberHiddenK(dt)}</td><td>${formatCommissionCellHiddenK(dt, hh)}</td>`;
+            
             const anchor = document.getElementById('tongCongRow');
-            if(anchor) { anchor.parentNode.insertBefore(tr, anchor); updateDetailedView(); DOM.sellQuantityInput.value = ''; showNotification("Đã thêm vé thành công!", 'success'); showSection('reportSection'); } 
-            else { showNotification("Lỗi: Không tìm thấy bảng báo cáo!", 'error'); }
+            if(anchor) { 
+                anchor.parentNode.insertBefore(tr, anchor); 
+                updateDetailedView(); 
+                DOM.sellQuantityInput.value = ''; 
+                showNotification("Đã thêm vé thành công!", 'success'); 
+                showSection('reportSection'); 
+            } else { 
+                showNotification("Lỗi: Không tìm thấy bảng báo cáo!", 'error'); 
+            }
         }
 
         DOM.toggleChoicesBtn.onclick = () => {
@@ -847,20 +874,56 @@
         window.onscroll=()=>{ const s=window.scrollY; DOM.scrollToTopBtn.style.display=s>200?'block':'none'; DOM.scrollToBottomBtn.style.display=s<(document.body.scrollHeight-window.innerHeight-200)?'block':'none'; };
         DOM.scrollToTopBtn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'}); DOM.scrollToBottomBtn.onclick=()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
 
-        // SELL TICKET
+        // SELL TICKET - CẬP NHẬT: TỰ ĐỘNG CHỌN GIÁ VÀ HOA HỒNG
         DOM.sellTicketTypeRadios.forEach(r=>r.addEventListener('change', (e)=>{
-            const v=e.target.value; DOM.customTicketName.style.display=v==='custom-name'?'block':'none'; 
-            if(v==='ve-boc'){ document.querySelector('input[name="sellPrice"][value="5000"]').checked=true; DOM.customTicketPrice.style.display='none'; DOM.sellQuantityInput.focus(); } 
-            else if(v==='xo-so'){ document.querySelector('input[name="sellPrice"][value="10000"]').checked=true; DOM.customTicketPrice.style.display='none'; DOM.sellQuantityInput.focus(); }
-            else if(v==='custom-name') { DOM.customTicketName.focus(); }
+            const v=e.target.value; 
+            DOM.customTicketName.style.display=v==='custom-name'?'block':'none'; 
+
+            // Logic tự động chọn
+            if(v==='xo-so'){ 
+                // Auto chọn Giá 10.000
+                const pRad = document.querySelector('input[name="sellPrice"][value="10000"]');
+                if(pRad) pRad.checked = true;
+                DOM.customTicketPrice.style.display = 'none';
+
+                // Auto chọn Hoa hồng 10%
+                const rRad = document.querySelector('input[name="sellRate"][value="10"]');
+                if(rRad) rRad.checked = true;
+                DOM.customTicketRate.style.display = 'none';
+                
+                DOM.sellQuantityInput.focus(); 
+            } 
+            else if(v==='ve-boc'){ 
+                // Auto chọn Giá 5.000
+                const pRad = document.querySelector('input[name="sellPrice"][value="5000"]');
+                if(pRad) pRad.checked = true;
+                DOM.customTicketPrice.style.display = 'none';
+
+                // Auto chọn Hoa hồng 12%
+                const rRad = document.querySelector('input[name="sellRate"][value="12"]');
+                if(rRad) rRad.checked = true;
+                DOM.customTicketRate.style.display = 'none';
+
+                DOM.sellQuantityInput.focus(); 
+            } 
+            else if(v==='custom-name') { 
+                DOM.customTicketName.focus(); 
+            }
         }));
+
         DOM.sellPriceRadios.forEach(r=>r.addEventListener('change', (e)=>{
             DOM.customTicketPrice.style.display=e.target.value==='custom-price'?'block':'none';
             if(e.target.value==='custom-price') DOM.customTicketPrice.focus(); else DOM.sellQuantityInput.focus();
         }));
         
+        DOM.sellRateRadios.forEach(r=>r.addEventListener('change', (e)=>{
+            DOM.customTicketRate.style.display=e.target.value==='custom-rate'?'block':'none';
+            if(e.target.value==='custom-rate') DOM.customTicketRate.focus(); else DOM.sellQuantityInput.focus();
+        }));
+
         DOM.customTicketName.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); if(DOM.customTicketPrice.style.display!=='none') DOM.customTicketPrice.focus(); else DOM.sellQuantityInput.focus(); } });
         DOM.customTicketPrice.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); DOM.sellQuantityInput.focus(); } });
+        DOM.customTicketRate.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); DOM.sellQuantityInput.focus(); } });
         DOM.customTicketPrice.oninput=(e)=>{e.target.value=e.target.value.replace(/\D/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,".")};
 
         DOM.sellQuantityInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') { e.preventDefault(); addTicket(); } });
