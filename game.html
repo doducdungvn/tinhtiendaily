@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Space Arena</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #050505;
+            font-family: 'Orbitron', sans-serif;
+            touch-action: none; /* Prevent default touch actions like scrolling */
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.1);
+            background: radial-gradient(circle at center, #1a1a2e 0%, #000000 100%);
+        }
+
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .hud-top {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+            font-size: 1.2rem;
+            z-index: 10;
+        }
+
+        .score-box, .health-box {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            backdrop-filter: blur(4px);
+        }
+
+        #start-screen, #game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            pointer-events: auto;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .hidden {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #fff;
+            text-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .btn {
+            background: transparent;
+            color: #00ffff;
+            border: 2px solid #00ffff;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-family: 'Orbitron', sans-serif;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            transition: all 0.2s ease;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            background: #00ffff;
+            color: #000;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+            transform: scale(1.05);
+        }
+
+        /* Mobile Controls */
+        #mobile-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            pointer-events: none;
+            display: none; /* Shown via JS on touch devices */
+            justify-content: space-between;
+            padding: 0 40px;
+            box-sizing: border-box;
+            z-index: 15;
+        }
+
+        .control-stick {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            pointer-events: auto;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stick-knob {
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 255, 255, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 0 10px #00ffff;
+        }
+        
+        .fire-btn {
+             width: 80px;
+            height: 80px;
+            background: rgba(255, 0, 255, 0.2);
+            border: 2px solid rgba(255, 0, 255, 0.5);
+            border-radius: 50%;
+            pointer-events: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .fire-btn:active {
+            background: rgba(255, 0, 255, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .hud-top { font-size: 0.9rem; padding: 10px; }
+            #mobile-controls { display: flex; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+
+        <div class="ui-layer">
+            <div class="hud-top">
+                <div class="score-box">SCORE: <span id="scoreDisplay">0</span></div>
+                <div class="health-box">HP: <span id="hpDisplay">100</span>%</div>
+            </div>
+            
+            <div id="mobile-controls">
+                <div id="joystick-zone" class="control-stick">
+                    <div id="joystick-knob" class="stick-knob"></div>
+                </div>
+                <div id="fire-zone" class="fire-btn">FIRE</div>
+            </div>
+        </div>
+
+        <div id="start-screen">
+            <h1>NEON SPACE ARENA</h1>
+            <p style="color: #aaa; margin-bottom: 20px;">WASD / Arrows to Move • Click/Space to Shoot</p>
+            <button id="startBtn" class="btn">INITIALIZE</button>
+        </div>
+
+        <div id="game-over-screen" class="hidden">
+            <h1 style="color: #ff3333; text-shadow: 0 0 20px #ff0000;">SYSTEM FAILURE</h1>
+            <p style="color: #fff; font-size: 1.5rem; margin-bottom: 20px;">Final Score: <span id="finalScore">0</span></p>
+            <button id="restartBtn" class="btn">REBOOT SYSTEM</button>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * ROBUST INITIALIZATION WRAPPER
+         * This ensures all DOM elements exist before we try to access them.
+         * Fixes: "Cannot set properties of undefined (setting 'onclick')"
+         */
+        window.addEventListener('load', function() {
+            // --- DOM Elements ---
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            const startScreen = document.getElementById('start-screen');
+            const gameOverScreen = document.getElementById('game-over-screen');
+            const startBtn = document.getElementById('startBtn');
+            const restartBtn = document.getElementById('restartBtn');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const finalScoreDisplay = document.getElementById('finalScore');
+            const hpDisplay = document.getElementById('hpDisplay');
+            
+            // Mobile Controls
+            const joystickZone = document.getElementById('joystick-zone');
+            const joystickKnob = document.getElementById('joystick-knob');
+            const fireZone = document.getElementById('fire-zone');
+
+            // --- Game State ---
+            let gameActive = false;
+            let score = 0;
+            let frames = 0;
+            let particles = [];
+            let projectiles = [];
+            let enemies = [];
+            let animationId;
+            
+            // --- Responsive Canvas Setup ---
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            // --- Input Handling ---
+            const keys = {
+                w: false, a: false, s: false, d: false,
+                ArrowUp: false, ArrowLeft: false, ArrowDown: false, ArrowRight: false,
+                " ": false
+            };
+
+            const mouse = { x: canvas.width / 2, y: canvas.height / 2, down: false };
+            
+            // Touch/Joystick State
+            const joystick = { active: false, dx: 0, dy: 0, originX: 0, originY: 0 };
+
+            window.addEventListener('keydown', (e) => {
+                if(keys.hasOwnProperty(e.key)) keys[e.key] = true;
+                if(e.key === " " && gameActive) player.shoot(); 
+            });
+
+            window.addEventListener('keyup', (e) => {
+                if(keys.hasOwnProperty(e.key)) keys[e.key] = false;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+            });
+
+            window.addEventListener('mousedown', () => {
+                mouse.down = true;
+                if(gameActive) player.shoot();
+            });
+            window.addEventListener('mouseup', () => mouse.down = false);
+
+            // --- Mobile Touch Logic ---
+            joystickZone.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const rect = joystickZone.getBoundingClientRect();
+                joystick.active = true;
+                joystick.originX = rect.left + rect.width/2;
+                joystick.originY = rect.top + rect.height/2;
+                updateJoystick(touch.clientX, touch.clientY);
+            });
+
+            joystickZone.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if(joystick.active) {
+                    updateJoystick(e.touches[0].clientX, e.touches[0].clientY);
+                }
+            });
+
+            const endJoystick = (e) => {
+                e.preventDefault();
+                joystick.active = false;
+                joystick.dx = 0;
+                joystick.dy = 0;
+                joystickKnob.style.transform = `translate(0px, 0px)`;
+            };
+            joystickZone.addEventListener('touchend', endJoystick);
+            joystickZone.addEventListener('touchcancel', endJoystick);
+
+            function updateJoystick(clientX, clientY) {
+                const maxDist = 40;
+                let dx = clientX - joystick.originX;
+                let dy = clientY - joystick.originY;
+                const distance = Math.sqrt(dx*dx + dy*dy);
+                
+                if (distance > maxDist) {
+                    const angle = Math.atan2(dy, dx);
+                    dx = Math.cos(angle) * maxDist;
+                    dy = Math.sin(angle) * maxDist;
+                }
+
+                joystick.dx = dx / maxDist; // Normalized -1 to 1
+                joystick.dy = dy / maxDist;
+                
+                joystickKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+            }
+
+            fireZone.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if(gameActive) player.shoot();
+                fireZone.style.background = "rgba(255, 0, 255, 0.5)";
+            });
+            
+            fireZone.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                fireZone.style.background = "rgba(255, 0, 255, 0.2)";
+            });
+
+
+            // --- Game Classes ---
+
+            class Player {
+                constructor() {
+                    this.x = canvas.width / 2;
+                    this.y = canvas.height / 2;
+                    this.radius = 15;
+                    this.color = '#00ffff';
+                    this.velocity = { x: 0, y: 0 };
+                    this.speed = 5;
+                    this.friction = 0.92;
+                    this.hp = 100;
+                    this.angle = 0;
+                }
+
+                draw() {
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.angle);
+                    
+                    ctx.beginPath();
+                    // Draw Triangle Ship
+                    ctx.moveTo(20, 0);
+                    ctx.lineTo(-15, 10);
+                    ctx.lineTo(-10, 0);
+                    ctx.lineTo(-15, -10);
+                    ctx.closePath();
+                    
+                    ctx.fillStyle = this.color;
+                    ctx.shadowColor = this.color;
+                    ctx.shadowBlur = 15;
+                    ctx.fill();
+                    
+                    // Engine flame
+                    if (Math.abs(this.velocity.x) > 0.1 || Math.abs(this.velocity.y) > 0.1) {
+                         ctx.beginPath();
+                         ctx.moveTo(-15, -5);
+                         ctx.lineTo(-25 - Math.random()*10, 0);
+                         ctx.lineTo(-15, 5);
+                         ctx.fillStyle = '#ff9900';
+                         ctx.fill();
+                    }
+
+                    ctx.restore();
+                }
+
+                update() {
+                    // Movement Logic (Keyboard)
+                    if (keys.w || keys.ArrowUp) this.velocity.y -= 0.5;
+                    if (keys.s || keys.ArrowDown) this.velocity.y += 0.5;
+                    if (keys.a || keys.ArrowLeft) this.velocity.x -= 0.5;
+                    if (keys.d || keys.ArrowRight) this.velocity.x += 0.5;
+
+                    // Movement Logic (Joystick)
+                    if (joystick.active) {
+                        this.velocity.x += joystick.dx * 0.8;
+                        this.velocity.y += joystick.dy * 0.8;
+                    }
+
+                    // Apply Physics
+                    this.x += this.velocity.x;
+                    this.y += this.velocity.y;
+                    this.velocity.x *= this.friction;
+                    this.velocity.y *= this.friction;
+
+                    // Boundaries
+                    if (this.x - this.radius < 0) { this.x = this.radius; this.velocity.x *= -0.5; }
+                    if (this.x + this.radius > canvas.width) { this.x = canvas.width - this.radius; this.velocity.x *= -0.5; }
+                    if (this.y - this.radius < 0) { this.y = this.radius; this.velocity.y *= -0.5; }
+                    if (this.y + this.radius > canvas.height) { this.y = canvas.height - this.radius; this.velocity.y *= -0.5; }
+
+                    // Rotate towards mouse or movement
+                    if (joystick.active) {
+                        // If using joystick, face movement direction roughly, or auto-aim? 
+                        // Let's make it face joystick direction
+                        this.angle = Math.atan2(joystick.dy, joystick.dx);
+                    } else {
+                        // Mouse Aim
+                        const dx = mouse.x - this.x;
+                        const dy = mouse.y - this.y;
+                        this.angle = Math.atan2(dy, dx);
+                    }
+                    
+                    this.draw();
+                }
+
+                shoot() {
+                    const velocity = {
+                        x: Math.cos(this.angle) * 12,
+                        y: Math.sin(this.angle) * 12
+                    };
+                    projectiles.push(new Projectile(this.x, this.y, 4, '#ff00ff', velocity));
+                    
+                    // Recoil
+                    this.velocity.x -= velocity.x * 0.05;
+                    this.velocity.y -= velocity.y * 0.05;
+                }
+            }
+
+            class Projectile {
+                constructor(x, y, radius, color, velocity) {
+                    this.x = x;
+                    this.y = y;
+                    this.radius = radius;
+                    this.color = color;
+                    this.velocity = velocity;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+                    ctx.fillStyle = this.color;
+                    ctx.shadowColor = this.color;
+                    ctx.shadowBlur = 10;
+                    ctx.fill();
+                }
+
+                update() {
+                    this.x += this.velocity.x;
+                    this.y += this.velocity.y;
+                    this.draw();
+                }
+            }
+
+            class Enemy {
+                constructor(x, y, radius, color, velocity) {
+                    this.x = x;
+                    this.y = y;
+                    this.radius = radius;
+                    this.color = color;
+                    this.velocity = velocity;
+                    this.type = Math.random() > 0.5 ? 'chaser' : 'drifter';
+                    this.angle = 0;
+                    this.spinSpeed = (Math.random() - 0.5) * 0.2;
+                }
+
+                draw() {
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    this.angle += this.spinSpeed;
+                    ctx.rotate(this.angle);
+
+                    ctx.beginPath();
+                    if(this.type === 'chaser') {
+                        // Diamond shape
+                        ctx.moveTo(0, -this.radius);
+                        ctx.lineTo(this.radius, 0);
+                        ctx.lineTo(0, this.radius);
+                        ctx.lineTo(-this.radius, 0);
+                    } else {
+                        // Square
+                        ctx.rect(-this.radius + 5, -this.radius + 5, (this.radius * 2) -10, (this.radius * 2) -10);
+                    }
+                    
+                    ctx.strokeStyle = this.color;
+                    ctx.lineWidth = 3;
+                    ctx.shadowColor = this.color;
+                    ctx.shadowBlur = 10;
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                update() {
+                    if (this.type === 'chaser') {
+                        // Slowly track player
+                        const angle = Math.atan2(player.y - this.y, player.x - this.x);
+                        this.velocity.x = Math.cos(angle) * 1.5;
+                        this.velocity.y = Math.sin(angle) * 1.5;
+                    }
+
+                    this.x += this.velocity.x;
+                    this.y += this.velocity.y;
+                    this.draw();
+                }
+            }
+
+            class Particle {
+                constructor(x, y, radius, color, velocity) {
+                    this.x = x;
+                    this.y = y;
+                    this.radius = radius;
+                    this.color = color;
+                    this.velocity = velocity;
+                    this.alpha = 1;
+                }
+
+                draw() {
+                    ctx.save();
+                    ctx.globalAlpha = this.alpha;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                update() {
+                    this.x += this.velocity.x;
+                    this.y += this.velocity.y;
+                    this.velocity.x *= 0.98;
+                    this.velocity.y *= 0.98;
+                    this.alpha -= 0.02;
+                    this.draw();
+                }
+            }
+
+            // --- Game Logic Functions ---
+
+            let player = new Player();
+
+            function spawnEnemies() {
+                if (frames % 60 === 0) { // Every 1 second approx
+                    const radius = Math.random() * (30 - 15) + 15;
+                    let x, y;
+                    
+                    if (Math.random() < 0.5) {
+                        x = Math.random() < 0.5 ? 0 - radius : canvas.width + radius;
+                        y = Math.random() * canvas.height;
+                    } else {
+                        x = Math.random() * canvas.width;
+                        y = Math.random() < 0.5 ? 0 - radius : canvas.height + radius;
+                    }
+                    
+                    const color = `hsl(${Math.random() * 360}, 50%, 50%)`;
+                    const angle = Math.atan2(canvas.height / 2 - y, canvas.width / 2 - x);
+                    const velocity = {
+                        x: Math.cos(angle),
+                        y: Math.sin(angle)
+                    };
+
+                    enemies.push(new Enemy(x, y, radius, color, velocity));
+                }
+            }
+
+            function createExplosion(x, y, color) {
+                for (let i = 0; i < 8; i++) {
+                    particles.push(new Particle(x, y, Math.random() * 2, color, {
+                        x: (Math.random() - 0.5) * (Math.random() * 8),
+                        y: (Math.random() - 0.5) * (Math.random() * 8)
+                    }));
+                }
+            }
+
+            function animate() {
+                if (!gameActive) return;
+                animationId = requestAnimationFrame(animate);
+                ctx.fillStyle = 'rgba(5, 5, 5, 0.2)'; // Trailing effect
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw Grid (Optional subtle background detail)
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+                ctx.lineWidth = 1;
+                /*
+                // Heavy performance cost if too many lines, minimal is better
+                // Using simple fillRect fade for efficiency
+                */
+
+                player.update();
+                
+                // Particles
+                particles.forEach((particle, index) => {
+                    if (particle.alpha <= 0) {
+                        particles.splice(index, 1);
+                    } else {
+                        particle.update();
+                    }
+                });
+
+                // Projectiles
+                projectiles.forEach((projectile, index) => {
+                    projectile.update();
+                    // Remove off-screen
+                    if (projectile.x + projectile.radius < 0 ||
+                        projectile.x - projectile.radius > canvas.width ||
+                        projectile.y + projectile.radius < 0 ||
+                        projectile.y - projectile.radius > canvas.height) {
+                        projectiles.splice(index, 1);
+                    }
+                });
+
+                // Enemies
+                enemies.forEach((enemy, index) => {
+                    enemy.update();
+
+                    const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
+                    
+                    // Player Hit Logic
+                    if (dist - enemy.radius - player.radius < 1) {
+                        createExplosion(player.x, player.y, '#fff');
+                        player.hp -= 20;
+                        hpDisplay.innerText = player.hp;
+                        enemies.splice(index, 1);
+                        
+                        if (player.hp <= 0) {
+                            gameOver();
+                        }
+                    }
+
+                    // Projectile Hit Logic
+                    projectiles.forEach((projectile, pIndex) => {
+                        const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
+                        
+                        // Hit detection
+                        if (dist - enemy.radius - projectile.radius < 1) {
+                            // Create explosion
+                            createExplosion(enemy.x, enemy.y, enemy.color);
+                            
+                            // Increase score
+                            if(enemy.radius > 20) score += 100;
+                            else score += 150;
+                            scoreDisplay.innerText = score;
+
+                            // Shrink or destroy
+                            if (enemy.radius - 10 > 10) {
+                                enemy.radius -= 10;
+                                setTimeout(() => {
+                                    projectiles.splice(pIndex, 1);
+                                }, 0);
+                            } else {
+                                setTimeout(() => {
+                                    enemies.splice(index, 1);
+                                    projectiles.splice(pIndex, 1);
+                                }, 0);
+                            }
+                        }
+                    });
+                });
+                
+                spawnEnemies();
+                frames++;
+            }
+
+            function startGame() {
+                gameActive = true;
+                score = 0;
+                frames = 0;
+                player = new Player();
+                projectiles = [];
+                enemies = [];
+                particles = [];
+                scoreDisplay.innerText = score;
+                hpDisplay.innerText = 100;
+                
+                startScreen.classList.add('hidden');
+                gameOverScreen.classList.add('hidden');
+                
+                animate();
+            }
+
+            function gameOver() {
+                gameActive = false;
+                cancelAnimationFrame(animationId);
+                finalScoreDisplay.innerText = score;
+                gameOverScreen.classList.remove('hidden');
+            }
+
+            // --- Event Listeners (Safe because inside window.load) ---
+            
+            // Safe checking in case IDs changed, though we defined them above
+            if(startBtn) startBtn.onclick = startGame;
+            if(restartBtn) restartBtn.onclick = startGame;
+
+        });
+    </script>
+</body>
+</html>

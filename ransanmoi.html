@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rắn Săn Mồi - Snake Game</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        :root {
+            --bg-color: #1a1a1a;
+            --grid-color: #2a2a2a;
+            --snake-color: #00ff00;
+            --snake-head: #ccffcc;
+            --food-color: #ff0055;
+            --text-color: #ffffff;
+            --accent-color: #00ccff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Press Start 2P', monospace; /* Font Pixel cổ điển */
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: none; /* Ngăn cuộn trang trên mobile */
+        }
+
+        .game-container {
+            position: relative;
+            padding: 10px;
+            border: 4px solid var(--grid-color);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            background: #000;
+        }
+
+        canvas {
+            display: block;
+            background-color: #000;
+            box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .score-box {
+            background: #333;
+            padding: 10px;
+            border-radius: 5px;
+            border: 2px solid #555;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .score-label {
+            color: #aaa;
+            font-size: 10px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .score-value {
+            color: var(--accent-color);
+            font-size: 16px;
+        }
+
+        /* Overlay Game Over / Start */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            text-align: center;
+        }
+
+        .overlay h1 {
+            color: var(--snake-color);
+            font-size: 30px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px var(--snake-color);
+        }
+
+        .btn {
+            background: var(--food-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-family: inherit;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 0 #990033;
+            transition: transform 0.1s;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #990033;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Mobile Controls */
+        .controls {
+            display: none; /* Ẩn trên desktop */
+            margin-top: 20px;
+            grid-template-columns: repeat(3, 60px);
+            grid-template-rows: repeat(2, 60px);
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                display: grid;
+            }
+            canvas {
+                max-width: 95vw;
+                max-height: 60vh;
+            }
+            .header {
+                max-width: 95vw;
+            }
+        }
+
+        .d-btn {
+            background: #333;
+            border: 2px solid #555;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 4px 0 #222;
+        }
+
+        .d-btn:active {
+            background: #444;
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .d-up { grid-column: 2; grid-row: 1; }
+        .d-left { grid-column: 1; grid-row: 2; }
+        .d-down { grid-column: 2; grid-row: 2; }
+        .d-right { grid-column: 3; grid-row: 2; }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="score-box">
+            <span class="score-label">ĐIỂM</span>
+            <span id="score" class="score-value">0</span>
+        </div>
+        <div class="score-box">
+            <span class="score-label">KỶ LỤC</span>
+            <span id="highScore" class="score-value">0</span>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        
+        <!-- Màn hình Start / Game Over -->
+        <div id="gameOverlay" class="overlay">
+            <h1 id="overlayTitle">RẮN SĂN MỒI</h1>
+            <p id="finalScore" style="margin-bottom: 20px; font-size: 12px; color: #ccc; display: none;">Điểm: 0</p>
+            <button class="btn" onclick="startGame()">Chơi Ngay</button>
+            <p style="margin-top: 20px; font-size: 10px; color: #666;">Dùng phím mũi tên để di chuyển</p>
+        </div>
+    </div>
+
+    <!-- Nút điều khiển cho mobile -->
+    <div class="controls">
+        <div class="d-btn d-up" ontouchstart="handleMobileInput('up')" onmousedown="handleMobileInput('up')">▲</div>
+        <div class="d-btn d-left" ontouchstart="handleMobileInput('left')" onmousedown="handleMobileInput('left')">◀</div>
+        <div class="d-btn d-down" ontouchstart="handleMobileInput('down')" onmousedown="handleMobileInput('down')">▼</div>
+        <div class="d-btn d-right" ontouchstart="handleMobileInput('right')" onmousedown="handleMobileInput('right')">▶</div>
+    </div>
+
+    <script>
+        // Cấu hình game
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        const gridSize = 20; // Kích thước mỗi ô vuông
+        const tileCount = canvas.width / gridSize; // Số ô (20x20)
+        
+        let score = 0;
+        let highScore = localStorage.getItem('snakeHighScore') || 0;
+        
+        // Trạng thái game
+        let snake = [];
+        let food = { x: 15, y: 15 };
+        let dx = 0; // Hướng di chuyển X
+        let dy = 0; // Hướng di chuyển Y
+        let nextDx = 0; // Buffer để tránh lỗi quay đầu nhanh
+        let nextDy = 0;
+        let gameLoopId;
+        let gameSpeed = 150; // Tốc độ ban đầu (ms)
+        let isGameRunning = false;
+
+        // Âm thanh (Audio Context) - Tạo âm thanh 8-bit đơn giản
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            if (type === 'eat') {
+                oscillator.type = 'square';
+                oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'die') {
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(100, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3);
+                gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        // Khởi tạo
+        document.getElementById('highScore').innerText = highScore;
+
+        function startGame() {
+            // Reset trạng thái
+            snake = [
+                { x: 10, y: 10 },
+                { x: 9, y: 10 },
+                { x: 8, y: 10 }
+            ];
+            dx = 1; // Mặc định đi sang phải
+            dy = 0;
+            nextDx = 1;
+            nextDy = 0;
+            score = 0;
+            gameSpeed = 150;
+            isGameRunning = true;
+            
+            updateScore();
+            spawnFood();
+            
+            // Ẩn overlay
+            document.getElementById('gameOverlay').classList.add('hidden');
+            
+            // Bắt đầu vòng lặp
+            if (gameLoopId) clearTimeout(gameLoopId);
+            gameLoop();
+        }
+
+        function gameLoop() {
+            if (!isGameRunning) return;
+
+            // Logic game
+            advanceSnake();
+            checkCollision();
+            
+            // Vẽ game
+            draw();
+            
+            // Lặp lại với tốc độ hiện tại
+            gameLoopId = setTimeout(gameLoop, gameSpeed);
+        }
+
+        function advanceSnake() {
+            // Cập nhật hướng từ buffer (để ngăn lỗi quay đầu 180 độ trong 1 frame)
+            dx = nextDx;
+            dy = nextDy;
+
+            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+            snake.unshift(head); // Thêm đầu mới
+
+            // Kiểm tra ăn mồi
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                // Tăng tốc độ mỗi khi ăn mồi, giới hạn nhanh nhất là 50ms
+                if (gameSpeed > 50) gameSpeed -= 2; 
+                
+                updateScore();
+                playSound('eat');
+                spawnFood();
+            } else {
+                snake.pop(); // Xóa đuôi nếu không ăn
+            }
+        }
+
+        function checkCollision() {
+            const head = snake[0];
+
+            // Va chạm tường
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+                gameOver();
+                return;
+            }
+
+            // Va chạm thân mình
+            for (let i = 1; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    gameOver();
+                    return;
+                }
+            }
+        }
+
+        function spawnFood() {
+            // Tạo vị trí ngẫu nhiên không trùng với thân rắn
+            let newFood;
+            let isOnSnake;
+            
+            do {
+                isOnSnake = false;
+                newFood = {
+                    x: Math.floor(Math.random() * tileCount),
+                    y: Math.floor(Math.random() * tileCount)
+                };
+                
+                for (let part of snake) {
+                    if (part.x === newFood.x && part.y === newFood.y) {
+                        isOnSnake = true;
+                        break;
+                    }
+                }
+            } while (isOnSnake);
+
+            food = newFood;
+        }
+
+        function draw() {
+            // Xóa màn hình
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Vẽ lưới mờ (để đẹp hơn)
+            ctx.strokeStyle = '#111';
+            for (let i = 0; i < tileCount; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * gridSize, 0);
+                ctx.lineTo(i * gridSize, canvas.height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, i * gridSize);
+                ctx.lineTo(canvas.width, i * gridSize);
+                ctx.stroke();
+            }
+
+            // Vẽ rắn
+            snake.forEach((part, index) => {
+                // Đầu rắn màu khác, thân màu xanh
+                ctx.fillStyle = index === 0 ? '#ccffcc' : '#00ff00';
+                
+                // Hiệu ứng bóng đổ nhẹ
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#00ff00';
+                
+                ctx.fillRect(part.x * gridSize + 1, part.y * gridSize + 1, gridSize - 2, gridSize - 2);
+                
+                // Vẽ mắt cho đầu rắn
+                if (index === 0) {
+                    ctx.fillStyle = 'black';
+                    ctx.shadowBlur = 0;
+                    // Vị trí mắt tùy theo hướng
+                    let ex = part.x * gridSize;
+                    let ey = part.y * gridSize;
+                    // Logic vẽ mắt đơn giản
+                    ctx.fillRect(ex + 4, ey + 4, 4, 4);
+                    ctx.fillRect(ex + 12, ey + 4, 4, 4);
+                }
+            });
+
+            // Vẽ mồi
+            ctx.fillStyle = '#ff0055';
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#ff0055';
+            ctx.beginPath();
+            let fx = food.x * gridSize + gridSize/2;
+            let fy = food.y * gridSize + gridSize/2;
+            ctx.arc(fx, fy, gridSize/3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Reset shadow
+            ctx.shadowBlur = 0;
+        }
+
+        function updateScore() {
+            document.getElementById('score').innerText = score;
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('snakeHighScore', highScore);
+                document.getElementById('highScore').innerText = highScore;
+            }
+        }
+
+        function gameOver() {
+            isGameRunning = false;
+            playSound('die');
+            
+            document.getElementById('overlayTitle').innerText = "THUA RỒI!";
+            document.getElementById('overlayTitle').style.color = "#ff0055";
+            
+            const finalScoreEl = document.getElementById('finalScore');
+            finalScoreEl.style.display = 'block';
+            finalScoreEl.innerText = `Điểm của bạn: ${score}`;
+            
+            document.querySelector('#gameOverlay button').innerText = "Chơi Lại";
+            document.getElementById('gameOverlay').classList.remove('hidden');
+        }
+
+        // Xử lý phím bấm (PC)
+        document.addEventListener('keydown', (event) => {
+            // Ngăn cuộn trang khi bấm nút mũi tên
+            if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(event.code) > -1) {
+                event.preventDefault();
+            }
+            changeDirection(event.key);
+        });
+
+        // Xử lý nút cảm ứng (Mobile)
+        function handleMobileInput(direction) {
+            // Rung phản hồi nhẹ nếu thiết bị hỗ trợ
+            if (navigator.vibrate) navigator.vibrate(5);
+            
+            let key = '';
+            switch(direction) {
+                case 'up': key = 'ArrowUp'; break;
+                case 'down': key = 'ArrowDown'; break;
+                case 'left': key = 'ArrowLeft'; break;
+                case 'right': key = 'ArrowRight'; break;
+            }
+            changeDirection(key);
+        }
+
+        function changeDirection(key) {
+            if (!isGameRunning) return;
+
+            const GOING_UP = dy === -1;
+            const GOING_DOWN = dy === 1;
+            const GOING_RIGHT = dx === 1;
+            const GOING_LEFT = dx === -1;
+
+            if ((key === 'ArrowLeft' || key === 'a') && !GOING_RIGHT) {
+                nextDx = -1; nextDy = 0;
+            }
+            if ((key === 'ArrowUp' || key === 'w') && !GOING_DOWN) {
+                nextDx = 0; nextDy = -1;
+            }
+            if ((key === 'ArrowRight' || key === 'd') && !GOING_LEFT) {
+                nextDx = 1; nextDy = 0;
+            }
+            if ((key === 'ArrowDown' || key === 's') && !GOING_UP) {
+                nextDx = 0; nextDy = 1;
+            }
+        }
+    </script>
+</body>
+</html>
