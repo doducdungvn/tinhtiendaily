@@ -82,8 +82,35 @@
     .bang-chu-cell { text-align: left !important; font-style: italic; padding-left: 15px !important; font-size: 10px; font-weight: normal; color: var(--text-light); }
     #bangChuRow, #bangChuRow td { background: #ffffff !important; }
 
-    .ticket-type-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
-    .ticket-type-selector label { display: flex; align-items: center; gap: 5px; font-weight: normal; cursor: pointer; }
+    /* Tìm và sửa đoạn này trong thẻ <style> */
+.ticket-type-selector { 
+    display: flex; 
+    flex-wrap: wrap; /* Cho phép các nút tự xuống dòng nếu màn hình quá nhỏ */
+    gap: 15px; /* Khoảng cách giữa các nút */
+    align-items: center;
+}
+
+.ticket-type-selector label { 
+    display: flex; 
+    align-items: center; 
+    gap: 5px; 
+    font-weight: normal; 
+    cursor: pointer; 
+    white-space: nowrap; /* QUAN TRỌNG: Lệnh này cấm chữ bị ngắt dòng */
+}
+
+/* Thêm class này để căn chỉnh hàng ngang giữa Tiêu đề (Loại hình) và Các nút */
+.sell-row-container {
+    display: flex;
+    align-items: center; /* Căn giữa theo chiều dọc */
+    gap: 10px;
+    margin-bottom: 10px; /* Khoảng cách giữa các dòng nhập liệu */
+}
+
+.sell-row-container > label {
+    font-weight: bold;
+    min-width: 80px; /* Cố định độ rộng tiêu đề để các dòng thẳng cột nhau */
+}
     
     /* COPYRIGHT FOOTER */
     .main-copyright { text-align: center; margin-top: 30px; padding: 15px 0; font-size: 13px; color: var(--text-light); border-top: 1px dashed var(--border-color); width: 100%; }
@@ -92,7 +119,7 @@
     #actionButtonContainer { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
     #actionChoices { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; grid-column: 1 / -1; }
     .dynamic-input { width: 100%; border: none; font-weight: 600; text-align: center; background: transparent; font-size: 17px; padding: 5px; }
-    textarea.dynamic-input { text-align: right; resize: none; } 
+    textarea.dynamic-input { text-align: center; resize: none; }
     
     /* Summary Table */
     #summaryTableContainer { margin-top: 10px; overflow-x: auto; }
@@ -158,6 +185,32 @@
         .input-group-row input#soSoInput, .input-group-row input#sellQuantityInput { width: 60px !important; }
     }
     @media print { body * { visibility: hidden; } #summaryTableContainer, #summaryTableContainer * { visibility: visible; position: absolute; left: 0; top: 0; } button, #notification-area, #scrollToTopBtn, #scrollToBottomBtn { display: none !important; } }
+  
+  /* --- CSS MỚI CHO PHẦN BÁN VÉ HÀNG NGANG --- */
+.sell-row-container {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Khoảng cách giữa chữ và nút */
+    flex-wrap: wrap; /* Tự xuống dòng nếu màn hình quá nhỏ */
+}
+.sell-row-container > label {
+    min-width: 70px; /* Cố định chiều rộng để các dòng thẳng hàng nhau */
+    margin: 0;
+    white-space: nowrap;
+}
+.ticket-type-selector {
+    margin-top: 0 !important; /* Bỏ khoảng cách thừa */
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+/* Ẩn input tự nhập đẹp hơn */
+#customTicketName, #customTicketPrice {
+    margin-top: 8px !important;
+    width: 100%;
+}
+  
+  
   </style>
 </head>
 <body>
@@ -291,32 +344,35 @@
         <h3>Bán thêm Vé</h3>
         <p class="context-note">Vé sẽ được thêm vào báo cáo chi tiết đang được hiển thị.</p>
         <div id="sellTicketControls" class="controls-panel">
-            <div>
-                <label>Loại hình:</label>
-                <div class="ticket-type-selector">
-                    <label><input type="radio" name="sellTicketType" value="xo-so" checked> Xổ số</label>
-                    <label><input type="radio" name="sellTicketType" value="ve-boc"> Vé bóc</label>
-                    <label><input type="radio" name="sellTicketType" value="custom-name"> Tự nhập tên</label>
-                </div>
-                <input type="text" id="customTicketName" placeholder="Nhập tên loại hình..." style="display:none; margin-top: 5px;">
-            </div>
-            <div>
-                <label>Giá bán:</label>
-                <div class="ticket-type-selector">
-                    <label><input type="radio" name="sellPrice" value="10000" checked> 10.000</label>
-                    <label><input type="radio" name="sellPrice" value="5000"> 5.000</label>
-                    <label><input type="radio" name="sellPrice" value="custom-price"> Tự nhập</label>
-                </div>
-                <input type="text" id="customTicketPrice" inputmode="numeric" placeholder="Nhập giá bán..." style="display:none; margin-top: 5px;">
-            </div>
-            <div>
-                <label>Số lượng:</label>
-                <div class="input-group-row">
-                    <input type="number" id="sellQuantityInput" placeholder="SL..." min="0">
-                    <button id="btnAddTicket" class="success">Thêm vé</button>
-                </div>
-            </div>
+    <div class="sell-row-container">
+        <label>Loại hình:</label> <div class="ticket-type-selector">
+            <label><input type="radio" name="sellTicketType" value="xo-so" checked> Xổ số</label>
+            <label><input type="radio" name="sellTicketType" value="ve-boc"> Vé bóc</label>
+            <label><input type="radio" name="sellTicketType" value="custom-name"> Tự nhập tên</label>
         </div>
+    </div>
+    <div style="padding-left: 90px; margin-bottom: 10px;"> <input type="text" id="customTicketName" placeholder="Nhập tên loại hình..." style="display:none;">
+    </div>
+
+    <div class="sell-row-container">
+        <label>Giá bán:</label> <div class="ticket-type-selector">
+            <label><input type="radio" name="sellPrice" value="10000" checked> 10.000</label>
+            <label><input type="radio" name="sellPrice" value="5000"> 5.000</label>
+            <label><input type="radio" name="sellPrice" value="custom-price"> Tự nhập</label>
+        </div>
+    </div>
+    <div style="padding-left: 90px; margin-bottom: 10px;">
+        <input type="text" id="customTicketPrice" inputmode="numeric" placeholder="Nhập giá bán..." style="display:none;">
+    </div>
+
+    <div class="sell-row-container">
+        <label>Số lượng:</label>
+        <div class="input-group-row" style="flex-grow: 1; max-width: 200px;">
+            <input type="number" id="sellQuantityInput" placeholder="SL..." min="0">
+            <button id="btnAddTicket" class="success">Thêm vé</button>
+        </div>
+    </div>
+</div>
     </div>
     <div class="main-copyright">© 2025 ZENG FINANCE</div>
   </div>
