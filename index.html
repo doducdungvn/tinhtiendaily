@@ -21,50 +21,29 @@
     }
 
     /* --- CÀI ĐẶT CHUNG --- */
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 15px; background-color: var(--body-bg); color: var(--text-color); font-size: 16px; line-height: 1.6; }
-    .page { max-width: 600px; margin: 20px auto; padding: 15px; background-color: var(--container-bg); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 15px; padding-bottom: 50px; background-color: var(--body-bg); color: var(--text-color); font-size: 16px; line-height: 1.6; }
+    .page { max-width: 600px; margin: 20px auto; padding: 15px; background-color: var(--container-bg); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative; }
     h2 { font-size: 26px; font-weight: 600; text-align: center; color: var(--header-bg); margin-bottom: 0.8em; }
     h3 { font-size: 20px; font-weight: 500; text-align: center; color: var(--header-bg); margin-bottom: 0.8em; } 
     h4 { margin-top: 0; text-align: center; color: var(--text-color); font-weight: 500;}
     .report-date { text-align:center; font-weight: normal; margin-top: -12px; margin-bottom: 16px; color: var(--text-light); line-height: 1.5; } 
 
-    /* LOGO ANIMATION */
-    .simple-animated-logo { text-align: center; margin-bottom: 15px; margin-top: 10px; font-size: 32px; font-weight: 700; color: var(--logo-color); overflow: hidden; display: block; min-height: 40px; }
+    /* LOGO ANIMATION & ONLINE BADGE */
+    .simple-animated-logo { text-align: center; margin-bottom: 15px; margin-top: 10px; font-size: 32px; font-weight: 700; color: var(--logo-color); overflow: hidden; display: block; min-height: 40px; white-space: nowrap; }
     .main-page-logo { font-size: 24px; margin-top: 5px; margin-bottom: 10px; }
-    .simple-animated-logo span { opacity: 0; display: inline-block; transform: translateY(15px); transition: opacity 0.5s, transform 0.5s; }
+    .simple-animated-logo span.letter { opacity: 0; display: inline-block; transform: translateY(15px); transition: opacity 0.5s, transform 0.5s; }
     .simple-animated-logo .tm { font-size: 0.5em; vertical-align: super; margin-left: 2px; font-weight: normal; color: var(--text-light); }
 
-    /* ONLINE BADGE (Nằm cạnh logo) */
+    /* ONLINE BADGE */
     .online-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 5px;
-        font-size: 13px; /* Chữ nhỏ vừa phải */
-        font-weight: normal;
-        color: var(--text-light);
-        background-color: #f0f2f5;
-        padding: 2px 8px;
-        border-radius: 12px;
-        margin-left: 10px;
-        vertical-align: middle;
-        position: relative;
-        top: -5px; /* Căn chỉnh cho cân với logo */
-        border: 1px solid #e1e4e8;
+        display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+        font-size: 13px; font-weight: normal; color: var(--header-bg);
+        background-color: rgba(46, 204, 113, 0.15); padding: 3px 10px; border-radius: 15px;
+        margin-left: 12px; vertical-align: middle; position: relative; top: -6px; 
+        border: 1px solid rgba(46, 204, 113, 0.3);
     }
-    .online-dot {
-        width: 8px;
-        height: 8px;
-        background-color: var(--success-color);
-        border-radius: 50%;
-        box-shadow: 0 0 4px var(--success-color);
-        animation: pulseDot 2s infinite;
-    }
-    @keyframes pulseDot {
-        0% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.6; transform: scale(1.1); }
-        100% { opacity: 1; transform: scale(1); }
-    }
+    .online-dot { width: 8px; height: 8px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 6px var(--success-color); animation: pulseDot 2s infinite; }
+    @keyframes pulseDot { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
 
     .controls-panel { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--container-bg); }
     label { font-weight: 500; color: var(--text-color); }
@@ -82,7 +61,7 @@
     button.danger { background-color: var(--danger-color); }
     button.warning { background-color: var(--warning-color); }
     
-    /* NAV: 3 nút */
+    /* NAV */
     .main-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
     .main-nav button { background-color: var(--secondary-color); color: var(--text-color); }
     .main-nav button.active { background-color: var(--primary-color); color: white; }
@@ -106,11 +85,13 @@
 
     .ticket-type-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
     .ticket-type-selector label { display: flex; align-items: center; gap: 5px; font-weight: normal; cursor: pointer; }
-    .copyright { text-align: center; margin-top: 25px; font-size: 14px; color: var(--text-light); }
+    
+    /* COPYRIGHT FOOTER */
+    .main-copyright { text-align: center; margin-top: 30px; padding: 15px 0; font-size: 13px; color: var(--text-light); border-top: 1px dashed var(--border-color); width: 100%; }
     
     /* Dynamic Inputs */
-    #actionButtonContainer, #actionChoices { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-    #actionChoices { grid-column: 1 / -1; margin-top: 15px; }
+    #actionButtonContainer { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+    #actionChoices { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; grid-column: 1 / -1; }
     .dynamic-input { width: 100%; border: none; font-weight: 600; text-align: center; background: transparent; font-size: 17px; padding: 5px; }
     textarea.dynamic-input { text-align: right; resize: none; } 
     
@@ -130,34 +111,14 @@
     .home-actions, .report-actions-grid { grid-template-columns: 1fr 1fr; }
     .summary-actions { grid-template-columns: repeat(2, 1fr); margin-top: 20px; } 
 
-    /* NEW CSS: GROUP INPUT & BUTTONS IN ONE LINE (Đã chỉnh về lề trái) */
-    .input-group-row {
-        display: flex;
-        gap: 8px; 
-        align-items: center;
-        justify-content: flex-start; /* Căn lề trái */
-        width: 100%;
-        flex-wrap: nowrap;
-    }
-    
-    /* MẶC ĐỊNH TRÊN MÁY TÍNH: ~3cm */
-    .input-group-row input#soSoInput,
-    .input-group-row input#sellQuantityInput {
-        width: 115px !important; /* ~3cm (1cm ≈ 38px) */
-        flex: none; 
-    }
-
-    .input-group-row button {
-        width: auto; 
-        white-space: nowrap; 
-        padding: 12px 10px; 
-        flex-shrink: 0; 
-    }
+    /* GROUP INPUT & BUTTONS (Căn trái) */
+    .input-group-row { display: flex; gap: 8px; align-items: center; justify-content: flex-start; width: 100%; flex-wrap: nowrap; }
+    .input-group-row input#soSoInput, .input-group-row input#sellQuantityInput { width: 115px !important; flex: none; }
+    .input-group-row button { width: auto; white-space: nowrap; padding: 12px 10px; flex-shrink: 0; }
 
     /* Filter & Debt Styles */
     .filter-grid-container, .revenue-filter-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
     .region-lock-container.locked #regionDefinitionsInput { display: none !important; }
-    
     .debt-mode-selector { display: flex; gap: 10px; margin-bottom: 10px; padding: 10px; background-color: var(--neutral-light-bg); border-radius: 6px; border: 1px solid var(--border-color); align-items: center; justify-content: space-between; flex-wrap: wrap; }
     .debt-mode-selector .options { display: flex; gap: 15px; }
     
@@ -175,9 +136,7 @@
     #loading-indicator { display: none; position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background-color: var(--header-bg); color: var(--header-text); padding: 8px 15px; border-radius: 4px; z-index: 2100; }
     
     /* === NÚT CUỘN (Giữa trái) === */
-    #scrollToTopBtn, #scrollToBottomBtn { 
-        display: none; position: fixed; left: 15px; right: auto; z-index: 1001; background-color: var(--header-bg); color: white; border: none; padding: 0; border-radius: 50%; width: 40px; height: 40px; text-align: center; line-height: 40px; cursor: pointer; opacity: 0.6; box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
-    }
+    #scrollToTopBtn, #scrollToBottomBtn { display: none; position: fixed; left: 15px; right: auto; z-index: 1001; background-color: var(--header-bg); color: white; border: none; padding: 0; border-radius: 50%; width: 40px; height: 40px; text-align: center; line-height: 40px; cursor: pointer; opacity: 0.6; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
     #scrollToTopBtn { top: calc(50% - 45px); bottom: auto; } 
     #scrollToBottomBtn { top: calc(50% + 5px); bottom: auto; }
 
@@ -190,7 +149,7 @@
         #mainPage { max-width: 1200px; }
     }
     @media (max-width: 768px) {
-        body { padding: 10px; font-size: 4vw; }
+        body { padding: 10px; padding-bottom: 60px; font-size: 4vw; }
         .page { padding: 10px; margin: 10px auto; }
         h2 { font-size: 6vw; } h3 { font-size: 5vw; }
         input, button, textarea { padding: 10px 12px; font-size: 4vw; }
@@ -198,13 +157,10 @@
         .bang-chu-cell { font-size: 3vw !important; }
         #summaryTableContainer th, #summaryTableContainer td { font-size: 2vw; padding: 3px; }
         
-        /* === TRÊN ĐIỆN THOẠI: ~1.5cm === */
-        .input-group-row input#soSoInput,
-        .input-group-row input#sellQuantityInput {
-            width: 80px !important; /* ~1.5cm */
-        }
+        /* ~1.5cm trên điện thoại */
+        .input-group-row input#soSoInput, .input-group-row input#sellQuantityInput { width: 60px !important; }
     }
-    @media print { body * { visibility: hidden; } #summaryTableContainer, #summaryTableContainer * { visibility: visible; position: absolute; left: 0; top: 0; } button, #notification-area { display: none !important; } }
+    @media print { body * { visibility: hidden; } #summaryTableContainer, #summaryTableContainer * { visibility: visible; position: absolute; left: 0; top: 0; } button, #notification-area, #scrollToTopBtn, #scrollToBottomBtn { display: none !important; } }
   </style>
 </head>
 <body>
@@ -214,10 +170,8 @@
 
   <div id="homePage" class="page">
     <div class="simple-animated-logo">
-        <span>Z</span><span>E</span><span>N</span><span>G</span><span class="tm">™</span>
-        <div class="online-badge">
-            <span class="online-dot"></span> <span class="online-count">24</span>
-        </div>
+        <span class="letter">Z</span><span class="letter">E</span><span class="letter">N</span><span class="letter">G</span><span class="tm">™</span>
+        <div class="online-badge"><span class="online-dot"></span> <span class="online-count">8</span></div>
     </div>
 
     <h2>Báo cáo Thu Tiền</h2>
@@ -227,19 +181,17 @@
         <label for="excelFile2">Chọn file Biểu 35 (XSKT - Tùy chọn):</label>
         <input type="file" id="excelFile2" accept=".xls,.xlsx">
         <div class="home-actions" style="margin-top: 20px;">
-            <button id="btnShowManualReport" class="warning">Thêm Báo cáo</button>
+            <button id="btnShowManualReport" class="warning">Thêm Báo Cáo</button>
             <button id="btnLoadData" class="success">Nạp dữ liệu & Xem báo cáo</button>
         </div>
     </div>
-    <div class="copyright">© 2025 ZENG FINANCE</div>
+    <div class="main-copyright">© 2025 ZENG FINANCE</div>
   </div>
   
   <div id="mainPage" class="page" style="display: none;">
     <div class="simple-animated-logo main-page-logo">
-        <span>Z</span><span>E</span><span>N</span><span>G</span><span class="tm">™</span>
-        <div class="online-badge" style="font-size: 11px; padding: 1px 6px;">
-            <span class="online-dot" style="width:6px; height:6px;"></span> <span class="online-count">24</span>
-        </div>
+        <span class="letter">Z</span><span class="letter">E</span><span class="letter">N</span><span class="letter">G</span><span class="tm">™</span>
+        <div class="online-badge" style="font-size: 11px; padding: 1px 8px;"><span class="online-dot" style="width:6px; height:6px;"></span> <span class="online-count">8</span></div>
     </div>
 
     <div class="main-nav">
@@ -250,7 +202,6 @@
 
     <div id="summarySection" class="main-section">
         <div class="controls-panel" style="margin-bottom: 15px; padding: 15px;">
-            
             <div class="filter-grid-container">
                 <div class="filter-column">
                     <div id="regionLockContainer" class="region-lock-container">
@@ -275,21 +226,17 @@
                         <button id="btnClearDebt" class="danger" style="padding: 6px 15px; width: auto; font-size: 14px;">Xóa Nợ</button>
                     </div>
                  </div>
-
                  <div id="debtManualContainer" style="display: none;">
                      <label style="font-size: 0.9em; color: var(--text-light);">Nhập Mã+Tiền (VD: 980 1000)</label>
                      <textarea id="debtInput" rows="3" placeholder="Ví dụ:&#10;980 1000&#10;966+200&#10;U999:500"></textarea>
                  </div>
-
                  <div id="debtExcelContainer" style="display: none;">
                      <label for="debtFile" style="font-size: 0.9em; color: var(--text-light);">Chọn file tienno.xls (Cột A: Mã, Cột B: Tiền)</label>
                      <input type="file" id="debtFile" accept=".xls,.xlsx">
                  </div>
                  <div id="debtStatusMsg" style="font-size: 14px; color: var(--success-color); font-weight: 500; margin-top: 5px; display: none;"></div>
             </div>
-
             <hr style="border-color: var(--border-color); margin: 20px 0 15px 0; border-style: dashed;">
-            
             <div class="revenue-filter-grid">
                 <div class="revenue-filter-col-left filter-column">
                     <div class="filter-column">
@@ -305,7 +252,6 @@
                         <input type="text" id="maxRevenueInput" class="manual-currency" inputmode="numeric" placeholder="Để trống = Tối đa">
                     </div>
                 </div>
-                
                 <div class="revenue-filter-col-right filter-column">
                     <label>Chọn Đơn vị:</label>
                     <div style="display: flex; gap: 5px; align-items: center;">
@@ -338,7 +284,7 @@
         <div id="reportContainer"></div>
         <div id="actionButtonContainer">
             <button id="btnCopyReport">Copy Ảnh</button>
-            <button id="toggleChoicesBtn" class="secondary">Thêm tiền Thưởng/Nợ</button>
+            <button id="toggleChoicesBtn" class="secondary" onclick="toggleActions()">Thêm tiền Thưởng/Nợ</button>
             <div id="actionChoices"></div>
         </div>
     </div>
@@ -374,7 +320,7 @@
             </div>
         </div>
     </div>
-    <div class="copyright">© 2025 ZENG FINANCE</div>
+    <div class="main-copyright">© 2025 ZENG FINANCE</div>
   </div>
 
    <div id="manualInputModal" class="modal-overlay">
@@ -669,8 +615,6 @@
                 <td class="${totals.final>=0?'final-amount-positive':'final-amount-negative'}">${formatNumberHiddenK(totals.final)}</td></tr></tfoot>`;
             
             DOM.summaryTableContainer.innerHTML=`<table border="1">${html}</table>`;
-            
-            // ĐÃ SỬA: Hiển thị "Tất Cả" nếu giá trị là 'all'
             const displayRegion = regVal === 'all' ? 'Tất Cả' : regVal;
             DOM.summaryTitle.innerHTML=`Bảng Tổng Hợp: <span class="region-name">${displayRegion}</span>`;
             
@@ -740,7 +684,13 @@
             DOM.manualInputModal.style.display='none'; const s=DOM.soSoInput.value.trim(); if(!s) return showNotification("Nhập số sổ!",'error');
             const d=processDetailedReport(s); if(!d) return showNotification("Không có dữ liệu",'error');
             renderDetailedReport(d); updateDetailedView(); 
-            DOM.actionButtonContainer.style.display='grid'; DOM.actionChoices.style.display='none'; DOM.toggleChoicesBtn.textContent='Thêm tiền Thưởng/Nợ'; DOM.toggleChoicesBtn.className='secondary';
+            
+            // SHOW BUTTONS FIX
+            DOM.actionButtonContainer.style.display='grid'; 
+            DOM.actionChoices.style.display='none'; 
+            DOM.toggleChoicesBtn.textContent='Thêm tiền Thưởng/Nợ'; 
+            DOM.toggleChoicesBtn.className='secondary';
+            
             DOM.reportContainer.scrollIntoView({behavior:'smooth'});
         }
 
@@ -777,7 +727,8 @@
             
             state.addedTickets.push({dt, hh});
             const tr = document.createElement('tr'); tr.className = 'added-ticket-row'; 
-            tr.innerHTML = `<td>${name} (${formatNumberHiddenK(price)}k) [${q}]</td><td>${formatNumberHiddenK(dt)}</td><td>${formatCommissionCellHiddenK(dt, hh)}</td>`;
+            // ĐÃ SỬA: Hiển thị [Số lượng vé]
+            tr.innerHTML = `<td>${name} (${formatNumberHiddenK(price)}k) [${q} vé]</td><td>${formatNumberHiddenK(dt)}</td><td>${formatCommissionCellHiddenK(dt, hh)}</td>`;
             
             const anchor = document.getElementById('tongCongRow');
             if(anchor) {
@@ -791,22 +742,71 @@
             }
         }
 
-        function toggleActions() {
-            const show=DOM.toggleChoicesBtn.textContent.includes('Thêm');
-            DOM.actionChoices.style.display=show?'grid':'none'; DOM.toggleChoicesBtn.textContent=show?'Đóng / Xoá hết':'Thêm tiền Thưởng/Nợ'; DOM.toggleChoicesBtn.className=show?'danger':'secondary';
-            if(!show) { document.getElementById('extraBonusRow')?.remove(); document.getElementById('extraDebtRow')?.remove(); state.extraBonus=0; state.extraDebt=0; updateDetailedView(); }
+        // TOGGLE LOGIC CHO NÚT THƯỞNG/NỢ
+        window.toggleActions = () => {
+            const show = DOM.toggleChoicesBtn.textContent.includes('Thêm');
+            DOM.actionChoices.style.display = show ? 'grid' : 'none';
+            DOM.toggleChoicesBtn.textContent = show ? 'Đóng / Xoá hết' : 'Thêm tiền Thưởng/Nợ';
+            DOM.toggleChoicesBtn.className = show ? 'danger' : 'secondary';
+            
+            if(!show) { // Nếu đóng thì xóa hết
+                document.getElementById('extraBonusRow')?.remove(); 
+                document.getElementById('extraDebtRow')?.remove(); 
+                state.extraBonus = 0; 
+                state.extraDebt = 0; 
+                updateDetailedView(); 
+            }
             renderActionButtons();
+        };
+
+        function renderActionButtons() { 
+            DOM.actionChoices.innerHTML = `
+                ${document.getElementById('extraBonusRow') ? `<button class="danger" onclick="removeRow('bonus')">Xoá Thưởng thêm</button>` : `<button onclick="addRow('bonus')">Thêm Thưởng</button>`}
+                ${document.getElementById('extraDebtRow') ? `<button class="danger" onclick="removeRow('debt')">Xoá Nợ thêm</button>` : `<button onclick="addRow('debt')">Thêm Nợ</button>`}
+            `; 
         }
-        function renderActionButtons() { DOM.actionChoices.innerHTML=`${document.getElementById('extraBonusRow')?`<button class="danger" onclick="removeRow('bonus')">Xoá Thưởng thêm</button>`:`<button onclick="addRow('bonus')">Thêm Thưởng</button>`}${document.getElementById('extraDebtRow')?`<button class="danger" onclick="removeRow('debt')">Xoá Nợ thêm</button>`:`<button onclick="addRow('debt')">Thêm Nợ</button>`}`; }
         
-        window.addRow=(type)=>{
-            const isB=type==='bonus', rowId=isB?'extraBonusRow':'extraDebtRow', anchor=document.getElementById('extraBonusRow')||document.getElementById('mainBonusRow');
-            const tr=document.createElement('tr'); tr.id=rowId; 
-            tr.innerHTML=`<td>${isB?`<textarea class="dynamic-input" style="color:var(--success-color)" placeholder="Tên thưởng..." rows="1"></textarea>`:'Nợ thêm'}</td><td colspan="2"><input class="dynamic-input" style="color:${isB?'var(--success-color)':'var(--danger-color)'}" oninput="handleDynInp(this,'${type}')" placeholder="0"></td>`;
-            anchor.after(tr); renderActionButtons();
-        }
-        window.removeRow=(type)=>{ document.getElementById(type==='bonus'?'extraBonusRow':'extraDebtRow')?.remove(); if(type==='bonus') state.extraBonus=0; else state.extraDebt=0; updateDetailedView(); renderActionButtons(); }
-        window.handleDynInp=(el, type)=>{ const v=parseInt(el.value.replace(/\D/g,''))||0; el.value=v.toLocaleString('vi-VN'); if(type==='bonus') state.extraBonus=v; else state.extraDebt=v; updateDetailedView(); }
+        window.addRow = (type) => {
+            const isB = type === 'bonus';
+            const rowId = isB ? 'extraBonusRow' : 'extraDebtRow';
+            const anchor = document.getElementById('extraBonusRow') || document.getElementById('mainBonusRow');
+            
+            if(document.getElementById(rowId)) return; 
+
+            const tr = document.createElement('tr'); 
+            tr.id = rowId; 
+            tr.innerHTML = `<td>${isB ? `<textarea class="dynamic-input" style="color:var(--success-color)" placeholder="Tên thưởng..." rows="1"></textarea>` : 'Nợ thêm'}</td><td colspan="2"><input class="dynamic-input" style="color:${isB ? 'var(--success-color)' : 'var(--danger-color)'}" oninput="handleDynInp(this,'${type}')" placeholder="0"></td>`;
+            
+            anchor.after(tr); 
+            renderActionButtons();
+            
+            // AUTO FOCUS VÀO Ô VỪA TẠO
+            const input = tr.querySelector('input');
+            if(input) {
+                input.focus();
+            }
+        };
+
+        window.removeRow = (type) => { 
+            document.getElementById(type === 'bonus' ? 'extraBonusRow' : 'extraDebtRow')?.remove(); 
+            if(type === 'bonus') state.extraBonus = 0; 
+            else state.extraDebt = 0; 
+            updateDetailedView(); 
+            renderActionButtons(); 
+        };
+
+        window.handleDynInp = (el, type) => { 
+            // LOGIC ĐƠN GIẢN: Nhập gì tính nấy (Đơn vị: nghìn đồng)
+            const v = parseInt(el.value.replace(/\D/g,'')) || 0; 
+            el.value = v.toLocaleString('vi-VN'); 
+            
+            // Input đang hiểu là đơn vị "nghìn", nên phải * 1000 để ra số thực tế tính toán
+            // Ví dụ: Nhập 50 -> v=50 -> Value hiển thị "50" -> Tính toán: 50 * 1000 = 50.000đ
+            // Ví dụ: Nhập 50000 -> v=50000 -> Value hiển thị "50.000" -> Tính toán: 50.000 * 1000 = 50.000.000đ
+            if(type === 'bonus') state.extraBonus = v * 1000; 
+            else state.extraDebt = v * 1000; 
+            updateDetailedView(); 
+        };
 
         function showSection(id) { 
             ['summarySection','reportSection','sellSection'].forEach(s=>DOM[s].style.display='none'); DOM[id].style.display='block'; 
@@ -820,7 +820,7 @@
             if (containers.length === 0) return;
             const getAllSpans = () => {
                 const all = [];
-                containers.forEach(c => { all.push(Array.from(c.querySelectorAll('span'))); });
+                containers.forEach(c => { all.push(Array.from(c.querySelectorAll('span.letter'))); });
                 return all;
             };
             while (true) {
@@ -858,9 +858,9 @@
             }
         }
         
-        // === SIMULATE ONLINE COUNTER (NEW LOGIC: 1-98) ===
+        // === SIMULATE ONLINE COUNTER (1-98) ===
         function updateOnlineCounter() {
-            const num = Math.floor(Math.random() * 98) + 1; // 1 to 98
+            const num = Math.floor(Math.random() * 98) + 1; 
             document.querySelectorAll('.online-count').forEach(el => el.textContent = num);
             setTimeout(updateOnlineCounter, Math.random() * 5000 + 3000);
         }
@@ -878,12 +878,7 @@
 
         // Listeners
         DOM.navSummary.onclick=()=>showSection('summarySection'); 
-        
-        DOM.navReport.onclick=()=>{
-            showSection('reportSection');
-            DOM.soSoInput.focus();
-        };
-        
+        DOM.navReport.onclick=()=>{ showSection('reportSection'); DOM.soSoInput.focus(); };
         DOM.navSell.onclick=()=>{ showSection('sellSection'); DOM.sellQuantityInput.focus(); }; 
         
         DOM.excelFile1.onchange=(e)=>handleFile(e.target.files[0],1,'excelFile1'); DOM.excelFile2.onchange=(e)=>handleFile(e.target.files[0],2,'excelFile2');
@@ -898,6 +893,12 @@
             const c={ldb:t.lotoDB*.08, lc:t.loCap*.1, c2:t.c227*.1, c3:t.c323*.1, x:0};
             resetState('manual'); state.accountCodes.add(name); state.baseTongDT=t.lotoDB+t.loCap+t.c227+t.c323; state.baseTongHH=c.ldb+c.lc+c.c2+c.c3; state.baseThuong=t.thuong;
             DOM.homePage.style.display='none'; DOM.mainPage.style.display='block'; showSection('reportSection'); renderDetailedReport({t,c},DOM.manualDateRange.value); updateDetailedView(); DOM.manualInputModal.style.display='none';
+            
+            // SHOW BUTTONS FIX
+            DOM.actionButtonContainer.style.display='grid'; 
+            DOM.actionChoices.style.display='none'; 
+            DOM.toggleChoicesBtn.textContent='Thêm tiền Thưởng/Nợ'; 
+            DOM.toggleChoicesBtn.className='secondary';
         };
         document.querySelectorAll('.manual-currency').forEach(i=>i.oninput=(e)=>{const v=e.target.value.replace(/\D/g,'');e.target.dataset.value=v;e.target.value=v?parseInt(v).toLocaleString('vi-VN'):'';});
 
