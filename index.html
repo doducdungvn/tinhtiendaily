@@ -945,6 +945,31 @@
             }
         });
 
+        // ============================================================
+        // [MỚI] - LOGIC SỬA LỖI THEO YÊU CẦU
+        // ============================================================
+
+        // 1. Xử lý phím Enter cho ô nhập mật khẩu
+        DOM.passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Ngăn xuống dòng
+                DOM.btnSubmitPassword.click(); // Kích hoạt nút xác nhận
+            }
+        });
+
+        // 2. Logic cho nút "Xoá" form thủ công
+        DOM.btnClearManualReport.onclick = () => {
+            const ids = ['manualAgentName', 'manualDateRange', 'manualLotoDB', 'manualLoCap', 'manualC227', 'manualC323', 'manualThuong'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.value = ''; // Xoá text hiển thị
+                    if (el.dataset.value) el.dataset.value = ''; // Xoá giá trị ngầm (quan trọng cho tính toán)
+                }
+            });
+            DOM.manualAgentName.focus(); // Đưa con trỏ về ô đầu tiên
+        };
+
     })();
   </script>
 </body>
