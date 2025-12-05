@@ -209,8 +209,8 @@
         <input type="file" id="excelFile1" accept=".xls,.xlsx">
         
         <div style="margin: 15px 0; border-top: 1px dashed var(--border-color); padding-top: 15px;">
-            <label for="rawDataInput">HOẶC: Dán dữ liệu thô Lô tô (Phân cách bằng dấu phẩy hoặc khoảng trắng):</label>
-            <textarea id="rawDataInput" rows="5" placeholder="Ví dụ (Dán từ Excel/CSV):&#10;Từ ngày 28/11/2025 đến 29/11/2025&#10;U966,28/11,LT,145,11.6,0,133.4&#10;U968,28/11,LT,1480,118.4,0,1361.6"></textarea>
+            <label for="rawDataInput">HOẶC: Dán dữ liệu thô Lô tô (Phân cách bằng dấu cách, tab hoặc dấu nháy kép):</label>
+            <textarea id="rawDataInput" rows="5" placeholder="Ví dụ (Dán từ Excel/CSV):&#10;Từ ngày 28/11/2025 đến 29/11/2025&#10;U966 28/11 LT 1.450.000 118,4 0&#10;U968 28/11 LC 1480,5 118,4 1.000"></textarea>
             <button id="btnProcessRawData" class="secondary" style="margin-top: 10px;">Xử lý Dữ liệu Dán</button>
         </div>
         <label for="excelFile2">Chọn file Biểu 35 (XSKT - Tùy chọn):</label>
@@ -674,7 +674,7 @@
             }; reader.readAsArrayBuffer(file);
         }
 
-        // START: UPDATED FUNCTION - parseRawData (Hỗ trợ CSV và tách dòng ngày tháng)
+        // START: UPDATED FUNCTION - parseRawData (Hỗ trợ TÁCH CỘT bằng DẤU NHÁY KÉP và xử lý format số VN)
         function parseRawData() {
             const rawText = DOM.rawDataInput.value.trim();
             if (!rawText) return showNotification("Vui lòng dán dữ liệu vào ô!", 'error');
@@ -702,60 +702,72 @@
                 const upperL = l.toUpperCase();
                 return l.trim() !== '' && !upperL.includes('MÃ ĐL') && !upperL.includes('CỘNG') && !upperL.includes('TỔNG');
             });
+            
+            // HÀM MỚI: XỬ LÝ SỐ VỚI DẤU CHẤM HÀNG NGHÌN VÀ DẤU PHẨY THẬP PHÂN
+            function cleanAndParseNumber(numStr) {
+                if (!numStr) return 0;
+                // 1. Loại bỏ tất cả dấu chấm (phân cách hàng nghìn)
+                let clean = String(numStr).replace(/\./g, ''); 
+                // 2. Thay thế dấu phẩy (thập phân) bằng dấu chấm
+                clean = clean.replace(/,/g, '.'); 
+                // 3. Chuyển thành số
+                return parseFloat(clean) || 0;
+            }
 
             dataLines.forEach(line => {
-                // Tách các giá trị bằng dấu phẩy, tab, hoặc nhiều dấu cách
-                const parts = line.trim().split(/[\t,]+| +/).map(p => p.trim()).filter(p => p !== '');
+                // *** THAY ĐỔI LỚN NHẤT: Tách các giá trị bằng dấu cách, tab, hoặc dấu nháy kép (") ***
+                const parts = line.trim().split(/[\t" ]+/).map(p => p.trim()).filter(p => p !== '');
                 
-                // Cần ít nhất 6 phần tử: Mã ĐL, Ngày, LH, Doanh thu, Hoa hồng, Trả thưởng
-                if (parts.length >= 6) {
-                    const maDL = parts[0];
-                    const loaiHinh = parts[2].toUpperCase();
-                    
-                    // Doanh thu (Index 3). Loại bỏ dấu phân cách hàng nghìn (chấm/phẩy) nếu có.
-                    let doanhThuClean = parts[3].replace(/,/g, ''); 
-                    const doanhThu = parseFloat(doanhThuClean) || 0; 
-                    
-                    // Trả thưởng (Index 5)
-                    let traThuongClean = parts[5].replace(/,/g, ''); 
-                    const traThuong = parseFloat(traThuongClean) || 0;
-                    
-                    if (maDL && loaiHinh && (doanhThu > 0 || traThuong > 0)) {
-                        const row = {
-                            "__EMPTY": maDL, // Mã ĐL
-                            "__EMPTY_1": parts[1], // Giữ lại Ngày (dạng dd/MM) để hiển thị trong báo cáo chi tiết theo dòng
-                            "__EMPTY_14": traThuong * 1000, // Thưởng (Ánh xạ về cột 14 của Biểu 31, nhân 1000)
-                        };
-                        
-                        // Ánh xạ Loại hình sang cột Doanh thu Biểu 31 (giá trị * 1000)
-                        const dtValue = doanhThu * 1000;
-                        
-                        // Lô tô ĐB (LT) -> cột __EMPTY_2 (8% HH)
-                        if (loaiHinh === 'LT') {
-                            row["__EMPTY_2"] = dtValue; 
-                        // Lô cặp (LC) -> cột __EMPTY_6 (10% HH)
-                        } else if (loaiHinh === 'LC') {
-                            row["__EMPTY_6"] = dtValue;
-                        // 2/27 (L2) -> cột __EMPTY_8 (10% HH)
-                        } else if (loaiHinh === 'L2') {
-                            row["__EMPTY_8"] = dtValue;
-                        // 3/23 (L3) -> cột __EMPTY_10 (10% HH)
-                        } else if (loaiHinh === 'L3') {
-                            row["__EMPTY_10"] = dtValue;
-                        } else {
-                            // Bỏ qua loại hình không xác định
-                            return; 
-                        }
-                        
-                        // Thêm hàng vào excelData1.
-                        if (row["__EMPTY_2"]) row["__EMPTY_2"] = row["__EMPTY_2"];
-                        if (row["__EMPTY_6"]) row["__EMPTY_6"] = row["__EMPTY_6"];
-                        if (row["__EMPTY_8"]) row["__EMPTY_8"] = row["__EMPTY_8"];
-                        if (row["__EMPTY_10"]) row["__EMPTY_10"] = row["__EMPTY_10"];
+                // Nếu không có ít nhất 6 phần tử sau khi tách, bỏ qua
+                if (parts.length < 6) return;
+                
+                // Xử lý loại bỏ dấu nháy kép ở đầu và cuối (dùng cho trường hợp dán tiêu đề có dấu nháy)
+                const cleanedParts = parts.map(p => p.replace(/^"|"$/g, ''));
 
-                        excelData1.push(row);
-                        successCount++;
+                const maDL = cleanedParts[0];
+                const loaiHinh = cleanedParts[2].toUpperCase();
+                
+                // Doanh thu (Index 3). Áp dụng hàm xử lý số mới.
+                const doanhThu = cleanAndParseNumber(cleanedParts[3]); 
+                
+                // Trả thưởng (Index 5). Áp dụng hàm xử lý số mới.
+                const traThuong = cleanAndParseNumber(cleanedParts[5]);
+                
+                if (maDL && loaiHinh && (doanhThu > 0 || traThuong > 0)) {
+                    const row = {
+                        "__EMPTY": maDL, // Mã ĐL
+                        "__EMPTY_1": cleanedParts[1], // Giữ lại Ngày (dạng dd/MM)
+                        "__EMPTY_14": traThuong * 1000, // Thưởng (Ánh xạ về cột 14 của Biểu 31, nhân 1000)
+                    };
+                    
+                    // Ánh xạ Loại hình sang cột Doanh thu Biểu 31 (giá trị * 1000)
+                    const dtValue = doanhThu * 1000;
+                    
+                    // Lô tô ĐB (LT) -> cột __EMPTY_2 (8% HH)
+                    if (loaiHinh === 'LT') {
+                        row["__EMPTY_2"] = dtValue; 
+                    // Lô cặp (LC) -> cột __EMPTY_6 (10% HH)
+                    } else if (loaiHinh === 'LC') {
+                        row["__EMPTY_6"] = dtValue;
+                    // 2/27 (L2) -> cột __EMPTY_8 (10% HH)
+                    } else if (loaiHinh === 'L2') {
+                        row["__EMPTY_8"] = dtValue;
+                    // 3/23 (L3) -> cột __EMPTY_10 (10% HH)
+                    } else if (loaiHinh === 'L3') {
+                        row["__EMPTY_10"] = dtValue;
+                    } else {
+                        // Bỏ qua loại hình không xác định
+                        return; 
                     }
+                    
+                    // Thêm hàng vào excelData1.
+                    if (row["__EMPTY_2"]) row["__EMPTY_2"] = row["__EMPTY_2"];
+                    if (row["__EMPTY_6"]) row["__EMPTY_6"] = row["__EMPTY_6"];
+                    if (row["__EMPTY_8"]) row["__EMPTY_8"] = row["__EMPTY_8"];
+                    if (row["__EMPTY_10"]) row["__EMPTY_10"] = row["__EMPTY_10"];
+
+                    excelData1.push(row);
+                    successCount++;
                 }
             });
 
@@ -876,8 +888,8 @@
             state.baseTongDT=0; 
             state.baseTongHH=0; 
             state.baseThuong=0; 
-            state.extraBonus=0; 
-            state.extraDebt=0; 
+            state.extraBonus = 0; 
+            state.extraDebt = 0; 
             state.addedTickets=[]; 
             state.accountCodes=new Set(); 
             state.debtFromData=0; 
