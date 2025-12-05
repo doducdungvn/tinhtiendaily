@@ -139,7 +139,9 @@
 
     .inline-form { display: flex; gap: 10px; align-items: center; flex-wrap: nowrap; }
     .home-actions, .report-actions-grid, .summary-actions { display: grid; gap: 10px; }
-    .home-actions, .report-actions-grid { grid-template-columns: 1fr 1fr; }
+    /* Đã chỉnh: home-actions grid-template-columns: 1fr 1fr 1fr; để phù hợp với 3 nút */
+    .home-actions { grid-template-columns: repeat(3, 1fr); }
+    .report-actions-grid { grid-template-columns: 1fr 1fr; }
     .summary-actions { grid-template-columns: repeat(2, 1fr); margin-top: 20px; } 
 
     /* GROUP INPUT & BUTTONS (Căn trái) */
@@ -208,16 +210,19 @@
         <label for="excelFile1">Chọn file Biểu 31 (Lô tô):</label>
         <input type="file" id="excelFile1" accept=".xls,.xlsx">
         
-        <div style="margin: 15px 0; border-top: 1px dashed var(--border-color); padding-top: 15px;">
+        <div id="rawDataContainer" style="margin: 15px 0; border-top: 1px dashed var(--border-color); padding-top: 15px; display:none;">
             <label for="rawDataInput">HOẶC: Dán dữ liệu thô Lô tô (Phân cách bằng dấu cách, tab hoặc dấu nháy kép):</label>
             <textarea id="rawDataInput" rows="5" placeholder="Ví dụ (Dán từ Excel/CSV):&#10;Từ ngày 28/11/2025 đến 29/11/2025&#10;U966 28/11 LT 1.450.000 118,4 0&#10;U968 28/11 LC 1480,5 118,4 1.000"></textarea>
             <button id="btnProcessRawData" class="secondary" style="margin-top: 10px;">Xử lý Dữ liệu Dán</button>
         </div>
+        
         <label for="excelFile2">Chọn file Biểu 35 (XSKT - Tùy chọn):</label>
         <input type="file" id="excelFile2" accept=".xls,.xlsx">
+        
         <div class="home-actions" style="margin-top: 20px;">
-            <button id="btnShowManualReport" class="warning">Thêm thủ công</button>
             <button id="btnLoadData" class="success">Nạp dữ liệu & Xem báo cáo</button>
+            <button id="btnToggleRawData" class="secondary">Dữ liệu CVS</button>
+            <button id="btnShowManualReport" class="warning">Thêm thủ công</button>
         </div>
     </div>
     <div class="main-copyright">© 2025 ZENG FINANCE</div>
@@ -459,6 +464,8 @@
             // NEW RAW DATA ELEMENTS
             rawDataInput: document.getElementById('rawDataInput'),
             btnProcessRawData: document.getElementById('btnProcessRawData'),
+            rawDataContainer: document.getElementById('rawDataContainer'), // NEW: Container chứa raw data input
+            btnToggleRawData: document.getElementById('btnToggleRawData'), // NEW: Nút toggle
 
             navSummary: document.getElementById('navSummary'), navReport: document.getElementById('navReport'), navSell: document.getElementById('navSell'),
             summarySection: document.getElementById('summarySection'), reportSection: document.getElementById('reportSection'), sellSection: document.getElementById('sellSection'),
@@ -1346,6 +1353,17 @@
         
         // NEW LISTENER for Raw Data
         DOM.btnProcessRawData.onclick = parseRawData;
+        
+        // NEW TOGGLE LOGIC
+        DOM.btnToggleRawData.onclick = () => {
+            const isHidden = DOM.rawDataContainer.style.display === 'none';
+            DOM.rawDataContainer.style.display = isHidden ? 'block' : 'none';
+            DOM.btnToggleRawData.textContent = isHidden ? 'Ẩn Dữ liệu CVS' : 'Dữ liệu CVS';
+            DOM.btnToggleRawData.classList.toggle('secondary', isHidden);
+            DOM.btnToggleRawData.classList.toggle('warning', !isHidden);
+            if(isHidden) DOM.rawDataInput.focus();
+        };
+
 
         DOM.btnCreateReport.onclick=createReport; DOM.soSoInput.onkeydown=(e)=>{if(e.key==='Enter')createReport()};
         
