@@ -118,6 +118,15 @@
     /* COPYRIGHT FOOTER */
     .main-copyright { text-align: center; margin-top: 30px; padding: 15px 0; font-size: 13px; color: var(--text-light); border-top: 1px dashed var(--border-color); width: 100%; }
     
+    /* === BỔ SUNG: Căn giữa dòng bản quyền khi chụp ảnh === */
+    #copyrightInReport {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 13px;
+        color: var(--text-light);
+    }
+    /* === KẾT THÚC BỔ SUNG === */
+    
     /* Dynamic Inputs */
     #actionButtonContainer { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
     #actionChoices { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; grid-column: 1 / -1; }
@@ -604,6 +613,7 @@
             hiddenEls.forEach(e=>e.style.display='none'); 
             
             const cp=document.getElementById('copyrightInReport'); 
+            // HIỂN THỊ BẢN QUYỀN
             if(cp && (sel==='#reportContainer' || sel === '#detailedRawContainer')) cp.style.display='block';
             
             let originalOverflow = '';
@@ -1084,7 +1094,13 @@
 
                 const sortedRows = [...state.detailedRows].sort(sortFunction);
 
-                let detailHtml = `<h3 style="margin-top:20px; color: var(--primary-dark);">Báo Cáo Chi Tiết Theo Dòng - Đại lý ${agentName}</h3>`;
+                // *************************************************************************
+                // BƯỚC SỬA ĐỔI CHÍNH: Thêm ngày tháng vào tiêu đề Chi tiết
+                // *************************************************************************
+                let detailHtml = `<h3 style="margin-top:20px; margin-bottom: 0.5em; color: var(--primary-dark);">Báo Cáo Chi Tiết Theo Dòng - Đại lý ${agentName}</h3>
+                                  <h4 style="margin-top:0; color: var(--text-light); font-size: 14px;">${dateRangeText}</h4>`;
+                // *************************************************************************
+
                 detailHtml += `<table><thead><tr><th>Ngày</th><th>Loại hình</th><th>Doanh thu</th><th>Hoa hồng</th><th>Trả thưởng</th><th>Phải nộp</th></tr></thead><tbody>`;
 
                 let totalRev = 0, totalCom = 0, totalRew = 0, totalNet = 0;
