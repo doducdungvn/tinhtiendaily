@@ -25,6 +25,8 @@
     /* --- CÀI ĐẶT CHUNG --- */
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 15px; padding-bottom: 60px; background-color: var(--body-bg); color: var(--text-color); font-size: 16px; line-height: 1.6; }
     .page { max-width: 600px; margin: 20px auto; padding: 15px; background-color: var(--container-bg); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative; }
+    
+    /* Header Styles */
     h2 { font-size: 26px; font-weight: 600; text-align: center; color: var(--header-bg); margin-bottom: 0.8em; }
     h3 { font-size: 20px; font-weight: 500; text-align: center; color: var(--header-bg); margin-bottom: 0.8em; } 
     h4 { margin-top: 0; text-align: center; color: var(--text-color); font-weight: 500;}
@@ -169,18 +171,30 @@
         @page { size: A4; margin: 10mm; } 
         body { padding: 0; background: white; -webkit-print-color-adjust: exact; font-size: 11pt; } 
         body > * { display: none !important; }
+        
+        /* Chỉ hiện Báo cáo */
         #mainPage, #summarySection, #summaryTableContainer { 
             display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; 
             position: static !important; visibility: visible !important; overflow: visible !important;
         }
+        
+        /* Ẩn các nút điều khiển */
         .controls-panel, .summary-actions, .main-nav, .simple-animated-logo, 
         #scrollToTopBtn, #scrollToBottomBtn, #notification-area, #btnCopySummary, #btnExportExcel { display: none !important; }
         
+        /* --- QUAN TRỌNG: CĂN GIỮA HEADER KHI IN --- */
+        #summaryTitle, #summaryDate {
+            text-align: center !important;
+            width: 100% !important;
+            display: block !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+
         table { width: 100% !important; border-collapse: collapse; border: 1px solid #000; font-size: 10pt; }
         th, td { border: 1px solid #000 !important; padding: 5px !important; }
         
         thead { display: table-header-group; }
-        /* Footer chỉ hiện ở cuối báo cáo, không lặp lại mỗi trang */
         tfoot { display: table-row-group; } 
         tr { page-break-inside: avoid; }
     }
@@ -498,7 +512,6 @@
             hiddenEls.forEach(e => e.style.display = 'none'); 
 
             // 2. TẠO DÒNG COPYRIGHT TẠM THỜI
-            // Logic: Tạo một thẻ div mới, thêm vào cuối vùng chụp, căn giữa
             const footer = document.createElement('div');
             footer.innerText = "© 2025 ZENG FINANCE";
             footer.style.width = "100%";
@@ -510,7 +523,6 @@
             footer.style.color = "#7f8c8d";    // Màu xám ghi chuyên nghiệp
             footer.style.backgroundColor = "#ffffff"; // Nền trắng
             
-            // Thêm vào cuối phần tử đang chụp
             el.appendChild(footer);
 
             // Xử lý mở rộng chiều ngang nếu bảng quá dài (cho Báo cáo tổng hợp)
@@ -528,7 +540,6 @@
 
             setTimeout(async()=>{
                 try {
-                    // Chụp ảnh
                     const canvas = await html2canvas(el, {backgroundColor: "#ffffff", scale: 2});
                     canvas.toBlob(async(blob)=>{
                         try { 
@@ -548,16 +559,9 @@
                 }
                 finally {
                     // 3. DỌN DẸP SAU KHI CHỤP XONG
-                    // Xóa dòng copyright vừa thêm
                     if(footer && footer.parentNode) footer.parentNode.removeChild(footer);
-
-                    // Hiện lại các nút bấm
                     hiddenEls.forEach(e => e.style.display = ''); 
-                    
-                    // Trả lại tên nút
                     if(btn) btn.textContent = oldTxt;
-                    
-                    // Trả lại kích thước cũ
                     if(sel === '#summarySection'){ 
                         DOM.summaryTableContainer.style.width = ''; 
                         DOM.summaryTableContainer.style.overflowX = originalOverflow;
@@ -687,12 +691,12 @@
                     html+=`<tr${idx===0?' class="group-start-row"':''}><td>${idx===0?stt:''}</td><td>${ag.code}</td><td>${formatNumberHiddenK(d.lotoDB)}</td><td>${formatNumberHiddenK(d.lotoCap)}</td><td>${formatNumberHiddenK(d.c323)}</td><td>${formatNumberHiddenK(d.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(d.xskt)}</td>`:''}<td>${formatNumberHiddenK(d.totRev)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`;
                 }); 
                 
-                // --- DÒNG TỔNG NHÓM (KHÔNG CÓ CHỮ "TỔNG NHÓM" NỮA) ---
+                // --- DÒNG TỔNG NHÓM ---
                 if (g.agents.length > 1) {
                     let sumLoto = 0, sumCap = 0, sumC3 = 0, sumC2 = 0, sumXskt = 0, sumDebt = 0;
                     g.agents.forEach(ag => { sumLoto+=ag.data.lotoDB; sumCap+=ag.data.lotoCap; sumC3+=ag.data.c323; sumC2+=ag.data.c227; sumXskt+=ag.data.xskt; sumDebt+=ag.data.debt; });
-                    // Ô thứ 2 để trống (<td></td>) thay vì <td>TỔNG NHÓM</td>
-                    html += `<tr class="group-total-row"><td></td><td></td><td>${formatNumberHiddenK(sumLoto)}</td><td>${formatNumberHiddenK(sumCap)}</td><td>${formatNumberHiddenK(sumC3)}</td><td>${formatNumberHiddenK(sumC2)}</td>${hasXSKT?`<td>${formatNumberHiddenK(sumXskt)}</td>`:''}<td>${formatNumberHiddenK(g.gr)}</td><td>${formatNumberHiddenK(g.gth)}</td>${hasDebt?`<td>${formatNumberHiddenK(sumDebt)}</td>`:''}<td style="color:#c0392b; font-size:1.1em;">${formatNumberHiddenK(g.gt)}</td></tr>`;
+                    // Đã loại bỏ font-size:1.1em; ở ô cuối cùng (g.gt) để cỡ chữ đồng bộ
+                    html += `<tr class="group-total-row"><td></td><td></td><td>${formatNumberHiddenK(sumLoto)}</td><td>${formatNumberHiddenK(sumCap)}</td><td>${formatNumberHiddenK(sumC3)}</td><td>${formatNumberHiddenK(sumC2)}</td>${hasXSKT?`<td>${formatNumberHiddenK(sumXskt)}</td>`:''}<td>${formatNumberHiddenK(g.gr)}</td><td>${formatNumberHiddenK(g.gth)}</td>${hasDebt?`<td>${formatNumberHiddenK(sumDebt)}</td>`:''}<td style="color:#c0392b;">${formatNumberHiddenK(g.gt)}</td></tr>`;
                 }
 
                 stt++;
