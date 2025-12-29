@@ -64,10 +64,38 @@
     button.danger { background-color: var(--danger-color); }
     button.warning { background-color: var(--warning-color); }
     
-    /* NAV */
-    .main-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-    .main-nav button { background-color: var(--secondary-color); color: var(--text-color); }
-    .main-nav button.active { background-color: var(--primary-color); color: white; }
+    /* --- NEW TAB NAVIGATION STYLE --- */
+    .main-nav { 
+        display: flex; 
+        background-color: #ecf0f1; /* Nền xám nhạt cho cả thanh */
+        padding: 5px; 
+        border-radius: 30px; /* Bo tròn kiểu viên thuốc */
+        gap: 0; 
+        margin-bottom: 25px;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .main-nav button { 
+        flex: 1; /* Chia đều chiều rộng */
+        background-color: transparent; 
+        color: #7f8c8d; /* Màu chữ khi chưa chọn */
+        border: none;
+        border-radius: 25px; /* Bo tròn từng nút */
+        padding: 10px 5px;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        box-shadow: none;
+    }
+    .main-nav button:hover {
+        background-color: rgba(0,0,0,0.05);
+        color: #2c3e50;
+    }
+    .main-nav button.active { 
+        background-color: var(--primary-color); 
+        color: white; 
+        box-shadow: 0 4px 6px rgba(26, 188, 156, 0.3); /* Bóng đổ cho nút active */
+        transform: scale(1.02); /* Phóng to nhẹ */
+    }
 
     table { border-collapse: collapse; width: 100%; margin: 1px auto; background: var(--container-bg); border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
     th, td { border: 1px solid var(--border-color); padding: 10px 12px; text-align: center; vertical-align: middle; }
@@ -1171,6 +1199,7 @@
             DOM.manualAgentName.focus(); 
         };
         
+        // --- SỰ KIỆN CLICK LOGO REFRESH TRANG ---
         document.querySelectorAll('.simple-animated-logo').forEach(el => el.addEventListener('click', () => location.reload()));
 
     })();
