@@ -768,24 +768,108 @@
 
         function resetState(soSo) { state.currentSoSo=soSo; state.baseTongDT=0; state.baseTongHH=0; state.baseThuong=0; state.extraBonus=0; state.extraDebt=0; state.addedTickets=[]; state.accountCodes=new Set(); state.debtFromData=0; }
         
+        // --- HÀM MỚI ĐƯỢC CẬP NHẬT ĐỂ GỘP NHÓM ĐẠI LÝ (01, 1, 001...) ---
         function processDetailedReport(soSo) {
-            const filter=(r)=>{ const c=String(r.__EMPTY||r.__EMPTY_1||'').trim(); return c && c.match(/\d+$/)?.[0]===soSo; };
-            const f1=excelData1.filter(filter), f2=excelData2.filter(filter), debtAmt=debtData.get(soSo)||0;
-            if(!f1.length && !f2.length && debtAmt===0) return null;
+            // Ví dụ: Nhập "1" hoặc "01" đều hiểu là số 1
+            const targetNum = parseInt(soSo, 10);
+            
+            if (isNaN(targetNum)) return null; // Nếu không nhập số thì bỏ qua
+
+            const filter = (r) => { 
+                const c = String(r.__EMPTY || r.__EMPTY_1 || '').trim();
+                // Regex tìm nhóm số ở cuối chuỗi (VD: "U001" -> lấy "001")
+                const match = c.match(/(\d+)$/);
+                if (match) {
+                    // So sánh giá trị số: parseInt("001") === 1
+                    return parseInt(match[1], 10) === targetNum;
+                }
+                return false;
+            };
+
+            const f1 = excelData1.filter(filter);
+            const f2 = excelData2.filter(filter);
+            
+            // Logic tìm nợ cũ cũng cần theo số (duyệt qua Map nợ để tìm key khớp)
+            let debtAmt = 0;
+            debtData.forEach((val, key) => {
+                const match = String(key).match(/(\d+)$/);
+                if(match && parseInt(match[1], 10) === targetNum) {
+                    debtAmt += val;
+                    // Tự động thêm mã đại lý nợ vào danh sách hiển thị nếu chưa có
+                    state.accountCodes.add(key);
+                }
+            });
+
+            if (!f1.length && !f2.length && debtAmt === 0) return null;
+
             resetState(soSo);
-            const t={lotoDB:0, loCap:0, c227:0, c323:0, thuong:0, xskt:0};
-            f1.forEach(r=>{ state.accountCodes.add(String(r.__EMPTY).trim()); t.lotoDB+=(parseFloat(r.__EMPTY_2)||0); t.loCap+=(parseFloat(r.__EMPTY_6)||0); t.c227+=(parseFloat(r.__EMPTY_8)||0); t.c323+=(parseFloat(r.__EMPTY_10)||0); t.thuong+=(parseFloat(r.__EMPTY_14)||0); });
-            f2.forEach(r=>{ state.accountCodes.add(String(r.__EMPTY||r.__EMPTY_1).trim()); t.xskt+=(parseFloat(r.__EMPTY_7)||0)*1000; });
-            const c={ldb:t.lotoDB*0.08, lc:t.loCap*0.1, c2:t.c227*0.1, c3:t.c323*0.1, x:t.xskt*0.1};
-            state.baseTongDT=t.lotoDB+t.loCap+t.c227+t.c323+t.xskt; state.baseTongHH=c.ldb+c.lc+c.c2+c.c3+c.x; state.baseThuong=t.thuong; state.debtFromData=debtAmt;
-            if(!state.accountCodes.size && debtAmt>0) state.accountCodes.add(soSo);
+            const t = {lotoDB: 0, loCap: 0, c227: 0, c323: 0, thuong: 0, xskt: 0};
+            
+            f1.forEach(r => { 
+                state.accountCodes.add(String(r.__EMPTY).trim()); 
+                t.lotoDB += (parseFloat(r.__EMPTY_2) || 0); 
+                t.loCap += (parseFloat(r.__EMPTY_6) || 0); 
+                t.c227 += (parseFloat(r.__EMPTY_8) || 0); 
+                t.c323 += (parseFloat(r.__EMPTY_10) || 0); 
+                t.thuong += (parseFloat(r.__EMPTY_14) || 0); 
+            });
+            
+            f2.forEach(r => { 
+                state.accountCodes.add(String(r.__EMPTY || r.__EMPTY_1).trim()); 
+                t.xskt += (parseFloat(r.__EMPTY_7) || 0) * 1000; 
+            });
+
+            const c = {ldb: t.lotoDB * 0.08, lc: t.loCap * 0.1, c2: t.c227 * 0.1, c3: t.c323 * 0.1, x: t.xskt * 0.1};
+            state.baseTongDT = t.lotoDB + t.loCap + t.c227 + t.c323 + t.xskt; 
+            state.baseTongHH = c.ldb + c.lc + c.c2 + c.c3 + c.x; 
+            state.baseThuong = t.thuong; 
+            state.debtFromData = debtAmt;
+
             return {t, c};
         }
 
+        // --- HÀM MỚI ĐƯỢC CẬP NHẬT ĐỂ SỬA LỖI LỆCH CỘT ---
         function renderDetailedReport(d, customDate) {
-            const {t, c} = d; const debtHtml = state.debtFromData>0 ? `<tr style="color:var(--danger-color)"><td>Nợ cũ</td><td colspan="2" style="font-weight:bold">${formatNumberHiddenK(state.debtFromData)}</td></tr>` : '';
-            const xsktHtml = t.xskt>0 ? `<tr><td>XSKT</td><td>${formatNumberHiddenK(t.xskt)}</td><td>${formatCommissionCellHiddenK(t.xskt,c.x)}</td></tr>`:'';
-            DOM.reportContainer.innerHTML = `<table><tr><td class="header" width="33%">Đại Lý:</td><td class="so-so">${[...state.accountCodes].join(', ')}</td></tr><tr><td class="header">Ngày:</td><td>${customDate||dateRangeText}</td></tr></table><br><table class="report-table"><thead><tr><th>Loại</th><th>Doanh thu</th><th>Hoa hồng</th></tr></thead><tbody><tr><td>Lôtô ĐB</td><td>${formatNumberHiddenK(t.lotoDB)}</td><td>${formatCommissionCellHiddenK(t.lotoDB,c.ldb)}</td></tr><tr><td>Lôtô cặp</td><td>${formatNumberHiddenK(t.loCap)}</td><td>${formatCommissionCellHiddenK(t.loCap,c.lc)}</td></tr><tr><td>2/27</td><td>${formatNumberHiddenK(t.c227)}</td><td>${formatCommissionCellHiddenK(t.c227,c.c2)}</td></tr><tr><td>3/23</td><td>${formatNumberHiddenK(t.c323)}</td><td>${formatCommissionCellHiddenK(t.c323,c.c3)}</td></tr>${xsktHtml}<tr id="tongCongRow"><td>Tổng cộng</td><td id="tongDT"></td><td id="tongHH"></td></tr><tr id="mainBonusRow"><td>Thưởng</td><td colspan="2">${formatNumberHiddenK(state.baseThuong)}</td></tr>${debtHtml}<tr id="finalResultRow"><td id="ketQuaLabel"></td><td colspan="2" id="ketQuaValue"></td></tr><tr id="bangChuRow" class="header"><td>Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr></tbody></table><div id="copyrightInReport" class="copyright" style="display:none">© 2025 ZENG FINANCE</div>`;
+            const {t, c} = d; 
+            const debtHtml = state.debtFromData > 0 ? `<tr style="color:var(--danger-color)"><td>Nợ cũ</td><td colspan="2" style="font-weight:bold">${formatNumberHiddenK(state.debtFromData)}</td></tr>` : '';
+            const xsktHtml = t.xskt > 0 ? `<tr><td>XSKT</td><td>${formatNumberHiddenK(t.xskt)}</td><td>${formatCommissionCellHiddenK(t.xskt, c.x)}</td></tr>` : '';
+            
+            // --- FIX HIỂN THỊ: Thêm <colgroup> để cố định độ rộng cột ---
+            DOM.reportContainer.innerHTML = `
+            <table>
+                <tr><td class="header" width="33%">Đại Lý:</td><td class="so-so">${[...state.accountCodes].join(', ')}</td></tr>
+                <tr><td class="header">Ngày:</td><td>${customDate || dateRangeText}</td></tr>
+            </table>
+            <br>
+            <table class="report-table">
+                <colgroup>
+                    <col style="width: 30%;">
+                    <col style="width: 35%;">
+                    <col style="width: 35%;">
+                </colgroup>
+                <thead>
+                    <tr><th>Loại</th><th>Doanh thu</th><th>Hoa hồng</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Lôtô ĐB</td><td>${formatNumberHiddenK(t.lotoDB)}</td><td>${formatCommissionCellHiddenK(t.lotoDB, c.ldb)}</td></tr>
+                    <tr><td>Lôtô cặp</td><td>${formatNumberHiddenK(t.loCap)}</td><td>${formatCommissionCellHiddenK(t.loCap, c.lc)}</td></tr>
+                    <tr><td>2/27</td><td>${formatNumberHiddenK(t.c227)}</td><td>${formatCommissionCellHiddenK(t.c227, c.c2)}</td></tr>
+                    <tr><td>3/23</td><td>${formatNumberHiddenK(t.c323)}</td><td>${formatCommissionCellHiddenK(t.c323, c.c3)}</td></tr>
+                    ${xsktHtml}
+                    <tr id="tongCongRow"><td>Tổng cộng</td><td id="tongDT"></td><td id="tongHH"></td></tr>
+                    <tr id="mainBonusRow"><td>Thưởng</td><td colspan="2">${formatNumberHiddenK(state.baseThuong)}</td></tr>
+                    ${debtHtml}
+                    <tr id="finalResultRow">
+                        <td id="ketQuaLabel"></td>
+                        <td colspan="2" id="ketQuaValue"></td>
+                    </tr>
+                    <tr id="bangChuRow" class="header">
+                        <td>Bằng chữ</td>
+                        <td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div id="copyrightInReport" class="copyright" style="display:none">© 2025 ZENG FINANCE</div>`;
         }
 
         function updateDetailedView() {
