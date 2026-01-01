@@ -284,7 +284,7 @@
                             <label style="margin: 0;">Định nghĩa Vùng:</label>
                             <button id="btnSaveRegions" class="success" style="padding: 4px 10px; font-size: 12px; width: auto;">Lưu Định nghĩa</button>
                         </div>
-                        <textarea id="regionDefinitionsInput" rows="3" placeholder="Ví dụ:&#10;huyện Ý Yên: 550_599+650_699+6999"></textarea>
+                        <textarea id="regionDefinitionsInput" rows="3" placeholder="Đang tải dữ liệu từ máy chủ..."></textarea>
                     </div>
                 </div>
             </div>
@@ -484,6 +484,9 @@
         let dateRangeText = "Chưa có ngày";
         let regionDefinitions = {}, isRegionLocked = false; 
         let debtData = new Map(), isDebtFromExcel = false; 
+        
+        // Link RAW của GitHub
+        const REGION_DATA_URL = 'https://raw.githubusercontent.com/doducdungvn/tinhtiendaily/main/donvi.txt';
         
         const state = { currentSoSo: null, baseTongDT: 0, baseTongHH: 0, baseThuong: 0, extraBonus: 0, extraDebt: 0, addedTickets: [], accountCodes: new Set(), debtFromData: 0 };
 
@@ -1180,7 +1183,33 @@
             }});
             localStorage.setItem('zengRegions',txt); isRegionLocked=true; DOM.regionLockContainer.classList.add('locked'); DOM.btnSaveRegions.textContent='Mở khóa'; DOM.btnSaveRegions.classList.replace('success','warning');
         }
-        const saved=localStorage.getItem('zengRegions'); if(saved){ DOM.regionDefinitionsInput.value=saved; parseRegions(); }
+
+        // --- HÀM MỚI: TỰ ĐỘNG FETCH DỮ LIỆU TỪ GITHUB ---
+        async function fetchDefaultRegions() {
+            try {
+                // Thêm timestamp để tránh cache trình duyệt
+                const response = await fetch(`${REGION_DATA_URL}?t=${Date.now()}`);
+                if (!response.ok) throw new Error('Không thể tải file');
+                const text = await response.text();
+                
+                DOM.regionDefinitionsInput.value = text;
+                parseRegions();
+                // showNotification('Đã cập nhật cấu hình Vùng mới nhất', 'success');
+            } catch (error) {
+                console.warn('Lỗi tải cấu hình online:', error);
+                // Fallback: Dùng local storage nếu không tải được online
+                const saved = localStorage.getItem('zengRegions'); 
+                if(saved){ 
+                    DOM.regionDefinitionsInput.value = saved; 
+                    parseRegions(); 
+                    showNotification('Đang dùng cấu hình Offline', 'info');
+                }
+            }
+        }
+        
+        // Gọi hàm tải dữ liệu khi khởi động
+        fetchDefaultRegions();
+
         DOM.regionSelect.onchange=generateSummaryView; DOM.sortSelect.onchange=generateSummaryView;
         DOM.minRevenueInput.onblur=generateSummaryView; DOM.maxRevenueInput.onblur=generateSummaryView;
         
