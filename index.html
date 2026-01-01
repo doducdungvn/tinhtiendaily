@@ -769,10 +769,10 @@
             const rRow=document.getElementById('finalResultRow'), lbl=document.getElementById('ketQuaLabel'), val=document.getElementById('ketQuaValue'), txt=document.getElementById('ketQuaBangChu');
             rRow.className=final>=0?'final-amount-positive':'final-amount-negative';
             
-            // UPDATED: Changed 'Phải nộp' to 'Cần nộp'
+            // UPDATED: Changed 'Cần nộp' to 'Nộp'
             if(final>=0) { 
                 const round=Math.ceil(final/1000)*1000; 
-                lbl.textContent='Cần nộp'; 
+                lbl.textContent='Nộp'; 
                 val.textContent=formatNumberHiddenK(round); 
                 txt.textContent=docso(round)+" đồng"; 
             } 
@@ -1090,7 +1090,16 @@
         DOM.navSell.onclick=()=>{ showSection('sellSection'); DOM.sellQuantityInput.focus(); }; 
         
         DOM.excelFile1.onchange=(e)=>handleFile(e.target.files[0],1,'excelFile1'); DOM.excelFile2.onchange=(e)=>handleFile(e.target.files[0],2,'excelFile2');
-        DOM.btnCreateReport.onclick=createReport; DOM.soSoInput.onkeydown=(e)=>{if(e.key==='Enter')createReport()};
+        DOM.btnCreateReport.onclick=createReport; 
+        
+        // UPDATED: Blur functionality for So So Input
+        DOM.soSoInput.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); 
+                e.target.blur(); // Ẩn bàn phím
+                createReport();
+            }
+        };
         
         if(DOM.btnShowManualReport_inline) { DOM.btnShowManualReport_inline.onclick = () => { DOM.manualInputModal.style.display = 'block'; DOM.manualAgentName.focus(); }; }
         DOM.btnShowManualReport.onclick=()=>{DOM.manualInputModal.style.display='block';DOM.manualAgentName.focus()}; DOM.closeModalBtn.onclick=()=>{DOM.manualInputModal.style.display='none'};
