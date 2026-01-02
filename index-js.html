@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo cáo thu tiền - ZENG™</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <style>
+    /* --- BẢNG MÀU --- */
+    :root {
+        --primary-color: #1abc9c; --primary-dark: #16a085;
+        --secondary-color: #bdc3c7; --secondary-dark: #95a5a6;
+        --header-bg: #34495e; --header-text: #ecf0f1;
+        --body-bg: #ecf0f1; --container-bg: #ffffff;
+        --text-color: #2c3e50; --text-light: #7f8c8d;
+        --border-color: #dfe6e9;
+        --success-color: #2ecc71; --danger-color: #e74c3c; --warning-color: #f39c12;
+        --logo-color: #e67e22;
+        --modal-overlay-bg: rgba(44, 62, 80, 0.7); 
+        --brown-color: #5D4037;
+    }
+
+    /* --- CÀI ĐẶT CHUNG --- */
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 15px; padding-bottom: 60px; background-color: var(--body-bg); color: var(--text-color); font-size: 16px; line-height: 1.6; }
+    .page { max-width: 600px; margin: 20px auto; padding: 15px; background-color: var(--container-bg); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative; }
+    
+    /* Header Styles */
+    h2 { font-size: 26px; font-weight: 600; text-align: center; color: var(--header-bg); margin-bottom: 0.8em; }
+    h3 { font-size: 20px; font-weight: 500; text-align: center; color: var(--header-bg); margin-bottom: 0.8em; } 
+    h4 { margin-top: 0; text-align: center; color: var(--text-color); font-weight: 500;}
+    .report-date { text-align:center; font-weight: normal; margin-top: -12px; margin-bottom: 16px; color: var(--text-light); line-height: 1.5; } 
+
+    /* LOGO ANIMATION */
+    .simple-animated-logo { text-align: center; margin-bottom: 15px; margin-top: 10px; font-size: 32px; font-weight: 700; color: var(--logo-color); overflow: hidden; display: block; min-height: 40px; white-space: nowrap; cursor: pointer; }
+    .main-page-logo { font-size: 24px; margin-top: 5px; margin-bottom: 10px; }
+    .simple-animated-logo span.letter { opacity: 0; display: inline-block; transform: translateY(15px); transition: opacity 0.5s, transform 0.5s; }
+    .simple-animated-logo .tm { font-size: 0.5em; vertical-align: super; margin-left: 2px; font-weight: normal; color: var(--text-light); }
+
+    .online-badge {
+        display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+        font-size: 13px; font-weight: normal; color: var(--header-bg);
+        background-color: rgba(46, 204, 113, 0.15); padding: 3px 10px; border-radius: 15px;
+        margin-left: 12px; vertical-align: middle; position: relative; top: -6px; 
+        border: 1px solid rgba(46, 204, 113, 0.3);
+    }
+    .online-dot { width: 8px; height: 8px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 6px var(--success-color); animation: pulseDot 2s infinite; }
+    @keyframes pulseDot { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+
+    .controls-panel { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--container-bg); }
+    label { font-weight: 500; color: var(--text-color); }
+    input, select, button, textarea { padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border-color); width: 100%; box-sizing: border-box; font-size: 16px; transition: 0.2s; }
+    input:focus, textarea:focus { border-color: var(--primary-color); outline: none; }
+    
+    input[type="file"] { background-color: #fdfdfe; cursor: pointer; }
+    input[type="file"].loaded { background-color: #eafaf1; border-color: var(--success-color); }
+    button { cursor: pointer; background: var(--primary-color); color: white; border: none; font-weight: 500; }
+    button:hover { background-color: var(--primary-dark); filter: brightness(110%); }
+    button:active { transform: scale(0.98); }
+    button.secondary { background-color: var(--secondary-color); color: var(--text-color); }
+    button.secondary:hover { background-color: var(--secondary-dark); }
+    button.success { background-color: var(--success-color); }
+    button.danger { background-color: var(--danger-color); }
+    button.warning { background-color: var(--warning-color); }
+    
+    /* --- NEW NAVIGATION STYLE --- */
+    .nav-header { display: flex; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+    .back-btn { background: transparent; color: var(--text-color); border: 1px solid var(--border-color); padding: 5px 15px; font-size: 14px; width: auto; display: flex; align-items: center; gap: 5px; }
+    .back-btn:hover { background-color: var(--secondary-color); }
+
+    .home-menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .home-menu-btn { padding: 15px; font-size: 15px; font-weight: 600; text-align: center; background-color: #ecf0f1; color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .home-menu-btn:hover { background-color: var(--primary-color); color: white; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+
+    table { border-collapse: collapse; width: 100%; margin: 1px auto; background: var(--container-bg); border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    th, td { border: 1px solid var(--border-color); padding: 10px 12px; text-align: center; vertical-align: middle; }
+    th { background: var(--header-bg); color: var(--header-text); font-weight: 500; }
+    
+    /* FOOTER TỔNG HỢP */
+    tfoot td { background-color: var(--header-bg); color: var(--header-text); font-weight: 700; border-top: 2px solid var(--secondary-dark); }
+    
+    tr.group-start-row td { border-top: 2px solid var(--secondary-dark) !important; }
+    .group-total-row td { background-color: #FEF9E7; font-weight: bold; border-top: 1px solid #f39c12 !important; }
+
+    .header { font-weight: 500; background: var(--neutral-light-bg); }
+    .so-so { font-size: 32px; font-weight: 600; color: var(--warning-color); vertical-align: middle; }
+    
+    #tongCongRow { background-color: #FFC107; color: var(--text-color); font-weight: 600 !important;} 
+    #mainBonusRow { background-color: var(--success-color); color: #ffffff; font-weight: 600; } 
+    .added-ticket-row { background-color: #ffffff; } 
+    .bang-chu-cell { text-align: left !important; font-style: italic; padding-left: 15px !important; font-size: 10px; font-weight: normal; color: var(--text-light); }
+    #bangChuRow, #bangChuRow td { background: #ffffff !important; }
+
+    /* --- CSS CHO BÁN VÉ HÀNG NGANG --- */
+    .ticket-type-selector { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-top: 0 !important; }
+    .ticket-type-selector label { display: flex; align-items: center; gap: 5px; font-weight: normal; cursor: pointer; white-space: nowrap; }
+    .sell-row-container { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .sell-row-container > label { font-weight: bold; min-width: 80px; margin: 0; }
+    
+    /* COPYRIGHT FOOTER */
+    .main-copyright { text-align: center; margin-top: 30px; padding: 15px 0; font-size: 13px; color: var(--text-light); border-top: 1px dashed var(--border-color); width: 100%; }
+    
+    /* Dynamic Inputs */
+    #actionButtonContainer { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+    #actionChoices { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; grid-column: 1 / -1; }
+    .dynamic-input { width: 100%; border: none; font-weight: 600; text-align: center; background: transparent; font-size: 17px; padding: 5px; }
+    textarea.dynamic-input { text-align: center; resize: none; } 
+    
+    /* Summary Table */
+    #summaryTableContainer { margin-top: 10px; overflow-x: auto; }
+    #summaryTableContainer table { width: auto; } 
+    #summaryTableContainer table th { position: sticky; top: 0; z-index: 1; }
+    #summaryTableContainer th, #summaryTableContainer td { white-space: nowrap; }
+    
+    .negative-value { color: var(--danger-color); }
+    .final-amount-positive { background-color: var(--danger-color) !important; color: #ffffff !important; }
+    .final-amount-negative { background-color: var(--success-color) !important; color: var(--danger-color) !important; }
+    tr.final-amount-positive td, tr.final-amount-negative td { font-size: 30px !important; font-weight: 600; padding: 15px 12px !important; }
+
+    .inline-form { display: flex; gap: 10px; align-items: center; flex-wrap: nowrap; }
+    .home-actions, .report-actions-grid { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+    .summary-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 20px; } 
+
+    /* GROUP INPUT & BUTTONS (Căn trái) */
+    .input-group-row { display: flex; gap: 8px; align-items: center; justify-content: flex-start; width: 100%; flex-wrap: nowrap; }
+    .input-group-row input#soSoInput, .input-group-row input#sellQuantityInput { width: 130px !important; flex: none; }
+    .input-group-row button { width: auto; white-space: nowrap; padding: 12px 10px; flex-shrink: 0; }
+
+    /* Filter & Debt Styles */
+    .filter-grid-container, .revenue-filter-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+    .region-lock-container.locked #regionDefinitionsInput { display: none !important; }
+    .debt-mode-selector { display: flex; gap: 10px; margin-bottom: 10px; padding: 10px; background-color: var(--neutral-light-bg); border-radius: 6px; border: 1px solid var(--border-color); align-items: center; justify-content: space-between; flex-wrap: wrap; }
+    .debt-mode-selector .options { display: flex; gap: 15px; }
+    
+    /* Modals */
+    .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--modal-overlay-bg); padding-top: 60px; overflow: auto; animation: fadeIn 0.3s; }
+    .modal-content { background-color: var(--container-bg); margin: auto; padding: 25px; border: 1px solid var(--border-color); width: 90%; max-width: 500px; border-radius: 8px; position: relative; animation: slideIn 0.3s; }
+    .modal-close-btn { position: absolute; top: 10px; right: 15px; font-size: 28px; cursor: pointer; }
+    
+    #notification-area { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+    .notification { padding: 12px 20px; border-radius: 6px; color: white; font-size: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.15); opacity: 0; transform: translateX(100%); transition: 0.3s; }
+    .notification.show { opacity: 1; transform: translateX(0); }
+    .notification.success { background-color: var(--success-color); }
+    .notification.error { background-color: var(--danger-color); }
+    .notification.info { background-color: var(--info-color); }
+    #loading-indicator { display: none; position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background-color: var(--header-bg); color: var(--header-text); padding: 8px 15px; border-radius: 4px; z-index: 2100; }
+    
+    /* === NÚT CUỘN === */
+    #scrollToTopBtn, #scrollToBottomBtn { display: none; position: fixed; left: 15px; right: auto; z-index: 1001; background-color: var(--header-bg); color: white; border: none; padding: 0; border-radius: 50%; width: 40px; height: 40px; text-align: center; line-height: 40px; cursor: pointer; opacity: 0.6; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    #scrollToTopBtn { top: calc(50% - 45px); bottom: auto; } 
+    #scrollToBottomBtn { top: calc(50% + 5px); bottom: auto; }
+
+    @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+    @keyframes slideIn { from {transform: translateY(-50px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+
+    @media (min-width: 768px) {
+        .filter-grid-container, .revenue-filter-grid { grid-template-columns: 1.5fr 1fr; }
+        .revenue-filter-col-left { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        #mainPage { max-width: 1200px; }
+    }
+    @media (max-width: 768px) {
+        body { padding: 10px; padding-bottom: 60px; font-size: 4vw; }
+        .page { padding: 10px; margin: 10px auto; }
+        h2 { font-size: 6vw; } h3 { font-size: 5vw; }
+        input, button, textarea { padding: 10px 12px; font-size: 4vw; }
+        tr.final-amount-positive td, tr.final-amount-negative td { font-size: 6.8vw !important; padding: 11px 7px !important; }
+        .bang-chu-cell { font-size: 3vw !important; }
+        #summaryTableContainer th, #summaryTableContainer td { font-size: 2vw; padding: 3px; }
+        .input-group-row input#soSoInput, .input-group-row input#sellQuantityInput { width: 90px !important; }
+    }
+    
+    @media print {
+        @page { size: A4; margin: 10mm; } 
+        body { padding: 0; background: white; -webkit-print-color-adjust: exact; font-size: 11pt; } 
+        body > * { display: none !important; }
+        #mainPage, #summarySection, #summaryTableContainer { 
+            display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; 
+            position: static !important; visibility: visible !important; overflow: visible !important;
+        }
+        .controls-panel, .summary-actions, .home-menu-grid, .nav-header, .simple-animated-logo, 
+        #scrollToTopBtn, #scrollToBottomBtn, #notification-area, #btnCopySummary, #btnExportExcel { display: none !important; }
+        #summaryTitle, #summaryDate {
+            text-align: center !important; width: 100% !important; display: block !important;
+            margin-left: auto !important; margin-right: auto !important;
+        }
+        table { width: 100% !important; border-collapse: collapse; border: 2px solid #000 !important; font-size: 10pt; }
+        th, td { border: 1px solid #000 !important; padding: 5px !important; }
+        thead { display: table-header-group; }
+        tfoot { display: table-row-group; } 
+        tr { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="notification-area"></div>
+  <div id="loading-indicator">Đang xử lý...</div>
+
+  <div id="homePage" class="page">
+    <div class="simple-animated-logo">
+        <span class="letter">Z</span><span class="letter">E</span><span class="letter">N</span><span class="letter">G</span><span class="tm">™</span>
+        <div class="online-badge"><span class="online-dot"></span> <span class="online-count">8</span></div>
+    </div>
+
+    <h2>Báo cáo Thu Tiền</h2>
+    
+    <div class="controls-panel">
+        <div class="mode-switch" style="display:flex; margin-bottom:15px; border-bottom:1px solid #ddd;">
+            <button id="tabExcel" class="tab-btn active" style="flex:1; border-radius: 6px 6px 0 0; background:var(--primary-color); color:white;">Nhập Excel</button>
+            <button id="tabRaw" class="tab-btn secondary" style="flex:1; border-radius: 6px 6px 0 0; background: #ecf0f1; color: var(--text-color);">Dữ liệu thô</button>
+        </div>
+
+        <div id="panelExcel">
+            <label for="excelFile1">Chọn file Biểu 31 (Lô tô):</label>
+            <input type="file" id="excelFile1" accept=".xls,.xlsx">
+            <label for="excelFile2">Chọn file Biểu 35 (XSKT - Tùy chọn):</label>
+            <input type="file" id="excelFile2" accept=".xls,.xlsx">
+        </div>
+
+        <div id="panelRaw" style="display:none;">
+            <label for="rawInput">Dán dữ liệu từ Clipboard:</label>
+            <textarea id="rawInput" rows="8" placeholder='Ví dụ: 
+"Từ ngày 01/12/2025 đến ngày 06/12/2025..."
+"U966","01/12","LT","140","11,2","0","128,8"' style="font-family: monospace; font-size: 13px; white-space: pre; overflow-x: auto;"></textarea>
+            <div style="font-size: 12px; color: var(--text-light); margin-top: 5px; font-style: italic;">
+                * Hỗ trợ format: "Mã","Ngày","LH","Doanh thu","Hoa hồng","Thưởng","Nộp"
+            </div>
+        </div>
+
+        <div class="home-actions" style="margin-top: 20px;">
+            <button id="btnShowManualReport" class="warning">Thêm thủ công</button>
+            <button id="btnLoadData" class="success">Nạp dữ liệu & Xem báo cáo</button>
+        </div>
+    </div>
+
+    <div class="main-copyright">© 2025 ZENG FINANCE</div>
+  </div>
+  
+  <div id="mainPage" class="page" style="display: none;">
+    <div class="simple-animated-logo main-page-logo">
+        <span class="letter">Z</span><span class="letter">E</span><span class="letter">N</span><span class="letter">G</span><span class="tm">™</span>
+        <div class="online-badge" style="font-size: 11px; padding: 1px 8px;"><span class="online-dot" style="width:6px; height:6px;"></span> <span class="online-count">8</span></div>
+    </div>
+
+    <div id="summarySection" class="main-section" style="display: none;">
+        <div class="nav-header">
+            <button class="back-btn" id="btnBackFromSummary">⬅ Quay lại Tra cứu</button>
+        </div>
+        <div class="controls-panel" style="margin-bottom: 15px; padding: 15px;">
+            <div class="filter-grid-container">
+                <div class="filter-column">
+                    <div id="regionLockContainer" class="region-lock-container">
+                        <div style="display: flex; justify-content: flex-start; align-items: center; gap: 10px; margin-bottom: 5px;">
+                            <label style="margin: 0;">Định nghĩa Vùng:</label>
+                            <button id="btnSaveRegions" class="success" style="padding: 4px 10px; font-size: 12px; width: auto;">Lưu Định nghĩa</button>
+                        </div>
+                        <textarea id="regionDefinitionsInput" rows="3" placeholder="Đang tải dữ liệu từ máy chủ..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div id="debtContainer" style="margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 15px;">
+                 <label style="color: var(--danger-color); font-weight: 600;">Quản lý Nợ cũ:</label>
+                 <div class="debt-mode-selector">
+                    <div class="options">
+                        <label><input type="radio" name="debtMode" value="manual"> Nhập thủ công</label>
+                        <label><input type="radio" name="debtMode" value="excel"> Nhập Excel (tienno.xls)</label>
+                    </div>
+                    <div style="display: flex; gap: 5px;">
+                        <button id="btnApplyDebt" class="warning" style="display:none; padding: 6px 15px; width: auto; font-size: 14px;">Cập nhật</button>
+                        <button id="btnClearDebt" class="danger" style="padding: 6px 15px; width: auto; font-size: 14px;">Xóa Nợ</button>
+                    </div>
+                 </div>
+                 <div id="debtManualContainer" style="display: none;">
+                     <label style="font-size: 0.9em; color: var(--text-light);">Nhập Mã+Tiền (VD: 980 1000)</label>
+                     <textarea id="debtInput" rows="3" placeholder="Ví dụ:&#10;980 1000&#10;966+200&#10;U999:500"></textarea>
+                 </div>
+                 <div id="debtExcelContainer" style="display: none;">
+                     <label for="debtFile" style="font-size: 0.9em; color: var(--text-light);">Chọn file tienno.xls (Cột A: Mã, Cột B: Tiền)</label>
+                     <input type="file" id="debtFile" accept=".xls,.xlsx">
+                 </div>
+                 <div id="debtStatusMsg" style="font-size: 14px; color: var(--success-color); font-weight: 500; margin-top: 5px; display: none;"></div>
+            </div>
+            <hr style="border-color: var(--border-color); margin: 20px 0 15px 0; border-style: dashed;">
+            <div class="revenue-filter-grid">
+                <div class="revenue-filter-col-left filter-column">
+                    <div class="filter-column">
+                        <label>Sắp xếp theo:</label>
+                        <select id="sortSelect"><option value="default">Mặc định (Số sổ)</option><option value="revenue_desc">Doanh số (Cao đến Thấp)</option><option value="revenue_asc">Doanh số (Thấp đến Cao)</option></select>
+                    </div>
+                    <div class="filter-column">
+                        <label>Doanh số từ... trở lên:</label>
+                        <input type="text" id="minRevenueInput" class="manual-currency" inputmode="numeric" placeholder="Ví dụ: 300">
+                    </div>
+                    <div class="filter-column">
+                        <label>Doanh số từ... trở xuống:</label>
+                        <input type="text" id="maxRevenueInput" class="manual-currency" inputmode="numeric" placeholder="Để trống = Tối đa">
+                    </div>
+                </div>
+                <div class="revenue-filter-col-right filter-column">
+                    <label>Chọn Đơn vị:</label>
+                    <div style="display: flex; gap: 5px; align-items: center;">
+                        <select id="regionSelect" style="flex-grow: 1; width: 100%;"><option value="all">--- Tất cả ---</option></select>
+                        <button id="btnClearRevenueFilter" class="secondary" style="padding: 6px 15px; font-size: 14px; white-space: nowrap; width: auto; flex-grow: 0;">Mặc định</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3 id="summaryTitle">Bảng Báo Cáo Tổng Hợp:</h3>
+        <h4 id="summaryDate" class="report-date"></h4>
+        <div id="summaryTableContainer"></div>
+        <div class="summary-actions">
+            <button id="btnCopySummary" class="success">Copy Ảnh</button>
+            <button id="btnPrintReport" class="secondary">In Báo Cáo</button>
+            <button id="btnExportExcel" class="success" style="background-color: #217346;">Tải Excel</button>
+        </div>
+    </div>
+
+    <div id="reportSection" class="main-section" style="display: none;">
+        
+        <div class="home-menu-grid">
+            <button class="home-menu-btn" id="btnGoToSummary">📊 Xem Tổng hợp</button>
+            <button class="home-menu-btn" id="btnGoToSell">🎫 Bán thêm Vé</button>
+        </div>
+
+        <h3>Tra cứu & Tạo Báo Cáo</h3>
+        <div class="controls-panel">
+            <label for="soSoInput">Nhập số sổ:</label>
+            <div class="input-group-row">
+                <input type="text" id="soSoInput" inputmode="numeric" placeholder="Số sổ...">
+                <div style="display:flex; gap: 5px; width: 100%;">
+                    <button id="btnCreateDailyReport" class="success">Báo Cáo Ngày</button>
+                    <button id="btnCreateSummaryReport" class="warning">Báo Cáo Tổng</button>
+                    <button id="btnShowManualReport_inline" class="warning">Thủ công</button>
+                </div>
+            </div>
+        </div>
+        <div id="reportContainer"></div>
+        
+        <div id="actionButtonContainer">
+            <button id="btnCopyReport">Copy Ảnh</button>
+            <button id="toggleChoicesBtn" class="secondary">Thêm tiền Thưởng/Nợ</button>
+            <div id="actionChoices"></div>
+        </div>
+    </div>
+
+    <div id="sellSection" class="main-section" style="display: none;">
+        <div class="nav-header">
+            <button class="back-btn" id="btnBackFromSell">⬅ Quay lại Tra cứu</button>
+        </div>
+        <h3>Bán thêm Vé</h3>
+        <p class="context-note">Vé sẽ được thêm vào báo cáo chi tiết đang được hiển thị.</p>
+        
+        <div id="sellTicketControls" class="controls-panel">
+            <div class="sell-row-container">
+                <label>Loại hình:</label>
+                <div class="ticket-type-selector">
+                    <label><input type="radio" name="sellTicketType" value="xo-so" checked> Xổ số</label>
+                    <label><input type="radio" name="sellTicketType" value="ve-boc"> Vé bóc</label>
+                    <label><input type="radio" name="sellTicketType" value="custom-name"> Tự nhập tên</label>
+                </div>
+            </div>
+            <div style="padding-left: 90px; margin-bottom: 5px;">
+                <input type="text" id="customTicketName" placeholder="Nhập tên loại hình..." style="display:none;">
+            </div>
+
+            <div class="sell-row-container">
+                <label>Giá bán:</label>
+                <div class="ticket-type-selector">
+                    <label><input type="radio" name="sellPrice" value="10000" checked> 10.000</label>
+                    <label><input type="radio" name="sellPrice" value="20000"> 20.000</label>
+                    <label><input type="radio" name="sellPrice" value="5000"> 5.000</label>
+                    <label><input type="radio" name="sellPrice" value="custom-price"> Tự nhập giá</label>
+                </div>
+            </div>
+            <div style="padding-left: 90px; margin-bottom: 5px;">
+                <input type="text" id="customTicketPrice" inputmode="numeric" placeholder="Nhập giá bán..." style="display:none;">
+            </div>
+
+            <div class="sell-row-container">
+                <label>Hoa hồng:</label>
+                <div class="ticket-type-selector">
+                    <label><input type="radio" name="sellRate" value="10" checked> 10%</label>
+                    <label><input type="radio" name="sellRate" value="12"> 12%</label>
+                    <label><input type="radio" name="sellRate" value="custom-rate"> Tự nhập %</label>
+                </div>
+            </div>
+            <div style="padding-left: 90px; margin-bottom: 10px;">
+                <input type="number" id="customTicketRate" placeholder="Nhập % hoa hồng (VD: 15)..." style="display:none;">
+            </div>
+
+            <div class="sell-row-container">
+                <label>Số lượng:</label>
+                <div class="input-group-row" style="flex-grow: 1; max-width: 250px;">
+                    <input type="number" id="sellQuantityInput" placeholder="Số lượng..." min="0">
+                    <button id="btnAddTicket" class="success">Thêm vé</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="main-copyright">© 2025 ZENG FINANCE</div>
+  </div>
+
+   <div id="manualInputModal" class="modal-overlay">
+     <div class="modal-content">
+       <span id="closeModalBtn" class="modal-close-btn">&times;</span>
+       <div class="controls-panel"> 
+           <h4 style="margin-top:0;">Thêm Báo Cáo Thủ Công</h4>
+           <div style="display: grid; gap: 10px;">
+               <input type="text" id="manualAgentName" placeholder="Tên Đại Lý">
+               <input type="text" id="manualDateRange" placeholder="Thời gian">
+               <input type="text" id="manualLotoDB" class="manual-currency" inputmode="decimal" placeholder="Lô tô ĐB">
+               <input type="text" id="manualLoCap" class="manual-currency" inputmode="decimal" placeholder="Lô cặp">
+               <input type="text" id="manualC227" class="manual-currency" inputmode="decimal" placeholder="2/27">
+               <input type="text" id="manualC323" class="manual-currency" inputmode="decimal" placeholder="3/23">
+               <input type="text" id="manualThuong" class="manual-currency" inputmode="decimal" placeholder="Thưởng">
+           </div>
+           <div class="form-actions" style="margin-top:15px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+               <button id="btnClearManualReport" class="secondary">Xoá</button>
+               <button id="btnCreateManualReport" class="success">Thêm</button>
+           </div>
+       </div>
+     </div>
+   </div>
+
+   <div id="imagePreviewModal" class="modal-overlay">
+     <div class="modal-content">
+       <span id="closePreviewModalBtn" class="modal-close-btn">&times;</span>
+       <h4 style="margin-top:0; text-align:center;">Sao chép Ảnh</h4>
+       <img id="imagePreviewHolder" src="" style="width: 100%; border: 1px solid #ddd;">
+     </div>
+   </div>
+
+    <div id="passwordModal" class="modal-overlay">
+       <div class="modal-content">
+        <span id="closePasswordModalBtn" class="modal-close-btn">&times;</span>
+        <div class="controls-panel" style="border: none; padding: 10px 0;"> 
+            <h4 style="margin-top:0;">Yêu cầu Mật khẩu</h4>
+            <input type="password" id="passwordInput" style="font-size: 18px;">
+            <div style="margin-top: 15px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <button id="cancelPasswordBtn" class="secondary">Huỷ</button>
+                <button id="btnSubmitPassword" class="success">Xác nhận</button>
+            </div>
+        </div>
+      </div>
+    </div>
+
+  <button id="scrollToTopBtn">&#9650;</button>
+  <button id="scrollToBottomBtn">&#9660;</button>
+
+<script src="script.js"></script>
+
+</body>
+</html>
