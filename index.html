@@ -334,8 +334,8 @@
                 <div style="display:flex; gap: 5px; width: 100%;">
                     <button id="btnCreateDailyReport" class="success">Báo Cáo Ngày</button>
                     <button id="btnCreateSummaryReport" class="warning">Báo Cáo Tổng</button>
+                    <button id="btnShowManualReport_inline" class="warning">Thủ công</button>
                 </div>
-                <button id="btnShowManualReport_inline" class="warning">Thủ công</button>
             </div>
         </div>
         <div id="reportContainer"></div>
@@ -481,7 +481,8 @@
         summarySection: document.getElementById('summarySection'), reportSection: document.getElementById('reportSection'), sellSection: document.getElementById('sellSection'),
         summaryTableContainer: document.getElementById('summaryTableContainer'), summaryDate: document.getElementById('summaryDate'), summaryTitle: document.getElementById('summaryTitle'),
         soSoInput: document.getElementById('soSoInput'),
-        // KHAI BÁO 2 NÚT MỚI
+        
+        // 2 Nút báo cáo
         btnCreateDailyReport: document.getElementById('btnCreateDailyReport'), btnCreateSummaryReport: document.getElementById('btnCreateSummaryReport'),
         
         reportContainer: document.getElementById('reportContainer'),
@@ -508,15 +509,15 @@
     
     const manualFormOrder = ['manualAgentName', 'manualDateRange', 'manualLotoDB', 'manualLoCap', 'manualC227', 'manualC323', 'manualThuong'];
 
+    // --- KHỞI TẠO BAN ĐẦU: Ẩn nút Daily vì mặc định là Excel ---
+    if(DOM.btnCreateDailyReport) DOM.btnCreateDailyReport.style.display = 'none';
+
     function showNotification(message, type='info', duration=3000) { const n=document.createElement('div'); n.className=`notification ${type}`; n.textContent=message; DOM.notificationArea.appendChild(n); n.offsetHeight; n.classList.add('show'); setTimeout(()=>{ n.classList.remove('show'); n.addEventListener('transitionend', ()=>n.remove()); }, duration); }
     function showLoading() { DOM.loadingIndicator.style.display = 'block'; }
     function hideLoading() { DOM.loadingIndicator.style.display = 'none'; }
     function formatNumberFull(num) { num=parseFloat(num); if(isNaN(num)||num===0) return "0"; return parseInt(num).toLocaleString("vi-VN"); }
     function formatNumberHiddenK(num) { num=parseFloat(num); if(isNaN(num)||num===0||Math.abs(num)<1000) return "0"; return parseInt(num/1000).toLocaleString("vi-VN"); }
-    function formatCommissionCellHiddenK(rev, com) { 
-        // Ẩn hoàn toàn % như yêu cầu
-        return formatNumberHiddenK(com);
-    }
+    function formatCommissionCellHiddenK(rev, com) { return formatNumberHiddenK(com); }
     
     function removeVietnameseTones(str) {
         str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g,"a"); 
@@ -561,7 +562,6 @@
         const oldTxt = btn ? btn.textContent : ''; 
         if(btn) btn.textContent = 'Đang xử lý...';
         
-        // Ẩn các nút bấm không muốn hiện trong ảnh
         const hiddenEls = [
             el.querySelector('.summary-actions'), 
             el.querySelector('.controls-panel'), 
@@ -572,13 +572,11 @@
         ].filter(Boolean);
         hiddenEls.forEach(e => e.style.display = 'none'); 
 
-        // Tạo dòng bản quyền
         const footer = document.createElement('div');
         footer.innerText = "© 2025 ZENG FINANCE";
         footer.style.width = "100%"; footer.style.textAlign = "center"; footer.style.marginTop = "20px"; footer.style.padding = "10px 0"; footer.style.fontSize = "14px"; footer.style.fontWeight = "bold"; footer.style.color = "#7f8c8d"; footer.style.backgroundColor = "#ffffff";
         el.appendChild(footer);
 
-        // Xử lý overflow nếu bảng quá dài
         let originalOverflow = '';
         if(sel === '#summarySection'){ 
             const table = DOM.summaryTableContainer.querySelector('table');
@@ -591,7 +589,6 @@
             }
         }
         
-        // Fix cho phần report detail bị cắt
         let originalReportWidth = '';
         if(sel === '#reportContainer') {
              const table = el.querySelector('table');
@@ -603,37 +600,18 @@
 
         setTimeout(async()=>{
             try {
-                const canvas = await html2canvas(el, {
-                    backgroundColor: "#ffffff", 
-                    scale: 2,
-                    useCORS: true,
-                    scrollY: -window.scrollY 
-                });
+                const canvas = await html2canvas(el, { backgroundColor: "#ffffff", scale: 2, useCORS: true, scrollY: -window.scrollY });
                 canvas.toBlob(async(blob)=>{
-                    try { 
-                        await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); 
-                        showNotification(msg, 'success'); 
-                    }
-                    catch(err) { 
-                        console.error(err); 
-                        DOM.imagePreviewHolder.src = canvas.toDataURL(); 
-                        DOM.imagePreviewModal.style.display = 'block'; 
-                        showNotification('Copy thủ công từ ảnh dưới.', 'info'); 
-                    }
+                    try { await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); showNotification(msg, 'success'); }
+                    catch(err) { console.error(err); DOM.imagePreviewHolder.src = canvas.toDataURL(); DOM.imagePreviewModal.style.display = 'block'; showNotification('Copy thủ công từ ảnh dưới.', 'info'); }
                 });
             } catch(e){ console.error(e); showNotification('Lỗi tạo ảnh', 'error'); }
             finally {
                 if(footer && footer.parentNode) footer.parentNode.removeChild(footer);
                 hiddenEls.forEach(e => e.style.display = ''); 
                 if(btn) btn.textContent = oldTxt;
-                
-                // Restore styles
-                if(sel === '#summarySection'){ 
-                    DOM.summaryTableContainer.style.width = ''; DOM.summaryTableContainer.style.overflowX = originalOverflow; DOM.summarySection.style.width = ''; DOM.mainPage.style.maxWidth = '';
-                }
-                if(sel === '#reportContainer' && originalReportWidth !== '') {
-                    el.style.width = originalReportWidth;
-                }
+                if(sel === '#summarySection'){ DOM.summaryTableContainer.style.width = ''; DOM.summaryTableContainer.style.overflowX = originalOverflow; DOM.summarySection.style.width = ''; DOM.mainPage.style.maxWidth = ''; }
+                if(sel === '#reportContainer' && originalReportWidth !== '') { el.style.width = originalReportWidth; }
             }
         }, 100);
     }
@@ -653,11 +631,7 @@
                         let txt=Object.values(dr).find(v=>typeof v==="string" && (v.includes("Tõ ngµy") || v.includes("Ngµy")));
                         let mRange=txt.match(/Tõ ngµy\s*(\d{1,2}\/\d{1,2})\/\d{4}.*®Õn ngµy\s*(\d{1,2}\/\d{1,2})\/\d{4}/);
                         let mSingle=txt.match(/Ngµy\s*(\d{1,2}\/\d{1,2}\/\d{4})/);
-                        if(mRange) {
-                            dateRangeText=(mRange[1]===mRange[2]?`Ngày ${mRange[1]}`:`Từ ${mRange[1]} đến ${mRange[2]}`); 
-                        } else if (mSingle) {
-                            dateRangeText = `Ngày ${mSingle[1]}`;
-                        }
+                        if(mRange) { dateRangeText=(mRange[1]===mRange[2]?`Ngày ${mRange[1]}`:`Từ ${mRange[1]} đến ${mRange[2]}`); } else if (mSingle) { dateRangeText = `Ngày ${mSingle[1]}`; }
                     }
                 } else excelData2=json;
                 document.getElementById(inputId).classList.add('loaded'); showNotification("Đã nạp file thành công!",'success');
@@ -1151,6 +1125,9 @@
         // Hiện nút thủ công (Cả ở home và inline)
         if(DOM.btnShowManualReport_inline) DOM.btnShowManualReport_inline.style.display = 'block'; 
         if(DOM.btnShowManualReport) DOM.btnShowManualReport.style.display = 'block';
+
+        // Ẩn nút "Báo Cáo Ngày"
+        if(DOM.btnCreateDailyReport) DOM.btnCreateDailyReport.style.display = 'none';
     };
 
     DOM.tabRaw.onclick = () => {
@@ -1163,6 +1140,9 @@
         // Ẩn nút thủ công (Cả ở home và inline)
         if(DOM.btnShowManualReport_inline) DOM.btnShowManualReport_inline.style.display = 'none';
         if(DOM.btnShowManualReport) DOM.btnShowManualReport.style.display = 'none';
+
+        // Hiện nút "Báo Cáo Ngày"
+        if(DOM.btnCreateDailyReport) DOM.btnCreateDailyReport.style.display = 'block';
     };
 
     DOM.btnLoadData.addEventListener('click', ()=>{ 
@@ -1377,7 +1357,12 @@
         if (e.key === 'Enter') { 
             e.preventDefault(); 
             e.target.blur(); 
-            createReport('detailed'); // Enter mặc định là Báo cáo Ngày
+            // Nếu nút báo cáo ngày ẩn (chế độ excel) -> chạy summary, ngược lại chạy detailed
+            if (DOM.btnCreateDailyReport && DOM.btnCreateDailyReport.style.display === 'none') {
+                createReport('summary');
+            } else {
+                createReport('detailed'); 
+            }
         } 
     };
 
