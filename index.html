@@ -331,7 +331,10 @@
             <label for="soSoInput">Nhập số sổ:</label>
             <div class="input-group-row">
                 <input type="text" id="soSoInput" inputmode="numeric" placeholder="Số sổ...">
-                <button id="btnCreateReport">Tạo Báo Cáo</button>
+                <div style="display:flex; gap: 5px; width: 100%;">
+                    <button id="btnCreateDailyReport" class="success">Báo Cáo Ngày</button>
+                    <button id="btnCreateSummaryReport" class="warning">Báo Cáo Tổng</button>
+                </div>
                 <button id="btnShowManualReport_inline" class="warning">Thủ công</button>
             </div>
         </div>
@@ -477,7 +480,11 @@
 
         summarySection: document.getElementById('summarySection'), reportSection: document.getElementById('reportSection'), sellSection: document.getElementById('sellSection'),
         summaryTableContainer: document.getElementById('summaryTableContainer'), summaryDate: document.getElementById('summaryDate'), summaryTitle: document.getElementById('summaryTitle'),
-        soSoInput: document.getElementById('soSoInput'), btnCreateReport: document.getElementById('btnCreateReport'), reportContainer: document.getElementById('reportContainer'),
+        soSoInput: document.getElementById('soSoInput'),
+        // KHAI BÁO 2 NÚT MỚI
+        btnCreateDailyReport: document.getElementById('btnCreateDailyReport'), btnCreateSummaryReport: document.getElementById('btnCreateSummaryReport'),
+        
+        reportContainer: document.getElementById('reportContainer'),
         actionButtonContainer: document.getElementById('actionButtonContainer'), actionChoices: document.getElementById('actionChoices'), toggleChoicesBtn: document.getElementById('toggleChoicesBtn'),
         btnCopySummary: document.getElementById('btnCopySummary'), btnPrintReport: document.getElementById('btnPrintReport'), btnExportExcel: document.getElementById('btnExportExcel'),
         btnCopyReport: document.getElementById('btnCopyReport'),
@@ -901,12 +908,44 @@
     }
 
     // --- CẬP NHẬT RENDER DETAILED REPORT ---
-    function renderDetailedReport(d, customDate) {
-        const debtHtml = state.debtFromData > 0 ? `<tr style="color:var(--danger-color); font-weight:bold;"><td>Nợ cũ</td><td colspan="${appMode==='excel'?2:4}">${formatNumberHiddenK(state.debtFromData)}</td></tr>` : '';
+    function renderDetailedReport(d, customDate, reportType = 'detailed') {
+        const debtHtml = state.debtFromData > 0 ? `<tr style="color:var(--danger-color); font-weight:bold;"><td>Nợ cũ</td><td colspan="${(appMode === 'excel' || (appMode === 'raw' && reportType === 'summary')) ? 2 : 4}">${formatNumberHiddenK(state.debtFromData)}</td></tr>` : '';
         const reportDate = customDate || dateRangeText;
 
-        if (appMode === 'excel') {
-            const {t, c} = d; 
+        // LOGIC MỚI: Sử dụng giao diện Excel (Tổng hợp) nếu:
+        // 1. Đang ở chế độ Excel
+        // 2. HOẶC Đang ở chế độ Raw nhưng người dùng chọn "Báo Cáo Tổng"
+        if (appMode === 'excel' || (appMode === 'raw' && reportType === 'summary')) {
+            let t, c;
+
+            if (appMode === 'excel') {
+                // Dữ liệu từ Excel đã có sẵn cấu trúc t, c
+                t = d.t; 
+                c = d.c;
+            } else {
+                // CHUYỂN ĐỔI DỮ LIỆU THÔ (ARRAY) -> DẠNG TỔNG HỢP (OBJECT t, c)
+                t = {lotoDB: 0, loCap: 0, c227: 0, c323: 0, thuong: 0, xskt: 0};
+                c = {ldb: 0, lc: 0, c2: 0, c3: 0, x: 0};
+
+                // Duyệt qua mảng dữ liệu thô để cộng dồn
+                d.forEach(item => {
+                    t.thuong += item.bonus;
+                    
+                    // Map loại hình thô sang biến tổng
+                    const type = item.type.toUpperCase();
+                    if (type.includes('LT') || type.includes('DB')) {
+                        t.lotoDB += item.rev; c.ldb += item.com;
+                    } else if (type.includes('LC') || type.includes('CAP')) {
+                        t.loCap += item.rev; c.lc += item.com;
+                    } else if (type.includes('L2') || type.includes('2/27')) {
+                        t.c227 += item.rev; c.c2 += item.com;
+                    } else if (type.includes('L3') || type.includes('3/23')) {
+                        t.c323 += item.rev; c.c3 += item.com;
+                    }
+                    // Nếu có loại khác, nó sẽ được tính vào tổng doanh thu chung ở hàm updateDetailedView
+                });
+            }
+
             const xsktHtml = t.xskt > 0 ? `<tr><td>XSKT</td><td>${formatNumberHiddenK(t.xskt)}</td><td>${formatCommissionCellHiddenK(t.xskt, c.x)}</td></tr>` : '';
             DOM.reportContainer.innerHTML = `
             <table class="report-table" style="border: 1px solid var(--border-color);">
@@ -914,7 +953,7 @@
                 <tbody>
                     <tr><td class="header" style="font-weight:bold;">Đại Lý:</td><td colspan="2" class="so-so" style="text-align:center;">${[...state.accountCodes].join(', ')}</td></tr>
                     <tr><td class="header" style="font-weight:bold;">Ngày:</td><td colspan="2" style="font-weight:500;">${reportDate}</td></tr>
-                    <tr><th>Loại</th><th>Doanh thu</th><th>Hoa hồng</th></tr>
+                    <tr style="background:#f1f2f6"><th>Loại hình</th><th>Doanh thu</th><th>Hoa hồng</th></tr>
                     <tr><td>Lôtô ĐB</td><td>${formatNumberHiddenK(t.lotoDB)}</td><td>${formatCommissionCellHiddenK(t.lotoDB, c.ldb)}</td></tr>
                     <tr><td>Lôtô cặp</td><td>${formatNumberHiddenK(t.loCap)}</td><td>${formatCommissionCellHiddenK(t.loCap, c.lc)}</td></tr>
                     <tr><td>Lô 2/27</td><td>${formatNumberHiddenK(t.c227)}</td><td>${formatCommissionCellHiddenK(t.c227, c.c2)}</td></tr>
@@ -928,7 +967,7 @@
                 </tbody>
             </table>`;
         } else {
-            // === LOGIC MỚI: RAW DATA REPORT ===
+            // === LOGIC CŨ: RAW DATA REPORT CHI TIẾT ===
             
             // 1. Nhóm dữ liệu theo ngày
             const groupByDate = new Map();
@@ -1081,12 +1120,22 @@
         else { const abs=Math.abs(final), round=parseInt(abs/1000)*1000; lbl.textContent='Lấy về'; val.textContent=formatNumberHiddenK(round); txt.textContent=docso(round)+" đồng"; }
     }
 
-    function createReport() {
-        DOM.manualInputModal.style.display='none'; const s=DOM.soSoInput.value.trim(); if(!s) return showNotification("Nhập số sổ!",'error');
-        const d=processDetailedReport(s); if(!d) return showNotification("Không có dữ liệu",'error');
-        renderDetailedReport(d); updateDetailedView(); 
-        DOM.actionButtonContainer.style.display='grid'; DOM.actionChoices.style.display='none'; 
-        DOM.toggleChoicesBtn.textContent='Thêm tiền Thưởng/Nợ cũ'; DOM.toggleChoicesBtn.className='secondary';
+    function createReport(type = 'detailed') {
+        DOM.manualInputModal.style.display='none'; 
+        const s=DOM.soSoInput.value.trim(); 
+        if(!s) return showNotification("Nhập số sổ!",'error');
+        
+        const d=processDetailedReport(s); 
+        if(!d) return showNotification("Không có dữ liệu",'error');
+        
+        // Truyền tham số type vào hàm render
+        renderDetailedReport(d, null, type); 
+        
+        updateDetailedView(); 
+        DOM.actionButtonContainer.style.display='grid'; 
+        DOM.actionChoices.style.display='none'; 
+        DOM.toggleChoicesBtn.textContent='Thêm tiền Thưởng/Nợ cũ'; 
+        DOM.toggleChoicesBtn.className='secondary';
         DOM.reportContainer.scrollIntoView({behavior:'smooth'});
     }
 
@@ -1151,7 +1200,7 @@
 
     DOM.toggleChoicesBtn.onclick = () => { const show = DOM.toggleChoicesBtn.textContent.includes('Thêm'); DOM.actionChoices.style.display = show ? 'grid' : 'none'; DOM.toggleChoicesBtn.textContent = show ? 'Đóng / Xoá hết' : 'Thêm tiền Thưởng/Nợ cũ'; DOM.toggleChoicesBtn.className = show ? 'danger' : 'secondary'; if(!show) { document.getElementById('extraBonusRow')?.remove(); document.getElementById('extraDebtRow')?.remove(); state.extraBonus=0; state.extraDebt=0; updateDetailedView(); } renderActionButtons(); };
     function renderActionButtons() { DOM.actionChoices.innerHTML = `${document.getElementById('extraBonusRow') ? `<button class="danger" onclick="window.removeRow('bonus')">Xoá Thưởng thêm</button>` : `<button onclick="window.addRow('bonus')">Thêm Thưởng</button>`}${document.getElementById('extraDebtRow') ? `<button class="danger" onclick="window.removeRow('debt')">Xoá Nợ cũ</button>` : `<button onclick="window.addRow('debt')">Thêm Nợ cũ</button>`}`; }
-    window.addRow = (type) => { const isB = type === 'bonus', rowId = isB ? 'extraBonusRow' : 'extraDebtRow'; const anchor = document.getElementById('extraBonusRow') || document.getElementById('mainBonusRow'); if(document.getElementById(rowId)) return; const tr = document.createElement('tr'); tr.id = rowId; tr.innerHTML = `<td>${isB ? `<textarea class="dynamic-input" style="color:var(--success-color)" placeholder="Tên thưởng..." rows="1"></textarea>` : 'Nợ cũ'}</td><td colspan="${appMode==='excel'?2:4}"><input class="dynamic-input" style="color:${isB ? 'var(--success-color)' : 'var(--danger-color)'}" oninput="window.handleDynInp(this,'${type}')" onkeydown="if(event.key==='Enter') this.blur()" inputmode="decimal" placeholder="0"></td>`; anchor.after(tr); renderActionButtons(); const input = tr.querySelector('input'); if(input) input.focus(); };
+    window.addRow = (type) => { const isB = type === 'bonus', rowId = isB ? 'extraBonusRow' : 'extraDebtRow'; const anchor = document.getElementById('extraBonusRow') || document.getElementById('mainBonusRow'); if(document.getElementById(rowId)) return; const tr = document.createElement('tr'); tr.id = rowId; tr.innerHTML = `<td>${isB ? `<textarea class="dynamic-input" style="color:var(--success-color)" placeholder="Tên thưởng..." rows="1"></textarea>` : 'Nợ cũ'}</td><td colspan="${(appMode==='excel' || appMode==='raw')?2:4}"><input class="dynamic-input" style="color:${isB ? 'var(--success-color)' : 'var(--danger-color)'}" oninput="window.handleDynInp(this,'${type}')" onkeydown="if(event.key==='Enter') this.blur()" inputmode="decimal" placeholder="0"></td>`; anchor.after(tr); renderActionButtons(); const input = tr.querySelector('input'); if(input) input.focus(); };
     window.removeRow = (type) => { document.getElementById(type === 'bonus' ? 'extraBonusRow' : 'extraDebtRow')?.remove(); if(type === 'bonus') state.extraBonus = 0; else state.extraDebt = 0; updateDetailedView(); renderActionButtons(); };
     window.handleDynInp = (el, type) => { const v = parseInt(el.value.replace(/\D/g,'')) || 0; el.value = v.toLocaleString('vi-VN'); if(type === 'bonus') state.extraBonus = v * 1000; else state.extraDebt = v * 1000; updateDetailedView(); };
     function showSection(id) { ['summarySection','reportSection','sellSection'].forEach(s=>DOM[s].style.display='none'); DOM[id].style.display='block'; }
@@ -1159,19 +1208,26 @@
     function updateOnlineCounter() { const num = Math.floor(Math.random() * 98) + 1; document.querySelectorAll('.online-count').forEach(el => el.textContent = num); setTimeout(updateOnlineCounter, Math.random() * 5000 + 3000); }
     function printReport() { if(DOM.summarySection.style.display !== 'none') { window.print(); } else { showNotification("Vui lòng chuyển sang tab Báo cáo Tổng hợp để in!", "warning"); } }
     
+    // --- HÀM EXPORT EXCEL ĐÃ SỬA LỖI ---
     function exportSummaryToExcel() {
         const regVal = DOM.regionSelect.value; const rules = regVal !== 'all' ? regionDefinitions[regVal] : null;
         const minV = parseFloat(DOM.minRevenueInput.dataset.value) || 0; const maxV = parseFloat(DOM.maxRevenueInput.dataset.value) || Infinity;
         const data = processSummaryData(rules, {min: minV * 1000, max: maxV * 1000});
         if (!data) return showNotification("Không có dữ liệu!", 'error');
+        
         const {groups, totals} = data; const hasXSKT = excelData2.length > 0 && appMode === 'excel'; const hasDebt = debtData.size > 0;
+        
+        // --- ĐỊNH NGHĨA STYLES ---
         const sHeader = { font: { bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "34495E" } }, alignment: { horizontal: "center", vertical: "center" }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
         const sGroup = { font: { bold: true }, fill: { fgColor: { rgb: "FEF9E7" } }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
-        const sTotal = { font: { bold: true }, fill: { fgColor: { rgb: "F1C40F" } }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
+        const sTotal = { font: { bold: true }, fill: { fgColor: { rgb: "FFC107" } }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
+        
         const sNormal = { border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
+        // Style cho STT và ĐL (In đậm + Căn giữa)
+        const sCenterBold = { font: { bold: true }, alignment: { horizontal: "center", vertical: "center" }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
+        
         const sRed = { font: { color: { rgb: "C0392B" }, bold: true }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
         const sBlack = { font: { color: { rgb: "000000" }, bold: true }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
-        // --- MÀU XANH ĐẬM (Dark Blue) cho số âm ---
         const sBlue = { font: { color: { rgb: "00008B" }, bold: true }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
 
         let aoa = []; aoa.push([document.getElementById('summaryTitle').innerText]); aoa.push([dateRangeText]);
@@ -1189,6 +1245,7 @@
         let stt = 1; const sortMode = DOM.sortSelect.value; let sortedGroups = [...groups.entries()];
         if (sortMode === 'revenue_desc') sortedGroups.sort((a, b) => b[1].gr - a[1].gr); else if (sortMode === 'revenue_asc') sortedGroups.sort((a, b) => a[1].gr - b[1].gr);
         
+        // 1. VÒNG LẶP DỮ LIỆU
         sortedGroups.forEach(([gk, g]) => { 
             const isMulti = g.agents.length > 1;
             g.agents.forEach((ag, idx) => { 
@@ -1217,11 +1274,34 @@
             stt++; 
         }); 
 
+        // 2. THÊM DÒNG TỔNG CỘNG (GRAND TOTAL)
+        let rowTotal = ["TỔNG", ""]; 
+        if(appMode === 'excel') { 
+            rowTotal.push(totals.lotoDB, totals.lotoCap, totals.c323, totals.c227); 
+            if(hasXSKT) rowTotal.push(totals.xskt); 
+            rowTotal.push(totals.rev, totals.th); 
+        } else { 
+            rowTotal.push(totals.rev, totals.com, totals.th); 
+        }
+        if (hasDebt) rowTotal.push(totals.debt); 
+        rowTotal.push(totals.final);
+        
+        aoa.push(rowTotal);
+        let totalRowIndex = currentRow;
+
         const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(aoa);
         const range = XLSX.utils.decode_range(ws['!ref']); const lastColIdx = range.e.c;
         if(!ws['!merges']) ws['!merges'] = [];
-        ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: lastColIdx } }); ws['!merges'].push({ s: { r: 1, c: 0 }, e: { r: 1, c: lastColIdx } }); ws['!merges'].push({ s: { r: 2, c: 0 }, e: { r: 2, c: lastColIdx } }); ws['!merges'].push({ s: { r: range.e.r, c: 0 }, e: { r: range.e.r, c: 1 } }); 
         
+        ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: lastColIdx } }); 
+        ws['!merges'].push({ s: { r: 1, c: 0 }, e: { r: 1, c: lastColIdx } }); 
+        ws['!merges'].push({ s: { r: 2, c: 0 }, e: { r: 2, c: lastColIdx } }); 
+        ws['!merges'].push({ s: { r: 4, c: 0 }, e: { r: 4, c: 1 } }); 
+        
+        // Merge dòng TỔNG ở cuối
+        ws['!merges'].push({ s: { r: totalRowIndex, c: 0 }, e: { r: totalRowIndex, c: 1 } });
+
+        // 3. ÁP DỤNG STYLE
         for (let R = range.s.r; R <= range.e.r; ++R) { 
             for (let C = range.s.c; C <= range.e.c; ++C) { 
                 const cellRef = XLSX.utils.encode_cell({ r: R, c: C }); 
@@ -1233,27 +1313,39 @@
                 else if (R === 4) { 
                     ws[cellRef].s = sHeader; 
                 } 
+                else if (R === totalRowIndex) { 
+                    ws[cellRef].s = sTotal;
+                    if (C === 0) ws[cellRef].s = { ...sTotal, alignment: { horizontal: "center", vertical: "center" } };
+                    if (C === lastColIdx) {
+                        if (ws[cellRef].v < 0) ws[cellRef].s = { ...sTotal, font: { bold: true, color: { rgb: "00008B" } } }; 
+                        else ws[cellRef].s = { ...sTotal, font: { bold: true, color: { rgb: "C0392B" } } }; 
+                    }
+                }
                 else { 
                     const meta = rowMetaData[R];
                     const isLastCol = (C === lastColIdx);
                     
                     if (meta === 'group_total') { 
                         ws[cellRef].s = sGroup; 
-                        if(isLastCol) { // Tổng nhóm: Đỏ (dương) / Xanh đậm (âm)
+                        if(isLastCol) { 
                              if (ws[cellRef].v < 0) ws[cellRef].s = sBlue;
                              else ws[cellRef].s = { ...sGroup, font: { bold: true, color: { rgb: "C0392B" } } }; 
                         } 
                     } 
-                    else { // Single or Group Member
+                    else { 
                         ws[cellRef].s = sNormal; 
+                        
+                        // Style cho cột STT (0) và ĐL (1): In đậm + Căn giữa
+                        if (C === 0 || C === 1) {
+                            ws[cellRef].s = sCenterBold;
+                        }
+
                         if (isLastCol) {
                             if (meta === 'group_member') {
-                                // Đại lý trong nhóm: Luôn màu ĐEN
                                 ws[cellRef].s = sBlack;
                             } else {
-                                // Đại lý lẻ (single): Đỏ (dương) / Xanh đậm (âm)
                                 if (ws[cellRef].v < 0) ws[cellRef].s = sBlue; 
-                                else ws[cellRef].s = sRed; // Positive -> Red
+                                else ws[cellRef].s = sRed; 
                             }
                         } 
                     } 
@@ -1266,7 +1358,6 @@
         
         XLSX.utils.book_append_sheet(wb, ws, "Báo Cáo"); 
         
-        // --- XỬ LÝ TÊN FILE ---
         const unitName = removeVietnameseTones(DOM.regionSelect.options[DOM.regionSelect.selectedIndex].text).replace(/\s+/g, '_');
         let safeDate = removeVietnameseTones(dateRangeText).replace(/[\\/]/g, "-").replace(/[:]/g, "").replace(/\s+/g, "_");
         if(safeDate === "Chua_co_ngay") safeDate = "Moi_nhat";
@@ -1277,7 +1368,19 @@
 
     DOM.btnGoToSummary.onclick=()=>{ showSection('summarySection'); }; DOM.btnGoToSell.onclick=()=>{ showSection('sellSection'); DOM.sellQuantityInput.focus(); }; DOM.btnBackFromSummary.onclick=()=>{ showSection('reportSection'); DOM.soSoInput.focus(); }; DOM.btnBackFromSell.onclick=()=>{ showSection('reportSection'); DOM.soSoInput.focus(); };
     DOM.excelFile1.onchange=(e)=>handleFile(e.target.files[0],1,'excelFile1'); DOM.excelFile2.onchange=(e)=>handleFile(e.target.files[0],2,'excelFile2');
-    DOM.btnCreateReport.onclick=createReport; DOM.soSoInput.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); createReport(); } };
+    
+    // --- UPDATE SỰ KIỆN CLICK CHO 2 NÚT MỚI ---
+    if(DOM.btnCreateDailyReport) DOM.btnCreateDailyReport.onclick = () => createReport('detailed');
+    if(DOM.btnCreateSummaryReport) DOM.btnCreateSummaryReport.onclick = () => createReport('summary');
+    
+    DOM.soSoInput.onkeydown = (e) => { 
+        if (e.key === 'Enter') { 
+            e.preventDefault(); 
+            e.target.blur(); 
+            createReport('detailed'); // Enter mặc định là Báo cáo Ngày
+        } 
+    };
+
     if(DOM.btnShowManualReport_inline) { DOM.btnShowManualReport_inline.onclick = () => { DOM.manualInputModal.style.display = 'block'; DOM.manualAgentName.focus(); }; }
     DOM.btnShowManualReport.onclick=()=>{DOM.manualInputModal.style.display='block';DOM.manualAgentName.focus()}; DOM.closeModalBtn.onclick=()=>{DOM.manualInputModal.style.display='none'};
     DOM.btnCreateManualReport.onclick=()=>{ const name=DOM.manualAgentName.value; if(!name) return; const t={ lotoDB:(parseFloat(DOM.manualLotoDB.dataset.value)||0)*1000, loCap:(parseFloat(DOM.manualLoCap.dataset.value)||0)*1000, c227:(parseFloat(DOM.manualC227.dataset.value)||0)*1000, c323:(parseFloat(DOM.manualC323.dataset.value)||0)*1000, thuong:(parseFloat(DOM.manualThuong.dataset.value)||0)*1000, xskt:0 }; const c={ldb:t.lotoDB*.08, lc:t.loCap*.1, c2:t.c227*.1, c3:t.c323*.1, x:0}; resetState('manual'); state.accountCodes.add(name); state.baseTongDT=t.lotoDB+t.loCap+t.c227+t.c323; state.baseTongHH=c.ldb+c.lc+c.c2+c.c3; state.baseThuong=t.thuong; DOM.homePage.style.display='none'; DOM.mainPage.style.display='block'; showSection('reportSection'); renderDetailedReport({t,c},DOM.manualDateRange.value); updateDetailedView(); DOM.manualInputModal.style.display='none'; DOM.actionButtonContainer.style.display='grid'; DOM.actionChoices.style.display='none'; DOM.toggleChoicesBtn.textContent='Thêm tiền Thưởng/Nợ cũ'; DOM.toggleChoicesBtn.className='secondary'; };
