@@ -20,6 +20,7 @@
         --success-color: #2ecc71; --danger-color: #e74c3c; --warning-color: #f39c12;
         --logo-color: #e67e22;
         --modal-overlay-bg: rgba(44, 62, 80, 0.7); 
+        --brown-color: #5D4037;
     }
 
     /* --- CÀI ĐẶT CHUNG --- */
@@ -64,7 +65,7 @@
     button.danger { background-color: var(--danger-color); }
     button.warning { background-color: var(--warning-color); }
     
-    /* --- NEW NAVIGATION STYLE (HIERARCHY) --- */
+    /* --- NEW NAVIGATION STYLE --- */
     .nav-header { display: flex; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
     .back-btn { background: transparent; color: var(--text-color); border: 1px solid var(--border-color); padding: 5px 15px; font-size: 14px; width: auto; display: flex; align-items: center; gap: 5px; }
     .back-btn:hover { background-color: var(--secondary-color); }
@@ -505,8 +506,29 @@
     function hideLoading() { DOM.loadingIndicator.style.display = 'none'; }
     function formatNumberFull(num) { num=parseFloat(num); if(isNaN(num)||num===0) return "0"; return parseInt(num).toLocaleString("vi-VN"); }
     function formatNumberHiddenK(num) { num=parseFloat(num); if(isNaN(num)||num===0||Math.abs(num)<1000) return "0"; return parseInt(num/1000).toLocaleString("vi-VN"); }
-    function formatCommissionCellHiddenK(rev, com) { rev=parseFloat(rev); com=parseFloat(com); if(!rev||rev===0||isNaN(rev)||isNaN(com)) return formatNumberHiddenK(com); const p=Math.round((com/rev)*100); return `<i style="color:#E57373;font-weight:normal;">(${p}%)</i> ${formatNumberHiddenK(com)}`; }
+    function formatCommissionCellHiddenK(rev, com) { 
+        // Ẩn hoàn toàn % như yêu cầu
+        return formatNumberHiddenK(com);
+    }
     
+    function removeVietnameseTones(str) {
+        str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g,"a"); 
+        str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g,"e"); 
+        str = str.replace(/ì|í|ị|ỉ|ĩ/g,"i"); 
+        str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g,"o"); 
+        str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g,"u"); 
+        str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g,"y"); 
+        str = str.replace(/đ/g,"d");
+        str = str.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, "A");
+        str = str.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, "E");
+        str = str.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, "I");
+        str = str.replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, "O");
+        str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U");
+        str = str.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "Y");
+        str = str.replace(/Đ/g, "D");
+        return str;
+    }
+
     function docso(numberStr) {
         const num = String(numberStr).replace(/[.,]/g, ''); if(num==='0') return 'Không'; if(num===''||isNaN(parseInt(num))) return '';
         const words=["không","một","hai","ba","bốn","năm","sáu","bảy","tám","chín"], units=["","nghìn","triệu","tỷ"];
@@ -561,10 +583,25 @@
                     DOM.mainPage.style.maxWidth = 'none';
             }
         }
+        
+        // Fix cho phần report detail bị cắt
+        let originalReportWidth = '';
+        if(sel === '#reportContainer') {
+             const table = el.querySelector('table');
+             if(table && table.scrollWidth > el.clientWidth) {
+                 originalReportWidth = el.style.width;
+                 el.style.width = `${table.scrollWidth + 20}px`;
+             }
+        }
 
         setTimeout(async()=>{
             try {
-                const canvas = await html2canvas(el, {backgroundColor: "#ffffff", scale: 2});
+                const canvas = await html2canvas(el, {
+                    backgroundColor: "#ffffff", 
+                    scale: 2,
+                    useCORS: true,
+                    scrollY: -window.scrollY 
+                });
                 canvas.toBlob(async(blob)=>{
                     try { 
                         await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); 
@@ -582,11 +619,16 @@
                 if(footer && footer.parentNode) footer.parentNode.removeChild(footer);
                 hiddenEls.forEach(e => e.style.display = ''); 
                 if(btn) btn.textContent = oldTxt;
+                
+                // Restore styles
                 if(sel === '#summarySection'){ 
                     DOM.summaryTableContainer.style.width = ''; DOM.summaryTableContainer.style.overflowX = originalOverflow; DOM.summarySection.style.width = ''; DOM.mainPage.style.maxWidth = '';
                 }
+                if(sel === '#reportContainer' && originalReportWidth !== '') {
+                    el.style.width = originalReportWidth;
+                }
             }
-        }, 50);
+        }, 100);
     }
 
     function handleFile(file, num, inputId) {
@@ -766,7 +808,7 @@
 
         let html;
         if (appMode === 'excel') {
-             html=`<thead><tr><th width="8%">STT</th><th width="12%">ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th>${hasXSKT?'<th>XSKT':''}<th>Dsố</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
+             html=`<thead><tr><th width="8%">STT</th><th width="12%">ĐL</th><th>LTô</th><th>LCặp</th><th>Lô 3/23</th><th>Lô 2/27</th>${hasXSKT?'<th>XSKT':''}<th>Dsố</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
         } else {
              html=`<thead><tr><th width="8%">STT</th><th width="12%">ĐL</th><th>Doanh Số</th><th>Hoa hồng</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
         }
@@ -829,7 +871,7 @@
             f1.forEach(r => { state.accountCodes.add(String(r.__EMPTY).trim()); t.lotoDB += (parseFloat(r.__EMPTY_2) || 0); t.loCap += (parseFloat(r.__EMPTY_6) || 0); t.c227 += (parseFloat(r.__EMPTY_8) || 0); t.c323 += (parseFloat(r.__EMPTY_10) || 0); t.thuong += (parseFloat(r.__EMPTY_14) || 0); });
             f2.forEach(r => { state.accountCodes.add(String(r.__EMPTY || r.__EMPTY_1).trim()); t.xskt += (parseFloat(r.__EMPTY_7) || 0) * 1000; });
             const c = {ldb: t.lotoDB * 0.08, lc: t.loCap * 0.1, c2: t.c227 * 0.1, c3: t.c323 * 0.1, x: t.xskt * 0.1};
-            state.baseTongDT = t.lotoDB + t.loCap + t.c227 + t.c323 + t.xskt; state.baseTongHH = c.ldb + c.lc + c.c2 + c.c3 + c.x; state.baseThuong = t.thuong; state.debtFromData = debtAmt;
+            state.baseTongDT = t.lotoDB + t.loCap + t.c227 + t.c323 + t.xskt; state.baseTongHH = c.ldb + c.lc + c.c2 + c.c3 + c.x; state.baseTongHH = c.ldb + c.lc + c.c2 + c.c3 + c.x; state.baseThuong = t.thuong; state.debtFromData = debtAmt;
             return {t, c};
         } else {
             // === LOGIC MỚI: TÌM KIẾM TƯƠNG ĐỐI ===
@@ -858,7 +900,7 @@
         }
     }
 
-    // --- CẬP NHẬT RENDER DETAILED REPORT THEO YÊU CẦU ---
+    // --- CẬP NHẬT RENDER DETAILED REPORT ---
     function renderDetailedReport(d, customDate) {
         const debtHtml = state.debtFromData > 0 ? `<tr style="color:var(--danger-color); font-weight:bold;"><td>Nợ cũ</td><td colspan="${appMode==='excel'?2:4}">${formatNumberHiddenK(state.debtFromData)}</td></tr>` : '';
         const reportDate = customDate || dateRangeText;
@@ -875,8 +917,8 @@
                     <tr><th>Loại</th><th>Doanh thu</th><th>Hoa hồng</th></tr>
                     <tr><td>Lôtô ĐB</td><td>${formatNumberHiddenK(t.lotoDB)}</td><td>${formatCommissionCellHiddenK(t.lotoDB, c.ldb)}</td></tr>
                     <tr><td>Lôtô cặp</td><td>${formatNumberHiddenK(t.loCap)}</td><td>${formatCommissionCellHiddenK(t.loCap, c.lc)}</td></tr>
-                    <tr><td>2/27</td><td>${formatNumberHiddenK(t.c227)}</td><td>${formatCommissionCellHiddenK(t.c227, c.c2)}</td></tr>
-                    <tr><td>3/23</td><td>${formatNumberHiddenK(t.c323)}</td><td>${formatCommissionCellHiddenK(t.c323, c.c3)}</td></tr>
+                    <tr><td>Lô 2/27</td><td>${formatNumberHiddenK(t.c227)}</td><td>${formatCommissionCellHiddenK(t.c227, c.c2)}</td></tr>
+                    <tr><td>Lô 3/23</td><td>${formatNumberHiddenK(t.c323)}</td><td>${formatCommissionCellHiddenK(t.c323, c.c3)}</td></tr>
                     ${xsktHtml}
                     <tr id="tongCongRow" style="border-top: 2px solid #bdc3c7;"><td>Tổng cộng</td><td id="tongDT"></td><td id="tongHH"></td></tr>
                     <tr id="mainBonusRow"><td>Thưởng</td><td colspan="2">${formatNumberHiddenK(state.baseThuong)}</td></tr>
@@ -888,7 +930,7 @@
         } else {
             // === LOGIC MỚI: RAW DATA REPORT ===
             
-            // 1. Nhóm dữ liệu theo ngày để tính tổng ngày
+            // 1. Nhóm dữ liệu theo ngày
             const groupByDate = new Map();
             d.forEach(item => {
                 if(!groupByDate.has(item.date)) groupByDate.set(item.date, []);
@@ -897,35 +939,104 @@
 
             let rowsHtml = '';
             
-            // 2. Duyệt từng ngày
+            // Map đổi tên loại hình
+            const typeNameMap = {
+                'LT': 'Ltô ĐB',
+                'LC': 'LCặp',
+                'L2': 'Lô 2/27',
+                'L3': 'Lô 3/23'
+            };
+
+            // 2. Duyệt từng ngày để hiển thị
             groupByDate.forEach((items, dateStr) => {
+                const isSingleItem = items.length === 1; // Kiểm tra nếu chỉ có 1 loại hình
                 let dayRev = 0, dayCom = 0, dayBonus = 0;
                 
-                // Duyệt từng item trong ngày
+                // Duyệt item trong ngày
                 items.forEach(item => {
                     dayRev += item.rev;
                     dayCom += item.com;
                     dayBonus += item.bonus;
                     
+                    const displayName = typeNameMap[item.type] || item.type;
+
+                    // Xác định style cho dòng item này
+                    let cellStyle = '';
+                    let revColor = '';
+                    let netColor = 'font-weight:bold; color: #000;'; // Mặc định đen cho item lẻ trong ngày nhiều loại
+
+                    if (isSingleItem) {
+                        // NẾU LÀ NGÀY ĐƠN: Áp dụng style của dòng tổng
+                        cellStyle = 'background-color: #ecf0f1;'; // Nền xám
+                        revColor = 'color: #000;'; // Doanh thu đen
+                        // Nộp/Lấy về màu Đỏ/Xanh
+                        if (item.net >= 0) netColor = 'font-weight:bold; color: var(--danger-color);'; 
+                        else netColor = 'font-weight:bold; color: var(--success-color);';
+                    }
+
                     rowsHtml += `<tr>
-                        <td style="text-align:left; font-size:14px;">${item.date} <b style="color:#2c3e50">${item.type}</b></td>
-                        <td>${formatNumberHiddenK(item.rev)}</td>
-                        <td>${formatNumberHiddenK(item.com)}</td>
-                        <td>${item.bonus > 0 ? formatNumberHiddenK(item.bonus) : '-'}</td>
-                        <td style="font-weight:bold; color:${item.net>=0 ? 'var(--danger-color)' : 'var(--success-color)'}">${formatNumberHiddenK(item.net)}</td>
+                        <td style="text-align:left; font-size:14px;">${item.date} - <b style="color:#2c3e50">${displayName}</b></td>
+                        <td style="${revColor} ${cellStyle}">${formatNumberHiddenK(item.rev)}</td>
+                        <td style="${cellStyle}">${formatNumberHiddenK(item.com)}</td>
+                        <td style="${cellStyle}">${item.bonus > 0 ? formatNumberHiddenK(item.bonus) : '-'}</td>
+                        <td style="${netColor} ${cellStyle}">${formatNumberHiddenK(item.net)}</td>
                     </tr>`;
                 });
 
-                // 3. Thêm dòng TỔNG NGÀY
-                const dayNet = dayRev - dayCom - dayBonus;
-                rowsHtml += `<tr style="background-color: #f9f9f9; font-weight: bold; border-bottom: 2px solid #ecf0f1;">
-                    <td style="text-align:right; font-style: italic;">Tổng ${dateStr}</td>
-                    <td style="color:var(--danger-color)">${formatNumberHiddenK(dayRev)}</td>
-                    <td>${formatNumberHiddenK(dayCom)}</td>
-                    <td>${formatNumberHiddenK(dayBonus)}</td>
-                    <td style="color:${dayNet>=0 ? 'var(--danger-color)' : 'var(--success-color)'}">${formatNumberHiddenK(dayNet)}</td>
-                </tr>`;
+                // 3. Chỉ hiện dòng TỔNG NGÀY nếu có > 1 loại hình
+                if (!isSingleItem) {
+                    const dayNet = dayRev - dayCom - dayBonus;
+                    const cellBgStyle = 'background-color: #ecf0f1;'; 
+                    const netColorTotal = dayNet >= 0 ? 'var(--danger-color)' : 'var(--success-color)';
+
+                    rowsHtml += `<tr style="font-weight: bold; border-bottom: 2px solid #bdc3c7;">
+                        <td style="text-align:right; font-style: italic;"></td> 
+                        <td style="color: #000; ${cellBgStyle}">${formatNumberHiddenK(dayRev)}</td>
+                        <td style="color: #000; ${cellBgStyle}">${formatNumberHiddenK(dayCom)}</td>
+                        <td style="color: #000; ${cellBgStyle}">${formatNumberHiddenK(dayBonus)}</td>
+                        <td style="color: ${netColorTotal}; ${cellBgStyle}">${formatNumberHiddenK(dayNet)}</td>
+                    </tr>`;
+                }
             });
+
+            // 3. Tổng hợp loại hình
+            let typeSummaryHtml = '';
+            const sortOrder = ['LT', 'LC', 'L2', 'L3'];
+
+            // Gom nhóm tổng theo loại hình (từ dữ liệu đầu vào d)
+            const typeSummary = new Map();
+            d.forEach(item => {
+                if(!typeSummary.has(item.type)) typeSummary.set(item.type, {rev:0, com:0, bonus:0});
+                const t = typeSummary.get(item.type);
+                t.rev += item.rev;
+                t.com += item.com;
+                t.bonus += item.bonus; 
+            });
+
+            if (typeSummary.size > 0) {
+                 typeSummaryHtml += `<tr style="border-top: 2px solid #bdc3c7;"><td colspan="5" style="background:#ecf0f1; height: 5px; padding:0;"></td></tr>`; 
+                 
+                 const currentTypes = Array.from(typeSummary.keys());
+                 currentTypes.sort((a, b) => {
+                     let idxA = sortOrder.indexOf(a); let idxB = sortOrder.indexOf(b);
+                     if (idxA === -1) idxA = 999; if (idxB === -1) idxB = 999;
+                     return idxA - idxB;
+                 });
+
+                 currentTypes.forEach(type => {
+                     const val = typeSummary.get(type);
+                     const longName = typeNameMap[type] || type; 
+                     const displayName = typeNameMap[type] ? `Tổng ${longName}` : `Tổng ${type}`;
+
+                     typeSummaryHtml += `<tr style="background-color: #fff;">
+                        <td style="font-weight:600; color:#5D4037; text-align: left; padding-left: 15px;">${displayName}</td>
+                        <td style="font-weight:600;">${formatNumberHiddenK(val.rev)}</td>
+                        <td>${formatCommissionCellHiddenK(val.rev, val.com)}</td>
+                        <td style="color:#2c3e50; font-weight:500;">${val.bonus > 0 ? formatNumberHiddenK(val.bonus) : '-'}</td>
+                        <td></td>
+                     </tr>`;
+                 });
+            }
 
             DOM.reportContainer.innerHTML = `
             <table class="report-table" style="border: 1px solid var(--border-color);">
@@ -935,10 +1046,13 @@
                     <tr><td class="header" style="font-weight:bold;">Đợt:</td><td colspan="4" style="font-weight:500;">${reportDate}</td></tr>
                     <tr><th>Ngày/Loại</th><th>Doanh Thu</th><th>Hoa hồng</th><th>Thưởng</th><th>Nộp/Lấy về</th></tr>
                     ${rowsHtml}
-                    <tr id="tongCongRow" style="border-top: 2px solid #bdc3c7;">
-                        <td>Tổng cộng</td>
-                        <td id="tongDT"></td>
-                        <td id="tongHH"></td>
+                    
+                    ${typeSummaryHtml}
+
+                    <tr id="tongCongRow" style="border-top: 2px solid #7f8c8d; background-color: #FEF9E7;">
+                        <td style="font-weight: bold; color: var(--header-bg);">TỔNG CỘNG</td>
+                        <td id="tongDT" style="font-weight:bold; color:var(--danger-color); font-size:1.1em;"></td>
+                        <td id="tongHH" style="font-weight:bold;"></td>
                         <td style="font-weight:bold; color:var(--primary-dark)">${formatNumberHiddenK(state.baseThuong)}</td>
                         <td></td>
                     </tr>
@@ -1056,37 +1170,109 @@
         const sTotal = { font: { bold: true }, fill: { fgColor: { rgb: "F1C40F" } }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
         const sNormal = { border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
         const sRed = { font: { color: { rgb: "C0392B" }, bold: true }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
+        const sBlack = { font: { color: { rgb: "000000" }, bold: true }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
+        // --- MÀU XANH ĐẬM (Dark Blue) cho số âm ---
+        const sBlue = { font: { color: { rgb: "00008B" }, bold: true }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
+
         let aoa = []; aoa.push([document.getElementById('summaryTitle').innerText]); aoa.push([dateRangeText]);
         const percent = totals.rev > 0 ? (totals.th / totals.rev * 100).toFixed(1) : 0; aoa.push([`Doanh số: ${formatNumberFull(totals.rev)} - Thưởng: ${formatNumberFull(totals.th)} (${percent}%)`]); aoa.push([""]); 
         
         let headers;
-        if(appMode === 'excel') { headers = ["STT", "Đại Lý", "Lô tô", "Lô cặp", "3/23", "2/27"]; if (hasXSKT) headers.push("XSKT"); }
+        if(appMode === 'excel') { headers = ["STT", "Đại Lý", "Lô tô", "Lô cặp", "Lô 3/23", "Lô 2/27"]; if (hasXSKT) headers.push("XSKT"); }
         else { headers = ["STT", "Đại Lý", "Doanh Số", "Hoa hồng", "Thưởng"]; }
         if(appMode==='excel') headers.push("Doanh số", "Thưởng");
         if (hasDebt) headers.push("Nợ cũ"); headers.push("Tiền nộp"); aoa.push(headers);
         
+        let rowMetaData = {}; // rowIndex -> type
+        let currentRow = 5; // Dữ liệu bắt đầu từ dòng 5 (index 0-based)
+
         let stt = 1; const sortMode = DOM.sortSelect.value; let sortedGroups = [...groups.entries()];
         if (sortMode === 'revenue_desc') sortedGroups.sort((a, b) => b[1].gr - a[1].gr); else if (sortMode === 'revenue_asc') sortedGroups.sort((a, b) => a[1].gr - b[1].gr);
-        sortedGroups.forEach(([gk, g]) => { g.agents.forEach((ag, idx) => { const d = ag.data; const final = (d.totRev - d.totCom - d.thuong) + d.debt; let displayStt = (idx === 0) ? stt : ""; let row;
-        if(appMode === 'excel') { row = [ displayStt, ag.code, d.lotoDB, d.lotoCap, d.c323, d.c227 ]; if (hasXSKT) row.push(d.xskt); row.push(d.totRev, d.thuong); }
-        else { row = [ displayStt, ag.code, d.totRev, d.totCom, d.thuong ]; }
-        if (hasDebt) row.push(d.debt); row.push(final); aoa.push(row); }); 
-        if (g.agents.length > 1) { 
-            let rowGroup = ["", ""]; 
-            if(appMode==='excel') { rowGroup.push("","","",""); if(hasXSKT) rowGroup.push(""); rowGroup.push(g.gr, g.gth); }
-            else { rowGroup.push(g.gr, "", g.gth); }
-            if (hasDebt) { let sumDebt = 0; g.agents.forEach(ag => sumDebt+=ag.data.debt); rowGroup.push(sumDebt); } rowGroup.push(g.gt); aoa.push(rowGroup); 
-        } stt++; }); 
+        
+        sortedGroups.forEach(([gk, g]) => { 
+            const isMulti = g.agents.length > 1;
+            g.agents.forEach((ag, idx) => { 
+                const d = ag.data; const final = (d.totRev - d.totCom - d.thuong) + d.debt; 
+                let displayStt = (idx === 0) ? stt : ""; 
+                let row;
+                if(appMode === 'excel') { row = [ displayStt, ag.code, d.lotoDB, d.lotoCap, d.c323, d.c227 ]; if (hasXSKT) row.push(d.xskt); row.push(d.totRev, d.thuong); }
+                else { row = [ displayStt, ag.code, d.totRev, d.totCom, d.thuong ]; }
+                if (hasDebt) row.push(d.debt); row.push(final); 
+                
+                aoa.push(row); 
+                rowMetaData[currentRow] = isMulti ? 'group_member' : 'single';
+                currentRow++;
+            }); 
+            
+            if (isMulti) { 
+                let rowGroup = ["", ""]; 
+                if(appMode==='excel') { rowGroup.push("","","",""); if(hasXSKT) rowGroup.push(""); rowGroup.push(g.gr, g.gth); }
+                else { rowGroup.push(g.gr, "", g.gth); }
+                if (hasDebt) { let sumDebt = 0; g.agents.forEach(ag => sumDebt+=ag.data.debt); rowGroup.push(sumDebt); } rowGroup.push(g.gt); 
+                
+                aoa.push(rowGroup); 
+                rowMetaData[currentRow] = 'group_total';
+                currentRow++;
+            } 
+            stt++; 
+        }); 
 
         const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(aoa);
         const range = XLSX.utils.decode_range(ws['!ref']); const lastColIdx = range.e.c;
         if(!ws['!merges']) ws['!merges'] = [];
         ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: lastColIdx } }); ws['!merges'].push({ s: { r: 1, c: 0 }, e: { r: 1, c: lastColIdx } }); ws['!merges'].push({ s: { r: 2, c: 0 }, e: { r: 2, c: lastColIdx } }); ws['!merges'].push({ s: { r: range.e.r, c: 0 }, e: { r: range.e.r, c: 1 } }); 
-        for (let R = range.s.r; R <= range.e.r; ++R) { for (let C = range.s.c; C <= range.e.c; ++C) { const cellRef = XLSX.utils.encode_cell({ r: R, c: C }); if (!ws[cellRef]) continue; 
-                if (R <= 2) { ws[cellRef].s = { font: { bold: true, sz: 14, color: {rgb: R===2?"E74C3C":"E67E22"} }, alignment: { horizontal: "center" } }; if(R===1) ws[cellRef].s.font = { italic: true, sz: 11 }; } 
-                else if (R === 4) { ws[cellRef].s = sHeader; } else { const cellStt = ws[XLSX.utils.encode_cell({ r: R, c: 0 })]; const cellName = ws[XLSX.utils.encode_cell({ r: R, c: 1 })]; const isGroupRow = (!cellStt || cellStt.v === "") && (!cellName || cellName.v === ""); if (isGroupRow) { ws[cellRef].s = sGroup; if(C === lastColIdx) ws[cellRef].s = { ...sGroup, font: { bold: true, color: { rgb: "C0392B" } } }; } else { ws[cellRef].s = sNormal; if (C === lastColIdx) { if (ws[cellRef].v < 0) ws[cellRef].s = sRed; else ws[cellRef].s = { ...sNormal, font: { bold: true } }; } } } if (typeof ws[cellRef].v === 'number') { ws[cellRef].z = '#,##0'; } } }
+        
+        for (let R = range.s.r; R <= range.e.r; ++R) { 
+            for (let C = range.s.c; C <= range.e.c; ++C) { 
+                const cellRef = XLSX.utils.encode_cell({ r: R, c: C }); 
+                if (!ws[cellRef]) continue; 
+                
+                if (R <= 2) { 
+                    ws[cellRef].s = { font: { bold: true, sz: 14, color: {rgb: R===2?"E74C3C":"E67E22"} }, alignment: { horizontal: "center" } }; if(R===1) ws[cellRef].s.font = { italic: true, sz: 11 }; 
+                } 
+                else if (R === 4) { 
+                    ws[cellRef].s = sHeader; 
+                } 
+                else { 
+                    const meta = rowMetaData[R];
+                    const isLastCol = (C === lastColIdx);
+                    
+                    if (meta === 'group_total') { 
+                        ws[cellRef].s = sGroup; 
+                        if(isLastCol) { // Tổng nhóm: Đỏ (dương) / Xanh đậm (âm)
+                             if (ws[cellRef].v < 0) ws[cellRef].s = sBlue;
+                             else ws[cellRef].s = { ...sGroup, font: { bold: true, color: { rgb: "C0392B" } } }; 
+                        } 
+                    } 
+                    else { // Single or Group Member
+                        ws[cellRef].s = sNormal; 
+                        if (isLastCol) {
+                            if (meta === 'group_member') {
+                                // Đại lý trong nhóm: Luôn màu ĐEN
+                                ws[cellRef].s = sBlack;
+                            } else {
+                                // Đại lý lẻ (single): Đỏ (dương) / Xanh đậm (âm)
+                                if (ws[cellRef].v < 0) ws[cellRef].s = sBlue; 
+                                else ws[cellRef].s = sRed; // Positive -> Red
+                            }
+                        } 
+                    } 
+                } 
+                
+                if (typeof ws[cellRef].v === 'number') { ws[cellRef].z = '#,##0'; } 
+            } 
+        }
         ws['!cols'] = [ { wch: 5 }, { wch: 15 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 15 } ];
-        XLSX.utils.book_append_sheet(wb, ws, "Báo Cáo"); XLSX.writeFile(wb, "Bao_cao.xlsx");
+        
+        XLSX.utils.book_append_sheet(wb, ws, "Báo Cáo"); 
+        
+        // --- XỬ LÝ TÊN FILE ---
+        const unitName = removeVietnameseTones(DOM.regionSelect.options[DOM.regionSelect.selectedIndex].text).replace(/\s+/g, '_');
+        let safeDate = removeVietnameseTones(dateRangeText).replace(/[\\/]/g, "-").replace(/[:]/g, "").replace(/\s+/g, "_");
+        if(safeDate === "Chua_co_ngay") safeDate = "Moi_nhat";
+        const fileName = `bao_cao_${unitName}_${safeDate}.xlsx`;
+        
+        XLSX.writeFile(wb, fileName);
     }
 
     DOM.btnGoToSummary.onclick=()=>{ showSection('summarySection'); }; DOM.btnGoToSell.onclick=()=>{ showSection('sellSection'); DOM.sellQuantityInput.focus(); }; DOM.btnBackFromSummary.onclick=()=>{ showSection('reportSection'); DOM.soSoInput.focus(); }; DOM.btnBackFromSell.onclick=()=>{ showSection('reportSection'); DOM.soSoInput.focus(); };
