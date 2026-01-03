@@ -14,210 +14,220 @@
         --primary-color: #1abc9c; --primary-dark: #16a085;
         --secondary-color: #bdc3c7; --secondary-dark: #95a5a6;
         --header-bg: #34495e; --header-text: #ecf0f1;
-        --body-bg: #ecf0f1; --container-bg: #ffffff;
+        --body-bg: #f5f6fa; --container-bg: #ffffff;
         --text-color: #2c3e50; --text-light: #7f8c8d;
-        --border-color: #dfe6e9;
-        --success-color: #2ecc71; --danger-color: #e74c3c; --warning-color: #f39c12;
+        --border-color: #dcdde1;
+        --success-color: #2ecc71; --danger-color: #e74c3c; --warning-color: #f1c40f;
         --logo-color: #e67e22;
-        --modal-overlay-bg: rgba(44, 62, 80, 0.7); 
-        --brown-color: #5D4037;
+        --modal-overlay-bg: rgba(44, 62, 80, 0.8); 
     }
 
     /* --- CÀI ĐẶT CHUNG --- */
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 15px; padding-bottom: 60px; background-color: var(--body-bg); color: var(--text-color); font-size: 16px; line-height: 1.6; }
-    .page { max-width: 600px; margin: 20px auto; padding: 15px; background-color: var(--container-bg); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px; padding-bottom: 80px; background-color: var(--body-bg); color: var(--text-color); font-size: 15px; line-height: 1.6; }
     
-    h2 { font-size: 26px; font-weight: 600; text-align: center; color: var(--header-bg); margin-bottom: 0.8em; }
-    h3 { font-size: 20px; font-weight: 500; text-align: center; color: var(--header-bg); margin-bottom: 0.8em; } 
+    .page { 
+        background-color: var(--container-bg); 
+        border-radius: 12px; 
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+        position: relative; 
+        overflow: hidden; 
+    }
+
+    /* HOME PAGE */
+    #homePage {
+        max-width: 500px !important; 
+        margin: 40px auto; 
+        padding: 30px;
+        border: 1px solid #eee;
+    }
+
+    /* REPORT PAGE */
+    #mainPage { 
+        max-width: 1200px; 
+        margin: 0 auto; 
+        padding: 20px; 
+    }
+
+    h2 { font-size: 24px; font-weight: 700; text-align: center; color: var(--header-bg); margin-bottom: 20px; letter-spacing: -0.5px; }
+    h3 { font-size: 18px; font-weight: 600; text-align: center; color: var(--header-bg); margin-bottom: 15px; } 
     h4 { margin-top: 0; text-align: center; color: var(--text-color); font-weight: 500;}
-    .report-date { text-align:center; font-weight: normal; margin-top: -12px; margin-bottom: 16px; color: var(--text-light); line-height: 1.5; } 
+    .report-date { text-align:center; font-weight: normal; margin-top: -10px; margin-bottom: 20px; color: var(--text-light); font-size: 14px; } 
 
     /* LOGO */
-    .simple-animated-logo { text-align: center; margin-bottom: 15px; margin-top: 10px; font-size: 32px; font-weight: 700; color: var(--logo-color); overflow: hidden; display: block; min-height: 40px; white-space: nowrap; cursor: pointer; }
-    .main-page-logo { font-size: 24px; margin-top: 5px; margin-bottom: 10px; }
-    .simple-animated-logo span.letter { opacity: 0; display: inline-block; transform: translateY(15px); transition: opacity 0.5s, transform 0.5s; }
-    .simple-animated-logo .tm { font-size: 0.5em; vertical-align: super; margin-left: 2px; font-weight: normal; color: var(--text-light); }
+    .simple-animated-logo { text-align: center; margin-bottom: 20px; font-size: 36px; font-weight: 800; color: var(--logo-color); cursor: pointer; letter-spacing: -1px; }
+    .main-page-logo { font-size: 24px; margin-bottom: 10px; margin-top: 0; }
+    .simple-animated-logo span.letter { display: inline-block; transition: all 0.3s; }
+    .simple-animated-logo .tm { font-size: 0.4em; vertical-align: top; margin-left: 2px; color: var(--text-light); font-weight: 400; }
 
-    .online-badge { display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; font-weight: normal; color: var(--header-bg); background-color: rgba(46, 204, 113, 0.15); padding: 3px 10px; border-radius: 15px; margin-left: 12px; vertical-align: middle; position: relative; top: -6px; border: 1px solid rgba(46, 204, 113, 0.3); }
-    .online-dot { width: 8px; height: 8px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 6px var(--success-color); animation: pulseDot 2s infinite; }
-    @keyframes pulseDot { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+    .online-badge { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text-color); background-color: #f1f2f6; padding: 4px 10px; border-radius: 20px; margin-left: 10px; vertical-align: middle; position: relative; top: -5px; }
+    .online-dot { width: 8px; height: 8px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.2); animation: pulseDot 2s infinite; }
+    @keyframes pulseDot { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(46, 204, 113, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); } }
 
     /* CONTROLS */
-    .controls-panel { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--container-bg); }
-    label { font-weight: 500; color: var(--text-color); }
-    input, select, button, textarea { padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border-color); width: 100%; box-sizing: border-box; font-size: 16px; transition: 0.2s; }
-    input:focus, textarea:focus { border-color: var(--primary-color); outline: none; }
-    input[type="file"] { background-color: #fdfdfe; cursor: pointer; }
-    input[type="file"].loaded { background-color: #eafaf1; border-color: var(--success-color); }
+    .controls-panel { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 1px solid #edf2f7; }
+    label { font-weight: 600; color: var(--text-color); font-size: 14px; margin-bottom: 5px; display: block; }
     
-    button { cursor: pointer; background: var(--primary-color); color: white; border: none; font-weight: 500; }
-    button:hover { background-color: var(--primary-dark); filter: brightness(110%); }
-    button:active { transform: scale(0.98); }
-    button.secondary { background-color: var(--secondary-color); color: var(--text-color); }
+    input[type="text"], input[type="number"], input[type="password"], select, textarea { 
+        padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); width: 100%; font-size: 15px; transition: all 0.2s; 
+    }
+    input:focus, textarea:focus, select:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.1); }
+    
+    input[type="file"] { padding: 10px; background: white; border: 1px dashed #bdc3c7; cursor: pointer; border-radius: 6px; width: 100%; font-size: 14px; }
+    input[type="file"]:hover { border-color: var(--primary-color); background: #f0fdf9; }
+    input[type="file"].loaded { border-color: var(--success-color); background-color: #eafaf1; color: var(--success-color); font-weight: 500; }
+
+    button { cursor: pointer; background: var(--primary-color); color: white; border: none; font-weight: 600; padding: 12px 20px; border-radius: 6px; transition: all 0.2s; font-size: 15px; }
+    button:hover { background-color: var(--primary-dark); transform: translateY(-1px); }
+    button:active { transform: translateY(1px); }
+    button.secondary { background-color: #ecf0f1; color: var(--text-color); border: 1px solid #dcdde1; }
+    button.secondary:hover { background-color: #dfe4ea; }
     button.success { background-color: var(--success-color); }
     button.danger { background-color: var(--danger-color); }
-    button.warning { background-color: var(--warning-color); }
+    button.warning { background-color: var(--warning-color); color: #fff; } 
     
-    /* NAV & MENU */
-    .nav-header { display: flex; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-    .back-btn { background: transparent; color: var(--text-color); border: 1px solid var(--border-color); padding: 5px 15px; font-size: 14px; width: auto; display: flex; align-items: center; gap: 5px; }
-    .home-menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-    .home-menu-btn { padding: 15px; font-size: 15px; font-weight: 600; text-align: center; background-color: #ecf0f1; color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    
-    /* TABLE STYLES */
-    table { border-collapse: collapse; width: 100%; margin: 1px auto; background: var(--container-bg); border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    th, td { border: 1px solid var(--border-color); padding: 10px 12px; text-align: center; vertical-align: middle; }
-    th { background: var(--header-bg); color: var(--header-text); font-weight: 500; }
-    
-    tfoot td { background-color: var(--header-bg); color: var(--header-text); font-weight: 700; border-top: 2px solid var(--secondary-dark); }
-    tr.group-start-row td { border-top: 2px solid var(--secondary-dark) !important; }
-    .group-total-row td { background-color: #FEF9E7; font-weight: bold; border-top: 1px solid #f39c12 !important; }
+    .mode-switch { display: flex; background: #ecf0f1; border-radius: 8px; padding: 4px; gap: 4px; }
+    .tab-btn { flex: 1; border-radius: 6px !important; padding: 10px; font-size: 14px; border: none !important; background: transparent; color: var(--text-light); }
+    .tab-btn.active { background: white !important; color: var(--primary-color) !important; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-weight: 700; }
 
-    .header { font-weight: 500; background: var(--neutral-light-bg); }
-    .so-so { font-size: 32px; font-weight: 600; color: var(--warning-color); vertical-align: middle; }
-    
-    #tongCongRow { background-color: #FFC107; color: var(--text-color); font-weight: 600 !important;} 
-    #mainBonusRow { background-color: var(--success-color); color: #ffffff; font-weight: 600; } 
-    .added-ticket-row { background-color: #ffffff; } 
-    .bang-chu-cell { text-align: left !important; font-style: italic; padding-left: 15px !important; font-size: 10px; font-weight: normal; color: var(--text-light); }
-    #bangChuRow, #bangChuRow td { background: #ffffff !important; }
+    .home-menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .home-menu-btn { padding: 15px; font-size: 14px; font-weight: 600; text-align: center; background-color: white; color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+    .home-menu-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
 
-    /* LAYOUT UTILS */
-    .ticket-type-selector { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-top: 0 !important; }
-    .ticket-type-selector label { display: flex; align-items: center; gap: 5px; font-weight: normal; cursor: pointer; white-space: nowrap; }
-    .sell-row-container { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .sell-row-container > label { font-weight: bold; min-width: 80px; margin: 0; }
-    .main-copyright { text-align: center; margin-top: 30px; padding: 15px 0; font-size: 13px; color: var(--text-light); border-top: 1px dashed var(--border-color); width: 100%; }
-    
-    #actionButtonContainer { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-    #actionChoices { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; grid-column: 1 / -1; }
-    .dynamic-input { width: 100%; border: none; font-weight: 600; text-align: center; background: transparent; font-size: 17px; padding: 5px; }
-    
-    /* SCROLLABLE TABLE CONTAINER */
-    #summaryTableContainer, #reportContainer { margin-top: 10px; width: 100%; }
-    
+    /* --- TABLE STYLES --- */
+    #summaryTableContainer { margin-top: 15px; width: 100%; max-height: 70vh; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border-color); border-radius: 8px; }
+    table { border-collapse: separate; border-spacing: 0; width: auto !important; min-width: 100%; background: white; margin: 0 auto; }
+    th, td { border-right: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; padding: 10px 8px; text-align: center; vertical-align: middle; font-size: 14px; white-space: nowrap; }
+    th { background: var(--header-bg); color: white; font-weight: 600; position: sticky; top: 0; z-index: 10; border-top: none; }
+    tfoot td { background-color: #f8f9fa; color: var(--text-color); font-weight: 700; position: sticky; bottom: 0; z-index: 10; border-top: 2px solid #bdc3c7; }
+    .group-total-row td { background-color: #fff9db; font-weight: bold; }
+    .header { font-weight: 600; background: #f8f9fa; text-align: left !important; padding-left: 15px; }
+    .so-so { font-size: 24px; font-weight: 700; color: var(--logo-color); }
+    #tongCongRow { background-color: #f1c40f; color: #fff; font-weight: 700 !important; text-shadow: 0 1px 1px rgba(0,0,0,0.1); } 
+    #tongCongRow td { color: #2c3e50; }
+    .added-ticket-row { background-color: #f0fdf9; } 
+    .bang-chu-cell { text-align: left !important; font-style: italic; padding: 8px 15px !important; font-size: 13px; color: var(--text-light); background: #fff !important; white-space: normal !important; }
+
+    /* UTILS */
     .negative-value { color: var(--danger-color); }
     .final-amount-positive { background-color: var(--danger-color) !important; color: #ffffff !important; }
-    .final-amount-negative { background-color: var(--success-color) !important; color: var(--danger-color) !important; }
-    tr.final-amount-positive td, tr.final-amount-negative td { font-size: 30px !important; font-weight: 600; padding: 15px 12px !important; }
+    .final-amount-negative { background-color: var(--success-color) !important; color: #ffffff !important; }
+    tr.final-amount-positive td, tr.final-amount-negative td { font-size: 22px !important; font-weight: 700; padding: 15px 10px !important; }
 
-    .home-actions, .report-actions-grid { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
-    .summary-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 20px; } 
-    .input-group-row { display: flex; gap: 8px; align-items: center; justify-content: flex-start; width: 100%; flex-wrap: nowrap; }
-    .input-group-row input#soSoInput, .input-group-row input#sellQuantityInput { width: 130px !important; flex: none; }
-    .input-group-row button { width: auto; white-space: nowrap; padding: 12px 10px; flex-shrink: 0; }
+    /* --- CẤU HÌNH INPUT GROUP VÀ NÚT BẤM --- */
+    .input-group-row { display: flex; gap: 8px; width: 100%; align-items: stretch; }
+    
+    /* Ô nhập số sổ: Thu ngắn lại */
+    .input-group-row input#soSoInput { 
+        width: 120px !important; /* Cố định chiều rộng ngắn */
+        min-width: 120px;
+        flex: none; /* Không cho giãn ra */
+        font-size: 16px;
+        font-weight: 600;
+        text-align: center;
+    }
 
-    .filter-grid-container, .revenue-filter-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+    /* Container chứa các nút: Giãn hết phần còn lại */
+    .input-group-row .buttons-container {
+        display: flex;
+        gap: 5px;
+        flex: 1; /* Chiếm hết không gian còn lại */
+    }
+
+    /* Các nút bấm: Chia đều chiều rộng */
+    .input-group-row .buttons-container button { 
+        flex: 1; /* Tự động chia đều nhau */
+        padding: 0 10px; 
+        white-space: nowrap; 
+        width: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    }
+    
+    /* --- CSS CHO CÁC Ô NHẬP LIỆU ĐỘNG (THƯỞNG/NỢ) --- */
+    .dynamic-input {
+        width: 100%;
+        border: none !important; /* Xóa viền */
+        background: transparent !important; /* Nền trong suốt */
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: bold;
+        text-align: center;
+        padding: 5px;
+        outline: none !important; /* Xóa viền khi focus */
+        color: inherit;
+        box-shadow: none !important;
+        appearance: none;
+        -webkit-appearance: none;
+        resize: none;
+    }
+    /* Hiệu ứng khi bấm vào để biết đang nhập */
+    .dynamic-input:focus {
+        background-color: rgba(0,0,0,0.03) !important;
+        border-radius: 4px;
+    }
+
     .region-lock-container.locked #regionDefinitionsInput { display: none !important; }
-    .debt-mode-selector { display: flex; gap: 10px; margin-bottom: 10px; padding: 10px; background-color: var(--neutral-light-bg); border-radius: 6px; border: 1px solid var(--border-color); align-items: center; justify-content: space-between; flex-wrap: wrap; }
-    .debt-mode-selector .options { display: flex; gap: 15px; }
+
+    /* Desktop Optimizations */
+    @media (min-width: 768px) {
+        .filter-grid-container, .revenue-filter-grid { grid-template-columns: 1.5fr 1fr; gap: 20px; }
+        .revenue-filter-col-left { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+    }
+
+    /* --- MOBILE OPTIMIZATION (FULL WIDTH) --- */
+    @media (max-width: 768px) {
+        body { padding: 0 !important; padding-bottom: 80px !important; background-color: #f5f6fa; }
+        
+        #homePage { margin: 15px !important; width: auto !important; max-width: none !important; border-radius: 12px !important; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+
+        #mainPage { 
+            margin: 0 !important; width: 100% !important; max-width: 100% !important;
+            padding: 10px 0 !important; border-radius: 0 !important; box-shadow: none !important; 
+        }
+
+        .controls-panel { margin: 0 10px 20px 10px; padding: 15px; border-radius: 8px; }
+        h2 { font-size: 20px; margin-top: 20px; }
+        
+        #summaryTableContainer, #reportContainer { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 15px; border-left: none; border-right: none; border-radius: 0; }
+        
+        th, td { padding: 8px 4px !important; font-size: 13px !important; }
+        td:first-child, td:nth-child(2) { white-space: normal; min-width: 70px; }
+        
+        tr.final-amount-positive td, tr.final-amount-negative td { font-size: 18px !important; padding: 12px 5px !important; }
+        
+        /* Giữ nguyên cấu trúc input group trên mobile */
+        .input-group-row input#soSoInput { width: 90px !important; min-width: 90px; }
+        .input-group-row .buttons-container button { padding: 0 5px; font-size: 12px; }
+        
+        .simple-animated-logo { font-size: 28px; margin-top: 15px; }
+        .main-copyright { margin-bottom: 20px; }
+    }
     
-    /* Modals */
-    .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--modal-overlay-bg); padding-top: 60px; overflow: auto; animation: fadeIn 0.3s; }
-    .modal-content { background-color: var(--container-bg); margin: auto; padding: 25px; border: 1px solid var(--border-color); width: 90%; max-width: 500px; border-radius: 8px; position: relative; animation: slideIn 0.3s; }
-    .modal-close-btn { position: absolute; top: 10px; right: 15px; font-size: 28px; cursor: pointer; }
+    /* MODALS & OTHERS */
+    .modal-overlay { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(2px); padding-top: 60px; overflow: auto; animation: fadeIn 0.2s; }
+    .modal-content { background-color: #fff; margin: auto; padding: 25px; width: 90%; max-width: 450px; border-radius: 12px; position: relative; animation: slideIn 0.3s; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .modal-close-btn { position: absolute; top: 10px; right: 15px; font-size: 28px; cursor: pointer; color: #aaa; }
     
-    #notification-area { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
-    .notification { padding: 12px 20px; border-radius: 6px; color: white; font-size: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.15); opacity: 0; transform: translateX(100%); transition: 0.3s; }
+    #notification-area { position: fixed; top: 20px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; }
+    .notification { padding: 12px 20px; border-radius: 8px; color: white; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; transform: translateX(50px); transition: 0.3s; font-weight: 500; }
     .notification.show { opacity: 1; transform: translateX(0); }
     .notification.success { background-color: var(--success-color); }
     .notification.error { background-color: var(--danger-color); }
-    .notification.info { background-color: var(--info-color); }
-    #loading-indicator { display: none; position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background-color: var(--header-bg); color: var(--header-text); padding: 8px 15px; border-radius: 4px; z-index: 2100; }
+    .notification.info { background-color: #3498db; }
     
-    #scrollToTopBtn, #scrollToBottomBtn { display: none; position: fixed; left: 15px; right: auto; z-index: 1001; background-color: var(--header-bg); color: white; border: none; padding: 0; border-radius: 50%; width: 40px; height: 40px; text-align: center; line-height: 40px; cursor: pointer; opacity: 0.6; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-    #scrollToTopBtn { top: calc(50% - 45px); bottom: auto; } 
-    #scrollToBottomBtn { top: calc(50% + 5px); bottom: auto; }
+    #loading-indicator { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0,0,0,0.8); color: white; padding: 15px 25px; border-radius: 8px; z-index: 3000; font-weight: 600; }
+    
+    #scrollToTopBtn, #scrollToBottomBtn { display: none; position: fixed; left: 15px; width: 40px; height: 40px; background: rgba(52, 73, 94, 0.7); color: white; border: none; border-radius: 50%; text-align: center; line-height: 40px; cursor: pointer; z-index: 999; backdrop-filter: blur(2px); }
+    #scrollToTopBtn { bottom: 80px; } #scrollToBottomBtn { bottom: 30px; }
 
     @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
-    @keyframes slideIn { from {transform: translateY(-50px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
-
-    /* DESKTOP */
-    @media (min-width: 768px) {
-        .filter-grid-container, .revenue-filter-grid { grid-template-columns: 1.5fr 1fr; }
-        .revenue-filter-col-left { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
-        #mainPage { max-width: 1200px; }
-        /* Trên Desktop cũng cho phép bảng tự giãn, không ép width 8% */
-        table { table-layout: auto !important; }
-        th, td { white-space: nowrap; padding: 10px; }
-    }
-
-    /* --- GIAO DIỆN MOBILE TỐI ƯU --- */
-    @media (max-width: 768px) {
-        body { 
-            padding: 0 !important; 
-            padding-bottom: 80px !important; 
-            background-color: var(--container-bg); 
-            font-size: 14px; 
-        }
-
-        .page { 
-            margin: 0 !important; 
-            width: 100% !important; 
-            max-width: 100% !important;
-            padding: 10px 0 !important;
-            border-radius: 0 !important; 
-            box-shadow: none !important; 
-            border: none !important;
-        }
-
-        h2 { font-size: 20px; margin-top: 15px; } 
-        h3 { font-size: 18px; padding: 0 10px; }
-        .report-date { padding: 0 10px; }
-        .controls-panel { margin: 0 10px 20px 10px; padding: 15px; }
-
-        input, button, select, textarea { font-size: 14px; padding: 10px; }
-
-        /* SCROLL NGANG CHO BẢNG */
-        #summaryTableContainer, #reportContainer { 
-            width: 100%;
-            overflow-x: auto; 
-            -webkit-overflow-scrolling: touch; 
-            margin-bottom: 15px;
-            padding-bottom: 5px;
-        }
-
-        table {
-            width: auto !important; 
-            min-width: 100%;
-            table-layout: auto !important; 
-            margin: 0 !important;
-        }
-        
-        th, td {
-            padding: 8px 6px !important;
-            font-size: 13px !important;
-            white-space: nowrap; 
-        }
-        
-        /* Cho phép tên/ngày xuống dòng */
-        td:first-child, td:nth-child(2) {
-            white-space: normal;
-            min-width: 60px; /* Thu nhỏ chiều rộng tối thiểu cột STT/Tên */
-        }
-
-        /* Font to cho dòng kết quả */
-        tr.final-amount-positive td, tr.final-amount-negative td { 
-            font-size: 20px !important; 
-            padding: 12px 6px !important; 
-            white-space: nowrap;
-        }
-        .bang-chu-cell { 
-            white-space: normal !important; 
-            font-size: 12px !important; 
-        }
-
-        .input-group-row input#soSoInput, 
-        .input-group-row input#sellQuantityInput { 
-            width: 100px !important; 
-        }
-        
-        .summary-actions button { font-size: 12px; padding: 8px 2px; }
-        .simple-animated-logo { font-size: 28px; margin-top: 15px; }
-    }
+    @keyframes slideIn { from {transform: translateY(-20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
     
+    /* PRINT */
     @media print {
         @page { size: A4; margin: 10mm; } 
         body { padding: 0; background: white; -webkit-print-color-adjust: exact; font-size: 11pt; } 
@@ -225,19 +235,28 @@
         #mainPage, #summarySection, #summaryTableContainer { 
             display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; 
             position: static !important; visibility: visible !important; overflow: visible !important;
+            max-height: none !important; box-shadow: none !important;
         }
+        th, tfoot td { position: static !important; border: 1px solid #000 !important; color: #000 !important; background: none !important; }
+        td { border: 1px solid #000 !important; }
+        #summaryTableContainer { border: none; }
         .controls-panel, .summary-actions, .home-menu-grid, .nav-header, .simple-animated-logo, 
         #scrollToTopBtn, #scrollToBottomBtn, #notification-area, #btnCopySummary, #btnExportExcel { display: none !important; }
-        #summaryTitle, #summaryDate {
-            text-align: center !important; width: 100% !important; display: block !important;
-            margin-left: auto !important; margin-right: auto !important;
-        }
-        table { width: 100% !important; border-collapse: collapse; border: 2px solid #000 !important; font-size: 10pt; }
-        th, td { border: 1px solid #000 !important; padding: 5px !important; }
-        thead { display: table-header-group; }
-        tfoot { display: table-row-group; } 
-        tr { page-break-inside: avoid; }
+        #summaryTitle, #summaryDate { text-align: center !important; display: block !important; }
+        /* Ẩn viền input khi in */
+        .dynamic-input { border: none !important; background: transparent !important; }
     }
+    
+    .nav-header { border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+    .summary-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; padding: 0 10px; }
+    .home-actions, .report-actions-grid { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+    #actionButtonContainer { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; padding: 0 10px;}
+    #actionChoices { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; grid-column: 1 / -1; }
+    .debt-mode-selector { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #eee; }
+    .ticket-type-selector { display: flex; flex-wrap: wrap; gap: 15px; }
+    .sell-row-container { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+    .sell-row-container > label { min-width: 80px; }
+    .main-copyright { text-align: center; margin-top: 30px; font-size: 12px; color: #aaa; }
   </style>
 </head>
 <body>
@@ -254,23 +273,23 @@
     <h2>Báo cáo Thu Tiền</h2>
     
     <div class="controls-panel">
-        <div class="mode-switch" style="display:flex; margin-bottom:15px; border-bottom:1px solid #ddd;">
-            <button id="tabExcel" class="tab-btn active" style="flex:1; border-radius: 6px 6px 0 0; background:var(--primary-color); color:white;">Nhập Excel</button>
-            <button id="tabRaw" class="tab-btn secondary" style="flex:1; border-radius: 6px 6px 0 0; background: #ecf0f1; color: var(--text-color);">Dữ liệu thô</button>
+        <div class="mode-switch">
+            <button id="tabExcel" class="tab-btn active">Nhập Excel</button>
+            <button id="tabRaw" class="tab-btn">Dữ liệu thô</button>
         </div>
 
-        <div id="panelExcel">
+        <div id="panelExcel" style="margin-top: 15px;">
             <label for="excelFile1">Chọn file Biểu 31 (Lô tô):</label>
             <input type="file" id="excelFile1" accept=".xls,.xlsx">
+            <div style="height: 10px;"></div>
             <label for="excelFile2">Chọn file Biểu 35 (XSKT - Tùy chọn):</label>
             <input type="file" id="excelFile2" accept=".xls,.xlsx">
         </div>
 
-        <div id="panelRaw" style="display:none;">
+        <div id="panelRaw" style="display:none; margin-top: 15px;">
             <label for="rawInput">Dán dữ liệu từ Clipboard:</label>
-            <textarea id="rawInput" rows="8" placeholder='Ví dụ: 
-"Từ ngày 01/12/2025 đến ngày 06/12/2025..."
-"U966","01/12","LT","140","11,2","0","128,8"' style="font-family: monospace; font-size: 13px; white-space: pre; overflow-x: auto;"></textarea>
+            <textarea id="rawInput" rows="6" placeholder='Ví dụ: 
+"U966","01/12","LT","140","11,2","0","128,8"' style="font-family: monospace; white-space: pre; overflow-x: auto;"></textarea>
             <div style="font-size: 12px; color: var(--text-light); margin-top: 5px; font-style: italic;">
                 * Hỗ trợ format: "Mã","Ngày","LH","Doanh thu","Hoa hồng","Thưởng","Nộp"
             </div>
@@ -295,79 +314,76 @@
         <div class="nav-header">
             <button class="back-btn" id="btnBackFromSummary">⬅ Quay lại Tra cứu</button>
         </div>
-        <div class="controls-panel" style="margin-bottom: 15px; padding: 15px;">
+        <div class="controls-panel">
             <div class="filter-grid-container">
                 <div class="filter-column">
                     <div id="regionLockContainer" class="region-lock-container">
-                        <div style="display: flex; justify-content: flex-start; align-items: center; gap: 10px; margin-bottom: 5px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                             <label style="margin: 0;">Định nghĩa Vùng:</label>
                             <button id="btnSaveRegions" class="success" style="padding: 4px 10px; font-size: 12px; width: auto;">Lưu Định nghĩa</button>
                         </div>
-                        <textarea id="regionDefinitionsInput" rows="3" placeholder="Đang tải dữ liệu từ máy chủ..."></textarea>
+                        <textarea id="regionDefinitionsInput" rows="2" placeholder="Đang tải dữ liệu..."></textarea>
                     </div>
                 </div>
             </div>
 
-            <div id="debtContainer" style="margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 15px;">
-                 <label style="color: var(--danger-color); font-weight: 600;">Quản lý Nợ cũ:</label>
+            <div id="debtContainer" style="margin-top: 15px; border-top: 1px dashed #dcdde1; padding-top: 15px;">
+                 <label style="color: var(--danger-color); font-weight: 700;">Quản lý Nợ cũ:</label>
                  <div class="debt-mode-selector">
                     <div class="options">
-                        <label><input type="radio" name="debtMode" value="manual"> Nhập thủ công</label>
-                        <label><input type="radio" name="debtMode" value="excel"> Nhập Excel (tienno.xls)</label>
+                        <label><input type="radio" name="debtMode" value="manual"> Thủ công</label>
+                        <label><input type="radio" name="debtMode" value="excel"> Excel (tienno.xls)</label>
                     </div>
                     <div style="display: flex; gap: 5px;">
-                        <button id="btnApplyDebt" class="warning" style="display:none; padding: 6px 15px; width: auto; font-size: 14px;">Cập nhật</button>
-                        <button id="btnClearDebt" class="danger" style="padding: 6px 15px; width: auto; font-size: 14px;">Xóa Nợ</button>
+                        <button id="btnApplyDebt" class="warning" style="display:none; padding: 6px 15px; width: auto; font-size: 13px;">Cập nhật</button>
+                        <button id="btnClearDebt" class="danger" style="padding: 6px 15px; width: auto; font-size: 13px;">Xóa Nợ</button>
                     </div>
                  </div>
-                 <div id="debtManualContainer" style="display: none;">
-                     <label style="font-size: 0.9em; color: var(--text-light);">Nhập Mã+Tiền (VD: 980 1000)</label>
-                     <textarea id="debtInput" rows="3" placeholder="Ví dụ:&#10;980 1000&#10;966+200&#10;U999:500"></textarea>
+                 <div id="debtManualContainer" style="display: none; margin-top: 10px;">
+                     <textarea id="debtInput" rows="2" placeholder="Nhập Mã+Tiền (VD: 980 1000)"></textarea>
                  </div>
-                 <div id="debtExcelContainer" style="display: none;">
-                     <label for="debtFile" style="font-size: 0.9em; color: var(--text-light);">Chọn file tienno.xls (Cột A: Mã, Cột B: Tiền)</label>
+                 <div id="debtExcelContainer" style="display: none; margin-top: 10px;">
                      <input type="file" id="debtFile" accept=".xls,.xlsx">
                  </div>
-                 <div id="debtStatusMsg" style="font-size: 14px; color: var(--success-color); font-weight: 500; margin-top: 5px; display: none;"></div>
+                 <div id="debtStatusMsg" style="font-size: 13px; color: var(--success-color); font-weight: 600; margin-top: 5px; display: none;"></div>
             </div>
-            <hr style="border-color: var(--border-color); margin: 20px 0 15px 0; border-style: dashed;">
-            <div class="revenue-filter-grid">
+            
+            <div class="revenue-filter-grid" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #dcdde1;">
                 <div class="revenue-filter-col-left filter-column">
                     <div class="filter-column">
-                        <label>Sắp xếp theo:</label>
-                        <select id="sortSelect"><option value="default">Mặc định (Số sổ)</option><option value="revenue_desc">Doanh số (Cao đến Thấp)</option><option value="revenue_asc">Doanh số (Thấp đến Cao)</option></select>
+                        <label>Sắp xếp:</label>
+                        <select id="sortSelect"><option value="default">Mặc định</option><option value="revenue_desc">Doanh số (Cao-Thấp)</option><option value="revenue_asc">Doanh số (Thấp-Cao)</option></select>
                     </div>
                     <div class="filter-column">
-                        <label>Doanh số từ... trở lên:</label>
-                        <input type="text" id="minRevenueInput" class="manual-currency" inputmode="numeric" placeholder="Ví dụ: 300">
+                        <label>Doanh số từ:</label>
+                        <input type="text" id="minRevenueInput" class="manual-currency" inputmode="numeric" placeholder="VD: 300">
                     </div>
                     <div class="filter-column">
-                        <label>Doanh số từ... trở xuống:</label>
-                        <input type="text" id="maxRevenueInput" class="manual-currency" inputmode="numeric" placeholder="Để trống = Tối đa">
+                        <label>Đến:</label>
+                        <input type="text" id="maxRevenueInput" class="manual-currency" inputmode="numeric" placeholder="Tối đa">
                     </div>
                 </div>
                 <div class="revenue-filter-col-right filter-column">
-                    <label>Chọn Đơn vị:</label>
-                    <div style="display: flex; gap: 5px; align-items: center;">
-                        <select id="regionSelect" style="flex-grow: 1; width: 100%;"><option value="all">--- Tất cả ---</option></select>
-                        <button id="btnClearRevenueFilter" class="secondary" style="padding: 6px 15px; font-size: 14px; white-space: nowrap; width: auto; flex-grow: 0;">Mặc định</button>
+                    <label>Đơn vị:</label>
+                    <div style="display: flex; gap: 5px;">
+                        <select id="regionSelect" style="flex-grow: 1;"><option value="all">--- Tất cả ---</option></select>
+                        <button id="btnClearRevenueFilter" class="secondary" style="padding: 0 15px; width: auto;">X</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <h3 id="summaryTitle">Bảng Báo Cáo Tổng Hợp:</h3>
+        <h3 id="summaryTitle" style="margin-top: 20px;">Bảng Báo Cáo Tổng Hợp:</h3>
         <h4 id="summaryDate" class="report-date"></h4>
         <div id="summaryTableContainer"></div>
         <div class="summary-actions">
-            <button id="btnCopySummary" class="success">Copy Ảnh</button>
-            <button id="btnPrintReport" class="secondary">In Báo Cáo</button>
-            <button id="btnExportExcel" class="success" style="background-color: #217346;">Tải Excel</button>
+            <button id="btnCopySummary" class="success">📷 Copy Ảnh</button>
+            <button id="btnPrintReport" class="secondary">🖨️ In</button>
+            <button id="btnExportExcel" class="success" style="background-color: #217346;">Excel</button>
         </div>
     </div>
 
     <div id="reportSection" class="main-section" style="display: none;">
-        
         <div class="home-menu-grid">
             <button class="home-menu-btn" id="btnGoToSummary">📊 Xem Tổng hợp</button>
             <button class="home-menu-btn" id="btnGoToSell">🎫 Bán thêm Vé</button>
@@ -377,8 +393,8 @@
         <div class="controls-panel">
             <label for="soSoInput">Nhập số sổ:</label>
             <div class="input-group-row">
-                <input type="text" id="soSoInput" inputmode="numeric" placeholder="Số sổ...">
-                <div style="display:flex; gap: 5px; width: 100%;">
+                <input type="text" id="soSoInput" inputmode="numeric" placeholder="968">
+                <div class="buttons-container">
                     <button id="btnCreateDailyReport" class="success">Báo Cáo Ngày</button>
                     <button id="btnCreateSummaryReport" class="warning">Báo Cáo Tổng</button>
                     <button id="btnShowManualReport_inline" class="warning">Thủ công</button>
@@ -388,7 +404,7 @@
         <div id="reportContainer"></div>
         
         <div id="actionButtonContainer">
-            <button id="btnCopyReport">Copy Ảnh</button>
+            <button id="btnCopyReport" class="success">📷 Copy Ảnh</button>
             <button id="toggleChoicesBtn" class="secondary">Thêm tiền Thưởng/Nợ</button>
             <div id="actionChoices"></div>
         </div>
@@ -396,10 +412,9 @@
 
     <div id="sellSection" class="main-section" style="display: none;">
         <div class="nav-header">
-            <button class="back-btn" id="btnBackFromSell">⬅ Quay lại Tra cứu</button>
+            <button class="back-btn" id="btnBackFromSell">⬅ Quay lại</button>
         </div>
         <h3>Bán thêm Vé</h3>
-        <p class="context-note">Vé sẽ được thêm vào báo cáo chi tiết đang được hiển thị.</p>
         
         <div id="sellTicketControls" class="controls-panel">
             <div class="sell-row-container">
@@ -407,24 +422,24 @@
                 <div class="ticket-type-selector">
                     <label><input type="radio" name="sellTicketType" value="xo-so" checked> Xổ số</label>
                     <label><input type="radio" name="sellTicketType" value="ve-boc"> Vé bóc</label>
-                    <label><input type="radio" name="sellTicketType" value="custom-name"> Tự nhập tên</label>
+                    <label><input type="radio" name="sellTicketType" value="custom-name"> Khác</label>
                 </div>
             </div>
-            <div style="padding-left: 90px; margin-bottom: 5px;">
-                <input type="text" id="customTicketName" placeholder="Nhập tên loại hình..." style="display:none;">
+            <div style="padding-left: 90px; margin-bottom: 10px;">
+                <input type="text" id="customTicketName" placeholder="Nhập tên..." style="display:none;">
             </div>
 
             <div class="sell-row-container">
                 <label>Giá bán:</label>
                 <div class="ticket-type-selector">
-                    <label><input type="radio" name="sellPrice" value="10000" checked> 10.000</label>
-                    <label><input type="radio" name="sellPrice" value="20000"> 20.000</label>
-                    <label><input type="radio" name="sellPrice" value="5000"> 5.000</label>
-                    <label><input type="radio" name="sellPrice" value="custom-price"> Tự nhập giá</label>
+                    <label><input type="radio" name="sellPrice" value="10000" checked> 10k</label>
+                    <label><input type="radio" name="sellPrice" value="20000"> 20k</label>
+                    <label><input type="radio" name="sellPrice" value="5000"> 5k</label>
+                    <label><input type="radio" name="sellPrice" value="custom-price"> Khác</label>
                 </div>
             </div>
-            <div style="padding-left: 90px; margin-bottom: 5px;">
-                <input type="text" id="customTicketPrice" inputmode="numeric" placeholder="Nhập giá bán..." style="display:none;">
+            <div style="padding-left: 90px; margin-bottom: 10px;">
+                <input type="text" id="customTicketPrice" inputmode="numeric" placeholder="Nhập giá..." style="display:none;">
             </div>
 
             <div class="sell-row-container">
@@ -432,22 +447,23 @@
                 <div class="ticket-type-selector">
                     <label><input type="radio" name="sellRate" value="10" checked> 10%</label>
                     <label><input type="radio" name="sellRate" value="12"> 12%</label>
-                    <label><input type="radio" name="sellRate" value="custom-rate"> Tự nhập %</label>
+                    <label><input type="radio" name="sellRate" value="custom-rate"> Khác</label>
                 </div>
             </div>
             <div style="padding-left: 90px; margin-bottom: 10px;">
-                <input type="number" id="customTicketRate" placeholder="Nhập % hoa hồng (VD: 15)..." style="display:none;">
+                <input type="number" id="customTicketRate" placeholder="Nhập %..." style="display:none;">
             </div>
 
             <div class="sell-row-container">
                 <label>Số lượng:</label>
-                <div class="input-group-row" style="flex-grow: 1; max-width: 250px;">
-                    <input type="number" id="sellQuantityInput" placeholder="Số lượng..." min="0">
-                    <button id="btnAddTicket" class="success">Thêm vé</button>
+                <div class="input-group-row">
+                    <input type="number" id="sellQuantityInput" placeholder="SL..." min="0">
+                    <div class="buttons-container">
+                        <button id="btnAddTicket" class="success">Thêm</button>
+                    </div>
                 </div>
             </div>
         </div>
-
     </div>
     <div class="main-copyright">© 2025 ZENG FINANCE</div>
   </div>
@@ -455,11 +471,11 @@
    <div id="manualInputModal" class="modal-overlay">
      <div class="modal-content">
        <span id="closeModalBtn" class="modal-close-btn">&times;</span>
-       <div class="controls-panel"> 
+       <div class="controls-panel" style="background:transparent; border:none; padding:0; margin:0;"> 
            <h4 style="margin-top:0;">Thêm Báo Cáo Thủ Công</h4>
            <div style="display: grid; gap: 10px;">
                <input type="text" id="manualAgentName" placeholder="Tên Đại Lý">
-               <input type="text" id="manualDateRange" placeholder="Thời gian">
+               <input type="text" id="manualDateRange" placeholder="Thời gian (VD: 01/01)">
                <input type="text" id="manualLotoDB" class="manual-currency" inputmode="decimal" placeholder="Lô tô ĐB">
                <input type="text" id="manualLoCap" class="manual-currency" inputmode="decimal" placeholder="Lô cặp">
                <input type="text" id="manualC227" class="manual-currency" inputmode="decimal" placeholder="2/27">
@@ -475,19 +491,22 @@
    </div>
 
    <div id="imagePreviewModal" class="modal-overlay">
-     <div class="modal-content">
+     <div class="modal-content" style="max-width: 95%; width: auto;">
        <span id="closePreviewModalBtn" class="modal-close-btn">&times;</span>
        <h4 style="margin-top:0; text-align:center;">Sao chép Ảnh</h4>
-       <img id="imagePreviewHolder" src="" style="width: 100%; border: 1px solid #ddd;">
+       <div style="overflow: auto; max-height: 80vh;">
+           <img id="imagePreviewHolder" src="" style="width: 100%; border: 1px solid #ddd;">
+       </div>
+       <p style="text-align:center; font-size:13px; color:#777;">Nhấn giữ ảnh để sao chép hoặc lưu</p>
      </div>
    </div>
 
     <div id="passwordModal" class="modal-overlay">
        <div class="modal-content">
         <span id="closePasswordModalBtn" class="modal-close-btn">&times;</span>
-        <div class="controls-panel" style="border: none; padding: 10px 0;"> 
+        <div class="controls-panel" style="border: none; padding: 10px 0; background:transparent;"> 
             <h4 style="margin-top:0;">Yêu cầu Mật khẩu</h4>
-            <input type="password" id="passwordInput" style="font-size: 18px;">
+            <input type="password" id="passwordInput" style="font-size: 18px; text-align:center;">
             <div style="margin-top: 15px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                 <button id="cancelPasswordBtn" class="secondary">Huỷ</button>
                 <button id="btnSubmitPassword" class="success">Xác nhận</button>
@@ -496,8 +515,8 @@
       </div>
     </div>
 
-  <button id="scrollToTopBtn">&#9650;</button>
-  <button id="scrollToBottomBtn">&#9660;</button>
+  <button id="scrollToTopBtn">⬆</button>
+  <button id="scrollToBottomBtn">⬇</button>
 
 <script>
 'use strict';
@@ -529,7 +548,6 @@
         summaryTableContainer: document.getElementById('summaryTableContainer'), summaryDate: document.getElementById('summaryDate'), summaryTitle: document.getElementById('summaryTitle'),
         soSoInput: document.getElementById('soSoInput'),
         
-        // 2 Nút báo cáo
         btnCreateDailyReport: document.getElementById('btnCreateDailyReport'), btnCreateSummaryReport: document.getElementById('btnCreateSummaryReport'),
         
         reportContainer: document.getElementById('reportContainer'),
@@ -556,7 +574,6 @@
     
     const manualFormOrder = ['manualAgentName', 'manualDateRange', 'manualLotoDB', 'manualLoCap', 'manualC227', 'manualC323', 'manualThuong'];
 
-    // --- KHỞI TẠO BAN ĐẦU: Ẩn nút Daily vì mặc định là Excel ---
     if(DOM.btnCreateDailyReport) DOM.btnCreateDailyReport.style.display = 'none';
 
     function showNotification(message, type='info', duration=3000) { const n=document.createElement('div'); n.className=`notification ${type}`; n.textContent=message; DOM.notificationArea.appendChild(n); n.offsetHeight; n.classList.add('show'); setTimeout(()=>{ n.classList.remove('show'); n.addEventListener('transitionend', ()=>n.remove()); }, duration); }
@@ -605,72 +622,65 @@
     async function copyElementAsImage(sel, msg, btn) { 
         const el = document.querySelector(sel); 
         if(!el || !el.innerHTML.trim()) return showNotification("Chưa có nội dung!", 'info');
-        
-        const oldTxt = btn ? btn.textContent : ''; 
-        if(btn) btn.textContent = 'Đang xử lý...';
-        
+        const oldTxt = btn ? btn.textContent : ''; if(btn) btn.textContent = 'Đang xử lý...';
         const hiddenEls = [
-            el.querySelector('.summary-actions'), 
-            el.querySelector('.controls-panel'), 
-            document.getElementById('actionButtonContainer'),
-            document.getElementById('sellTicketControls'),
-            el.querySelector('.nav-header'),
-            document.querySelector('.home-menu-grid')
+            el.querySelector('.summary-actions'), el.querySelector('.controls-panel'), 
+            document.getElementById('actionButtonContainer'), document.getElementById('sellTicketControls'),
+            el.querySelector('.nav-header'), document.querySelector('.home-menu-grid'),
+            document.getElementById('scrollToTopBtn'), document.getElementById('scrollToBottomBtn')
         ].filter(Boolean);
         hiddenEls.forEach(e => e.style.display = 'none'); 
-
         const footer = document.createElement('div');
         footer.innerText = "© 2025 ZENG FINANCE";
         footer.style.width = "100%"; footer.style.textAlign = "center"; footer.style.marginTop = "20px"; footer.style.padding = "10px 0"; footer.style.fontSize = "14px"; footer.style.fontWeight = "bold"; footer.style.color = "#7f8c8d"; footer.style.backgroundColor = "#ffffff";
         el.appendChild(footer);
 
-        let originalOverflow = '';
-        if(sel === '#summarySection'){ 
-            const table = DOM.summaryTableContainer.querySelector('table');
-            if(table){
-                    originalOverflow = DOM.summaryTableContainer.style.overflowX;
-                    DOM.summaryTableContainer.style.width = `${table.scrollWidth + 20}px`;
-                    DOM.summaryTableContainer.style.overflowX = 'visible';
-                    DOM.summarySection.style.width = `${table.scrollWidth + 40}px`;
-                    DOM.mainPage.style.maxWidth = 'none';
-            }
-        }
-        
-        let originalReportWidth = '';
-        if(sel === '#reportContainer') {
-             const table = el.querySelector('table');
-             if(table && table.scrollWidth > el.clientWidth) {
-                 originalReportWidth = el.style.width;
-                 el.style.width = `${table.scrollWidth + 20}px`;
-             }
+        const tableContainer = document.getElementById('summaryTableContainer');
+        const reportContainer = document.getElementById('reportContainer');
+        let targetContainer = null;
+        if (sel === '#summarySection' && tableContainer) targetContainer = tableContainer;
+        else if (sel === '#reportContainer' && reportContainer) targetContainer = reportContainer;
+
+        const originalStyles = { maxHeight: '', overflowX: '', overflowY: '', width: '' };
+        let stickyElements = [];
+
+        if (targetContainer) {
+            originalStyles.maxHeight = targetContainer.style.maxHeight;
+            originalStyles.overflowX = targetContainer.style.overflowX;
+            originalStyles.overflowY = targetContainer.style.overflowY;
+            targetContainer.style.maxHeight = 'none'; targetContainer.style.overflow = 'visible';
+            stickyElements = Array.from(targetContainer.querySelectorAll('th, tfoot td'));
+            stickyElements.forEach(elem => { elem.dataset.originalPosition = elem.style.position; elem.style.position = 'static'; elem.style.borderTop = '1px solid #dfe6e9'; });
+            const table = targetContainer.querySelector('table');
+            if (table && table.scrollWidth > window.innerWidth) { targetContainer.style.width = table.scrollWidth + 'px'; el.style.width = table.scrollWidth + 40 + 'px'; }
         }
 
         setTimeout(async()=>{
             try {
-                const canvas = await html2canvas(el, { backgroundColor: "#ffffff", scale: 2, useCORS: true, scrollY: -window.scrollY });
+                window.scrollTo(0,0);
+                const canvas = await html2canvas(el, { backgroundColor: "#ffffff", scale: 2, useCORS: true, scrollY: 0, x: 0, y: 0, width: el.scrollWidth, height: el.scrollHeight });
                 canvas.toBlob(async(blob)=>{
                     try { await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); showNotification(msg, 'success'); }
-                    catch(err) { console.error(err); DOM.imagePreviewHolder.src = canvas.toDataURL(); DOM.imagePreviewModal.style.display = 'block'; showNotification('Copy thủ công từ ảnh dưới.', 'info'); }
+                    catch(err) { console.error(err); DOM.imagePreviewHolder.src = canvas.toDataURL(); DOM.imagePreviewModal.style.display = 'block'; showNotification('Nhấn giữ ảnh để lưu', 'info'); }
                 });
             } catch(e){ console.error(e); showNotification('Lỗi tạo ảnh', 'error'); }
             finally {
                 if(footer && footer.parentNode) footer.parentNode.removeChild(footer);
-                hiddenEls.forEach(e => e.style.display = ''); 
-                if(btn) btn.textContent = oldTxt;
-                if(sel === '#summarySection'){ DOM.summaryTableContainer.style.width = ''; DOM.summaryTableContainer.style.overflowX = originalOverflow; DOM.summarySection.style.width = ''; DOM.mainPage.style.maxWidth = ''; }
-                if(sel === '#reportContainer' && originalReportWidth !== '') { el.style.width = originalReportWidth; }
+                hiddenEls.forEach(e => e.style.display = ''); if(btn) btn.textContent = oldTxt;
+                if (targetContainer) {
+                    targetContainer.style.maxHeight = originalStyles.maxHeight; targetContainer.style.overflowX = originalStyles.overflowX; targetContainer.style.overflowY = originalStyles.overflowY; targetContainer.style.width = ''; el.style.width = '';
+                    stickyElements.forEach(elem => { elem.style.position = elem.dataset.originalPosition || ''; elem.style.borderTop = ''; });
+                }
             }
         }, 100);
     }
 
     function handleFile(file, num, inputId) {
-        if(!file) return;
-        showLoading(); const reader=new FileReader();
+        if(!file) return; showLoading(); const reader=new FileReader();
         reader.onload=(e)=>{
             try {
                 const data=new Uint8Array(e.target.result); const wb=XLSX.read(data,{type:"array"}); const ws=wb.Sheets[wb.SheetNames[0]]; const json=XLSX.utils.sheet_to_json(ws,{defval:""});
                 if(!json.length) throw new Error("File rỗng");
-                
                 if(num===1) { 
                     excelData1=json; 
                     let dr=json.find(r=>Object.values(r).some(v=>typeof v==="string" && (v.includes("Tõ ngµy") || v.includes("Ngµy"))));
@@ -681,41 +691,29 @@
                         if(mRange) { dateRangeText=(mRange[1]===mRange[2]?`Ngày ${mRange[1]}`:`Từ ${mRange[1]} đến ${mRange[2]}`); } else if (mSingle) { dateRangeText = `Ngày ${mSingle[1]}`; }
                     }
                 } else excelData2=json;
-                document.getElementById(inputId).classList.add('loaded'); showNotification("Đã nạp file thành công!",'success');
+                document.getElementById(inputId).classList.add('loaded'); showNotification("Đã nạp file!",'success');
             } catch(err) { console.error(err); showNotification("Lỗi đọc file: "+err.message,'error'); } finally { hideLoading(); }
         }; reader.readAsArrayBuffer(file);
     }
 
     function parseRawDataInput() {
-        const text = DOM.rawInput.value.trim();
-        if(!text) return false;
-        
-        rawDataMap = new Map();
-        rawDateRange = "Chưa có ngày";
-
-        const lines = text.split('\n');
-        const dateRegex = /Từ ngày\s+(\d{2}\/\d{2}\/\d{4})\s+đến ngày\s+(\d{2}\/\d{2}\/\d{4})/i;
-        const csvRegex = /^"([^"]+)","([^"]+)","([^"]+)","([^"]+)","([^"]+)","([^"]+)","([^"]+)"/;
-
+        const text = DOM.rawInput.value.trim(); if(!text) return false;
+        rawDataMap = new Map(); rawDateRange = "Chưa có ngày";
+        const lines = text.split('\n'); const dateRegex = /Từ ngày\s+(\d{2}\/\d{2}\/\d{4})\s+đến ngày\s+(\d{2}\/\d{2}\/\d{4})/i; const csvRegex = /^"([^"]+)","([^"]+)","([^"]+)","([^"]+)","([^"]+)","([^"]+)","([^"]+)"/;
         let count = 0;
         lines.forEach(line => {
-            line = line.trim();
-            if(!line) return;
-            const dateMatch = line.match(dateRegex);
-            if(dateMatch) { rawDateRange = `Từ ${dateMatch[1].slice(0,5)} đến ${dateMatch[2].slice(0,5)}`; return; }
+            line = line.trim(); if(!line) return;
+            const dateMatch = line.match(dateRegex); if(dateMatch) { rawDateRange = `Từ ${dateMatch[1].slice(0,5)} đến ${dateMatch[2].slice(0,5)}`; return; }
             const match = line.match(csvRegex);
             if(match) {
-                const code = match[1];
-                if(code === "Mã ĐL") return;
+                const code = match[1]; if(code === "Mã ĐL") return;
                 const parseVNNum = (str) => { let s = str.replace(/\./g, ''); s = s.replace(/,/g, '.'); return parseFloat(s) * 1000; };
                 const item = { date: match[2], type: match[3], rev: parseVNNum(match[4]), com: parseVNNum(match[5]), bonus: parseVNNum(match[6]), net: parseVNNum(match[7]) };
-                if(!rawDataMap.has(code)) rawDataMap.set(code, []);
-                rawDataMap.get(code).push(item);
-                count++;
+                if(!rawDataMap.has(code)) rawDataMap.set(code, []); rawDataMap.get(code).push(item); count++;
             }
         });
-        if(count > 0) { dateRangeText = rawDateRange; showNotification(`Đã nạp ${count} dòng dữ liệu thô!`, 'success'); return true; } 
-        else { showNotification("Không tìm thấy dữ liệu hợp lệ!", 'error'); return false; }
+        if(count > 0) { dateRangeText = rawDateRange; showNotification(`Đã nạp ${count} dòng!`, 'success'); return true; } 
+        else { showNotification("Dữ liệu không hợp lệ!", 'error'); return false; }
     }
 
     function parseDebtData() {
@@ -739,15 +737,9 @@
             try {
                 const d=new Uint8Array(e.target.result), wb=XLSX.read(d,{type:"array"}), ws=wb.Sheets[wb.SheetNames[0]], json=XLSX.utils.sheet_to_json(ws,{header:1});
                 debtData=new Map(); isDebtFromExcel=true; let count=0;
-                json.forEach(row=>{
-                    if(row.length>=2) {
-                        const c=String(row[0]).trim(); if(c.toLowerCase().includes("mã")||c==="") return;
-                        const amt=parseFloat(String(row[1]).replace(/[.,]/g,''));
-                        if(!isNaN(amt)) { debtData.set(c, amt*1000); count++; }
-                    }
-                });
+                json.forEach(row=>{ if(row.length>=2) { const c=String(row[0]).trim(); if(c.toLowerCase().includes("mã")||c==="") return; const amt=parseFloat(String(row[1]).replace(/[.,]/g,'')); if(!isNaN(amt)) { debtData.set(c, amt*1000); count++; } } });
                 if(count>0) { DOM.debtStatusMsg.textContent=`Excel: ${count} đại lý nợ.`; DOM.debtStatusMsg.style.display='block'; DOM.debtFile.classList.add('loaded'); generateSummaryView(); }
-                else { showNotification("File nợ không hợp lệ",'warning'); isDebtFromExcel=false; }
+                else { showNotification("File nợ lỗi",'warning'); isDebtFromExcel=false; }
             } catch(err) { console.error(err); showNotification("Lỗi file nợ",'error'); } finally { hideLoading(); }
         }; r.readAsArrayBuffer(file);
     }
@@ -759,15 +751,8 @@
         if(appMode === 'excel') {
             const map=new Map();
             const init=(c)=>{ if(!map.has(c)) map.set(c,{totRev:0,totCom:0,lotoDB:0,lotoCap:0,c227:0,c323:0,xskt:0,thuong:0,debt:0}); };
-            excelData1.forEach(r=>{
-                const c=String(r.__EMPTY||'').trim(); if(!c||!/\d/.test(c)) return; init(c); const d=map.get(c);
-                const ldb=parseFloat(r.__EMPTY_2)||0, lc=parseFloat(r.__EMPTY_6)||0, c2=parseFloat(r.__EMPTY_8)||0, c3=parseFloat(r.__EMPTY_10)||0, th=parseFloat(r.__EMPTY_14)||0;
-                d.lotoDB+=ldb; d.lotoCap+=lc; d.c227+=c2; d.c323+=c3; d.thuong+=th; d.totRev+=ldb+lc+c2+c3; d.totCom+=(ldb*0.08)+(lc*0.1)+(c2*0.1)+(c3*0.1);
-            });
-            excelData2.forEach(r=>{
-                const c=String(r.__EMPTY||r.__EMPTY_1||'').trim(); if(!c||!/\d/.test(c)) return; init(c); const d=map.get(c);
-                const x=(parseFloat(r.__EMPTY_7)||0)*1000; d.xskt+=x; d.totRev+=x; d.totCom+=x*0.1;
-            });
+            excelData1.forEach(r=>{ const c=String(r.__EMPTY||'').trim(); if(!c||!/\d/.test(c)) return; init(c); const d=map.get(c); const ldb=parseFloat(r.__EMPTY_2)||0, lc=parseFloat(r.__EMPTY_6)||0, c2=parseFloat(r.__EMPTY_8)||0, c3=parseFloat(r.__EMPTY_10)||0, th=parseFloat(r.__EMPTY_14)||0; d.lotoDB+=ldb; d.lotoCap+=lc; d.c227+=c2; d.c323+=c3; d.thuong+=th; d.totRev+=ldb+lc+c2+c3; d.totCom+=(ldb*0.08)+(lc*0.1)+(c2*0.1)+(c3*0.1); });
+            excelData2.forEach(r=>{ const c=String(r.__EMPTY||r.__EMPTY_1||'').trim(); if(!c||!/\d/.test(c)) return; init(c); const d=map.get(c); const x=(parseFloat(r.__EMPTY_7)||0)*1000; d.xskt+=x; d.totRev+=x; d.totCom+=x*0.1; });
             debtData.forEach((v,k)=>{ init(k); map.get(k).debt=v; });
             const keys=[...map.keys()]; keys.forEach(k=>{ const d=map.get(k); if(d.totRev===0 && d.debt===0 && d.thuong===0) map.delete(k); });
             
@@ -775,49 +760,24 @@
             if(regionRules) map.forEach((v,k)=>{ const numMatch=String(k).match(/\d+$/); if(numMatch){ const n=parseInt(numMatch[0],10); if(regionRules.some(r=>n>=r.min && n<=r.max)) filteredMap.set(k,v); } }); else filteredMap=map;
             
             const sortedKeys=[...filteredMap.keys()].sort((a,b)=>{ const na=parseInt(String(a).match(/\d+$/)?.[0]||0), nb=parseInt(String(b).match(/\d+$/)?.[0]||0); return na-nb; });
-            sortedKeys.forEach(k=>{
-                const gk=parseInt(String(k).match(/\d+$/)?.[0]||k); if(!groups.has(gk)) groups.set(gk,{agents:[],gt:0,gr:0,gth:0,gdb:0,gx:0});
-                const g=groups.get(gk), d=filteredMap.get(k), final=(d.totRev-d.totCom-d.thuong)+d.debt;
-                g.agents.push({code:k,data:d});
-                g.gt+=final; g.gr+=d.totRev; g.gth+=d.thuong; g.gdb+=d.lotoDB; g.gx+=d.xskt;
-            });
+            sortedKeys.forEach(k=>{ const gk=parseInt(String(k).match(/\d+$/)?.[0]||k); if(!groups.has(gk)) groups.set(gk,{agents:[],gt:0,gr:0,gth:0,gdb:0,gx:0}); const g=groups.get(gk), d=filteredMap.get(k), final=(d.totRev-d.totCom-d.thuong)+d.debt; g.agents.push({code:k,data:d}); g.gt+=final; g.gr+=d.totRev; g.gth+=d.thuong; g.gdb+=d.lotoDB; g.gx+=d.xskt; });
             
             const finalGroups=new Map();
             if(revFilter) groups.forEach((v,k)=>{ if(v.gr>=revFilter.min && v.gr<=revFilter.max) finalGroups.set(k,v); }); else return {groups, totals:{}};
-            finalGroups.forEach(g=>{ g.agents.forEach(a=>{ 
-                const d=a.data; totals.rev+=d.totRev; totals.th+=d.thuong; totals.debt+=d.debt; 
-                totals.lotoDB+=d.lotoDB; totals.lotoCap+=d.lotoCap; totals.c227+=d.c227; totals.c323+=d.c323; totals.xskt+=d.xskt;
-                totals.final+=(d.totRev-d.totCom-d.thuong)+d.debt;
-            });});
+            finalGroups.forEach(g=>{ g.agents.forEach(a=>{ const d=a.data; totals.rev+=d.totRev; totals.th+=d.thuong; totals.debt+=d.debt; totals.lotoDB+=d.lotoDB; totals.lotoCap+=d.lotoCap; totals.c227+=d.c227; totals.c323+=d.c323; totals.xskt+=d.xskt; totals.final+=(d.totRev-d.totCom-d.thuong)+d.debt; });});
             return {groups:finalGroups, totals};
-
         } else {
             const map = new Map();
             const init=(c)=>{ if(!map.has(c)) map.set(c,{totRev:0,totCom:0,lotoDB:0,lotoCap:0,c227:0,c323:0,xskt:0,thuong:0,debt:0}); };
-            
-            rawDataMap.forEach((items, code) => {
-                init(code); const d = map.get(code);
-                items.forEach(item => { d.totRev += item.rev; d.totCom += item.com; d.thuong += item.bonus; d.lotoDB += item.rev; });
-            });
+            rawDataMap.forEach((items, code) => { init(code); const d = map.get(code); items.forEach(item => { d.totRev += item.rev; d.totCom += item.com; d.thuong += item.bonus; d.lotoDB += item.rev; }); });
             debtData.forEach((v,k)=>{ init(k); map.get(k).debt=v; });
-
             let filteredMap=new Map();
             if(regionRules) map.forEach((v,k)=>{ const numMatch=String(k).match(/\d+$/); if(numMatch){ const n=parseInt(numMatch[0],10); if(regionRules.some(r=>n>=r.min && n<=r.max)) filteredMap.set(k,v); } }); else filteredMap=map;
             const sortedKeys=[...filteredMap.keys()].sort((a,b)=>{ const na=parseInt(String(a).match(/\d+$/)?.[0]||0), nb=parseInt(String(b).match(/\d+$/)?.[0]||0); return na-nb; });
-
-            sortedKeys.forEach(k=>{
-                const gk=parseInt(String(k).match(/\d+$/)?.[0]||k); if(!groups.has(gk)) groups.set(gk,{agents:[],gt:0,gr:0,gth:0,gdb:0,gx:0});
-                const g=groups.get(gk), d=filteredMap.get(k), final=(d.totRev-d.totCom-d.thuong)+d.debt;
-                g.agents.push({code:k,data:d});
-                g.gt+=final; g.gr+=d.totRev; g.gth+=d.thuong; g.gdb+=d.lotoDB; g.gx+=d.xskt;
-            });
-
+            sortedKeys.forEach(k=>{ const gk=parseInt(String(k).match(/\d+$/)?.[0]||k); if(!groups.has(gk)) groups.set(gk,{agents:[],gt:0,gr:0,gth:0,gdb:0,gx:0}); const g=groups.get(gk), d=filteredMap.get(k), final=(d.totRev-d.totCom-d.thuong)+d.debt; g.agents.push({code:k,data:d}); g.gt+=final; g.gr+=d.totRev; g.gth+=d.thuong; g.gdb+=d.lotoDB; g.gx+=d.xskt; });
              const finalGroups=new Map();
             if(revFilter) groups.forEach((v,k)=>{ if(v.gr>=revFilter.min && v.gr<=revFilter.max) finalGroups.set(k,v); }); else return {groups, totals:{}};
-            finalGroups.forEach(g=>{ g.agents.forEach(a=>{ 
-                const d=a.data; totals.rev+=d.totRev; totals.th+=d.thuong; totals.debt+=d.debt; totals.com+=d.totCom; 
-                totals.lotoDB+=d.lotoDB; totals.final+=(d.totRev-d.totCom-d.thuong)+d.debt;
-            });});
+            finalGroups.forEach(g=>{ g.agents.forEach(a=>{ const d=a.data; totals.rev+=d.totRev; totals.th+=d.thuong; totals.debt+=d.debt; totals.com+=d.totCom; totals.lotoDB+=d.lotoDB; totals.final+=(d.totRev-d.totCom-d.thuong)+d.debt; });});
             return {groups:finalGroups, totals};
         }
     }
@@ -828,32 +788,24 @@
 
         const regVal=DOM.regionSelect.value, rules=regVal!=='all'?regionDefinitions[regVal]:null;
         const minV=parseFloat(DOM.minRevenueInput.dataset.value)||0, maxV=parseFloat(DOM.maxRevenueInput.dataset.value)||Infinity;
-        
         const {groups, totals} = processSummaryData(rules, {min:minV*1000, max:maxV*1000});
-        
-        const hasXSKT = (appMode === 'excel' && excelData2.length > 0);
-        const hasDebt = debtData.size > 0;
+        const hasXSKT = (appMode === 'excel' && excelData2.length > 0); const hasDebt = debtData.size > 0;
 
         let html;
-        if (appMode === 'excel') {
-             html=`<thead><tr><th>STT</th><th>ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th>${hasXSKT?'<th>XSKT':''}<th>Dsố</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
-        } else {
-             html=`<thead><tr><th>STT</th><th>ĐL</th><th>Doanh Số</th><th>Hoa hồng</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
-        }
+        if (appMode === 'excel') html=`<thead><tr><th>STT</th><th>ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th>${hasXSKT?'<th>XSKT':''}<th>Dsố</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
+        else html=`<thead><tr><th>STT</th><th>ĐL</th><th>Doanh Số</th><th>Hoa hồng</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
 
         let stt=1, sortedGroups=[...groups.entries()];
         const sortMode=DOM.sortSelect.value;
-        if(sortMode==='revenue_desc') sortedGroups.sort((a,b)=>b[1].gr - a[1].gr);
-        else if(sortMode==='revenue_asc') sortedGroups.sort((a,b)=>a[1].gr - b[1].gr);
+        if(sortMode==='revenue_desc') sortedGroups.sort((a,b)=>b[1].gr - a[1].gr); else if(sortMode==='revenue_asc') sortedGroups.sort((a,b)=>a[1].gr - b[1].gr);
 
         sortedGroups.forEach(([gk, g])=>{
             g.agents.forEach((ag, idx)=>{
                 const d=ag.data, final=(d.totRev-d.totCom-d.thuong)+d.debt;
-                if (appMode === 'excel') {
-                    html+=`<tr${idx===0?' class="group-start-row"':''}><td>${idx===0?stt:''}</td><td>${ag.code}</td><td>${formatNumberHiddenK(d.lotoDB)}</td><td>${formatNumberHiddenK(d.lotoCap)}</td><td>${formatNumberHiddenK(d.c323)}</td><td>${formatNumberHiddenK(d.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(d.xskt)}</td>`:''}<td>${formatNumberHiddenK(d.totRev)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`;
-                } else {
-                    html+=`<tr${idx===0?' class="group-start-row"':''}><td>${idx===0?stt:''}</td><td>${ag.code}</td><td>${formatNumberHiddenK(d.totRev)}</td><td>${formatCommissionCellHiddenK(d.totRev, d.totCom)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`;
-                }
+                let rHtml = '';
+                if (appMode === 'excel') rHtml = `<td>${formatNumberHiddenK(d.lotoDB)}</td><td>${formatNumberHiddenK(d.lotoCap)}</td><td>${formatNumberHiddenK(d.c323)}</td><td>${formatNumberHiddenK(d.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(d.xskt)}</td>`:''}<td>${formatNumberHiddenK(d.totRev)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}`;
+                else rHtml = `<td>${formatNumberHiddenK(d.totRev)}</td><td>${formatCommissionCellHiddenK(d.totRev, d.totCom)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}`;
+                html+=`<tr${idx===0?' class="group-start-row"':''}><td>${idx===0?stt:''}</td><td style="font-weight:600; color:${idx===0?'#2c3e50':'#7f8c8d'}">${ag.code}</td>${rHtml}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`;
             }); 
             if (g.agents.length > 1) {
                 let sumDebt = 0; g.agents.forEach(ag => sumDebt+=ag.data.debt);
@@ -868,15 +820,12 @@
             stt++;
         });
 
-        if(appMode === 'excel') {
-            html+=`</tbody><tfoot><tr><td colspan="2">TỔNG</td><td>${formatNumberHiddenK(totals.lotoDB)}</td><td>${formatNumberHiddenK(totals.lotoCap)}</td><td>${formatNumberHiddenK(totals.c323)}</td><td>${formatNumberHiddenK(totals.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(totals.xskt)}</td>`:''}<td>${formatNumberHiddenK(totals.rev)}</td><td>${formatNumberHiddenK(totals.th)}</td>${hasDebt?`<td>${formatNumberHiddenK(totals.debt)}</td>`:''}<td class="${totals.final>=0?'final-amount-positive':'final-amount-negative'}">${formatNumberHiddenK(totals.final)}</td></tr></tfoot>`;
-        } else {
-             html+=`</tbody><tfoot><tr><td colspan="2">TỔNG</td><td>${formatNumberHiddenK(totals.rev)}</td><td>${formatNumberHiddenK(totals.com)}</td><td>${formatNumberHiddenK(totals.th)}</td>${hasDebt?`<td>${formatNumberHiddenK(totals.debt)}</td>`:''}<td class="${totals.final>=0?'final-amount-positive':'final-amount-negative'}">${formatNumberHiddenK(totals.final)}</td></tr></tfoot>`;
-        }
+        if(appMode === 'excel') html+=`</tbody><tfoot><tr><td colspan="2">TỔNG</td><td>${formatNumberHiddenK(totals.lotoDB)}</td><td>${formatNumberHiddenK(totals.lotoCap)}</td><td>${formatNumberHiddenK(totals.c323)}</td><td>${formatNumberHiddenK(totals.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(totals.xskt)}</td>`:''}<td>${formatNumberHiddenK(totals.rev)}</td><td>${formatNumberHiddenK(totals.th)}</td>${hasDebt?`<td>${formatNumberHiddenK(totals.debt)}</td>`:''}<td class="${totals.final>=0?'final-amount-positive':'final-amount-negative'}">${formatNumberHiddenK(totals.final)}</td></tr></tfoot>`;
+        else html+=`</tbody><tfoot><tr><td colspan="2">TỔNG</td><td>${formatNumberHiddenK(totals.rev)}</td><td>${formatNumberHiddenK(totals.com)}</td><td>${formatNumberHiddenK(totals.th)}</td>${hasDebt?`<td>${formatNumberHiddenK(totals.debt)}</td>`:''}<td class="${totals.final>=0?'final-amount-positive':'final-amount-negative'}">${formatNumberHiddenK(totals.final)}</td></tr></tfoot>`;
 
         DOM.summaryTableContainer.innerHTML=`<table border="1">${html}</table>`;
         const displayRegion = regVal === 'all' ? 'Tất Cả' : regVal;
-        DOM.summaryTitle.innerHTML=`Bảng Tổng Hợp: <span class="region-name">${displayRegion}</span>`;
+        DOM.summaryTitle.innerHTML=`Bảng Tổng Hợp: <span style="color:var(--primary-color)">${displayRegion}</span>`;
         let percent = totals.rev > 0 ? (totals.th / totals.rev * 100) : 0;
         let pString = `<span style="color:${percent<=50?'var(--success-color)':'var(--danger-color)'}">(${percent.toFixed(1)}%)</span>`;
         DOM.summaryDate.innerHTML=`${dateRangeText}<br>Doanh số: <b style="color:var(--danger-color)">${formatNumberHiddenK(totals.rev)}</b> - Thưởng: <b style="color:var(--primary-dark)">${formatNumberHiddenK(totals.th)}</b> ${pString}`;
@@ -886,14 +835,11 @@
     
     function processDetailedReport(soSo) {
         if(appMode === 'excel') {
-            const targetNum = parseInt(soSo, 10);
-            if (isNaN(targetNum)) return null; 
+            const targetNum = parseInt(soSo, 10); if (isNaN(targetNum)) return null; 
             const filter = (r) => { const c = String(r.__EMPTY || r.__EMPTY_1 || '').trim(); const match = c.match(/(\d+)$/); return match && parseInt(match[1], 10) === targetNum; };
             const f1 = excelData1.filter(filter); const f2 = excelData2.filter(filter);
-            
             let debtAmt = 0; debtData.forEach((val, key) => { const match = String(key).match(/(\d+)$/); if(match && parseInt(match[1], 10) === targetNum) { debtAmt += val; state.accountCodes.add(key); } });
             if (!f1.length && !f2.length && debtAmt === 0) return null;
-
             resetState(soSo);
             const t = {lotoDB: 0, loCap: 0, c227: 0, c323: 0, thuong: 0, xskt: 0};
             f1.forEach(r => { state.accountCodes.add(String(r.__EMPTY).trim()); t.lotoDB += (parseFloat(r.__EMPTY_2) || 0); t.loCap += (parseFloat(r.__EMPTY_6) || 0); t.c227 += (parseFloat(r.__EMPTY_8) || 0); t.c323 += (parseFloat(r.__EMPTY_10) || 0); t.thuong += (parseFloat(r.__EMPTY_14) || 0); });
@@ -902,188 +848,60 @@
             state.baseTongDT = t.lotoDB + t.loCap + t.c227 + t.c323 + t.xskt; state.baseTongHH = c.ldb + c.lc + c.c2 + c.c3 + c.x; state.baseTongHH = c.ldb + c.lc + c.c2 + c.c3 + c.x; state.baseThuong = t.thuong; state.debtFromData = debtAmt;
             return {t, c};
         } else {
-            // === LOGIC MỚI: TÌM KIẾM TƯƠNG ĐỐI ===
-            let targetKey = null;
-            const inputNum = soSo.replace(/\D/g, ''); 
-            for (let key of rawDataMap.keys()) {
-                const keyNum = key.replace(/\D/g, '');
-                if (key === soSo || (inputNum.length > 0 && keyNum === inputNum)) {
-                    targetKey = key;
-                    break;
-                }
-            }
+            let targetKey = null; const inputNum = soSo.replace(/\D/g, ''); 
+            for (let key of rawDataMap.keys()) { const keyNum = key.replace(/\D/g, ''); if (key === soSo || (inputNum.length > 0 && keyNum === inputNum)) { targetKey = key; break; } }
             if(!targetKey) return null;
-            
-            const items = rawDataMap.get(targetKey);
-            let debtAmt = 0; if(debtData.has(targetKey)) debtAmt = debtData.get(targetKey);
-            
-            resetState(targetKey);
-            state.accountCodes.add(targetKey);
-            
+            const items = rawDataMap.get(targetKey); let debtAmt = 0; if(debtData.has(targetKey)) debtAmt = debtData.get(targetKey);
+            resetState(targetKey); state.accountCodes.add(targetKey);
             let totalRev = 0, totalCom = 0, totalBonus = 0;
             items.forEach(i => { totalRev += i.rev; totalCom += i.com; totalBonus += i.bonus; });
-            
             state.baseTongDT = totalRev; state.baseTongHH = totalCom; state.baseThuong = totalBonus; state.debtFromData = debtAmt;
             return items; 
         }
     }
 
-    // --- CẬP NHẬT RENDER DETAILED REPORT (ĐÃ SỬA THEO YÊU CẦU) ---
     function renderDetailedReport(d, customDate, reportType = 'detailed') {
         const debtHtml = state.debtFromData > 0 ? `<tr style="color:var(--danger-color); font-weight:bold;"><td>Nợ cũ</td><td colspan="${(appMode === 'excel' || (appMode === 'raw' && reportType === 'summary')) ? 2 : 4}">${formatNumberHiddenK(state.debtFromData)}</td></tr>` : '';
         const reportDate = customDate || dateRangeText;
 
         if (appMode === 'excel' || (appMode === 'raw' && reportType === 'summary')) {
             let t, c;
-            if (appMode === 'excel') {
-                t = d.t; c = d.c;
-            } else {
-                t = {lotoDB: 0, loCap: 0, c227: 0, c323: 0, thuong: 0, xskt: 0};
-                c = {ldb: 0, lc: 0, c2: 0, c3: 0, x: 0};
-                d.forEach(item => {
-                    t.thuong += item.bonus;
-                    const type = item.type.toUpperCase();
-                    if (type.includes('LT') || type.includes('DB')) { t.lotoDB += item.rev; c.ldb += item.com; } 
-                    else if (type.includes('LC') || type.includes('CAP')) { t.loCap += item.rev; c.lc += item.com; } 
-                    else if (type.includes('L2') || type.includes('2/27')) { t.c227 += item.rev; c.c2 += item.com; } 
-                    else if (type.includes('L3') || type.includes('3/23')) { t.c323 += item.rev; c.c3 += item.com; }
-                });
+            if (appMode === 'excel') { t = d.t; c = d.c; } 
+            else {
+                t = {lotoDB: 0, loCap: 0, c227: 0, c323: 0, thuong: 0, xskt: 0}; c = {ldb: 0, lc: 0, c2: 0, c3: 0, x: 0};
+                d.forEach(item => { t.thuong += item.bonus; const type = item.type.toUpperCase(); if (type.includes('LT') || type.includes('DB')) { t.lotoDB += item.rev; c.ldb += item.com; } else if (type.includes('LC') || type.includes('CAP')) { t.loCap += item.rev; c.lc += item.com; } else if (type.includes('L2') || type.includes('2/27')) { t.c227 += item.rev; c.c2 += item.com; } else if (type.includes('L3') || type.includes('3/23')) { t.c323 += item.rev; c.c3 += item.com; } });
             }
             const xsktHtml = t.xskt > 0 ? `<tr><td>XSKT</td><td>${formatNumberHiddenK(t.xskt)}</td><td>${formatCommissionCellHiddenK(t.xskt, c.x)}</td></tr>` : '';
-            
-            DOM.reportContainer.innerHTML = `
-            <table class="report-table" style="border: 1px solid var(--border-color);">
-                <colgroup><col style="width: 30%;"><col style="width: 35%;"><col style="width: 35%;"></colgroup>
-                <tbody>
-                    <tr><td class="header" style="font-weight:bold;">Đại Lý:</td><td colspan="2" class="so-so" style="text-align:center;">${[...state.accountCodes].join(', ')}</td></tr>
-                    <tr><td class="header" style="font-weight:bold;">Ngày:</td><td colspan="2" style="font-weight:500;">${reportDate}</td></tr>
-                    <tr style="background:#f1f2f6"><th>Loại hình</th><th>Doanh thu</th><th>Hoa hồng</th></tr>
-                    <tr><td>Lôtô</td><td>${formatNumberHiddenK(t.lotoDB)}</td><td>${formatCommissionCellHiddenK(t.lotoDB, c.ldb)}</td></tr>
-                    <tr><td>LCặp</td><td>${formatNumberHiddenK(t.loCap)}</td><td>${formatCommissionCellHiddenK(t.loCap, c.lc)}</td></tr>
-                    <tr><td>2/27</td><td>${formatNumberHiddenK(t.c227)}</td><td>${formatCommissionCellHiddenK(t.c227, c.c2)}</td></tr>
-                    <tr><td>3/23</td><td>${formatNumberHiddenK(t.c323)}</td><td>${formatCommissionCellHiddenK(t.c323, c.c3)}</td></tr>
-                    ${xsktHtml}
-                    <tr id="tongCongRow" style="border-top: 2px solid #bdc3c7;"><td>Tổng cộng</td><td id="tongDT"></td><td id="tongHH"></td></tr>
-                    <tr id="mainBonusRow"><td>Thưởng</td><td colspan="2">${formatNumberHiddenK(state.baseThuong)}</td></tr>
-                    ${debtHtml}
-                    <tr id="finalResultRow"><td id="ketQuaLabel"></td><td colspan="2" id="ketQuaValue"></td></tr>
-                    <tr id="bangChuRow"><td class="header" style="font-size:13px;">Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr>
-                </tbody>
-            </table>`;
-
+            DOM.reportContainer.innerHTML = `<table class="report-table" style="border: 1px solid var(--border-color);"><colgroup><col style="width: 30%;"><col style="width: 35%;"><col style="width: 35%;"></colgroup><tbody><tr><td class="header" style="font-weight:bold;">Đại Lý:</td><td colspan="2" class="so-so" style="text-align:center;">${[...state.accountCodes].join(', ')}</td></tr><tr><td class="header" style="font-weight:bold;">Ngày:</td><td colspan="2" style="font-weight:500;">${reportDate}</td></tr><tr style="background:#f1f2f6"><th>Loại hình</th><th>Doanh thu</th><th>Hoa hồng</th></tr><tr><td>Lôtô</td><td>${formatNumberHiddenK(t.lotoDB)}</td><td>${formatCommissionCellHiddenK(t.lotoDB, c.ldb)}</td></tr><tr><td>LCặp</td><td>${formatNumberHiddenK(t.loCap)}</td><td>${formatCommissionCellHiddenK(t.loCap, c.lc)}</td></tr><tr><td>2/27</td><td>${formatNumberHiddenK(t.c227)}</td><td>${formatCommissionCellHiddenK(t.c227, c.c2)}</td></tr><tr><td>3/23</td><td>${formatNumberHiddenK(t.c323)}</td><td>${formatCommissionCellHiddenK(t.c323, c.c3)}</td></tr>${xsktHtml}<tr id="tongCongRow" style="border-top: 2px solid #bdc3c7;"><td>Tổng cộng</td><td id="tongDT"></td><td id="tongHH"></td></tr><tr id="mainBonusRow"><td>Thưởng</td><td colspan="2">${formatNumberHiddenK(state.baseThuong)}</td></tr>${debtHtml}<tr id="finalResultRow"><td id="ketQuaLabel"></td><td colspan="2" id="ketQuaValue"></td></tr><tr id="bangChuRow"><td class="header" style="font-size:13px;">Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr></tbody></table>`;
         } else {
-            // === LOGIC RAW DATA REPORT CHI TIẾT (PHẦN SỬA ĐỔI) ===
             const groupByDate = new Map();
-            d.forEach(item => {
-                if(!groupByDate.has(item.date)) groupByDate.set(item.date, []);
-                groupByDate.get(item.date).push(item);
-            });
-
+            d.forEach(item => { if(!groupByDate.has(item.date)) groupByDate.set(item.date, []); groupByDate.get(item.date).push(item); });
             let rowsHtml = '';
-            
-            // 1. CẬP NHẬT TÊN LOẠI HÌNH
-            const typeNameMap = {
-                'LT': 'Lôtô',
-                'LC': 'LCặp',
-                'L2': '2/27',
-                'L3': '3/23'
-            };
-
+            const typeNameMap = { 'LT': 'Lôtô', 'LC': 'LCặp', 'L2': '2/27', 'L3': '3/23' };
             groupByDate.forEach((items, dateStr) => {
                 const isSingleItem = items.length === 1;
                 let dayRev = 0, dayCom = 0, dayBonus = 0;
-                
                 items.forEach(item => {
                     dayRev += item.rev; dayCom += item.com; dayBonus += item.bonus;
                     const displayName = typeNameMap[item.type] || item.type;
                     let cellStyle = '', revColor = '', netColor = 'font-weight:bold; color: #000;';
-
-                    if (isSingleItem) {
-                        cellStyle = 'background-color: #ecf0f1;'; 
-                        revColor = 'color: #000;';
-                        if (item.net >= 0) netColor = 'font-weight:bold; color: var(--danger-color);'; 
-                        else netColor = 'font-weight:bold; color: var(--success-color);';
-                    }
-
-                    // 2. SỬA ĐỊNH DẠNG NGÀY - LOẠI (Bỏ khoảng trắng quanh dấu gạch ngang)
-                    rowsHtml += `<tr>
-                        <td style="text-align:left; font-size:14px;">${item.date}-${displayName}</td> 
-                        <td style="${revColor} ${cellStyle}">${formatNumberHiddenK(item.rev)}</td>
-                        <td style="${cellStyle}">${formatNumberHiddenK(item.com)}</td>
-                        <td style="${cellStyle}">${item.bonus > 0 ? formatNumberHiddenK(item.bonus) : '-'}</td>
-                        <td style="${netColor} ${cellStyle}">${formatNumberHiddenK(item.net)}</td>
-                    </tr>`;
+                    if (isSingleItem) { cellStyle = 'background-color: #ecf0f1;'; revColor = 'color: #000;'; if (item.net >= 0) netColor = 'font-weight:bold; color: var(--danger-color);'; else netColor = 'font-weight:bold; color: var(--success-color);'; }
+                    rowsHtml += `<tr><td style="text-align:left; font-size:14px;">${item.date}-${displayName}</td><td style="${revColor} ${cellStyle}">${formatNumberHiddenK(item.rev)}</td><td style="${cellStyle}">${formatNumberHiddenK(item.com)}</td><td style="${cellStyle}">${item.bonus > 0 ? formatNumberHiddenK(item.bonus) : '-'}</td><td style="${netColor} ${cellStyle}">${formatNumberHiddenK(item.net)}</td></tr>`;
                 });
-
                 if (!isSingleItem) {
                     const dayNet = dayRev - dayCom - dayBonus;
-                    const cellBgStyle = 'background-color: #ecf0f1;'; 
-                    const netColorTotal = dayNet >= 0 ? 'var(--danger-color)' : 'var(--success-color)';
-
-                    rowsHtml += `<tr style="font-weight: bold; border-bottom: 2px solid #bdc3c7;">
-                        <td style="text-align:right; font-style: italic;"></td> 
-                        <td style="color: #000; ${cellBgStyle}">${formatNumberHiddenK(dayRev)}</td>
-                        <td style="color: #000; ${cellBgStyle}">${formatNumberHiddenK(dayCom)}</td>
-                        <td style="color: #000; ${cellBgStyle}">${formatNumberHiddenK(dayBonus)}</td>
-                        <td style="color: ${netColorTotal}; ${cellBgStyle}">${formatNumberHiddenK(dayNet)}</td>
-                    </tr>`;
+                    const cellBgStyle = 'background-color: #ecf0f1;'; const netColorTotal = dayNet >= 0 ? 'var(--danger-color)' : 'var(--success-color)';
+                    rowsHtml += `<tr style="font-weight: bold; border-bottom: 2px solid #bdc3c7;"><td style="text-align:right; font-style: italic;"></td><td style="color: #000; ${cellBgStyle}">${formatNumberHiddenK(dayRev)}</td><td style="color: #000; ${cellBgStyle}">${formatNumberHiddenK(dayCom)}</td><td style="color: #000; ${cellBgStyle}">${formatNumberHiddenK(dayBonus)}</td><td style="color: ${netColorTotal}; ${cellBgStyle}">${formatNumberHiddenK(dayNet)}</td></tr>`;
                 }
             });
-
-            let typeSummaryHtml = '';
-            const sortOrder = ['LT', 'LC', 'L2', 'L3'];
-            const typeSummary = new Map();
-            d.forEach(item => {
-                if(!typeSummary.has(item.type)) typeSummary.set(item.type, {rev:0, com:0, bonus:0});
-                const t = typeSummary.get(item.type); t.rev += item.rev; t.com += item.com; t.bonus += item.bonus; 
-            });
-
+            let typeSummaryHtml = ''; const sortOrder = ['LT', 'LC', 'L2', 'L3']; const typeSummary = new Map();
+            d.forEach(item => { if(!typeSummary.has(item.type)) typeSummary.set(item.type, {rev:0, com:0, bonus:0}); const t = typeSummary.get(item.type); t.rev += item.rev; t.com += item.com; t.bonus += item.bonus; });
             if (typeSummary.size > 0) {
                  typeSummaryHtml += `<tr style="border-top: 2px solid #bdc3c7;"><td colspan="5" style="background:#ecf0f1; height: 5px; padding:0;"></td></tr>`; 
-                 const currentTypes = Array.from(typeSummary.keys()).sort((a, b) => {
-                     let idxA = sortOrder.indexOf(a); let idxB = sortOrder.indexOf(b);
-                     if (idxA === -1) idxA = 999; if (idxB === -1) idxB = 999; return idxA - idxB;
-                 });
-
-                 currentTypes.forEach(type => {
-                     const val = typeSummary.get(type);
-                     const longName = typeNameMap[type] || type; 
-                     
-                     // 3. SỬA TÊN TỔNG (Xoá chữ "Tổng-")
-                     const displayName = longName;
-
-                     typeSummaryHtml += `<tr style="background-color: #fff;">
-                        <td style="font-weight:600; color:#5D4037; text-align: left; padding-left: 15px;">${displayName}</td>
-                        <td style="font-weight:600;">${formatNumberHiddenK(val.rev)}</td>
-                        <td>${formatCommissionCellHiddenK(val.rev, val.com)}</td>
-                        <td style="color:#2c3e50; font-weight:500;">${val.bonus > 0 ? formatNumberHiddenK(val.bonus) : '-'}</td>
-                        <td></td>
-                     </tr>`;
-                 });
+                 const currentTypes = Array.from(typeSummary.keys()).sort((a, b) => { let idxA = sortOrder.indexOf(a); let idxB = sortOrder.indexOf(b); if (idxA === -1) idxA = 999; if (idxB === -1) idxB = 999; return idxA - idxB; });
+                 currentTypes.forEach(type => { const val = typeSummary.get(type); const longName = typeNameMap[type] || type; const displayName = longName; typeSummaryHtml += `<tr style="background-color: #fff;"><td style="font-weight:600; color:#5D4037; text-align: left; padding-left: 15px;">${displayName}</td><td style="font-weight:600;">${formatNumberHiddenK(val.rev)}</td><td>${formatCommissionCellHiddenK(val.rev, val.com)}</td><td style="color:#2c3e50; font-weight:500;">${val.bonus > 0 ? formatNumberHiddenK(val.bonus) : '-'}</td><td></td></tr>`; });
             }
-
-            // 4. ĐỔI "Đợt:" THÀNH "Ngày:"
-            DOM.reportContainer.innerHTML = `
-            <table class="report-table" style="border: 1px solid var(--border-color);">
-                <colgroup><col style="width: 25%;"><col style="width: 20%;"><col style="width: 15%;"><col style="width: 15%;"><col style="width: 25%;"></colgroup>
-                <tbody>
-                    <tr><td class="header" style="font-weight:bold;">Đại Lý:</td><td colspan="4" class="so-so" style="text-align:center;">${state.currentSoSo}</td></tr>
-                    <tr><td class="header" style="font-weight:bold;">Ngày:</td><td colspan="4" style="font-weight:500;">${reportDate}</td></tr>
-                    <tr><th>Ngày/Loại</th><th>Doanh Thu</th><th>Hoa hồng</th><th>Thưởng</th><th>Nộp/Lấy về</th></tr>
-                    ${rowsHtml}
-                    ${typeSummaryHtml}
-                    <tr id="tongCongRow" style="border-top: 2px solid #7f8c8d; background-color: #FEF9E7;">
-                        <td style="font-weight: bold; color: var(--header-bg);">TỔNG CỘNG</td>
-                        <td id="tongDT" style="font-weight:bold; color:var(--danger-color); font-size:1.1em;"></td>
-                        <td id="tongHH" style="font-weight:bold;"></td>
-                        <td style="font-weight:bold; color:var(--primary-dark)">${formatNumberHiddenK(state.baseThuong)}</td>
-                        <td></td>
-                    </tr>
-                    ${debtHtml}
-                    <tr id="finalResultRow"><td id="ketQuaLabel"></td><td colspan="4" id="ketQuaValue"></td></tr>
-                    <tr id="bangChuRow"><td class="header" style="font-size:13px;">Bằng chữ</td><td colspan="4" id="ketQuaBangChu" class="bang-chu-cell"></td></tr>
-                </tbody>
-            </table>`;
+            DOM.reportContainer.innerHTML = `<table class="report-table" style="border: 1px solid var(--border-color);"><colgroup><col style="width: 25%;"><col style="width: 20%;"><col style="width: 15%;"><col style="width: 15%;"><col style="width: 25%;"></colgroup><tbody><tr><td class="header" style="font-weight:bold;">Đại Lý:</td><td colspan="4" class="so-so" style="text-align:center;">${state.currentSoSo}</td></tr><tr><td class="header" style="font-weight:bold;">Ngày:</td><td colspan="4" style="font-weight:500;">${reportDate}</td></tr><tr><th>Ngày/Loại</th><th>Doanh Thu</th><th>Hoa hồng</th><th>Thưởng</th><th>Nộp/Lấy về</th></tr>${rowsHtml}${typeSummaryHtml}<tr id="tongCongRow" style="border-top: 2px solid #7f8c8d; background-color: #FEF9E7;"><td style="font-weight: bold; color: var(--header-bg);">TỔNG CỘNG</td><td id="tongDT" style="font-weight:bold; color:var(--danger-color); font-size:1.1em;"></td><td id="tongHH" style="font-weight:bold;"></td><td style="font-weight:bold; color:var(--primary-dark)">${formatNumberHiddenK(state.baseThuong)}</td><td></td></tr>${debtHtml}<tr id="finalResultRow"><td id="ketQuaLabel"></td><td colspan="4" id="ketQuaValue"></td></tr><tr id="bangChuRow"><td class="header" style="font-size:13px;">Bằng chữ</td><td colspan="4" id="ketQuaBangChu" class="bang-chu-cell"></td></tr></tbody></table>`;
         }
         const cpy = document.getElementById('copyrightInReport'); if(!cpy) { const dv=document.createElement('div'); dv.id='copyrightInReport'; dv.className='copyright'; dv.style.display='none'; dv.textContent='© 2025 ZENG FINANCE'; DOM.reportContainer.appendChild(dv); }
     }
@@ -1093,289 +911,139 @@
         const addRev=state.addedTickets.reduce((s,t)=>s+t.dt,0), addCom=state.addedTickets.reduce((s,t)=>s+t.hh,0);
         const totDT=state.baseTongDT+addRev, totHH=state.baseTongHH+addCom;
         const final = (totDT - totHH - state.baseThuong) + state.debtFromData - state.extraBonus + state.extraDebt;
-        
-        document.getElementById('tongDT').textContent=formatNumberHiddenK(totDT); 
-        document.getElementById('tongHH').textContent=formatNumberHiddenK(totHH);
-        
+        document.getElementById('tongDT').textContent=formatNumberHiddenK(totDT); document.getElementById('tongHH').textContent=formatNumberHiddenK(totHH);
         const rRow=document.getElementById('finalResultRow'), lbl=document.getElementById('ketQuaLabel'), val=document.getElementById('ketQuaValue'), txt=document.getElementById('ketQuaBangChu');
         rRow.className=final>=0?'final-amount-positive':'final-amount-negative';
-        
         if(final>=0) { const round=Math.ceil(final/1000)*1000; lbl.textContent='Nộp'; val.textContent=formatNumberHiddenK(round); txt.textContent=docso(round)+" đồng"; } 
         else { const abs=Math.abs(final), round=parseInt(abs/1000)*1000; lbl.textContent='Lấy về'; val.textContent=formatNumberHiddenK(round); txt.textContent=docso(round)+" đồng"; }
     }
 
     function createReport(type = 'detailed') {
         DOM.manualInputModal.style.display='none'; 
-        const s=DOM.soSoInput.value.trim(); 
-        if(!s) return showNotification("Nhập số sổ!",'error');
-        
-        const d=processDetailedReport(s); 
-        if(!d) return showNotification("Không có dữ liệu",'error');
-        
-        // Truyền tham số type vào hàm render
-        renderDetailedReport(d, null, type); 
-        
-        updateDetailedView(); 
-        DOM.actionButtonContainer.style.display='grid'; 
-        DOM.actionChoices.style.display='none'; 
-        DOM.toggleChoicesBtn.textContent='Thêm tiền Thưởng/Nợ cũ'; 
-        DOM.toggleChoicesBtn.className='secondary';
+        const s=DOM.soSoInput.value.trim(); if(!s) return showNotification("Nhập số sổ!",'error');
+        const d=processDetailedReport(s); if(!d) return showNotification("Không có dữ liệu",'error');
+        renderDetailedReport(d, null, type); updateDetailedView(); 
+        DOM.actionButtonContainer.style.display='grid'; DOM.actionChoices.style.display='none'; DOM.toggleChoicesBtn.textContent='Thêm tiền Thưởng/Nợ cũ'; DOM.toggleChoicesBtn.className='secondary';
         DOM.reportContainer.scrollIntoView({behavior:'smooth'});
     }
 
-    // --- EVENT LISTENERS CẬP NHẬT: ẨN/HIỆN NÚT THỦ CÔNG ---
     DOM.tabExcel.onclick = () => {
         appMode = 'excel';
-        DOM.tabExcel.classList.add('active'); DOM.tabExcel.style.background = 'var(--primary-color)'; DOM.tabExcel.style.color = 'white';
-        DOM.tabRaw.classList.remove('active'); DOM.tabRaw.style.background = '#ecf0f1'; DOM.tabRaw.style.color = 'var(--text-color)';
+        DOM.tabExcel.classList.add('active'); DOM.tabExcel.style.color = 'var(--primary-color)';
+        DOM.tabRaw.classList.remove('active'); DOM.tabRaw.style.color = '#7f8c8d';
         DOM.panelExcel.style.display = 'block'; DOM.panelRaw.style.display = 'none';
         excelData1 = []; excelData2 = []; rawDataMap = new Map();
-        document.querySelectorAll('input[type="file"]').forEach(i => i.classList.remove('loaded'));
-        
-        // Hiện nút thủ công (Cả ở home và inline)
-        if(DOM.btnShowManualReport_inline) DOM.btnShowManualReport_inline.style.display = 'block'; 
+        document.querySelectorAll('input[type="file"]').forEach(i => { i.value = ''; i.classList.remove('loaded'); });
+        if(DOM.btnShowManualReport_inline) DOM.btnShowManualReport_inline.style.display = 'flex'; 
         if(DOM.btnShowManualReport) DOM.btnShowManualReport.style.display = 'block';
-
-        // Ẩn nút "Báo Cáo Ngày"
         if(DOM.btnCreateDailyReport) DOM.btnCreateDailyReport.style.display = 'none';
     };
 
     DOM.tabRaw.onclick = () => {
         appMode = 'raw';
-        DOM.tabRaw.classList.add('active'); DOM.tabRaw.style.background = 'var(--primary-color)'; DOM.tabRaw.style.color = 'white';
-        DOM.tabExcel.classList.remove('active'); DOM.tabExcel.style.background = '#ecf0f1'; DOM.tabExcel.style.color = 'var(--text-color)';
+        DOM.tabRaw.classList.add('active'); DOM.tabRaw.style.color = 'var(--primary-color)';
+        DOM.tabExcel.classList.remove('active'); DOM.tabExcel.style.color = '#7f8c8d';
         DOM.panelRaw.style.display = 'block'; DOM.panelExcel.style.display = 'none';
         excelData1 = []; excelData2 = []; rawDataMap = new Map();
-        
-        // Ẩn nút thủ công (Cả ở home và inline)
         if(DOM.btnShowManualReport_inline) DOM.btnShowManualReport_inline.style.display = 'none';
         if(DOM.btnShowManualReport) DOM.btnShowManualReport.style.display = 'none';
-
-        // Hiện nút "Báo Cáo Ngày"
-        if(DOM.btnCreateDailyReport) DOM.btnCreateDailyReport.style.display = 'block';
+        if(DOM.btnCreateDailyReport) DOM.btnCreateDailyReport.style.display = 'flex';
     };
 
     DOM.btnLoadData.addEventListener('click', ()=>{ 
-        if(appMode === 'excel') {
-            if(!excelData1.length && !excelData2.length) return showNotification("Chọn ít nhất 1 file Excel!",'error');
-        } else {
-            const success = parseRawDataInput();
-            if(!success) return; 
-        }
-        
-        generateSummaryView(); 
-        DOM.homePage.style.display='none'; 
-        DOM.mainPage.style.display='block'; 
-        showSection('reportSection'); 
-        DOM.soSoInput.focus(); 
-        runLogoAnimation(); 
+        if(appMode === 'excel') { if(!excelData1.length && !excelData2.length) return showNotification("Chọn ít nhất 1 file Excel!",'error'); } 
+        else { const success = parseRawDataInput(); if(!success) return; }
+        generateSummaryView(); DOM.homePage.style.display='none'; DOM.mainPage.style.display='block'; showSection('reportSection'); DOM.soSoInput.focus(); runLogoAnimation(); 
     });
 
     function addTicket() {
-        if(!state.currentSoSo) return showNotification("Chưa có báo cáo để thêm vé!",'error');
-        const q = parseInt(DOM.sellQuantityInput.value, 10); if(!q || q <= 0) return showNotification("Số lượng không hợp lệ!",'error');
+        if(!state.currentSoSo) return showNotification("Chưa có báo cáo!",'error');
+        const q = parseInt(DOM.sellQuantityInput.value, 10); if(!q || q <= 0) return showNotification("Số lượng sai!",'error');
         let typeRad; try { typeRad = document.querySelector('input[name="sellTicketType"]:checked').value; } catch(e) { typeRad = 'xo-so'; }
-        let name = ""; if(typeRad === 'custom-name') { name = DOM.customTicketName.value.trim(); if(!name) return showNotification("Vui lòng nhập tên loại hình!", 'error'); } else { name = typeRad === 've-boc' ? 'Vé bóc' : 'Xổ số'; }
+        let name = ""; if(typeRad === 'custom-name') { name = DOM.customTicketName.value.trim(); if(!name) return showNotification("Nhập tên!", 'error'); } else { name = typeRad === 've-boc' ? 'Vé bóc' : 'Xổ số'; }
         let priceRad, price = 0; try { priceRad = document.querySelector('input[name="sellPrice"]:checked').value; } catch(e) { priceRad = '10000'; }
-        if(priceRad === 'custom-price') { price = parseFloat(DOM.customTicketPrice.value.replace(/\D/g, '')) || 0; if(price <= 0) return showNotification("Vui lòng nhập giá bán hợp lệ!", 'error'); } else { price = parseFloat(priceRad); }
+        if(priceRad === 'custom-price') { price = parseFloat(DOM.customTicketPrice.value.replace(/\D/g, '')) || 0; if(price <= 0) return showNotification("Nhập giá!", 'error'); } else { price = parseFloat(priceRad); }
         let rateRad, ratePercent = 0; try { rateRad = document.querySelector('input[name="sellRate"]:checked').value; } catch(e) { rateRad = '10'; }
-        if (rateRad === 'custom-rate') { ratePercent = parseFloat(DOM.customTicketRate.value); if (isNaN(ratePercent) || ratePercent < 0) return showNotification("Vui lòng nhập % hoa hồng hợp lệ!", 'error'); } else { ratePercent = parseFloat(rateRad); }
+        if (rateRad === 'custom-rate') { ratePercent = parseFloat(DOM.customTicketRate.value); if (isNaN(ratePercent) || ratePercent < 0) return showNotification("Nhập %!", 'error'); } else { ratePercent = parseFloat(rateRad); }
         const dt = q * price; const hh = dt * (ratePercent / 100); 
         state.addedTickets.push({dt, hh});
         const tr = document.createElement('tr'); tr.className = 'added-ticket-row'; 
         tr.innerHTML = `<td>${name} (${formatNumberHiddenK(price)}k) [${q} vé]</td><td>${formatNumberHiddenK(dt)}</td><td>${formatCommissionCellHiddenK(dt, hh)}</td>`;
         const anchor = document.getElementById('tongCongRow');
-        if(anchor) { anchor.parentNode.insertBefore(tr, anchor); updateDetailedView(); DOM.sellQuantityInput.value = ''; showNotification("Đã thêm vé thành công!", 'success'); showSection('reportSection'); } else { showNotification("Lỗi: Không tìm thấy bảng báo cáo!", 'error'); }
+        if(anchor) { anchor.parentNode.insertBefore(tr, anchor); updateDetailedView(); DOM.sellQuantityInput.value = ''; showNotification("Đã thêm!", 'success'); showSection('reportSection'); }
     }
 
     DOM.toggleChoicesBtn.onclick = () => { const show = DOM.toggleChoicesBtn.textContent.includes('Thêm'); DOM.actionChoices.style.display = show ? 'grid' : 'none'; DOM.toggleChoicesBtn.textContent = show ? 'Đóng / Xoá hết' : 'Thêm tiền Thưởng/Nợ cũ'; DOM.toggleChoicesBtn.className = show ? 'danger' : 'secondary'; if(!show) { document.getElementById('extraBonusRow')?.remove(); document.getElementById('extraDebtRow')?.remove(); state.extraBonus=0; state.extraDebt=0; updateDetailedView(); } renderActionButtons(); };
-    function renderActionButtons() { DOM.actionChoices.innerHTML = `${document.getElementById('extraBonusRow') ? `<button class="danger" onclick="window.removeRow('bonus')">Xoá Thưởng thêm</button>` : `<button onclick="window.addRow('bonus')">Thêm Thưởng</button>`}${document.getElementById('extraDebtRow') ? `<button class="danger" onclick="window.removeRow('debt')">Xoá Nợ cũ</button>` : `<button onclick="window.addRow('debt')">Thêm Nợ cũ</button>`}`; }
-    window.addRow = (type) => { const isB = type === 'bonus', rowId = isB ? 'extraBonusRow' : 'extraDebtRow'; const anchor = document.getElementById('extraBonusRow') || document.getElementById('mainBonusRow'); if(document.getElementById(rowId)) return; const tr = document.createElement('tr'); tr.id = rowId; tr.innerHTML = `<td>${isB ? `<textarea class="dynamic-input" style="color:var(--success-color)" placeholder="Tên thưởng..." rows="1"></textarea>` : 'Nợ cũ'}</td><td colspan="${(appMode==='excel' || appMode==='raw')?2:4}"><input class="dynamic-input" style="color:${isB ? 'var(--success-color)' : 'var(--danger-color)'}" oninput="window.handleDynInp(this,'${type}')" onkeydown="if(event.key==='Enter') this.blur()" inputmode="decimal" placeholder="0"></td>`; anchor.after(tr); renderActionButtons(); const input = tr.querySelector('input'); if(input) input.focus(); };
+    function renderActionButtons() { DOM.actionChoices.innerHTML = `${document.getElementById('extraBonusRow') ? `<button class="danger" onclick="window.removeRow('bonus')">Xoá Thưởng</button>` : `<button onclick="window.addRow('bonus')">Thêm Thưởng</button>`}${document.getElementById('extraDebtRow') ? `<button class="danger" onclick="window.removeRow('debt')">Xoá Nợ cũ</button>` : `<button onclick="window.addRow('debt')">Thêm Nợ cũ</button>`}`; }
+    window.addRow = (type) => { const isB = type === 'bonus', rowId = isB ? 'extraBonusRow' : 'extraDebtRow'; const anchor = document.getElementById('extraBonusRow') || document.getElementById('mainBonusRow'); if(document.getElementById(rowId)) return; const tr = document.createElement('tr'); tr.id = rowId; tr.innerHTML = `<td>${isB ? `<textarea class="dynamic-input" style="color:var(--success-color)" placeholder="Tên..." rows="1"></textarea>` : 'Nợ cũ'}</td><td colspan="${(appMode==='excel' || appMode==='raw')?2:4}"><input class="dynamic-input" style="color:${isB ? 'var(--success-color)' : 'var(--danger-color)'}" oninput="window.handleDynInp(this,'${type}')" onkeydown="if(event.key==='Enter') { event.preventDefault(); this.blur(); }" inputmode="decimal" placeholder="0"></td>`; anchor.after(tr); renderActionButtons(); const input = tr.querySelector('input'); if(input) input.focus(); };
     window.removeRow = (type) => { document.getElementById(type === 'bonus' ? 'extraBonusRow' : 'extraDebtRow')?.remove(); if(type === 'bonus') state.extraBonus = 0; else state.extraDebt = 0; updateDetailedView(); renderActionButtons(); };
     window.handleDynInp = (el, type) => { const v = parseInt(el.value.replace(/\D/g,'')) || 0; el.value = v.toLocaleString('vi-VN'); if(type === 'bonus') state.extraBonus = v * 1000; else state.extraDebt = v * 1000; updateDetailedView(); };
     function showSection(id) { ['summarySection','reportSection','sellSection'].forEach(s=>DOM[s].style.display='none'); DOM[id].style.display='block'; }
     async function runLogoAnimation() { const containers = document.querySelectorAll('.simple-animated-logo'); if (containers.length === 0) return; const getAllSpans = () => { const all = []; containers.forEach(c => { all.push(Array.from(c.querySelectorAll('span.letter'))); }); return all; }; while (true) { const spanGroups = getAllSpans(); const hue = Math.floor(Math.random() * 360); const color = `hsl(${hue}, 70%, 50%)`; spanGroups.forEach(group => { group.forEach(s => { s.style.transition = 'none'; s.style.opacity = '0'; s.style.transform = 'translateY(20px)'; s.style.color = color; }); }); void containers[0].offsetWidth; const delayStep = 100; const maxIndex = spanGroups[0].length; for (let i = 0; i < maxIndex; i++) { spanGroups.forEach(group => { if (group[i]) { group[i].style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; setTimeout(() => { group[i].style.opacity = '1'; group[i].style.transform = 'translateY(0)'; }, i * delayStep); } }); } const animationTime = (maxIndex * delayStep) + 500; await new Promise(r => setTimeout(r, animationTime + 4000)); for (let i = 0; i < maxIndex; i++) { spanGroups.forEach(group => { if (group[i]) { group[i].style.transition = 'all 0.4s ease-in'; setTimeout(() => { group[i].style.opacity = '0'; group[i].style.transform = 'translateY(-20px)'; }, i * 50); } }); } await new Promise(r => setTimeout(r, 600)); } }
     function updateOnlineCounter() { const num = Math.floor(Math.random() * 98) + 1; document.querySelectorAll('.online-count').forEach(el => el.textContent = num); setTimeout(updateOnlineCounter, Math.random() * 5000 + 3000); }
-    function printReport() { if(DOM.summarySection.style.display !== 'none') { window.print(); } else { showNotification("Vui lòng chuyển sang tab Báo cáo Tổng hợp để in!", "warning"); } }
+    function printReport() { if(DOM.summarySection.style.display !== 'none') { window.print(); } else { showNotification("Chưa có báo cáo để in!", "warning"); } }
     
-    // --- HÀM EXPORT EXCEL ĐÃ SỬA LỖI ---
     function exportSummaryToExcel() {
         const regVal = DOM.regionSelect.value; const rules = regVal !== 'all' ? regionDefinitions[regVal] : null;
         const minV = parseFloat(DOM.minRevenueInput.dataset.value) || 0; const maxV = parseFloat(DOM.maxRevenueInput.dataset.value) || Infinity;
         const data = processSummaryData(rules, {min: minV * 1000, max: maxV * 1000});
         if (!data) return showNotification("Không có dữ liệu!", 'error');
-        
         const {groups, totals} = data; const hasXSKT = excelData2.length > 0 && appMode === 'excel'; const hasDebt = debtData.size > 0;
-        
-        // --- ĐỊNH NGHĨA STYLES ---
         const sHeader = { font: { bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "34495E" } }, alignment: { horizontal: "center", vertical: "center" }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
         const sGroup = { font: { bold: true }, fill: { fgColor: { rgb: "FEF9E7" } }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
         const sTotal = { font: { bold: true }, fill: { fgColor: { rgb: "FFC107" } }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
-        
         const sNormal = { border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
-        // Style cho STT và ĐL (In đậm + Căn giữa)
         const sCenterBold = { font: { bold: true }, alignment: { horizontal: "center", vertical: "center" }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
-        
         const sRed = { font: { color: { rgb: "C0392B" }, bold: true }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
         const sBlack = { font: { color: { rgb: "000000" }, bold: true }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
         const sBlue = { font: { color: { rgb: "00008B" }, bold: true }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
-
         let aoa = []; aoa.push([document.getElementById('summaryTitle').innerText]); aoa.push([dateRangeText]);
         const percent = totals.rev > 0 ? (totals.th / totals.rev * 100).toFixed(1) : 0; aoa.push([`Doanh số: ${formatNumberFull(totals.rev)} - Thưởng: ${formatNumberFull(totals.th)} (${percent}%)`]); aoa.push([""]); 
-        
-        let headers;
-        if(appMode === 'excel') { headers = ["STT", "Đại Lý", "Lô tô", "Lô cặp", "2/27", "3/23"]; if (hasXSKT) headers.push("XSKT"); }
-        else { headers = ["STT", "Đại Lý", "Doanh Số", "Hoa hồng", "Thưởng"]; }
-        if(appMode==='excel') headers.push("Doanh số", "Thưởng");
-        if (hasDebt) headers.push("Nợ cũ"); headers.push("Tiền nộp"); aoa.push(headers);
-        
-        let rowMetaData = {}; // rowIndex -> type
-        let currentRow = 5; // Dữ liệu bắt đầu từ dòng 5 (index 0-based)
-
-        let stt = 1; const sortMode = DOM.sortSelect.value; let sortedGroups = [...groups.entries()];
+        let headers; if(appMode === 'excel') { headers = ["STT", "Đại Lý", "Lô tô", "Lô cặp", "2/27", "3/23"]; if (hasXSKT) headers.push("XSKT"); } else { headers = ["STT", "Đại Lý", "Doanh Số", "Hoa hồng", "Thưởng"]; }
+        if(appMode==='excel') headers.push("Doanh số", "Thưởng"); if (hasDebt) headers.push("Nợ cũ"); headers.push("Tiền nộp"); aoa.push(headers);
+        let rowMetaData = {}; let currentRow = 5; let stt = 1; 
+        const sortMode = DOM.sortSelect.value; let sortedGroups = [...groups.entries()];
         if (sortMode === 'revenue_desc') sortedGroups.sort((a, b) => b[1].gr - a[1].gr); else if (sortMode === 'revenue_asc') sortedGroups.sort((a, b) => a[1].gr - b[1].gr);
-        
-        // 1. VÒNG LẶP DỮ LIỆU
         sortedGroups.forEach(([gk, g]) => { 
             const isMulti = g.agents.length > 1;
             g.agents.forEach((ag, idx) => { 
                 const d = ag.data; const final = (d.totRev - d.totCom - d.thuong) + d.debt; 
-                let displayStt = (idx === 0) ? stt : ""; 
-                let row;
-                if(appMode === 'excel') { row = [ displayStt, ag.code, d.lotoDB, d.lotoCap, d.c323, d.c227 ]; if (hasXSKT) row.push(d.xskt); row.push(d.totRev, d.thuong); }
-                else { row = [ displayStt, ag.code, d.totRev, d.totCom, d.thuong ]; }
+                let displayStt = (idx === 0) ? stt : ""; let row;
+                if(appMode === 'excel') { row = [ displayStt, ag.code, d.lotoDB, d.lotoCap, d.c323, d.c227 ]; if (hasXSKT) row.push(d.xskt); row.push(d.totRev, d.thuong); } else { row = [ displayStt, ag.code, d.totRev, d.totCom, d.thuong ]; }
                 if (hasDebt) row.push(d.debt); row.push(final); 
-                
-                aoa.push(row); 
-                rowMetaData[currentRow] = isMulti ? 'group_member' : 'single';
-                currentRow++;
+                aoa.push(row); rowMetaData[currentRow] = isMulti ? 'group_member' : 'single'; currentRow++;
             }); 
-            
             if (isMulti) { 
-                let rowGroup = ["", ""]; 
-                if(appMode==='excel') { rowGroup.push("","","",""); if(hasXSKT) rowGroup.push(""); rowGroup.push(g.gr, g.gth); }
-                else { rowGroup.push(g.gr, "", g.gth); }
+                let rowGroup = ["", ""]; if(appMode==='excel') { rowGroup.push("","","",""); if(hasXSKT) rowGroup.push(""); rowGroup.push(g.gr, g.gth); } else { rowGroup.push(g.gr, "", g.gth); }
                 if (hasDebt) { let sumDebt = 0; g.agents.forEach(ag => sumDebt+=ag.data.debt); rowGroup.push(sumDebt); } rowGroup.push(g.gt); 
-                
-                aoa.push(rowGroup); 
-                rowMetaData[currentRow] = 'group_total';
-                currentRow++;
-            } 
-            stt++; 
+                aoa.push(rowGroup); rowMetaData[currentRow] = 'group_total'; currentRow++;
+            } stt++; 
         }); 
-
-        // 2. THÊM DÒNG TỔNG CỘNG (GRAND TOTAL)
         let rowTotal = ["TỔNG", ""]; 
-        if(appMode === 'excel') { 
-            rowTotal.push(totals.lotoDB, totals.lotoCap, totals.c323, totals.c227); 
-            if(hasXSKT) rowTotal.push(totals.xskt); 
-            rowTotal.push(totals.rev, totals.th); 
-        } else { 
-            rowTotal.push(totals.rev, totals.com, totals.th); 
-        }
-        if (hasDebt) rowTotal.push(totals.debt); 
-        rowTotal.push(totals.final);
-        
-        aoa.push(rowTotal);
-        let totalRowIndex = currentRow;
-
-        const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(aoa);
-        const range = XLSX.utils.decode_range(ws['!ref']); const lastColIdx = range.e.c;
-        if(!ws['!merges']) ws['!merges'] = [];
-        
-        ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: lastColIdx } }); 
-        ws['!merges'].push({ s: { r: 1, c: 0 }, e: { r: 1, c: lastColIdx } }); 
-        ws['!merges'].push({ s: { r: 2, c: 0 }, e: { r: 2, c: lastColIdx } }); 
-        ws['!merges'].push({ s: { r: 4, c: 0 }, e: { r: 4, c: 1 } }); 
-        
-        // Merge dòng TỔNG ở cuối
-        ws['!merges'].push({ s: { r: totalRowIndex, c: 0 }, e: { r: totalRowIndex, c: 1 } });
-
-        // 3. ÁP DỤNG STYLE
+        if(appMode === 'excel') { rowTotal.push(totals.lotoDB, totals.lotoCap, totals.c323, totals.c227); if(hasXSKT) rowTotal.push(totals.xskt); rowTotal.push(totals.rev, totals.th); } else { rowTotal.push(totals.rev, totals.com, totals.th); }
+        if (hasDebt) rowTotal.push(totals.debt); rowTotal.push(totals.final); aoa.push(rowTotal); let totalRowIndex = currentRow;
+        const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(aoa); const range = XLSX.utils.decode_range(ws['!ref']); const lastColIdx = range.e.c; if(!ws['!merges']) ws['!merges'] = [];
+        ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: lastColIdx } }); ws['!merges'].push({ s: { r: 1, c: 0 }, e: { r: 1, c: lastColIdx } }); ws['!merges'].push({ s: { r: 2, c: 0 }, e: { r: 2, c: lastColIdx } }); ws['!merges'].push({ s: { r: 4, c: 0 }, e: { r: 4, c: 1 } }); ws['!merges'].push({ s: { r: totalRowIndex, c: 0 }, e: { r: totalRowIndex, c: 1 } });
         for (let R = range.s.r; R <= range.e.r; ++R) { 
             for (let C = range.s.c; C <= range.e.c; ++C) { 
-                const cellRef = XLSX.utils.encode_cell({ r: R, c: C }); 
-                if (!ws[cellRef]) continue; 
-                
-                if (R <= 2) { 
-                    ws[cellRef].s = { font: { bold: true, sz: 14, color: {rgb: R===2?"E74C3C":"E67E22"} }, alignment: { horizontal: "center" } }; if(R===1) ws[cellRef].s.font = { italic: true, sz: 11 }; 
-                } 
-                else if (R === 4) { 
-                    ws[cellRef].s = sHeader; 
-                } 
-                else if (R === totalRowIndex) { 
-                    ws[cellRef].s = sTotal;
-                    if (C === 0) ws[cellRef].s = { ...sTotal, alignment: { horizontal: "center", vertical: "center" } };
-                    if (C === lastColIdx) {
-                        if (ws[cellRef].v < 0) ws[cellRef].s = { ...sTotal, font: { bold: true, color: { rgb: "00008B" } } }; 
-                        else ws[cellRef].s = { ...sTotal, font: { bold: true, color: { rgb: "C0392B" } } }; 
-                    }
-                }
-                else { 
-                    const meta = rowMetaData[R];
-                    const isLastCol = (C === lastColIdx);
-                    
-                    if (meta === 'group_total') { 
-                        ws[cellRef].s = sGroup; 
-                        if(isLastCol) { 
-                             if (ws[cellRef].v < 0) ws[cellRef].s = sBlue;
-                             else ws[cellRef].s = { ...sGroup, font: { bold: true, color: { rgb: "C0392B" } } }; 
-                        } 
-                    } 
-                    else { 
-                        ws[cellRef].s = sNormal; 
-                        
-                        // Style cho cột STT (0) và ĐL (1): In đậm + Căn giữa
-                        if (C === 0 || C === 1) {
-                            ws[cellRef].s = sCenterBold;
-                        }
-
-                        if (isLastCol) {
-                            if (meta === 'group_member') {
-                                ws[cellRef].s = sBlack;
-                            } else {
-                                if (ws[cellRef].v < 0) ws[cellRef].s = sBlue; 
-                                else ws[cellRef].s = sRed; 
-                            }
-                        } 
-                    } 
-                } 
-                
+                const cellRef = XLSX.utils.encode_cell({ r: R, c: C }); if (!ws[cellRef]) continue; 
+                if (R <= 2) { ws[cellRef].s = { font: { bold: true, sz: 14, color: {rgb: R===2?"E74C3C":"E67E22"} }, alignment: { horizontal: "center" } }; if(R===1) ws[cellRef].s.font = { italic: true, sz: 11 }; } 
+                else if (R === 4) { ws[cellRef].s = sHeader; } 
+                else if (R === totalRowIndex) { ws[cellRef].s = sTotal; if (C === 0) ws[cellRef].s = { ...sTotal, alignment: { horizontal: "center", vertical: "center" } }; if (C === lastColIdx) { if (ws[cellRef].v < 0) ws[cellRef].s = { ...sTotal, font: { bold: true, color: { rgb: "00008B" } } }; else ws[cellRef].s = { ...sTotal, font: { bold: true, color: { rgb: "C0392B" } } }; } }
+                else { const meta = rowMetaData[R]; const isLastCol = (C === lastColIdx); if (meta === 'group_total') { ws[cellRef].s = sGroup; if(isLastCol) { if (ws[cellRef].v < 0) ws[cellRef].s = sBlue; else ws[cellRef].s = { ...sGroup, font: { bold: true, color: { rgb: "C0392B" } } }; } } else { ws[cellRef].s = sNormal; if (C === 0 || C === 1) { ws[cellRef].s = sCenterBold; } if (isLastCol) { if (meta === 'group_member') { ws[cellRef].s = sBlack; } else { if (ws[cellRef].v < 0) ws[cellRef].s = sBlue; else ws[cellRef].s = sRed; } } } } 
                 if (typeof ws[cellRef].v === 'number') { ws[cellRef].z = '#,##0'; } 
             } 
         }
         ws['!cols'] = [ { wch: 5 }, { wch: 15 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 15 } ];
-        
-        XLSX.utils.book_append_sheet(wb, ws, "Báo Cáo"); 
-        
-        const unitName = removeVietnameseTones(DOM.regionSelect.options[DOM.regionSelect.selectedIndex].text).replace(/\s+/g, '_');
-        let safeDate = removeVietnameseTones(dateRangeText).replace(/[\\/]/g, "-").replace(/[:]/g, "").replace(/\s+/g, "_");
-        if(safeDate === "Chua_co_ngay") safeDate = "Moi_nhat";
-        const fileName = `bao_cao_${unitName}_${safeDate}.xlsx`;
-        
-        XLSX.writeFile(wb, fileName);
+        XLSX.utils.book_append_sheet(wb, ws, "Báo Cáo"); const unitName = removeVietnameseTones(DOM.regionSelect.options[DOM.regionSelect.selectedIndex].text).replace(/\s+/g, '_'); let safeDate = removeVietnameseTones(dateRangeText).replace(/[\\/]/g, "-").replace(/[:]/g, "").replace(/\s+/g, "_"); if(safeDate === "Chua_co_ngay") safeDate = "Moi_nhat"; XLSX.writeFile(wb, `bao_cao_${unitName}_${safeDate}.xlsx`);
     }
 
     DOM.btnGoToSummary.onclick=()=>{ showSection('summarySection'); }; DOM.btnGoToSell.onclick=()=>{ showSection('sellSection'); DOM.sellQuantityInput.focus(); }; DOM.btnBackFromSummary.onclick=()=>{ showSection('reportSection'); DOM.soSoInput.focus(); }; DOM.btnBackFromSell.onclick=()=>{ showSection('reportSection'); DOM.soSoInput.focus(); };
     DOM.excelFile1.onchange=(e)=>handleFile(e.target.files[0],1,'excelFile1'); DOM.excelFile2.onchange=(e)=>handleFile(e.target.files[0],2,'excelFile2');
     
-    // --- UPDATE SỰ KIỆN CLICK CHO 2 NÚT MỚI ---
     if(DOM.btnCreateDailyReport) DOM.btnCreateDailyReport.onclick = () => createReport('detailed');
     if(DOM.btnCreateSummaryReport) DOM.btnCreateSummaryReport.onclick = () => createReport('summary');
-    
-    DOM.soSoInput.onkeydown = (e) => { 
-        if (e.key === 'Enter') { 
-            e.preventDefault(); 
-            e.target.blur(); 
-            // Nếu nút báo cáo ngày ẩn (chế độ excel) -> chạy summary, ngược lại chạy detailed
-            if (DOM.btnCreateDailyReport && DOM.btnCreateDailyReport.style.display === 'none') {
-                createReport('summary');
-            } else {
-                createReport('detailed'); 
-            }
-        } 
-    };
-
+    DOM.soSoInput.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); if (DOM.btnCreateDailyReport && DOM.btnCreateDailyReport.style.display === 'none') { createReport('summary'); } else { createReport('detailed'); } } };
     if(DOM.btnShowManualReport_inline) { DOM.btnShowManualReport_inline.onclick = () => { DOM.manualInputModal.style.display = 'block'; DOM.manualAgentName.focus(); }; }
     DOM.btnShowManualReport.onclick=()=>{DOM.manualInputModal.style.display='block';DOM.manualAgentName.focus()}; DOM.closeModalBtn.onclick=()=>{DOM.manualInputModal.style.display='none'};
     DOM.btnCreateManualReport.onclick=()=>{ const name=DOM.manualAgentName.value; if(!name) return; const t={ lotoDB:(parseFloat(DOM.manualLotoDB.dataset.value)||0)*1000, loCap:(parseFloat(DOM.manualLoCap.dataset.value)||0)*1000, c227:(parseFloat(DOM.manualC227.dataset.value)||0)*1000, c323:(parseFloat(DOM.manualC323.dataset.value)||0)*1000, thuong:(parseFloat(DOM.manualThuong.dataset.value)||0)*1000, xskt:0 }; const c={ldb:t.lotoDB*.08, lc:t.loCap*.1, c2:t.c227*.1, c3:t.c323*.1, x:0}; resetState('manual'); state.accountCodes.add(name); state.baseTongDT=t.lotoDB+t.loCap+t.c227+t.c323; state.baseTongHH=c.ldb+c.lc+c.c2+c.c3; state.baseThuong=t.thuong; DOM.homePage.style.display='none'; DOM.mainPage.style.display='block'; showSection('reportSection'); renderDetailedReport({t,c},DOM.manualDateRange.value); updateDetailedView(); DOM.manualInputModal.style.display='none'; DOM.actionButtonContainer.style.display='grid'; DOM.actionChoices.style.display='none'; DOM.toggleChoicesBtn.textContent='Thêm tiền Thưởng/Nợ cũ'; DOM.toggleChoicesBtn.className='secondary'; };
@@ -1386,9 +1054,25 @@
     DOM.btnSaveRegions.onclick=()=>{ if(isRegionLocked) { DOM.passwordModal.style.display='block'; DOM.passwordInput.focus(); } else parseRegions(); };
     DOM.btnSubmitPassword.onclick=()=>{ if(DOM.passwordInput.value==='admin'){ DOM.passwordModal.style.display='none'; isRegionLocked=false; DOM.regionLockContainer.classList.remove('locked'); DOM.btnSaveRegions.textContent='Lưu Định nghĩa'; DOM.btnSaveRegions.classList.remove('warning'); DOM.btnSaveRegions.classList.add('success'); } else showNotification('Sai mật khẩu','error'); };
     DOM.closePasswordModalBtn.onclick=()=>{DOM.passwordModal.style.display='none'};
-    function parseRegions(){ const txt=DOM.regionDefinitionsInput.value; regionDefinitions={}; const lines=txt.split('\n'); DOM.regionSelect.innerHTML='<option value="all">--- Tất cả ---</option>'; lines.forEach(l=>{ const idx=l.indexOf(':'); if(idx>0){ const n=l.slice(0,idx).trim(), r=l.slice(idx+1).trim(); const rules=[]; r.split('+').forEach(p=>{ if(p.includes('_')){const[mi,ma]=p.split('_'); rules.push({min:+mi,max:+ma});} else rules.push({min:+p,max:+p}); }); if(rules.length){ regionDefinitions[n]=rules; const o=document.createElement('option'); o.value=n; o.text=n; DOM.regionSelect.add(o); } }}); localStorage.setItem('zengRegions',txt); isRegionLocked=true; DOM.regionLockContainer.classList.add('locked'); DOM.btnSaveRegions.textContent='Mở khóa'; DOM.btnSaveRegions.classList.replace('success','warning'); }
-    async function fetchDefaultRegions() { try { const response = await fetch(`${REGION_DATA_URL}?t=${Date.now()}`); if (!response.ok) throw new Error('Không thể tải file'); const text = await response.text(); DOM.regionDefinitionsInput.value = text; parseRegions(); } catch (error) { console.warn('Lỗi tải cấu hình online:', error); const saved = localStorage.getItem('zengRegions'); if(saved){ DOM.regionDefinitionsInput.value = saved; parseRegions(); showNotification('Đang dùng cấu hình Offline', 'info'); } } }
+    DOM.closePreviewModalBtn.onclick=()=>{DOM.imagePreviewModal.style.display='none'};
+    
+    // FIX: Function to handle region lock logic properly
+    function parseRegions(){ 
+        const txt=DOM.regionDefinitionsInput.value; regionDefinitions={}; const lines=txt.split('\n'); DOM.regionSelect.innerHTML='<option value="all">--- Tất cả ---</option>'; 
+        lines.forEach(l=>{ const idx=l.indexOf(':'); if(idx>0){ const n=l.slice(0,idx).trim(), r=l.slice(idx+1).trim(); const rules=[]; r.split('+').forEach(p=>{ if(p.includes('_')){const[mi,ma]=p.split('_'); rules.push({min:+mi,max:+ma});} else rules.push({min:+p,max:+p}); }); if(rules.length){ regionDefinitions[n]=rules; const o=document.createElement('option'); o.value=n; o.text=n; DOM.regionSelect.add(o); } }}); 
+        localStorage.setItem('zengRegions',txt); 
+        isRegionLocked=true; 
+        DOM.regionLockContainer.classList.add('locked'); 
+        DOM.btnSaveRegions.textContent='Mở khóa'; 
+        DOM.btnSaveRegions.classList.replace('success','warning'); 
+    }
+    
+    async function fetchDefaultRegions() { 
+        try { const response = await fetch(`${REGION_DATA_URL}?t=${Date.now()}`); if (!response.ok) throw new Error('Không thể tải file'); const text = await response.text(); DOM.regionDefinitionsInput.value = text; parseRegions(); } 
+        catch (error) { console.warn('Lỗi tải cấu hình online:', error); const saved = localStorage.getItem('zengRegions'); if(saved){ DOM.regionDefinitionsInput.value = saved; parseRegions(); showNotification('Đang dùng cấu hình Offline', 'info'); } }
+    }
     fetchDefaultRegions();
+
     DOM.regionSelect.onchange=generateSummaryView; DOM.sortSelect.onchange=generateSummaryView; DOM.minRevenueInput.onblur=generateSummaryView; DOM.maxRevenueInput.onblur=generateSummaryView;
     function updateFilterStatus() { const isDefault = DOM.sortSelect.value === 'default' && !DOM.minRevenueInput.dataset.value && !DOM.maxRevenueInput.dataset.value && DOM.regionSelect.value === 'all'; const btn = DOM.btnClearRevenueFilter; btn.className = isDefault ? 'secondary' : 'danger'; }
     DOM.regionSelect.addEventListener('change', updateFilterStatus); DOM.sortSelect.addEventListener('change', updateFilterStatus); DOM.minRevenueInput.addEventListener('blur', updateFilterStatus); DOM.maxRevenueInput.addEventListener('blur', updateFilterStatus);
