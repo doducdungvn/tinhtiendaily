@@ -789,7 +789,7 @@
 
         let html;
         if (appMode === 'excel') {
-             html=`<thead><tr><th width="8%">STT</th><th width="12%">ĐL</th><th>LTô</th><th>LCặp</th><th>Lô 3/23</th><th>Lô 2/27</th>${hasXSKT?'<th>XSKT':''}<th>Dsố</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
+             html=`<thead><tr><th width="8%">STT</th><th width="12%">ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th>${hasXSKT?'<th>XSKT':''}<th>Dsố</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
         } else {
              html=`<thead><tr><th width="8%">STT</th><th width="12%">ĐL</th><th>Doanh Số</th><th>Hoa hồng</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
         }
@@ -913,8 +913,8 @@
                     <tr style="background:#f1f2f6"><th>Loại hình</th><th>Doanh thu</th><th>Hoa hồng</th></tr>
                     <tr><td>Lôtô</td><td>${formatNumberHiddenK(t.lotoDB)}</td><td>${formatCommissionCellHiddenK(t.lotoDB, c.ldb)}</td></tr>
                     <tr><td>LCặp</td><td>${formatNumberHiddenK(t.loCap)}</td><td>${formatCommissionCellHiddenK(t.loCap, c.lc)}</td></tr>
-                    <tr><td>L2/27</td><td>${formatNumberHiddenK(t.c227)}</td><td>${formatCommissionCellHiddenK(t.c227, c.c2)}</td></tr>
-                    <tr><td>L3/23</td><td>${formatNumberHiddenK(t.c323)}</td><td>${formatCommissionCellHiddenK(t.c323, c.c3)}</td></tr>
+                    <tr><td>2/27</td><td>${formatNumberHiddenK(t.c227)}</td><td>${formatCommissionCellHiddenK(t.c227, c.c2)}</td></tr>
+                    <tr><td>3/23</td><td>${formatNumberHiddenK(t.c323)}</td><td>${formatCommissionCellHiddenK(t.c323, c.c3)}</td></tr>
                     ${xsktHtml}
                     <tr id="tongCongRow" style="border-top: 2px solid #bdc3c7;"><td>Tổng cộng</td><td id="tongDT"></td><td id="tongHH"></td></tr>
                     <tr id="mainBonusRow"><td>Thưởng</td><td colspan="2">${formatNumberHiddenK(state.baseThuong)}</td></tr>
@@ -938,8 +938,8 @@
             const typeNameMap = {
                 'LT': 'Lôtô',
                 'LC': 'LCặp',
-                'L2': 'L2/27',
-                'L3': 'L3/23'
+                'L2': '2/27',
+                'L3': '3/23'
             };
 
             groupByDate.forEach((items, dateStr) => {
@@ -1002,8 +1002,8 @@
                      const val = typeSummary.get(type);
                      const longName = typeNameMap[type] || type; 
                      
-                     // 3. SỬA TÊN TỔNG (Thêm dấu gạch nối)
-                     const displayName = typeNameMap[type] ? `Tổng-${longName}` : `Tổng-${type}`;
+                     // 3. SỬA TÊN TỔNG (Xoá chữ "Tổng-")
+                     const displayName = longName;
 
                      typeSummaryHtml += `<tr style="background-color: #fff;">
                         <td style="font-weight:600; color:#5D4037; text-align: left; padding-left: 15px;">${displayName}</td>
