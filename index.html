@@ -19,7 +19,7 @@
         --border-color: #dcdde1;
         --success-color: #2ecc71; --danger-color: #e74c3c; --warning-color: #f1c40f;
         --logo-color: #e67e22;
-        --modal-overlay-bg: rgba(44, 62, 80, 0.8); 
+        --modal-overlay-bg: rgba(44, 62, 80, 0.95); 
     }
 
     /* --- CÀI ĐẶT CHUNG --- */
@@ -36,25 +36,13 @@
     }
 
     /* HOME PAGE */
-    #homePage {
-        max-width: 500px !important; 
-        margin: 40px auto; 
-        padding: 30px;
-        border: 1px solid #eee;
-    }
+    #homePage { max-width: 500px !important; margin: 40px auto; padding: 30px; border: 1px solid #eee; }
 
     /* REPORT PAGE */
-    #mainPage { 
-        max-width: 1200px; 
-        margin: 0 auto; 
-        padding: 20px; 
-    }
+    #mainPage { max-width: 1200px; margin: 0 auto; padding: 20px; }
 
-    /* --- TÙY CHỈNH RIÊNG CHO PHẦN BÁN VÉ (CARD VIEW) --- */
-    #sellSection .controls-panel {
-        max-width: 500px; 
-        margin: 0 auto;   
-    }
+    /* SELL SECTION */
+    #sellSection .controls-panel { max-width: 500px; margin: 0 auto; }
 
     h2 { font-size: 24px; font-weight: 700; text-align: center; color: var(--header-bg); margin-bottom: 20px; letter-spacing: -0.5px; }
     h3 { font-size: 18px; font-weight: 600; text-align: center; color: var(--header-bg); margin-bottom: 15px; } 
@@ -66,7 +54,6 @@
     .main-page-logo { font-size: 24px; margin-bottom: 10px; margin-top: 0; }
     .simple-animated-logo span.letter { display: inline-block; transition: all 0.3s; }
     .simple-animated-logo .tm { font-size: 0.4em; vertical-align: top; margin-left: 2px; color: var(--text-light); font-weight: 400; }
-
     .online-badge { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text-color); background-color: #f1f2f6; padding: 4px 10px; border-radius: 20px; margin-left: 10px; vertical-align: middle; position: relative; top: -5px; }
     .online-dot { width: 8px; height: 8px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.2); animation: pulseDot 2s infinite; }
     @keyframes pulseDot { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(46, 204, 113, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); } }
@@ -74,21 +61,12 @@
     /* CONTROLS */
     .controls-panel { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 1px solid #edf2f7; }
     label { font-weight: 600; color: var(--text-color); font-size: 14px; margin-bottom: 5px; display: block; }
-    
-    input[type="text"], input[type="number"], input[type="password"], select, textarea { 
-        padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); width: 100%; font-size: 15px; transition: all 0.2s; 
-    }
+    input[type="text"], input[type="number"], input[type="password"], select, textarea { padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); width: 100%; font-size: 15px; transition: all 0.2s; }
     input:focus, textarea:focus, select:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.1); }
-    
     input[type="file"] { padding: 10px; background: white; border: 1px dashed #bdc3c7; cursor: pointer; border-radius: 6px; width: 100%; font-size: 14px; }
-    input[type="file"]:hover { border-color: var(--primary-color); background: #f0fdf9; }
-    input[type="file"].loaded { border-color: var(--success-color); background-color: #eafaf1; color: var(--success-color); font-weight: 500; }
-
     button { cursor: pointer; background: var(--primary-color); color: white; border: none; font-weight: 600; padding: 12px 20px; border-radius: 6px; transition: all 0.2s; font-size: 15px; }
     button:hover { background-color: var(--primary-dark); transform: translateY(-1px); }
-    button:active { transform: translateY(1px); }
     button.secondary { background-color: #ecf0f1; color: var(--text-color); border: 1px solid #dcdde1; }
-    button.secondary:hover { background-color: #dfe4ea; }
     button.success { background-color: var(--success-color); }
     button.danger { background-color: var(--danger-color); }
     button.warning { background-color: var(--warning-color); color: #fff; } 
@@ -104,28 +82,17 @@
     /* --- TABLE STYLES --- */
     #summaryTableContainer { margin-top: 15px; width: 100%; max-height: 70vh; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border-color); border-radius: 8px; }
     table { border-collapse: separate; border-spacing: 0; width: auto !important; min-width: 100%; background: white; margin: 0 auto; }
+    
     th, td { border-right: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; padding: 10px 8px; text-align: center; vertical-align: middle; font-size: 14px; white-space: nowrap; }
     
-    /* Sticky Header */
+    /* Sticky Header & Footer */
     th { background: var(--header-bg); color: white; font-weight: 600; position: sticky; top: 0; z-index: 20; border-top: none; }
-    
-    /* FIX: Sticky Footer (Dòng tổng) - Sử dụng ID thay vì tfoot để kiểm soát in ấn */
-    #summaryTotalRow td { 
-        background-color: #f8f9fa; 
-        color: var(--text-color); 
-        font-weight: 700; 
-        position: sticky; 
-        bottom: 0; 
-        z-index: 20; 
-        border-top: 2px solid #bdc3c7; 
-    }
+    #summaryTotalRow td { background-color: #f8f9fa; color: var(--text-color); font-weight: 700; position: sticky; bottom: 0; z-index: 20; border-top: 2px solid #bdc3c7; }
     
     .group-total-row td { background-color: #fff9db; font-weight: bold; }
     
-    /* Căn giữa Header và Bằng chữ */
     .header { font-weight: 600; background: #f8f9fa; text-align: center !important; padding-left: 0 !important; }
     .so-so { font-size: 24px; font-weight: 700; color: var(--logo-color); text-align: center; }
-    
     #tongCongRow { background-color: #f1c40f; color: #fff; font-weight: 700 !important; text-shadow: 0 1px 1px rgba(0,0,0,0.1); } 
     #tongCongRow td { color: #2c3e50; }
     .added-ticket-row { background-color: #f0fdf9; } 
@@ -139,20 +106,12 @@
 
     /* --- INPUT GROUP VÀ BUTTONS --- */
     .input-group-row { display: flex; gap: 8px; width: 100%; align-items: stretch; }
-    
-    .input-group-row input#soSoInput { width: 100px !important; min-width: 80px; flex: none; font-size: 16px; font-weight: 600; text-align: center; }
-    .input-group-row input#sellQuantityInput { width: 100px !important; min-width: 80px; flex: none; font-size: 16px; font-weight: 600; text-align: center; }
-
+    .input-group-row input#soSoInput, .input-group-row input#sellQuantityInput { width: 100px !important; min-width: 80px; flex: none; font-size: 16px; font-weight: 600; text-align: center; }
     .input-group-row .buttons-container { display: flex; gap: 5px; flex: 1; }
     .input-group-row .buttons-container button { flex: 1; padding: 0 5px; white-space: nowrap; width: auto; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-    
     #btnAddTicket { flex: 1; padding: 0 20px; font-weight: 700; font-size: 15px; }
     
-    /* --- Ô NHẬP LIỆU ĐỘNG --- */
     .dynamic-input { width: 100%; border: none !important; background: transparent !important; font-family: inherit; font-size: inherit; font-weight: bold; text-align: center; padding: 5px; outline: none !important; color: inherit; box-shadow: none !important; appearance: none; -webkit-appearance: none; resize: none; height: auto; overflow: hidden; }
-    .dynamic-input::placeholder { color: #bbb; font-weight: normal; }
-    .dynamic-input:focus { background-color: rgba(0,0,0,0.02) !important; border-radius: 4px; }
-
     .region-lock-container.locked #regionDefinitionsInput { display: none !important; }
 
     /* Desktop */
@@ -170,22 +129,31 @@
         h2 { font-size: 20px; margin-top: 20px; }
         
         #summaryTableContainer, #reportContainer { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 15px; border-left: none; border-right: none; border-radius: 0; }
-        th, td { padding: 8px 4px !important; font-size: 13px !important; }
-        td:first-child, td:nth-child(2) { white-space: normal; min-width: 70px; }
+        
+        /* FIX: Cột tự co giãn */
+        table { width: auto !important; min-width: 100%; table-layout: auto !important; }
+        th, td { padding: 8px 3px !important; font-size: 13px !important; } 
+        
+        td:first-child, td:nth-child(2) { white-space: normal; min-width: 60px; }
         
         tr.final-amount-positive td, tr.final-amount-negative td { font-size: 18px !important; padding: 12px 5px !important; }
-        .input-group-row input#soSoInput { width: 80px !important; min-width: 80px; }
-        .input-group-row input#sellQuantityInput { width: 80px !important; min-width: 80px; }
+        .input-group-row input#soSoInput, .input-group-row input#sellQuantityInput { width: 80px !important; min-width: 80px; }
         .input-group-row .buttons-container button { padding: 0 2px; font-size: 12px; }
-        
         .simple-animated-logo { font-size: 28px; margin-top: 15px; }
         .main-copyright { margin-bottom: 20px; }
     }
     
     /* MODALS */
     .modal-overlay { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(2px); padding-top: 60px; overflow: auto; animation: fadeIn 0.2s; }
-    .modal-content { background-color: #fff; margin: auto; padding: 25px; width: 90%; max-width: 450px; border-radius: 12px; position: relative; animation: slideIn 0.3s; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-    .modal-close-btn { position: absolute; top: 10px; right: 15px; font-size: 28px; cursor: pointer; color: #aaa; }
+    .modal-content { background-color: #fff; margin: auto; padding: 25px; width: 95%; max-width: 600px; border-radius: 12px; position: relative; animation: slideIn 0.3s; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+    .modal-close-btn { position: absolute; top: 10px; right: 15px; font-size: 28px; cursor: pointer; color: #aaa; z-index: 100; }
+    
+    /* PREVIEW IMAGES */
+    .preview-images-container { display: flex; flex-direction: column; gap: 15px; align-items: center; background: #f0f0f0; padding: 10px; border-radius: 8px; }
+    .preview-image-item { width: 100%; background: #fff; padding: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; }
+    .preview-image-item img { width: 100%; display: block; }
+    .page-number { text-align: center; font-weight: bold; color: #7f8c8d; margin-bottom: 5px; font-size: 12px; }
+    
     #notification-area { position: fixed; top: 20px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; }
     .notification { padding: 12px 20px; border-radius: 8px; color: white; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; transform: translateX(50px); transition: 0.3s; font-weight: 500; }
     .notification.show { opacity: 1; transform: translateX(0); }
@@ -198,7 +166,7 @@
     @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
     @keyframes slideIn { from {transform: translateY(-20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
     
-    /* PRINT - FIX: TẮT STICKY ĐỂ KHÔNG LẶP LẠI FOOTER */
+    /* PRINT */
     @media print {
         @page { size: A4; margin: 10mm; } 
         body { padding: 0; background: white; -webkit-print-color-adjust: exact; font-size: 11pt; } 
@@ -208,7 +176,6 @@
             position: static !important; visibility: visible !important; overflow: visible !important;
             max-height: none !important; box-shadow: none !important;
         }
-        /* Tắt sticky khi in */
         th, #summaryTotalRow td, tfoot td { position: static !important; border: 1px solid #000 !important; color: #000 !important; background: none !important; }
         td { border: 1px solid #000 !important; }
         #summaryTableContainer { border: none; }
@@ -240,15 +207,12 @@
         <span class="letter">Z</span><span class="letter">E</span><span class="letter">N</span><span class="letter">G</span><span class="tm">™</span>
         <div class="online-badge"><span class="online-dot"></span> <span class="online-count">8</span></div>
     </div>
-
     <h2>Báo cáo Thu Tiền</h2>
-    
     <div class="controls-panel">
         <div class="mode-switch">
             <button id="tabExcel" class="tab-btn active">Nhập Excel</button>
             <button id="tabRaw" class="tab-btn">Dữ liệu thô</button>
         </div>
-
         <div id="panelExcel" style="margin-top: 15px;">
             <label for="excelFile1">Chọn file Biểu 31 (Lô tô):</label>
             <input type="file" id="excelFile1" accept=".xls,.xlsx">
@@ -256,22 +220,16 @@
             <label for="excelFile2">Chọn file Biểu 35 (XSKT - Tùy chọn):</label>
             <input type="file" id="excelFile2" accept=".xls,.xlsx">
         </div>
-
         <div id="panelRaw" style="display:none; margin-top: 15px;">
             <label for="rawInput">Dán dữ liệu từ Clipboard:</label>
-            <textarea id="rawInput" rows="6" placeholder='Ví dụ: 
-"U966","01/12","LT","140","11,2","0","128,8"' style="font-family: monospace; white-space: pre; overflow-x: auto;"></textarea>
-            <div style="font-size: 12px; color: var(--text-light); margin-top: 5px; font-style: italic;">
-                * Hỗ trợ format: "Mã","Ngày","LH","Doanh thu","Hoa hồng","Thưởng","Nộp"
-            </div>
+            <textarea id="rawInput" rows="6" placeholder='Ví dụ: "U966","01/12","LT","140","11,2","0","128,8"' style="font-family: monospace; white-space: pre; overflow-x: auto;"></textarea>
+            <div style="font-size: 12px; color: var(--text-light); margin-top: 5px; font-style: italic;">* Hỗ trợ format: "Mã","Ngày","LH","Doanh thu","Hoa hồng","Thưởng","Nộp"</div>
         </div>
-
         <div class="home-actions" style="margin-top: 20px;">
             <button id="btnShowManualReport" class="warning">Thêm thủ công</button>
             <button id="btnLoadData" class="success">Nạp dữ liệu & Xem báo cáo</button>
         </div>
     </div>
-
     <div class="main-copyright">© 2025 ZENG FINANCE</div>
   </div>
   
@@ -301,46 +259,24 @@
             <div id="debtContainer" style="margin-top: 15px; border-top: 1px dashed #dcdde1; padding-top: 15px;">
                  <label style="color: var(--danger-color); font-weight: 700;">Quản lý Nợ cũ:</label>
                  <div class="debt-mode-selector">
-                    <div class="options">
-                        <label><input type="radio" name="debtMode" value="manual"> Thủ công</label>
-                        <label><input type="radio" name="debtMode" value="excel"> Excel (tienno.xls)</label>
-                    </div>
+                    <div class="options"><label><input type="radio" name="debtMode" value="manual"> Thủ công</label><label><input type="radio" name="debtMode" value="excel"> Excel (tienno.xls)</label></div>
                     <div style="display: flex; gap: 5px;">
                         <button id="btnApplyDebt" class="warning" style="display:none; padding: 6px 15px; width: auto; font-size: 13px;">Cập nhật</button>
                         <button id="btnClearDebt" class="danger" style="padding: 6px 15px; width: auto; font-size: 13px;">Xóa Nợ</button>
                     </div>
                  </div>
-                 <div id="debtManualContainer" style="display: none; margin-top: 10px;">
-                     <textarea id="debtInput" rows="2" placeholder="Nhập Mã+Tiền (VD: 980 1000)"></textarea>
-                 </div>
-                 <div id="debtExcelContainer" style="display: none; margin-top: 10px;">
-                     <input type="file" id="debtFile" accept=".xls,.xlsx">
-                 </div>
+                 <div id="debtManualContainer" style="display: none; margin-top: 10px;"><textarea id="debtInput" rows="2" placeholder="Nhập Mã+Tiền (VD: 980 1000)"></textarea></div>
+                 <div id="debtExcelContainer" style="display: none; margin-top: 10px;"><input type="file" id="debtFile" accept=".xls,.xlsx"></div>
                  <div id="debtStatusMsg" style="font-size: 13px; color: var(--success-color); font-weight: 600; margin-top: 5px; display: none;"></div>
             </div>
             
             <div class="revenue-filter-grid" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #dcdde1;">
                 <div class="revenue-filter-col-left filter-column">
-                    <div class="filter-column">
-                        <label>Sắp xếp:</label>
-                        <select id="sortSelect"><option value="default">Mặc định</option><option value="revenue_desc">Doanh số (Cao-Thấp)</option><option value="revenue_asc">Doanh số (Thấp-Cao)</option></select>
-                    </div>
-                    <div class="filter-column">
-                        <label>Doanh số từ:</label>
-                        <input type="text" id="minRevenueInput" class="manual-currency" inputmode="numeric" placeholder="VD: 300">
-                    </div>
-                    <div class="filter-column">
-                        <label>Đến:</label>
-                        <input type="text" id="maxRevenueInput" class="manual-currency" inputmode="numeric" placeholder="Tối đa">
-                    </div>
+                    <div class="filter-column"><label>Sắp xếp:</label><select id="sortSelect"><option value="default">Mặc định</option><option value="revenue_desc">Doanh số (Cao-Thấp)</option><option value="revenue_asc">Doanh số (Thấp-Cao)</option></select></div>
+                    <div class="filter-column"><label>Doanh số từ:</label><input type="text" id="minRevenueInput" class="manual-currency" inputmode="numeric" placeholder="VD: 300"></div>
+                    <div class="filter-column"><label>Đến:</label><input type="text" id="maxRevenueInput" class="manual-currency" inputmode="numeric" placeholder="Tối đa"></div>
                 </div>
-                <div class="revenue-filter-col-right filter-column">
-                    <label>Đơn vị:</label>
-                    <div style="display: flex; gap: 5px;">
-                        <select id="regionSelect" style="flex-grow: 1;"><option value="all">--- Tất cả ---</option></select>
-                        <button id="btnClearRevenueFilter" class="secondary" style="padding: 0 15px; width: auto;">X</button>
-                    </div>
-                </div>
+                <div class="revenue-filter-col-right filter-column"><label>Đơn vị:</label><div style="display: flex; gap: 5px;"><select id="regionSelect" style="flex-grow: 1;"><option value="all">--- Tất cả ---</option></select><button id="btnClearRevenueFilter" class="secondary" style="padding: 0 15px; width: auto;">X</button></div></div>
             </div>
         </div>
 
@@ -355,11 +291,7 @@
     </div>
 
     <div id="reportSection" class="main-section" style="display: none;">
-        <div class="home-menu-grid">
-            <button class="home-menu-btn" id="btnGoToSummary">📊 Xem Tổng hợp</button>
-            <button class="home-menu-btn" id="btnGoToSell">🎫 Bán thêm Vé</button>
-        </div>
-
+        <div class="home-menu-grid"><button class="home-menu-btn" id="btnGoToSummary">📊 Xem Tổng hợp</button><button class="home-menu-btn" id="btnGoToSell">🎫 Bán thêm Vé</button></div>
         <h3>Tra cứu & Tạo Báo Cáo</h3>
         <div class="controls-panel">
             <label for="soSoInput">Nhập số sổ:</label>
@@ -373,7 +305,6 @@
             </div>
         </div>
         <div id="reportContainer"></div>
-        
         <div id="actionButtonContainer">
             <button id="btnCopyReport" class="success">📷 Copy Ảnh</button>
             <button id="toggleChoicesBtn" class="secondary">Thêm tiền Thưởng/Nợ</button>
@@ -382,58 +313,16 @@
     </div>
 
     <div id="sellSection" class="main-section" style="display: none;">
-        <div class="nav-header">
-            <button class="back-btn" id="btnBackFromSell">⬅ Quay lại</button>
-        </div>
+        <div class="nav-header"><button class="back-btn" id="btnBackFromSell">⬅ Quay lại</button></div>
         <h3>Bán thêm Vé</h3>
-        
         <div id="sellTicketControls" class="controls-panel">
-            <div class="sell-row-container">
-                <label>Loại hình:</label>
-                <div class="ticket-type-selector">
-                    <label><input type="radio" name="sellTicketType" value="xo-so" checked> Xổ số</label>
-                    <label><input type="radio" name="sellTicketType" value="ve-boc"> Vé bóc</label>
-                    <label><input type="radio" name="sellTicketType" value="custom-name"> Khác</label>
-                </div>
-            </div>
-            <div style="padding-left: 90px; margin-bottom: 10px;">
-                <input type="text" id="customTicketName" placeholder="Nhập tên..." style="display:none;">
-            </div>
-
-            <div class="sell-row-container">
-                <label>Giá bán:</label>
-                <div class="ticket-type-selector">
-                    <label><input type="radio" name="sellPrice" value="10000" checked> 10k</label>
-                    <label><input type="radio" name="sellPrice" value="20000"> 20k</label>
-                    <label><input type="radio" name="sellPrice" value="5000"> 5k</label>
-                    <label><input type="radio" name="sellPrice" value="custom-price"> Khác</label>
-                </div>
-            </div>
-            <div style="padding-left: 90px; margin-bottom: 10px;">
-                <input type="text" id="customTicketPrice" inputmode="numeric" placeholder="Nhập giá..." style="display:none;">
-            </div>
-
-            <div class="sell-row-container">
-                <label>Hoa hồng:</label>
-                <div class="ticket-type-selector">
-                    <label><input type="radio" name="sellRate" value="10" checked> 10%</label>
-                    <label><input type="radio" name="sellRate" value="12"> 12%</label>
-                    <label><input type="radio" name="sellRate" value="custom-rate"> Khác</label>
-                </div>
-            </div>
-            <div style="padding-left: 90px; margin-bottom: 10px;">
-                <input type="number" id="customTicketRate" placeholder="Nhập %..." style="display:none;">
-            </div>
-
-            <div class="sell-row-container">
-                <label>Số lượng:</label>
-                <div class="input-group-row">
-                    <input type="number" id="sellQuantityInput" placeholder="SL..." min="0">
-                    <div class="buttons-container">
-                        <button id="btnAddTicket" class="success">Thêm</button>
-                    </div>
-                </div>
-            </div>
+            <div class="sell-row-container"><label>Loại hình:</label><div class="ticket-type-selector"><label><input type="radio" name="sellTicketType" value="xo-so" checked> Xổ số</label><label><input type="radio" name="sellTicketType" value="ve-boc"> Vé bóc</label><label><input type="radio" name="sellTicketType" value="custom-name"> Khác</label></div></div>
+            <div style="padding-left: 90px; margin-bottom: 10px;"><input type="text" id="customTicketName" placeholder="Nhập tên..." style="display:none;"></div>
+            <div class="sell-row-container"><label>Giá bán:</label><div class="ticket-type-selector"><label><input type="radio" name="sellPrice" value="10000" checked> 10k</label><label><input type="radio" name="sellPrice" value="20000"> 20k</label><label><input type="radio" name="sellPrice" value="5000"> 5k</label><label><input type="radio" name="sellPrice" value="custom-price"> Khác</label></div></div>
+            <div style="padding-left: 90px; margin-bottom: 10px;"><input type="text" id="customTicketPrice" inputmode="numeric" placeholder="Nhập giá..." style="display:none;"></div>
+            <div class="sell-row-container"><label>Hoa hồng:</label><div class="ticket-type-selector"><label><input type="radio" name="sellRate" value="10" checked> 10%</label><label><input type="radio" name="sellRate" value="12"> 12%</label><label><input type="radio" name="sellRate" value="custom-rate"> Khác</label></div></div>
+            <div style="padding-left: 90px; margin-bottom: 10px;"><input type="number" id="customTicketRate" placeholder="Nhập %..." style="display:none;"></div>
+            <div class="sell-row-container"><label>Số lượng:</label><div class="input-group-row"><input type="number" id="sellQuantityInput" placeholder="SL..." min="0"><div class="buttons-container"><button id="btnAddTicket" class="success">Thêm</button></div></div></div>
         </div>
     </div>
     <div class="main-copyright">© 2025 ZENG FINANCE</div>
@@ -446,7 +335,7 @@
            <h4 style="margin-top:0;">Thêm Báo Cáo Thủ Công</h4>
            <div style="display: grid; gap: 10px;">
                <input type="text" id="manualAgentName" placeholder="Tên Đại Lý">
-               <input type="text" id="manualDateRange" placeholder="Thời gian (VD: 01/01)">
+               <input type="text" id="manualDateRange" placeholder="Thời gian">
                <input type="text" id="manualLotoDB" class="manual-currency" inputmode="decimal" placeholder="Lô tô ĐB">
                <input type="text" id="manualLoCap" class="manual-currency" inputmode="decimal" placeholder="Lô cặp">
                <input type="text" id="manualC227" class="manual-currency" inputmode="decimal" placeholder="2/27">
@@ -462,13 +351,17 @@
    </div>
 
    <div id="imagePreviewModal" class="modal-overlay">
-     <div class="modal-content" style="max-width: 95%; width: auto;">
+     <div class="modal-content" style="max-width: 95%; width: auto; background-color: #f8f9fa;">
        <span id="closePreviewModalBtn" class="modal-close-btn">&times;</span>
-       <h4 style="margin-top:0; text-align:center;">Sao chép Ảnh</h4>
-       <div style="overflow: auto; max-height: 80vh;">
-           <img id="imagePreviewHolder" src="" style="width: 100%; border: 1px solid #ddd;">
+       <h4 style="margin-top:0; text-align:center; color: #2c3e50;">Sao chép Ảnh</h4>
+       <div style="text-align: center; margin-bottom: 10px;">
+            <button id="btnSaveAllImages" class="success" style="padding: 10px 20px; font-size: 14px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">💾 LƯU TẤT CẢ ẢNH</button>
        </div>
-       <p style="text-align:center; font-size:13px; color:#777;">Nhấn giữ ảnh để sao chép hoặc lưu</p>
+       <div id="imagePreviewHolder" class="preview-images-container">
+           </div>
+       <p style="text-align:center; font-size:13px; color:#777; margin-top: 10px;">
+           <span style="display:block; margin-bottom:3px;">💡 Mẹo: Nhấn giữ vào ảnh để <b>Lưu</b> hoặc <b>Sao chép</b> từng trang</span>
+       </p>
      </div>
    </div>
 
@@ -499,9 +392,9 @@
     let dateRangeText = "Chưa có ngày";
     let regionDefinitions = {}, isRegionLocked = false; 
     let debtData = new Map(), isDebtFromExcel = false; 
+    let currentGeneratedImages = []; 
     
     const REGION_DATA_URL = 'https://raw.githubusercontent.com/doducdungvn/tinhtiendaily/main/donvi.txt';
-    
     const state = { currentSoSo: null, baseTongDT: 0, baseTongHH: 0, baseThuong: 0, extraBonus: 0, extraDebt: 0, addedTickets: [], accountCodes: new Set(), debtFromData: 0 };
 
     const DOM = {
@@ -540,7 +433,8 @@
         sortSelect: document.getElementById('sortSelect'), minRevenueInput: document.getElementById('minRevenueInput'), maxRevenueInput: document.getElementById('maxRevenueInput'), btnClearRevenueFilter: document.getElementById('btnClearRevenueFilter'),
         debtInput: document.getElementById('debtInput'), debtManualContainer: document.getElementById('debtManualContainer'), debtExcelContainer: document.getElementById('debtExcelContainer'), debtFile: document.getElementById('debtFile'), 
         debtModeRadios: document.querySelectorAll('input[name="debtMode"]'), btnClearDebt: document.getElementById('btnClearDebt'), debtStatusMsg: document.getElementById('debtStatusMsg'), btnApplyDebt: document.getElementById('btnApplyDebt'),
-        passwordModal: document.getElementById('passwordModal'), closePasswordModalBtn: document.getElementById('closePasswordModalBtn'), passwordInput: document.getElementById('passwordInput'), btnSubmitPassword: document.getElementById('btnSubmitPassword'), cancelPasswordBtn: document.getElementById('cancelPasswordBtn')
+        passwordModal: document.getElementById('passwordModal'), closePasswordModalBtn: document.getElementById('closePasswordModalBtn'), passwordInput: document.getElementById('passwordInput'), btnSubmitPassword: document.getElementById('btnSubmitPassword'), cancelPasswordBtn: document.getElementById('cancelPasswordBtn'),
+        btnSaveAllImages: document.getElementById('btnSaveAllImages')
     };
     
     const manualFormOrder = ['manualAgentName', 'manualDateRange', 'manualLotoDB', 'manualLoCap', 'manualC227', 'manualC323', 'manualThuong'];
@@ -590,6 +484,85 @@
         return res.charAt(0).toUpperCase()+res.slice(1);
     }
 
+    // --- LOGIC CẮT ẢNH A4 CHUẨN: MÓC CHÍNH XÁC DÒNG TIÊU ĐỀ ---
+    async function splitCanvasToImages(canvas, targetTable, rootElement) {
+        const images = [];
+        const contentWidth = canvas.width;
+        const totalHeight = canvas.height;
+        const pageHeight = Math.floor(contentWidth * 1.414); 
+        
+        // 1. TÌM VỊ TRÍ CHÍNH XÁC CỦA DÒNG TIÊU ĐỀ (THEAD)
+        let theadH_inCanvas = 0;
+        let theadY_inCanvas = 0;
+        
+        if (targetTable && rootElement) {
+            const thead = targetTable.querySelector('thead');
+            if (thead) {
+                // Tính tọa độ Y của thead so với top của canvas (rootElement)
+                const rootRect = rootElement.getBoundingClientRect();
+                const theadRect = thead.getBoundingClientRect();
+                const relativeY = theadRect.top - rootRect.top;
+
+                // Scale 2 do html2canvas
+                const scale = 2; 
+                
+                // Móc lên 5px để lấy viền
+                const adjustment = 5;
+                
+                theadY_inCanvas = Math.max(0, (relativeY - adjustment) * scale);
+                theadH_inCanvas = (thead.offsetHeight + adjustment) * scale;
+            }
+        }
+        
+        // Vùng Header cần lặp lại (Chỉ lấy dòng xanh)
+        const repeatHeaderHeight = theadH_inCanvas;
+        const repeatHeaderSourceY = theadY_inCanvas;
+
+        let currentY = 0;
+        let pageIndex = 0;
+
+        while (currentY < totalHeight) {
+            const isFirstPage = (pageIndex === 0);
+            
+            // Trang 1: Cắt full trang A4 bình thường
+            // Trang 2+: Cần chừa chỗ ở đầu trang để dán Header vào
+            const availableContentHeight = isFirstPage ? pageHeight : (pageHeight - repeatHeaderHeight);
+            
+            let sliceHeight = Math.min(availableContentHeight, totalHeight - currentY);
+            
+            // Canvas đích cho trang hiện tại
+            const pageCanvas = document.createElement('canvas');
+            pageCanvas.width = contentWidth;
+            pageCanvas.height = isFirstPage ? sliceHeight : (repeatHeaderHeight + sliceHeight);
+            
+            const ctx = pageCanvas.getContext('2d');
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+            
+            // 1. Vẽ Header (Chỉ cho trang 2 trở đi)
+            if (!isFirstPage && repeatHeaderHeight > 0) {
+                // Cắt đúng vùng thead từ canvas gốc (dùng tọa độ đã tính)
+                ctx.drawImage(canvas, 0, repeatHeaderSourceY, contentWidth, repeatHeaderHeight, 0, 0, contentWidth, repeatHeaderHeight);
+            }
+
+            // 2. Vẽ Nội dung chính
+            // Nếu là trang 1: Vẽ từ đỉnh (0)
+            // Nếu là trang sau: Vẽ tiếp theo sau Header (repeatHeaderHeight)
+            const destY = isFirstPage ? 0 : repeatHeaderHeight;
+            
+            // Cắt từ canvas gốc tại currentY
+            ctx.drawImage(canvas, 0, currentY, contentWidth, sliceHeight, 0, destY, contentWidth, sliceHeight);
+            
+            images.push(pageCanvas.toDataURL('image/png'));
+            
+            currentY += sliceHeight;
+            pageIndex++;
+            
+            if (currentY >= totalHeight) break;
+        }
+        return images;
+    }
+
     async function copyElementAsImage(sel, msg, btn) { 
         const el = document.querySelector(sel); 
         if(!el || !el.innerHTML.trim()) return showNotification("Chưa có nội dung!", 'info');
@@ -598,14 +571,10 @@
         if(btn) btn.textContent = 'Đang xử lý...';
         
         const hiddenEls = [
-            el.querySelector('.summary-actions'), 
-            el.querySelector('.controls-panel'), 
-            document.getElementById('actionButtonContainer'),
-            document.getElementById('sellTicketControls'),
-            el.querySelector('.nav-header'),
-            document.querySelector('.home-menu-grid'),
-            document.getElementById('scrollToTopBtn'),
-            document.getElementById('scrollToBottomBtn')
+            el.querySelector('.summary-actions'), el.querySelector('.controls-panel'), 
+            document.getElementById('actionButtonContainer'), document.getElementById('sellTicketControls'),
+            el.querySelector('.nav-header'), document.querySelector('.home-menu-grid'),
+            document.getElementById('scrollToTopBtn'), document.getElementById('scrollToBottomBtn')
         ].filter(Boolean);
         hiddenEls.forEach(e => e.style.display = 'none'); 
 
@@ -623,15 +592,16 @@
 
         const originalStyles = { maxHeight: '', overflowX: '', overflowY: '', width: '' };
         let stickyElements = [];
+        let targetTable = null; 
 
         if (targetContainer) {
             originalStyles.maxHeight = targetContainer.style.maxHeight;
             originalStyles.overflowX = targetContainer.style.overflowX;
             originalStyles.overflowY = targetContainer.style.overflowY;
-            targetContainer.style.maxHeight = 'none';
-            targetContainer.style.overflow = 'visible';
+            targetContainer.style.maxHeight = 'none'; targetContainer.style.overflow = 'visible';
             
-            // Xử lý sticky headers/footers
+            targetTable = targetContainer.querySelector('table'); // Lấy bảng để tìm thead
+            
             stickyElements = Array.from(targetContainer.querySelectorAll('th, #summaryTotalRow td'));
             stickyElements.forEach(elem => {
                 elem.dataset.originalPosition = elem.style.position;
@@ -639,10 +609,9 @@
                 elem.style.borderTop = '1px solid #dfe6e9';
             });
 
-            const table = targetContainer.querySelector('table');
-            if (table && table.scrollWidth > window.innerWidth) {
-                 targetContainer.style.width = table.scrollWidth + 'px';
-                 el.style.width = table.scrollWidth + 40 + 'px'; 
+            if (targetTable && targetTable.scrollWidth > window.innerWidth) {
+                 targetContainer.style.width = targetTable.scrollWidth + 'px';
+                 el.style.width = targetTable.scrollWidth + 40 + 'px'; 
             }
         }
 
@@ -650,35 +619,53 @@
             try {
                 window.scrollTo(0,0);
                 const canvas = await html2canvas(el, { backgroundColor: "#ffffff", scale: 2, useCORS: true, scrollY: 0, x: 0, y: 0, width: el.scrollWidth, height: el.scrollHeight });
-                canvas.toBlob(async(blob)=>{
-                    try { await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); showNotification(msg, 'success'); }
-                    catch(err) { 
-                        console.error(err); 
-                        DOM.imagePreviewHolder.src = canvas.toDataURL(); 
-                        DOM.imagePreviewModal.style.display = 'block'; 
-                        showNotification('Nhấn giữ ảnh để lưu', 'info'); 
-                    }
-                });
+                
+                const limitHeight = canvas.width * 2;
+                const previewHolder = document.getElementById('imagePreviewHolder');
+                previewHolder.innerHTML = '';
+                currentGeneratedImages = [];
+
+                if (canvas.height > limitHeight) {
+                    // Gọi hàm cắt ảnh mới, truyền thêm el (rootElement)
+                    const images = await splitCanvasToImages(canvas, targetTable, el);
+                    currentGeneratedImages = images;
+                    
+                    images.forEach((imgSrc, index) => {
+                        const div = document.createElement('div');
+                        div.className = 'preview-image-item';
+                        div.innerHTML = `<div class="page-number">Trang ${index + 1}/${images.length}</div><img src="${imgSrc}">`;
+                        previewHolder.appendChild(div);
+                    });
+                    showNotification(`Đã chia thành ${images.length} trang`, 'info');
+                    DOM.btnSaveAllImages.style.display = 'inline-block';
+                } else {
+                    const imgSrc = canvas.toDataURL('image/png');
+                    currentGeneratedImages = [imgSrc];
+                    const img = document.createElement('img'); img.src = imgSrc;
+                    previewHolder.appendChild(img);
+                    DOM.btnSaveAllImages.style.display = 'none';
+                    try { canvas.toBlob(async(blob)=>{ await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); showNotification(msg, 'success'); }); } catch(e){}
+                }
+                DOM.imagePreviewModal.style.display = 'block';
             } catch(e){ console.error(e); showNotification('Lỗi tạo ảnh', 'error'); }
             finally {
                 if(footer && footer.parentNode) footer.parentNode.removeChild(footer);
-                hiddenEls.forEach(e => e.style.display = ''); 
-                if(btn) btn.textContent = oldTxt;
-                
+                hiddenEls.forEach(e => e.style.display = ''); if(btn) btn.textContent = oldTxt;
                 if (targetContainer) {
-                    targetContainer.style.maxHeight = originalStyles.maxHeight;
-                    targetContainer.style.overflowX = originalStyles.overflowX;
-                    targetContainer.style.overflowY = originalStyles.overflowY;
-                    targetContainer.style.width = '';
-                    el.style.width = '';
-                    stickyElements.forEach(elem => {
-                        elem.style.position = elem.dataset.originalPosition || '';
-                        elem.style.borderTop = '';
-                    });
+                    targetContainer.style.maxHeight = originalStyles.maxHeight; targetContainer.style.overflowX = originalStyles.overflowX; targetContainer.style.overflowY = originalStyles.overflowY; targetContainer.style.width = ''; el.style.width = '';
+                    stickyElements.forEach(elem => { elem.style.position = elem.dataset.originalPosition || ''; elem.style.borderTop = ''; });
                 }
             }
         }, 100);
     }
+    
+    DOM.btnSaveAllImages.onclick = () => {
+        if (!currentGeneratedImages || currentGeneratedImages.length === 0) return;
+        currentGeneratedImages.forEach((imgSrc, index) => {
+            const link = document.createElement('a'); link.href = imgSrc; link.download = `Bao_cao_Trang_${index + 1}.png`; document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        });
+        showNotification('Đang tải xuống...', 'success');
+    };
 
     function handleFile(file, num, inputId) {
         if(!file) return;
@@ -687,7 +674,6 @@
             try {
                 const data=new Uint8Array(e.target.result); const wb=XLSX.read(data,{type:"array"}); const ws=wb.Sheets[wb.SheetNames[0]]; const json=XLSX.utils.sheet_to_json(ws,{defval:""});
                 if(!json.length) throw new Error("File rỗng");
-                
                 if(num===1) { 
                     excelData1=json; 
                     let dr=json.find(r=>Object.values(r).some(v=>typeof v==="string" && (v.includes("Tõ ngµy") || v.includes("Ngµy"))));
@@ -853,9 +839,9 @@
 
         let html;
         if (appMode === 'excel') {
-             html=`<thead><tr><th>STT</th><th>ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th>${hasXSKT?'<th>XSKT':''}<th>Dsố</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
+             html=`<thead><tr><th width="8%">STT</th><th width="12%">ĐL</th><th>LTô</th><th>LCặp</th><th>Lô 3/23</th><th>Lô 2/27</th>${hasXSKT?'<th>XSKT':''}<th>Dsố</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
         } else {
-             html=`<thead><tr><th>STT</th><th>ĐL</th><th>Doanh Số</th><th>Hoa hồng</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
+             html=`<thead><tr><th width="8%">STT</th><th width="12%">ĐL</th><th>Doanh Số</th><th>Hoa hồng</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
         }
 
         let stt=1, sortedGroups=[...groups.entries()];
@@ -885,7 +871,6 @@
             stt++;
         });
         
-        // FIX: ĐƯA TỔNG VÀO CUỐI TBODY
         if(appMode === 'excel') {
             html+=`<tr id="summaryTotalRow" class="group-total-row" style="background-color:#f1c40f;font-weight:bold;"><td colspan="2">TỔNG</td><td>${formatNumberHiddenK(totals.lotoDB)}</td><td>${formatNumberHiddenK(totals.lotoCap)}</td><td>${formatNumberHiddenK(totals.c323)}</td><td>${formatNumberHiddenK(totals.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(totals.xskt)}</td>`:''}<td>${formatNumberHiddenK(totals.rev)}</td><td>${formatNumberHiddenK(totals.th)}</td>${hasDebt?`<td>${formatNumberHiddenK(totals.debt)}</td>`:''}<td class="${totals.final>=0?'final-amount-positive':'final-amount-negative'}">${formatNumberHiddenK(totals.final)}</td></tr></tbody>`;
         } else {
