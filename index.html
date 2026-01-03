@@ -52,8 +52,8 @@
 
     /* --- TÙY CHỈNH RIÊNG CHO PHẦN BÁN VÉ (CARD VIEW) --- */
     #sellSection .controls-panel {
-        max-width: 500px; /* Thu gọn giao diện như thẻ */
-        margin: 0 auto;   /* Căn giữa */
+        max-width: 500px; 
+        margin: 0 auto;   
     }
 
     h2 { font-size: 24px; font-weight: 700; text-align: center; color: var(--header-bg); margin-bottom: 20px; letter-spacing: -0.5px; }
@@ -105,8 +105,21 @@
     #summaryTableContainer { margin-top: 15px; width: 100%; max-height: 70vh; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border-color); border-radius: 8px; }
     table { border-collapse: separate; border-spacing: 0; width: auto !important; min-width: 100%; background: white; margin: 0 auto; }
     th, td { border-right: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; padding: 10px 8px; text-align: center; vertical-align: middle; font-size: 14px; white-space: nowrap; }
-    th { background: var(--header-bg); color: white; font-weight: 600; position: sticky; top: 0; z-index: 10; border-top: none; }
-    tfoot td { background-color: #f8f9fa; color: var(--text-color); font-weight: 700; position: sticky; bottom: 0; z-index: 10; border-top: 2px solid #bdc3c7; }
+    
+    /* Sticky Header */
+    th { background: var(--header-bg); color: white; font-weight: 600; position: sticky; top: 0; z-index: 20; border-top: none; }
+    
+    /* FIX: Sticky Footer (Dòng tổng) - Sử dụng ID thay vì tfoot để kiểm soát in ấn */
+    #summaryTotalRow td { 
+        background-color: #f8f9fa; 
+        color: var(--text-color); 
+        font-weight: 700; 
+        position: sticky; 
+        bottom: 0; 
+        z-index: 20; 
+        border-top: 2px solid #bdc3c7; 
+    }
+    
     .group-total-row td { background-color: #fff9db; font-weight: bold; }
     
     /* Căn giữa Header và Bằng chữ */
@@ -127,47 +140,22 @@
     /* --- INPUT GROUP VÀ BUTTONS --- */
     .input-group-row { display: flex; gap: 8px; width: 100%; align-items: stretch; }
     
-    /* Ô nhập số sổ */
-    .input-group-row input#soSoInput { 
-        width: 100px !important; 
-        min-width: 80px;
-        flex: none; 
-        font-size: 16px;
-        font-weight: 600;
-        text-align: center;
-    }
-    
-    /* Ô nhập số lượng BÁN VÉ */
-    .input-group-row input#sellQuantityInput { 
-        width: 100px !important; 
-        min-width: 80px;
-        flex: none; 
-        font-size: 16px;
-        font-weight: 600;
-        text-align: center;
-    }
+    .input-group-row input#soSoInput { width: 100px !important; min-width: 80px; flex: none; font-size: 16px; font-weight: 600; text-align: center; }
+    .input-group-row input#sellQuantityInput { width: 100px !important; min-width: 80px; flex: none; font-size: 16px; font-weight: 600; text-align: center; }
 
     .input-group-row .buttons-container { display: flex; gap: 5px; flex: 1; }
     .input-group-row .buttons-container button { flex: 1; padding: 0 5px; white-space: nowrap; width: auto; display: flex; align-items: center; justify-content: center; font-size: 14px; }
     
-    /* Nút Thêm vé to ra */
-    #btnAddTicket {
-        flex: 1; /* Chiếm hết khoảng trống còn lại */
-        padding: 0 20px;
-        font-weight: 700;
-        font-size: 15px;
-    }
+    #btnAddTicket { flex: 1; padding: 0 20px; font-weight: 700; font-size: 15px; }
     
-    /* --- Ô NHẬP LIỆU ĐỘNG (Trong suốt) --- */
-    .dynamic-input {
-        width: 100%; border: none !important; background: transparent !important; font-family: inherit; font-size: inherit; font-weight: bold; text-align: center; padding: 5px; outline: none !important; color: inherit; box-shadow: none !important; appearance: none; -webkit-appearance: none; resize: none; height: auto; overflow: hidden;
-    }
+    /* --- Ô NHẬP LIỆU ĐỘNG --- */
+    .dynamic-input { width: 100%; border: none !important; background: transparent !important; font-family: inherit; font-size: inherit; font-weight: bold; text-align: center; padding: 5px; outline: none !important; color: inherit; box-shadow: none !important; appearance: none; -webkit-appearance: none; resize: none; height: auto; overflow: hidden; }
     .dynamic-input::placeholder { color: #bbb; font-weight: normal; }
     .dynamic-input:focus { background-color: rgba(0,0,0,0.02) !important; border-radius: 4px; }
 
     .region-lock-container.locked #regionDefinitionsInput { display: none !important; }
 
-    /* Desktop Optimizations */
+    /* Desktop */
     @media (min-width: 768px) {
         .filter-grid-container, .revenue-filter-grid { grid-template-columns: 1.5fr 1fr; gap: 20px; }
         .revenue-filter-col-left { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
@@ -176,25 +164,16 @@
     /* --- MOBILE OPTIMIZATION --- */
     @media (max-width: 768px) {
         body { padding: 0 !important; padding-bottom: 80px !important; background-color: #f5f6fa; }
-        
         #homePage { margin: 15px !important; width: auto !important; max-width: none !important; border-radius: 12px !important; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-
-        #mainPage { 
-            margin: 0 !important; width: 100% !important; max-width: 100% !important;
-            padding: 10px 0 !important; border-radius: 0 !important; box-shadow: none !important; 
-        }
-
+        #mainPage { margin: 0 !important; width: 100% !important; max-width: 100% !important; padding: 10px 0 !important; border-radius: 0 !important; box-shadow: none !important; }
         .controls-panel { margin: 0 10px 20px 10px; padding: 15px; border-radius: 8px; }
         h2 { font-size: 20px; margin-top: 20px; }
         
         #summaryTableContainer, #reportContainer { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 15px; border-left: none; border-right: none; border-radius: 0; }
-        
         th, td { padding: 8px 4px !important; font-size: 13px !important; }
         td:first-child, td:nth-child(2) { white-space: normal; min-width: 70px; }
         
         tr.final-amount-positive td, tr.final-amount-negative td { font-size: 18px !important; padding: 12px 5px !important; }
-        
-        /* Giữ nguyên cấu trúc input group trên mobile */
         .input-group-row input#soSoInput { width: 80px !important; min-width: 80px; }
         .input-group-row input#sellQuantityInput { width: 80px !important; min-width: 80px; }
         .input-group-row .buttons-container button { padding: 0 2px; font-size: 12px; }
@@ -203,27 +182,23 @@
         .main-copyright { margin-bottom: 20px; }
     }
     
-    /* MODALS & OTHERS */
+    /* MODALS */
     .modal-overlay { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(2px); padding-top: 60px; overflow: auto; animation: fadeIn 0.2s; }
     .modal-content { background-color: #fff; margin: auto; padding: 25px; width: 90%; max-width: 450px; border-radius: 12px; position: relative; animation: slideIn 0.3s; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
     .modal-close-btn { position: absolute; top: 10px; right: 15px; font-size: 28px; cursor: pointer; color: #aaa; }
-    
     #notification-area { position: fixed; top: 20px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; }
     .notification { padding: 12px 20px; border-radius: 8px; color: white; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; transform: translateX(50px); transition: 0.3s; font-weight: 500; }
     .notification.show { opacity: 1; transform: translateX(0); }
     .notification.success { background-color: var(--success-color); }
     .notification.error { background-color: var(--danger-color); }
     .notification.info { background-color: #3498db; }
-    
     #loading-indicator { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0,0,0,0.8); color: white; padding: 15px 25px; border-radius: 8px; z-index: 3000; font-weight: 600; }
-    
     #scrollToTopBtn, #scrollToBottomBtn { display: none; position: fixed; left: 15px; width: 40px; height: 40px; background: rgba(52, 73, 94, 0.7); color: white; border: none; border-radius: 50%; text-align: center; line-height: 40px; cursor: pointer; z-index: 999; backdrop-filter: blur(2px); }
     #scrollToTopBtn { bottom: 80px; } #scrollToBottomBtn { bottom: 30px; }
-
     @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
     @keyframes slideIn { from {transform: translateY(-20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
     
-    /* PRINT */
+    /* PRINT - FIX: TẮT STICKY ĐỂ KHÔNG LẶP LẠI FOOTER */
     @media print {
         @page { size: A4; margin: 10mm; } 
         body { padding: 0; background: white; -webkit-print-color-adjust: exact; font-size: 11pt; } 
@@ -233,7 +208,8 @@
             position: static !important; visibility: visible !important; overflow: visible !important;
             max-height: none !important; box-shadow: none !important;
         }
-        th, tfoot td { position: static !important; border: 1px solid #000 !important; color: #000 !important; background: none !important; }
+        /* Tắt sticky khi in */
+        th, #summaryTotalRow td, tfoot td { position: static !important; border: 1px solid #000 !important; color: #000 !important; background: none !important; }
         td { border: 1px solid #000 !important; }
         #summaryTableContainer { border: none; }
         .controls-panel, .summary-actions, .home-menu-grid, .nav-header, .simple-animated-logo, 
@@ -655,7 +631,8 @@
             targetContainer.style.maxHeight = 'none';
             targetContainer.style.overflow = 'visible';
             
-            stickyElements = Array.from(targetContainer.querySelectorAll('th, tfoot td'));
+            // Xử lý sticky headers/footers
+            stickyElements = Array.from(targetContainer.querySelectorAll('th, #summaryTotalRow td'));
             stickyElements.forEach(elem => {
                 elem.dataset.originalPosition = elem.style.position;
                 elem.style.position = 'static';
@@ -876,9 +853,9 @@
 
         let html;
         if (appMode === 'excel') {
-             html=`<thead><tr><th width="8%">STT</th><th width="12%">ĐL</th><th>LTô</th><th>LCặp</th><th>Lô 3/23</th><th>Lô 2/27</th>${hasXSKT?'<th>XSKT':''}<th>Dsố</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
+             html=`<thead><tr><th>STT</th><th>ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th>${hasXSKT?'<th>XSKT':''}<th>Dsố</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
         } else {
-             html=`<thead><tr><th width="8%">STT</th><th width="12%">ĐL</th><th>Doanh Số</th><th>Hoa hồng</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
+             html=`<thead><tr><th>STT</th><th>ĐL</th><th>Doanh Số</th><th>Hoa hồng</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
         }
 
         let stt=1, sortedGroups=[...groups.entries()];
@@ -907,16 +884,17 @@
             }
             stt++;
         });
-
+        
+        // FIX: ĐƯA TỔNG VÀO CUỐI TBODY
         if(appMode === 'excel') {
-            html+=`</tbody><tfoot><tr><td colspan="2">TỔNG</td><td>${formatNumberHiddenK(totals.lotoDB)}</td><td>${formatNumberHiddenK(totals.lotoCap)}</td><td>${formatNumberHiddenK(totals.c323)}</td><td>${formatNumberHiddenK(totals.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(totals.xskt)}</td>`:''}<td>${formatNumberHiddenK(totals.rev)}</td><td>${formatNumberHiddenK(totals.th)}</td>${hasDebt?`<td>${formatNumberHiddenK(totals.debt)}</td>`:''}<td class="${totals.final>=0?'final-amount-positive':'final-amount-negative'}">${formatNumberHiddenK(totals.final)}</td></tr></tfoot>`;
+            html+=`<tr id="summaryTotalRow" class="group-total-row" style="background-color:#f1c40f;font-weight:bold;"><td colspan="2">TỔNG</td><td>${formatNumberHiddenK(totals.lotoDB)}</td><td>${formatNumberHiddenK(totals.lotoCap)}</td><td>${formatNumberHiddenK(totals.c323)}</td><td>${formatNumberHiddenK(totals.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(totals.xskt)}</td>`:''}<td>${formatNumberHiddenK(totals.rev)}</td><td>${formatNumberHiddenK(totals.th)}</td>${hasDebt?`<td>${formatNumberHiddenK(totals.debt)}</td>`:''}<td class="${totals.final>=0?'final-amount-positive':'final-amount-negative'}">${formatNumberHiddenK(totals.final)}</td></tr></tbody>`;
         } else {
-             html+=`</tbody><tfoot><tr><td colspan="2">TỔNG</td><td>${formatNumberHiddenK(totals.rev)}</td><td>${formatNumberHiddenK(totals.com)}</td><td>${formatNumberHiddenK(totals.th)}</td>${hasDebt?`<td>${formatNumberHiddenK(totals.debt)}</td>`:''}<td class="${totals.final>=0?'final-amount-positive':'final-amount-negative'}">${formatNumberHiddenK(totals.final)}</td></tr></tfoot>`;
+             html+=`<tr id="summaryTotalRow" class="group-total-row" style="background-color:#f1c40f;font-weight:bold;"><td colspan="2">TỔNG</td><td>${formatNumberHiddenK(totals.rev)}</td><td>${formatNumberHiddenK(totals.com)}</td><td>${formatNumberHiddenK(totals.th)}</td>${hasDebt?`<td>${formatNumberHiddenK(totals.debt)}</td>`:''}<td class="${totals.final>=0?'final-amount-positive':'final-amount-negative'}">${formatNumberHiddenK(totals.final)}</td></tr></tbody>`;
         }
 
         DOM.summaryTableContainer.innerHTML=`<table border="1">${html}</table>`;
         const displayRegion = regVal === 'all' ? 'Tất Cả' : regVal;
-        DOM.summaryTitle.innerHTML=`Bảng Tổng Hợp: <span class="region-name">${displayRegion}</span>`;
+        DOM.summaryTitle.innerHTML=`Bảng Tổng Hợp: <span style="color:var(--primary-color)">${displayRegion}</span>`;
         let percent = totals.rev > 0 ? (totals.th / totals.rev * 100) : 0;
         let pString = `<span style="color:${percent<=50?'var(--success-color)':'var(--danger-color)'}">(${percent.toFixed(1)}%)</span>`;
         DOM.summaryDate.innerHTML=`${dateRangeText}<br>Doanh số: <b style="color:var(--danger-color)">${formatNumberHiddenK(totals.rev)}</b> - Thưởng: <b style="color:var(--primary-dark)">${formatNumberHiddenK(totals.th)}</b> ${pString}`;
@@ -968,14 +946,11 @@
         }
     }
 
-    // --- CẬP NHẬT RENDER DETAILED REPORT ---
+    // --- CẬP NHẬT RENDER DETAILED REPORT (ĐÃ SỬA THEO YÊU CẦU) ---
     function renderDetailedReport(d, customDate, reportType = 'detailed') {
         const debtHtml = state.debtFromData > 0 ? `<tr style="color:var(--danger-color); font-weight:bold;"><td>Nợ cũ</td><td colspan="${(appMode === 'excel' || (appMode === 'raw' && reportType === 'summary')) ? 2 : 4}">${formatNumberHiddenK(state.debtFromData)}</td></tr>` : '';
         const reportDate = customDate || dateRangeText;
 
-        // LOGIC MỚI: Sử dụng giao diện Excel (Tổng hợp) nếu:
-        // 1. Đang ở chế độ Excel
-        // 2. HOẶC Đang ở chế độ Raw nhưng người dùng chọn "Báo Cáo Tổng"
         if (appMode === 'excel' || (appMode === 'raw' && reportType === 'summary')) {
             let t, c;
 
@@ -1291,7 +1266,7 @@
         const sBlue = { font: { color: { rgb: "00008B" }, bold: true }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
         let aoa = []; aoa.push([document.getElementById('summaryTitle').innerText]); aoa.push([dateRangeText]);
         const percent = totals.rev > 0 ? (totals.th / totals.rev * 100).toFixed(1) : 0; aoa.push([`Doanh số: ${formatNumberFull(totals.rev)} - Thưởng: ${formatNumberFull(totals.th)} (${percent}%)`]); aoa.push([""]); 
-        let headers; if(appMode === 'excel') { headers = ["STT", "Đại Lý", "Lô tô", "Lô cặp", "2/27", "3/23"]; if (hasXSKT) headers.push("XSKT"); } else { headers = ["STT", "Đại Lý", "Doanh Số", "Hoa hồng", "Thưởng"]; }
+        let headers; if(appMode === 'excel') { headers = ["STT", "Đại Lý", "Lô tô", "Lô cặp", "Lô 3/23", "Lô 2/27"]; if (hasXSKT) headers.push("XSKT"); } else { headers = ["STT", "Đại Lý", "Doanh Số", "Hoa hồng", "Thưởng"]; }
         if(appMode==='excel') headers.push("Doanh số", "Thưởng"); if (hasDebt) headers.push("Nợ cũ"); headers.push("Tiền nộp"); aoa.push(headers);
         let rowMetaData = {}; let currentRow = 5; let stt = 1; 
         const sortMode = DOM.sortSelect.value; let sortedGroups = [...groups.entries()];
