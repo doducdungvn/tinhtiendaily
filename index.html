@@ -24,6 +24,8 @@
     }
 
     /* --- CÀI ĐẶT CHUNG --- */
+    * { box-sizing: border-box; } /* Quan trọng: Đảm bảo kích thước tính cả viền/padding */
+    
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 15px; padding-bottom: 60px; background-color: var(--body-bg); color: var(--text-color); font-size: 16px; line-height: 1.6; }
     .page { max-width: 600px; margin: 20px auto; padding: 15px; background-color: var(--container-bg); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative; }
     
@@ -74,8 +76,25 @@
     .home-menu-btn { padding: 15px; font-size: 15px; font-weight: 600; text-align: center; background-color: #ecf0f1; color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .home-menu-btn:hover { background-color: var(--primary-color); color: white; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
 
-    table { border-collapse: collapse; width: 100%; margin: 1px auto; background: var(--container-bg); border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    th, td { border: 1px solid var(--border-color); padding: 10px 12px; text-align: center; vertical-align: middle; }
+    /* --- CẤU HÌNH BẢNG (FIX LỆCH KHUNG) --- */
+    table { 
+        border-collapse: collapse; 
+        width: 100%; 
+        margin: 1px auto; 
+        background: var(--container-bg); 
+        border-radius: 6px; 
+        overflow: hidden; 
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06); 
+        table-layout: fixed; /* Cố định khung cột */
+    }
+    th, td { 
+        border: 1px solid var(--border-color); 
+        padding: 10px 12px; 
+        text-align: center; 
+        vertical-align: middle; 
+        word-wrap: break-word; /* Tự xuống dòng */
+        word-break: break-word;
+    }
     th { background: var(--header-bg); color: var(--header-text); font-weight: 500; }
     
     /* FOOTER TỔNG HỢP */
@@ -160,15 +179,66 @@
         .revenue-filter-col-left { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
         #mainPage { max-width: 1200px; }
     }
+
+    /* --- CẬP NHẬT GIAO DIỆN MOBILE (TRÀN VIỀN) --- */
     @media (max-width: 768px) {
-        body { padding: 10px; padding-bottom: 60px; font-size: 4vw; }
-        .page { padding: 10px; margin: 10px auto; }
-        h2 { font-size: 6vw; } h3 { font-size: 5vw; }
-        input, button, textarea { padding: 10px 12px; font-size: 4vw; }
-        tr.final-amount-positive td, tr.final-amount-negative td { font-size: 6.8vw !important; padding: 11px 7px !important; }
-        .bang-chu-cell { font-size: 3vw !important; }
-        #summaryTableContainer th, #summaryTableContainer td { font-size: 2vw; padding: 3px; }
-        .input-group-row input#soSoInput, .input-group-row input#sellQuantityInput { width: 90px !important; }
+        /* 1. Xóa khoảng cách thừa của Body để giao diện tràn sát mép */
+        body { 
+            padding: 0 !important; 
+            padding-bottom: 80px !important; /* Chừa chỗ cho nút cuộn/footer */
+            background-color: var(--container-bg); /* Đồng bộ màu nền */
+            font-size: 14px; /* Cố định cỡ chữ dễ đọc */
+        }
+
+        /* 2. Mở rộng khung (.page) ra 100% chiều rộng */
+        .page { 
+            margin: 0 !important; 
+            width: 100% !important; 
+            max-width: 100% !important;
+            padding: 10px !important;
+            border-radius: 0 !important; /* Bỏ bo góc để liền mạch với màn hình */
+            box-shadow: none !important; /* Bỏ bóng đổ cho phẳng */
+            border: none !important;
+        }
+
+        /* 3. Tinh chỉnh các thành phần bên trong cho cân đối */
+        h2 { font-size: 22px; margin-top: 10px; } 
+        h3 { font-size: 18px; }
+        
+        input, button, select, textarea { 
+            font-size: 14px; 
+            padding: 10px;
+        }
+
+        /* 4. Xử lý bảng để không bị vỡ giao diện */
+        table {
+            width: 100% !important;
+            table-layout: fixed; /* Cố định khung bảng */
+        }
+        
+        th, td {
+            padding: 8px 2px !important; /* Thu nhỏ padding ô */
+            font-size: 13px !important;
+            word-wrap: break-word; /* Tự xuống dòng nếu chữ dài */
+        }
+        
+        tr.final-amount-positive td, tr.final-amount-negative td { font-size: 26px !important; padding: 10px 5px !important; }
+        .bang-chu-cell { font-size: 11px !important; }
+
+        /* Chỉnh lại cột input số lượng vé và số sổ cho vừa vặn */
+        .input-group-row input#soSoInput, 
+        .input-group-row input#sellQuantityInput { 
+            width: 100px !important; 
+        }
+
+        /* Chỉnh nút copy/in ở footer bảng tổng hợp */
+        .summary-actions button {
+            font-size: 12px;
+            padding: 8px 2px;
+        }
+        
+        /* Ẩn bớt các hiệu ứng không cần thiết trên mobile */
+        .simple-animated-logo { font-size: 28px; margin-top: 15px; }
     }
     
     @media print {
@@ -1177,7 +1247,7 @@
         const percent = totals.rev > 0 ? (totals.th / totals.rev * 100).toFixed(1) : 0; aoa.push([`Doanh số: ${formatNumberFull(totals.rev)} - Thưởng: ${formatNumberFull(totals.th)} (${percent}%)`]); aoa.push([""]); 
         
         let headers;
-        if(appMode === 'excel') { headers = ["STT", "Đại Lý", "Lô tô", "Lô cặp", "Lô 3/23", "Lô 2/27"]; if (hasXSKT) headers.push("XSKT"); }
+        if(appMode === 'excel') { headers = ["STT", "Đại Lý", "Lô tô", "Lô cặp", "2/27", "3/23"]; if (hasXSKT) headers.push("XSKT"); }
         else { headers = ["STT", "Đại Lý", "Doanh Số", "Hoa hồng", "Thưởng"]; }
         if(appMode==='excel') headers.push("Doanh số", "Thưởng");
         if (hasDebt) headers.push("Nợ cũ"); headers.push("Tiền nộp"); aoa.push(headers);
