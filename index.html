@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Báo cáo thu tiền - ZENG™</title>
   
   <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.min.js"></script>
@@ -24,82 +24,54 @@
     }
 
     /* --- CÀI ĐẶT CHUNG --- */
-    * { box-sizing: border-box; } /* Quan trọng: Đảm bảo kích thước tính cả viền/padding */
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 15px; padding-bottom: 60px; background-color: var(--body-bg); color: var(--text-color); font-size: 16px; line-height: 1.6; }
     .page { max-width: 600px; margin: 20px auto; padding: 15px; background-color: var(--container-bg); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative; }
     
-    /* Header Styles */
     h2 { font-size: 26px; font-weight: 600; text-align: center; color: var(--header-bg); margin-bottom: 0.8em; }
     h3 { font-size: 20px; font-weight: 500; text-align: center; color: var(--header-bg); margin-bottom: 0.8em; } 
     h4 { margin-top: 0; text-align: center; color: var(--text-color); font-weight: 500;}
     .report-date { text-align:center; font-weight: normal; margin-top: -12px; margin-bottom: 16px; color: var(--text-light); line-height: 1.5; } 
 
-    /* LOGO ANIMATION */
+    /* LOGO */
     .simple-animated-logo { text-align: center; margin-bottom: 15px; margin-top: 10px; font-size: 32px; font-weight: 700; color: var(--logo-color); overflow: hidden; display: block; min-height: 40px; white-space: nowrap; cursor: pointer; }
     .main-page-logo { font-size: 24px; margin-top: 5px; margin-bottom: 10px; }
     .simple-animated-logo span.letter { opacity: 0; display: inline-block; transform: translateY(15px); transition: opacity 0.5s, transform 0.5s; }
     .simple-animated-logo .tm { font-size: 0.5em; vertical-align: super; margin-left: 2px; font-weight: normal; color: var(--text-light); }
 
-    .online-badge {
-        display: inline-flex; align-items: center; justify-content: center; gap: 5px;
-        font-size: 13px; font-weight: normal; color: var(--header-bg);
-        background-color: rgba(46, 204, 113, 0.15); padding: 3px 10px; border-radius: 15px;
-        margin-left: 12px; vertical-align: middle; position: relative; top: -6px; 
-        border: 1px solid rgba(46, 204, 113, 0.3);
-    }
+    .online-badge { display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; font-weight: normal; color: var(--header-bg); background-color: rgba(46, 204, 113, 0.15); padding: 3px 10px; border-radius: 15px; margin-left: 12px; vertical-align: middle; position: relative; top: -6px; border: 1px solid rgba(46, 204, 113, 0.3); }
     .online-dot { width: 8px; height: 8px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 6px var(--success-color); animation: pulseDot 2s infinite; }
     @keyframes pulseDot { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
 
+    /* CONTROLS */
     .controls-panel { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--container-bg); }
     label { font-weight: 500; color: var(--text-color); }
     input, select, button, textarea { padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border-color); width: 100%; box-sizing: border-box; font-size: 16px; transition: 0.2s; }
     input:focus, textarea:focus { border-color: var(--primary-color); outline: none; }
-    
     input[type="file"] { background-color: #fdfdfe; cursor: pointer; }
     input[type="file"].loaded { background-color: #eafaf1; border-color: var(--success-color); }
+    
     button { cursor: pointer; background: var(--primary-color); color: white; border: none; font-weight: 500; }
     button:hover { background-color: var(--primary-dark); filter: brightness(110%); }
     button:active { transform: scale(0.98); }
     button.secondary { background-color: var(--secondary-color); color: var(--text-color); }
-    button.secondary:hover { background-color: var(--secondary-dark); }
     button.success { background-color: var(--success-color); }
     button.danger { background-color: var(--danger-color); }
     button.warning { background-color: var(--warning-color); }
     
-    /* --- NEW NAVIGATION STYLE --- */
+    /* NAV & MENU */
     .nav-header { display: flex; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
     .back-btn { background: transparent; color: var(--text-color); border: 1px solid var(--border-color); padding: 5px 15px; font-size: 14px; width: auto; display: flex; align-items: center; gap: 5px; }
-    .back-btn:hover { background-color: var(--secondary-color); }
-
     .home-menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
     .home-menu-btn { padding: 15px; font-size: 15px; font-weight: 600; text-align: center; background-color: #ecf0f1; color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .home-menu-btn:hover { background-color: var(--primary-color); color: white; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-
-    /* --- CẤU HÌNH BẢNG (FIX LỆCH KHUNG) --- */
-    table { 
-        border-collapse: collapse; 
-        width: 100%; 
-        margin: 1px auto; 
-        background: var(--container-bg); 
-        border-radius: 6px; 
-        overflow: hidden; 
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06); 
-        table-layout: fixed; /* Cố định khung cột */
-    }
-    th, td { 
-        border: 1px solid var(--border-color); 
-        padding: 10px 12px; 
-        text-align: center; 
-        vertical-align: middle; 
-        word-wrap: break-word; /* Tự xuống dòng */
-        word-break: break-word;
-    }
+    
+    /* TABLE STYLES */
+    table { border-collapse: collapse; width: 100%; margin: 1px auto; background: var(--container-bg); border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    th, td { border: 1px solid var(--border-color); padding: 10px 12px; text-align: center; vertical-align: middle; }
     th { background: var(--header-bg); color: var(--header-text); font-weight: 500; }
     
-    /* FOOTER TỔNG HỢP */
     tfoot td { background-color: var(--header-bg); color: var(--header-text); font-weight: 700; border-top: 2px solid var(--secondary-dark); }
-    
     tr.group-start-row td { border-top: 2px solid var(--secondary-dark) !important; }
     .group-total-row td { background-color: #FEF9E7; font-weight: bold; border-top: 1px solid #f39c12 !important; }
 
@@ -112,42 +84,31 @@
     .bang-chu-cell { text-align: left !important; font-style: italic; padding-left: 15px !important; font-size: 10px; font-weight: normal; color: var(--text-light); }
     #bangChuRow, #bangChuRow td { background: #ffffff !important; }
 
-    /* --- CSS CHO BÁN VÉ HÀNG NGANG --- */
+    /* LAYOUT UTILS */
     .ticket-type-selector { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-top: 0 !important; }
     .ticket-type-selector label { display: flex; align-items: center; gap: 5px; font-weight: normal; cursor: pointer; white-space: nowrap; }
     .sell-row-container { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
     .sell-row-container > label { font-weight: bold; min-width: 80px; margin: 0; }
-    
-    /* COPYRIGHT FOOTER */
     .main-copyright { text-align: center; margin-top: 30px; padding: 15px 0; font-size: 13px; color: var(--text-light); border-top: 1px dashed var(--border-color); width: 100%; }
     
-    /* Dynamic Inputs */
     #actionButtonContainer { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
     #actionChoices { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; grid-column: 1 / -1; }
     .dynamic-input { width: 100%; border: none; font-weight: 600; text-align: center; background: transparent; font-size: 17px; padding: 5px; }
-    textarea.dynamic-input { text-align: center; resize: none; } 
     
-    /* Summary Table */
-    #summaryTableContainer { margin-top: 10px; overflow-x: auto; }
-    #summaryTableContainer table { width: auto; } 
-    #summaryTableContainer table th { position: sticky; top: 0; z-index: 1; }
-    #summaryTableContainer th, #summaryTableContainer td { white-space: nowrap; }
+    /* SCROLLABLE TABLE CONTAINER */
+    #summaryTableContainer, #reportContainer { margin-top: 10px; width: 100%; }
     
     .negative-value { color: var(--danger-color); }
     .final-amount-positive { background-color: var(--danger-color) !important; color: #ffffff !important; }
     .final-amount-negative { background-color: var(--success-color) !important; color: var(--danger-color) !important; }
     tr.final-amount-positive td, tr.final-amount-negative td { font-size: 30px !important; font-weight: 600; padding: 15px 12px !important; }
 
-    .inline-form { display: flex; gap: 10px; align-items: center; flex-wrap: nowrap; }
     .home-actions, .report-actions-grid { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
     .summary-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 20px; } 
-
-    /* GROUP INPUT & BUTTONS (Căn trái) */
     .input-group-row { display: flex; gap: 8px; align-items: center; justify-content: flex-start; width: 100%; flex-wrap: nowrap; }
     .input-group-row input#soSoInput, .input-group-row input#sellQuantityInput { width: 130px !important; flex: none; }
     .input-group-row button { width: auto; white-space: nowrap; padding: 12px 10px; flex-shrink: 0; }
 
-    /* Filter & Debt Styles */
     .filter-grid-container, .revenue-filter-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
     .region-lock-container.locked #regionDefinitionsInput { display: none !important; }
     .debt-mode-selector { display: flex; gap: 10px; margin-bottom: 10px; padding: 10px; background-color: var(--neutral-light-bg); border-radius: 6px; border: 1px solid var(--border-color); align-items: center; justify-content: space-between; flex-wrap: wrap; }
@@ -166,7 +127,6 @@
     .notification.info { background-color: var(--info-color); }
     #loading-indicator { display: none; position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background-color: var(--header-bg); color: var(--header-text); padding: 8px 15px; border-radius: 4px; z-index: 2100; }
     
-    /* === NÚT CUỘN === */
     #scrollToTopBtn, #scrollToBottomBtn { display: none; position: fixed; left: 15px; right: auto; z-index: 1001; background-color: var(--header-bg); color: white; border: none; padding: 0; border-radius: 50%; width: 40px; height: 40px; text-align: center; line-height: 40px; cursor: pointer; opacity: 0.6; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
     #scrollToTopBtn { top: calc(50% - 45px); bottom: auto; } 
     #scrollToBottomBtn { top: calc(50% + 5px); bottom: auto; }
@@ -174,70 +134,87 @@
     @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
     @keyframes slideIn { from {transform: translateY(-50px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
 
+    /* DESKTOP */
     @media (min-width: 768px) {
         .filter-grid-container, .revenue-filter-grid { grid-template-columns: 1.5fr 1fr; }
         .revenue-filter-col-left { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
         #mainPage { max-width: 1200px; }
+        /* Trên Desktop cũng cho phép bảng tự giãn, không ép width 8% */
+        table { table-layout: auto !important; }
+        th, td { white-space: nowrap; padding: 10px; }
     }
 
-    /* --- CẬP NHẬT GIAO DIỆN MOBILE (TRÀN VIỀN) --- */
+    /* --- GIAO DIỆN MOBILE TỐI ƯU --- */
     @media (max-width: 768px) {
-        /* 1. Xóa khoảng cách thừa của Body để giao diện tràn sát mép */
         body { 
             padding: 0 !important; 
-            padding-bottom: 80px !important; /* Chừa chỗ cho nút cuộn/footer */
-            background-color: var(--container-bg); /* Đồng bộ màu nền */
-            font-size: 14px; /* Cố định cỡ chữ dễ đọc */
+            padding-bottom: 80px !important; 
+            background-color: var(--container-bg); 
+            font-size: 14px; 
         }
 
-        /* 2. Mở rộng khung (.page) ra 100% chiều rộng */
         .page { 
             margin: 0 !important; 
             width: 100% !important; 
             max-width: 100% !important;
-            padding: 10px !important;
-            border-radius: 0 !important; /* Bỏ bo góc để liền mạch với màn hình */
-            box-shadow: none !important; /* Bỏ bóng đổ cho phẳng */
+            padding: 10px 0 !important;
+            border-radius: 0 !important; 
+            box-shadow: none !important; 
             border: none !important;
         }
 
-        /* 3. Tinh chỉnh các thành phần bên trong cho cân đối */
-        h2 { font-size: 22px; margin-top: 10px; } 
-        h3 { font-size: 18px; }
-        
-        input, button, select, textarea { 
-            font-size: 14px; 
-            padding: 10px;
+        h2 { font-size: 20px; margin-top: 15px; } 
+        h3 { font-size: 18px; padding: 0 10px; }
+        .report-date { padding: 0 10px; }
+        .controls-panel { margin: 0 10px 20px 10px; padding: 15px; }
+
+        input, button, select, textarea { font-size: 14px; padding: 10px; }
+
+        /* SCROLL NGANG CHO BẢNG */
+        #summaryTableContainer, #reportContainer { 
+            width: 100%;
+            overflow-x: auto; 
+            -webkit-overflow-scrolling: touch; 
+            margin-bottom: 15px;
+            padding-bottom: 5px;
         }
 
-        /* 4. Xử lý bảng để không bị vỡ giao diện */
         table {
-            width: 100% !important;
-            table-layout: fixed; /* Cố định khung bảng */
+            width: auto !important; 
+            min-width: 100%;
+            table-layout: auto !important; 
+            margin: 0 !important;
         }
         
         th, td {
-            padding: 8px 2px !important; /* Thu nhỏ padding ô */
+            padding: 8px 6px !important;
             font-size: 13px !important;
-            word-wrap: break-word; /* Tự xuống dòng nếu chữ dài */
+            white-space: nowrap; 
         }
         
-        tr.final-amount-positive td, tr.final-amount-negative td { font-size: 26px !important; padding: 10px 5px !important; }
-        .bang-chu-cell { font-size: 11px !important; }
+        /* Cho phép tên/ngày xuống dòng */
+        td:first-child, td:nth-child(2) {
+            white-space: normal;
+            min-width: 60px; /* Thu nhỏ chiều rộng tối thiểu cột STT/Tên */
+        }
 
-        /* Chỉnh lại cột input số lượng vé và số sổ cho vừa vặn */
+        /* Font to cho dòng kết quả */
+        tr.final-amount-positive td, tr.final-amount-negative td { 
+            font-size: 20px !important; 
+            padding: 12px 6px !important; 
+            white-space: nowrap;
+        }
+        .bang-chu-cell { 
+            white-space: normal !important; 
+            font-size: 12px !important; 
+        }
+
         .input-group-row input#soSoInput, 
         .input-group-row input#sellQuantityInput { 
             width: 100px !important; 
         }
-
-        /* Chỉnh nút copy/in ở footer bảng tổng hợp */
-        .summary-actions button {
-            font-size: 12px;
-            padding: 8px 2px;
-        }
         
-        /* Ẩn bớt các hiệu ứng không cần thiết trên mobile */
+        .summary-actions button { font-size: 12px; padding: 8px 2px; }
         .simple-animated-logo { font-size: 28px; margin-top: 15px; }
     }
     
@@ -859,9 +836,9 @@
 
         let html;
         if (appMode === 'excel') {
-             html=`<thead><tr><th width="8%">STT</th><th width="12%">ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th>${hasXSKT?'<th>XSKT':''}<th>Dsố</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
+             html=`<thead><tr><th>STT</th><th>ĐL</th><th>LTô</th><th>LCặp</th><th>3/23</th><th>2/27</th>${hasXSKT?'<th>XSKT':''}<th>Dsố</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
         } else {
-             html=`<thead><tr><th width="8%">STT</th><th width="12%">ĐL</th><th>Doanh Số</th><th>Hoa hồng</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
+             html=`<thead><tr><th>STT</th><th>ĐL</th><th>Doanh Số</th><th>Hoa hồng</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
         }
 
         let stt=1, sortedGroups=[...groups.entries()];
