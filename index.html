@@ -89,10 +89,27 @@
     th { background: var(--header-bg); color: white; font-weight: 600; position: sticky; top: 0; z-index: 20; border-top: none; }
     #summaryTotalRow td { background-color: #f8f9fa; color: var(--text-color); font-weight: 700; position: sticky; bottom: 0; z-index: 20; border-top: 2px solid #bdc3c7; }
     
-    .group-total-row td { background-color: #fff9db; font-weight: bold; }
+    /* YÊU CẦU: Dòng tổng nhóm nền trắng */
+    .group-total-row td { background-color: #ffffff; font-weight: bold; }
     
+    /* YÊU CẦU 1: Đại lý lẻ in đậm */
+    .single-agent-row td { font-weight: 700; }
+
+    /* YÊU CẦU 2: Đại lý thuộc nhóm in thường nghiêng */
+    .group-member-row td { font-style: italic; font-weight: 400; color: #555; }
+
+    /* YÊU CẦU 3: Mã đặc biệt (Thuần số HOẶC Đại lý lẻ) -> In đậm + Xanh lá */
+    .code-cell-highlight { 
+        color: #006400 !important; /* Xanh lá đậm */
+        font-weight: 900 !important; /* Siêu đậm */
+        font-style: normal !important; /* Không nghiêng */
+    }
+
     .header { font-weight: 600; background: #f8f9fa; text-align: center !important; padding-left: 0 !important; }
-    .so-so { font-size: 24px; font-weight: 700; color: var(--logo-color); text-align: center; }
+    
+    /* YÊU CẦU: Cỡ chữ Mã đại lý (P968..) to bằng tiền nộp */
+    .so-so { font-size: 22px !important; font-weight: 800; color: var(--logo-color); text-align: center; }
+
     #tongCongRow { background-color: #f1c40f; color: #fff; font-weight: 700 !important; text-shadow: 0 1px 1px rgba(0,0,0,0.1); } 
     #tongCongRow td { color: #2c3e50; }
     .added-ticket-row { background-color: #f0fdf9; } 
@@ -195,6 +212,65 @@
     .sell-row-container { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
     .sell-row-container > label { min-width: 80px; }
     .main-copyright { text-align: center; margin-top: 30px; font-size: 12px; color: #aaa; }
+    
+    /* CSS ĐẶC BIỆT CHỈ ÁP DỤNG KHI ĐANG CHỤP ẢNH BÁO CÁO CHI TIẾT */
+    #reportContainer.capturing-image {
+        aspect-ratio: 1 / 1.414;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        font-size: 22px !important; 
+        padding: 30px !important; 
+        background-color: white;
+        box-shadow: none; 
+    }
+    /* YÊU CẦU 2: Bảng sẽ tự to ra lấp đầy A4 */
+    #reportContainer.capturing-image table {
+        height: 100%;
+        width: 100%;
+    }
+    #reportContainer.capturing-image h2 { font-size: 3em; }
+    #reportContainer.capturing-image .total-amount { font-size: 4em; }
+
+    /* YÊU CẦU 1: Trong chế độ chụp ảnh, mã đại lý siêu to */
+    #reportContainer.capturing-image .so-so { 
+        font-size: 4.5em !important; /* Siêu to */
+        font-weight: 900; 
+        color: var(--logo-color); 
+    }
+    
+    /* Trong chế độ chụp ảnh, số tiền cũng siêu to để tương xứng */
+    #reportContainer.capturing-image tr.final-amount-positive td, 
+    #reportContainer.capturing-image tr.final-amount-negative td {
+        font-size: 4.5em !important;
+        padding: 25px 10px !important;
+    }
+
+    #reportContainer.capturing-image table th,
+    #reportContainer.capturing-image table td { padding: 10px 10px; font-size: 1.1em; }
+
+    /* YÊU CẦU MỚI: CHỮ NỘI DUNG TO RA TRONG CHẾ ĐỘ CHỤP ẢNH (Gần gấp đôi) */
+    /* Target tất cả các ô trong bảng (trừ dòng Kết quả cuối và dòng Bằng chữ) */
+    #reportContainer.capturing-image .report-table tr:not(#finalResultRow):not(#bangChuRow) td,
+    #reportContainer.capturing-image .report-table th {
+        font-size: 2.4em !important; /* Tăng cỡ chữ nội dung bảng lên RẤT TO */
+        padding: 20px 10px !important; /* Tăng khoảng cách */
+        font-weight: 600; /* Tăng độ đậm */
+    }
+    
+    /* Đảm bảo dòng Tổng cộng (màu vàng) cũng to tương ứng */
+    #reportContainer.capturing-image #tongCongRow td {
+        font-size: 2.4em !important;
+    }
+
+    /* NGOẠI TRỪ: Dòng 'Bằng chữ' giữ nguyên cỡ nhỏ */
+    #reportContainer.capturing-image #bangChuRow td {
+        font-size: 1.3em !important;
+        font-style: italic;
+        padding: 10px !important;
+        font-weight: normal;
+    }
+
   </style>
 </head>
 <body>
@@ -570,6 +646,12 @@
         const oldTxt = btn ? btn.textContent : ''; 
         if(btn) btn.textContent = 'Đang xử lý...';
         
+        // --- ADD CLASS CHO CHẾ ĐỘ CHỤP ẢNH BÁO CÁO CHI TIẾT ---
+        if(sel === '#reportContainer') {
+            el.classList.add('capturing-image');
+            await new Promise(r => setTimeout(r, 100)); // Chờ render
+        }
+
         const hiddenEls = [
             el.querySelector('.summary-actions'), el.querySelector('.controls-panel'), 
             document.getElementById('actionButtonContainer'), document.getElementById('sellTicketControls'),
@@ -620,12 +702,18 @@
                 window.scrollTo(0,0);
                 const canvas = await html2canvas(el, { backgroundColor: "#ffffff", scale: 2, useCORS: true, scrollY: 0, x: 0, y: 0, width: el.scrollWidth, height: el.scrollHeight });
                 
+                // --- GỠ CLASS NGAY SAU KHI CHỤP ---
+                if(sel === '#reportContainer') {
+                     el.classList.remove('capturing-image');
+                }
+
                 const limitHeight = canvas.width * 2;
                 const previewHolder = document.getElementById('imagePreviewHolder');
                 previewHolder.innerHTML = '';
                 currentGeneratedImages = [];
 
-                if (canvas.height > limitHeight) {
+                // YÊU CẦU: CHỈ CẮT NẾU LÀ BÁO CÁO TỔNG HỢP, KHÔNG CẮT BÁO CÁO CHI TIẾT
+                if (canvas.height > limitHeight && sel !== '#reportContainer') {
                     // Gọi hàm cắt ảnh mới, truyền thêm el (rootElement)
                     const images = await splitCanvasToImages(canvas, targetTable, el);
                     currentGeneratedImages = images;
@@ -638,16 +726,30 @@
                     });
                     showNotification(`Đã chia thành ${images.length} trang`, 'info');
                     DOM.btnSaveAllImages.style.display = 'inline-block';
+                    DOM.imagePreviewModal.style.display = 'block';
                 } else {
                     const imgSrc = canvas.toDataURL('image/png');
                     currentGeneratedImages = [imgSrc];
-                    const img = document.createElement('img'); img.src = imgSrc;
-                    previewHolder.appendChild(img);
-                    DOM.btnSaveAllImages.style.display = 'none';
-                    try { canvas.toBlob(async(blob)=>{ await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); showNotification(msg, 'success'); }); } catch(e){}
+                    
+                    // --- TỰ ĐỘNG COPY VÀ ẨN MODAL NẾU KHÔNG CẦN CẮT TRANG ---
+                    try { 
+                        canvas.toBlob(async(blob)=>{ 
+                            await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); 
+                            showNotification(msg, 'success'); 
+                            DOM.imagePreviewModal.style.display = 'none'; // Ẩn modal nếu copy thành công
+                        }); 
+                    } catch(e){
+                         // Fallback nếu không copy tự động được thì hiện modal
+                         const img = document.createElement('img'); img.src = imgSrc;
+                         previewHolder.appendChild(img);
+                         DOM.btnSaveAllImages.style.display = 'none';
+                         DOM.imagePreviewModal.style.display = 'block';
+                    }
                 }
-                DOM.imagePreviewModal.style.display = 'block';
-            } catch(e){ console.error(e); showNotification('Lỗi tạo ảnh', 'error'); }
+            } catch(e){ 
+                console.error(e); showNotification('Lỗi tạo ảnh', 'error'); 
+                if(sel === '#reportContainer') el.classList.remove('capturing-image');
+            }
             finally {
                 if(footer && footer.parentNode) footer.parentNode.removeChild(footer);
                 hiddenEls.forEach(e => e.style.display = ''); if(btn) btn.textContent = oldTxt;
@@ -850,15 +952,35 @@
         else if(sortMode==='revenue_asc') sortedGroups.sort((a,b)=>a[1].gr - b[1].gr);
 
         sortedGroups.forEach(([gk, g])=>{
+            // Xác định xem đây là nhóm (nhiều đại lý) hay đại lý đơn lẻ
+            const isGroup = g.agents.length > 1;
+
             g.agents.forEach((ag, idx)=>{
                 const d=ag.data, final=(d.totRev-d.totCom-d.thuong)+d.debt;
+                
+                // Logic xử lý class cho dòng
+                // Nếu là single agent -> 'single-agent-row' (in đậm)
+                // Nếu là thành viên nhóm -> 'group-member-row' (in nghiêng, thường)
+                const rowClass = isGroup ? 'group-member-row' : 'single-agent-row';
+                
+                // Logic xử lý in đậm + xanh lá:
+                // 1. Mã thuần số (không có chữ)
+                // 2. HOẶC là Đại lý lẻ (không có nhóm) - Bất kể có chữ hay số
+                const isNumericCode = !/[a-zA-Z]/.test(ag.code);
+                const isSingleAgent = !isGroup;
+                
+                const shouldHighlight = isNumericCode || isSingleAgent;
+                const codeClass = shouldHighlight ? ' class="code-cell-highlight"' : '';
+
                 if (appMode === 'excel') {
-                    html+=`<tr${idx===0?' class="group-start-row"':''}><td>${idx===0?stt:''}</td><td>${ag.code}</td><td>${formatNumberHiddenK(d.lotoDB)}</td><td>${formatNumberHiddenK(d.lotoCap)}</td><td>${formatNumberHiddenK(d.c323)}</td><td>${formatNumberHiddenK(d.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(d.xskt)}</td>`:''}<td>${formatNumberHiddenK(d.totRev)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`;
+                    html+=`<tr class="${rowClass}"><td>${idx===0?stt:''}</td><td${codeClass}>${ag.code}</td><td>${formatNumberHiddenK(d.lotoDB)}</td><td>${formatNumberHiddenK(d.lotoCap)}</td><td>${formatNumberHiddenK(d.c323)}</td><td>${formatNumberHiddenK(d.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(d.xskt)}</td>`:''}<td>${formatNumberHiddenK(d.totRev)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`;
                 } else {
-                    html+=`<tr${idx===0?' class="group-start-row"':''}><td>${idx===0?stt:''}</td><td>${ag.code}</td><td>${formatNumberHiddenK(d.totRev)}</td><td>${formatCommissionCellHiddenK(d.totRev, d.totCom)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`;
+                    html+=`<tr class="${rowClass}"><td>${idx===0?stt:''}</td><td${codeClass}>${ag.code}</td><td>${formatNumberHiddenK(d.totRev)}</td><td>${formatCommissionCellHiddenK(d.totRev, d.totCom)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`;
                 }
             }); 
-            if (g.agents.length > 1) {
+            
+            // Dòng tổng nhóm (luôn in đậm theo class .group-total-row)
+            if (isGroup) {
                 let sumDebt = 0; g.agents.forEach(ag => sumDebt+=ag.data.debt);
                 if (appMode === 'excel') {
                     let sumLoto = 0, sumCap = 0, sumC3 = 0, sumC2 = 0, sumXskt = 0;
@@ -871,10 +993,11 @@
             stt++;
         });
         
+        /* YÊU CẦU 4: Dòng TỔNG đổi màu nền sang Nâu Đậm (#5d4037) */
         if(appMode === 'excel') {
-            html+=`<tr id="summaryTotalRow" class="group-total-row" style="background-color:#f1c40f;font-weight:bold;"><td colspan="2">TỔNG</td><td>${formatNumberHiddenK(totals.lotoDB)}</td><td>${formatNumberHiddenK(totals.lotoCap)}</td><td>${formatNumberHiddenK(totals.c323)}</td><td>${formatNumberHiddenK(totals.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(totals.xskt)}</td>`:''}<td>${formatNumberHiddenK(totals.rev)}</td><td>${formatNumberHiddenK(totals.th)}</td>${hasDebt?`<td>${formatNumberHiddenK(totals.debt)}</td>`:''}<td class="${totals.final>=0?'final-amount-positive':'final-amount-negative'}">${formatNumberHiddenK(totals.final)}</td></tr></tbody>`;
+            html+=`<tr id="summaryTotalRow" class="group-total-row" style="background-color:#5d4037;color:white;font-weight:bold;"><td colspan="2">TỔNG</td><td>${formatNumberHiddenK(totals.lotoDB)}</td><td>${formatNumberHiddenK(totals.lotoCap)}</td><td>${formatNumberHiddenK(totals.c323)}</td><td>${formatNumberHiddenK(totals.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(totals.xskt)}</td>`:''}<td>${formatNumberHiddenK(totals.rev)}</td><td>${formatNumberHiddenK(totals.th)}</td>${hasDebt?`<td>${formatNumberHiddenK(totals.debt)}</td>`:''}<td class="${totals.final>=0?'final-amount-positive':'final-amount-negative'}">${formatNumberHiddenK(totals.final)}</td></tr></tbody>`;
         } else {
-             html+=`<tr id="summaryTotalRow" class="group-total-row" style="background-color:#f1c40f;font-weight:bold;"><td colspan="2">TỔNG</td><td>${formatNumberHiddenK(totals.rev)}</td><td>${formatNumberHiddenK(totals.com)}</td><td>${formatNumberHiddenK(totals.th)}</td>${hasDebt?`<td>${formatNumberHiddenK(totals.debt)}</td>`:''}<td class="${totals.final>=0?'final-amount-positive':'final-amount-negative'}">${formatNumberHiddenK(totals.final)}</td></tr></tbody>`;
+             html+=`<tr id="summaryTotalRow" class="group-total-row" style="background-color:#5d4037;color:white;font-weight:bold;"><td colspan="2">TỔNG</td><td>${formatNumberHiddenK(totals.rev)}</td><td>${formatNumberHiddenK(totals.com)}</td><td>${formatNumberHiddenK(totals.th)}</td>${hasDebt?`<td>${formatNumberHiddenK(totals.debt)}</td>`:''}<td class="${totals.final>=0?'final-amount-positive':'final-amount-negative'}">${formatNumberHiddenK(totals.final)}</td></tr></tbody>`;
         }
 
         DOM.summaryTableContainer.innerHTML=`<table border="1">${html}</table>`;
@@ -980,7 +1103,7 @@
                     <tr><td>Lô 2/27</td><td>${formatNumberHiddenK(t.c227)}</td><td>${formatCommissionCellHiddenK(t.c227, c.c2)}</td></tr>
                     <tr><td>Lô 3/23</td><td>${formatNumberHiddenK(t.c323)}</td><td>${formatCommissionCellHiddenK(t.c323, c.c3)}</td></tr>
                     ${xsktHtml}
-                    <tr id="tongCongRow" style="border-top: 2px solid #bdc3c7;"><td>Tổng cộng</td><td id="tongDT"></td><td id="tongHH"></td></tr>
+                    <tr id="tongCongRow" style="border-top: 2px solid #bdc3c7;"><td>Tổng</td><td id="tongDT"></td><td id="tongHH"></td></tr>
                     <tr id="mainBonusRow"><td>Thưởng</td><td colspan="2">${formatNumberHiddenK(state.baseThuong)}</td></tr>
                     ${debtHtml}
                     <tr id="finalResultRow"><td id="ketQuaLabel"></td><td colspan="2" id="ketQuaValue"></td></tr>
@@ -1102,7 +1225,7 @@
             <table class="report-table" style="border: 1px solid var(--border-color);">
                 <colgroup><col style="width: 25%;"><col style="width: 20%;"><col style="width: 15%;"><col style="width: 15%;"><col style="width: 25%;"></colgroup>
                 <tbody>
-                    <tr><td class="header" style="font-weight:bold;">Đại Lý:</td><td colspan="4" class="so-so" style="text-align:center;">${state.currentSoSo}</td></tr>
+                    <tr><td class="header" style="font-weight:bold;">Đại Lý:</td><td colspan="4" class="so-so">${state.currentSoSo}</td></tr>
                     <tr><td class="header" style="font-weight:bold;">Đợt:</td><td colspan="4" style="font-weight:500;">${reportDate}</td></tr>
                     <tr><th>Ngày/Loại</th><th>Doanh Thu</th><th>Hoa hồng</th><th>Thưởng</th><th>Nộp/Lấy về</th></tr>
                     ${rowsHtml}
@@ -1110,7 +1233,7 @@
                     ${typeSummaryHtml}
 
                     <tr id="tongCongRow" style="border-top: 2px solid #7f8c8d; background-color: #FEF9E7;">
-                        <td style="font-weight: bold; color: var(--header-bg);">TỔNG CỘNG</td>
+                        <td style="font-weight: bold; color: var(--header-bg);">Tổng</td>
                         <td id="tongDT" style="font-weight:bold; color:var(--danger-color); font-size:1.1em;"></td>
                         <td id="tongHH" style="font-weight:bold;"></td>
                         <td style="font-weight:bold; color:var(--primary-dark)">${formatNumberHiddenK(state.baseThuong)}</td>
