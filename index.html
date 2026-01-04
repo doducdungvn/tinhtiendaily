@@ -141,6 +141,9 @@
     @media (min-width: 768px) {
         .filter-grid-container, .revenue-filter-grid { grid-template-columns: 1.5fr 1fr; gap: 20px; }
         .revenue-filter-col-left { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        
+        /* MỚI: CSS CHO LAYOUT QUẢN LÝ NỢ & VÉ BÓC */
+        .management-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
     }
 
     /* --- MOBILE OPTIMIZATION --- */
@@ -164,6 +167,9 @@
         .input-group-row .buttons-container button { padding: 0 2px; font-size: 12px; }
         .simple-animated-logo { font-size: 28px; margin-top: 15px; }
         .main-copyright { margin-bottom: 20px; }
+        
+        /* MỚI: Mobile sẽ stack lại thành 1 cột */
+        .management-grid { grid-template-columns: 1fr; }
     }
     
     /* MODALS */
@@ -337,18 +343,42 @@
                 </div>
             </div>
 
-            <div id="debtContainer" style="margin-top: 15px; border-top: 1px dashed #dcdde1; padding-top: 15px;">
-                 <label style="color: var(--danger-color); font-weight: 700;">Quản lý Nợ cũ:</label>
-                 <div class="debt-mode-selector">
-                    <div class="options"><label><input type="radio" name="debtMode" value="manual"> Thủ công</label><label><input type="radio" name="debtMode" value="excel"> Excel (tienno.xls)</label></div>
-                    <div style="display: flex; gap: 5px;">
-                        <button id="btnApplyDebt" class="warning" style="display:none; padding: 6px 15px; width: auto; font-size: 13px;">Cập nhật</button>
-                        <button id="btnClearDebt" class="danger" style="padding: 6px 15px; width: auto; font-size: 13px;">Xóa Nợ</button>
-                    </div>
-                 </div>
-                 <div id="debtManualContainer" style="display: none; margin-top: 10px;"><textarea id="debtInput" rows="2" placeholder="Nhập Mã+Tiền (VD: 980 1000)"></textarea></div>
-                 <div id="debtExcelContainer" style="display: none; margin-top: 10px;"><input type="file" id="debtFile" accept=".xls,.xlsx"></div>
-                 <div id="debtStatusMsg" style="font-size: 13px; color: var(--success-color); font-weight: 600; margin-top: 5px; display: none;"></div>
+            <div class="management-grid" style="margin-top: 15px; border-top: 1px dashed #dcdde1; padding-top: 15px;">
+                <div id="debtContainer" style="margin: 0;">
+                     <label style="color: var(--danger-color); font-weight: 700;">Quản lý Nợ cũ:</label>
+                     <div class="debt-mode-selector">
+                        <div class="options"><label><input type="radio" name="debtMode" value="manual"> Thủ công</label><label><input type="radio" name="debtMode" value="excel"> Excel</label></div>
+                        <div style="display: flex; gap: 5px;">
+                            <button id="btnApplyDebt" class="warning" style="display:none; padding: 6px 15px; width: auto; font-size: 13px;">Cập nhật</button>
+                            <button id="btnClearDebt" class="danger" style="padding: 6px 15px; width: auto; font-size: 13px;">Xóa Nợ</button>
+                        </div>
+                     </div>
+                     <div id="debtManualContainer" style="display: none; margin-top: 10px;"><textarea id="debtInput" rows="2" placeholder="Mã+Tiền (980 1000)"></textarea></div>
+                     <div id="debtExcelContainer" style="display: none; margin-top: 10px;"><input type="file" id="debtFile" accept=".xls,.xlsx"></div>
+                     <div id="debtStatusMsg" style="font-size: 13px; color: var(--success-color); font-weight: 600; margin-top: 5px; display: none;"></div>
+                </div>
+                
+                <div id="veBocContainer" style="margin: 0;">
+                     <label style="color: #8e44ad; font-weight: 700;">Quản lý Vé Bóc (5k):</label>
+                     <div class="debt-mode-selector">
+                        <div class="options">
+                            <label><input type="radio" name="veBocMode" value="manual"> Thủ công</label>
+                            <label><input type="radio" name="veBocMode" value="excel"> Excel</label>
+                        </div>
+                        <div style="display: flex; gap: 5px;">
+                            <button id="btnApplyVeBoc" class="warning" style="display:none; padding: 6px 15px; width: auto; font-size: 13px;">Cập nhật</button>
+                            <button id="btnClearVeBoc" class="danger" style="padding: 6px 15px; width: auto; font-size: 13px;">Xóa Vé</button>
+                        </div>
+                     </div>
+                     <div id="veBocManualContainer" style="display: none; margin-top: 10px;">
+                        <textarea id="veBocInput" rows="2" placeholder="Mã+SL (980 10)"></textarea>
+                     </div>
+                     <div id="veBocExcelContainer" style="display: none; margin-top: 10px;">
+                        <input type="file" id="veBocFile" accept=".xls,.xlsx">
+                        <div style="font-size: 12px; color: #7f8c8d; margin-top: 5px;">* File gồm 2 cột: Mã, SL</div>
+                     </div>
+                     <div id="veBocStatusMsg" style="font-size: 13px; color: var(--success-color); font-weight: 600; margin-top: 5px; display: none;"></div>
+                </div>
             </div>
             
             <div class="revenue-filter-grid" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #dcdde1;">
@@ -474,6 +504,9 @@
     let regionDefinitions = {}, isRegionLocked = false; 
     let debtData = new Map(), isDebtFromExcel = false; 
     let currentGeneratedImages = []; 
+
+    // --- MỚI: BIẾN CHO VÉ BÓC ---
+    let veBocData = new Map(); // Lưu {qty, rev, com}
     
     const REGION_DATA_URL = 'https://raw.githubusercontent.com/doducdungvn/tinhtiendaily/main/donvi.txt';
     const state = { currentSoSo: null, baseTongDT: 0, baseTongHH: 0, baseThuong: 0, extraBonus: 0, extraDebt: 0, addedTickets: [], accountCodes: new Set(), debtFromData: 0 };
@@ -515,7 +548,17 @@
         debtInput: document.getElementById('debtInput'), debtManualContainer: document.getElementById('debtManualContainer'), debtExcelContainer: document.getElementById('debtExcelContainer'), debtFile: document.getElementById('debtFile'), 
         debtModeRadios: document.querySelectorAll('input[name="debtMode"]'), btnClearDebt: document.getElementById('btnClearDebt'), debtStatusMsg: document.getElementById('debtStatusMsg'), btnApplyDebt: document.getElementById('btnApplyDebt'),
         passwordModal: document.getElementById('passwordModal'), closePasswordModalBtn: document.getElementById('closePasswordModalBtn'), passwordInput: document.getElementById('passwordInput'), btnSubmitPassword: document.getElementById('btnSubmitPassword'), cancelPasswordBtn: document.getElementById('cancelPasswordBtn'),
-        btnSaveAllImages: document.getElementById('btnSaveAllImages')
+        btnSaveAllImages: document.getElementById('btnSaveAllImages'),
+
+        // --- MỚI: DOM CHO VÉ BÓC ---
+        veBocInput: document.getElementById('veBocInput'),
+        veBocManualContainer: document.getElementById('veBocManualContainer'),
+        veBocExcelContainer: document.getElementById('veBocExcelContainer'),
+        veBocFile: document.getElementById('veBocFile'),
+        veBocModeRadios: document.querySelectorAll('input[name="veBocMode"]'),
+        btnClearVeBoc: document.getElementById('btnClearVeBoc'),
+        veBocStatusMsg: document.getElementById('veBocStatusMsg'),
+        btnApplyVeBoc: document.getElementById('btnApplyVeBoc')
     };
     
     const manualFormOrder = ['manualAgentName', 'manualDateRange', 'manualLotoDB', 'manualLoCap', 'manualC227', 'manualC323', 'manualThuong'];
@@ -565,7 +608,7 @@
         return res.charAt(0).toUpperCase()+res.slice(1);
     }
 
-    // --- LOGIC CẮT ẢNH A4 CHUẨN (CẬP NHẬT: SMART SPLIT KHÔNG CẮT CHỮ) ---
+    // --- LOGIC CẮT ẢNH A4 CHUẨN ---
     async function splitCanvasToImages(canvas, targetTable, rootElement) {
         const images = [];
         const contentWidth = canvas.width;
@@ -607,7 +650,6 @@
                 const bottom = (rect.bottom - rootRect.top) * scale;
                 tableRows.push({ top, bottom });
             });
-            // Thêm dòng tổng cộng nếu có (tfoot hoặc row cuối)
              const footRows = targetTable.querySelectorAll('tfoot tr');
              footRows.forEach(tr => {
                 const rect = tr.getBoundingClientRect();
@@ -621,19 +663,11 @@
             const isFirstPage = (pageIndex === 0);
             const availableContentHeight = isFirstPage ? pageHeight : (pageHeight - repeatHeaderHeight);
             
-            // Điểm cắt dự kiến (lý tưởng)
             let splitPoint = Math.min(currentY + availableContentHeight, totalHeight);
             
-            // NẾU CẮT GIỮA CHỪNG (chưa hết ảnh) -> TÌM ĐIỂM CẮT AN TOÀN
             if (splitPoint < totalHeight && tableRows.length > 0) {
-                 // Tìm row nào đang bị cắt ngang bởi splitPoint
-                 // Row bị cắt là row có: row.top < splitPoint < row.bottom
                  const splittingRow = tableRows.find(row => row.top < splitPoint && row.bottom > splitPoint);
-                 
                  if (splittingRow) {
-                     // Nếu cắt trúng dòng, lùi điểm cắt lên trên đầu dòng đó
-                     // Để dòng đó đẩy sang trang sau trọn vẹn
-                     // Nhưng đừng lùi quá xa (ví dụ nếu dòng quá cao > trang giấy thì chịu, cắt luôn)
                      if (splittingRow.top > currentY) {
                          splitPoint = splittingRow.top; 
                      }
@@ -659,7 +693,7 @@
             
             images.push(pageCanvas.toDataURL('image/png'));
             
-            currentY = splitPoint; // Tiếp tục từ điểm cắt mới
+            currentY = splitPoint; 
             pageIndex++;
             
             if (currentY >= totalHeight) break;
@@ -674,10 +708,9 @@
         const oldTxt = btn ? btn.textContent : ''; 
         if(btn) btn.textContent = 'Đang xử lý...';
         
-        // --- ADD CLASS CHO CHẾ ĐỘ CHỤP ẢNH BÁO CÁO CHI TIẾT ---
         if(sel === '#reportContainer') {
             el.classList.add('capturing-image');
-            await new Promise(r => setTimeout(r, 100)); // Chờ render
+            await new Promise(r => setTimeout(r, 100)); 
         }
 
         const hiddenEls = [
@@ -710,7 +743,7 @@
             originalStyles.overflowY = targetContainer.style.overflowY;
             targetContainer.style.maxHeight = 'none'; targetContainer.style.overflow = 'visible';
             
-            targetTable = targetContainer.querySelector('table'); // Lấy bảng để tìm thead
+            targetTable = targetContainer.querySelector('table'); 
             
             stickyElements = Array.from(targetContainer.querySelectorAll('th, #summaryTotalRow td'));
             stickyElements.forEach(elem => {
@@ -730,7 +763,6 @@
                 window.scrollTo(0,0);
                 const canvas = await html2canvas(el, { backgroundColor: "#ffffff", scale: 2, useCORS: true, scrollY: 0, x: 0, y: 0, width: el.scrollWidth, height: el.scrollHeight });
                 
-                // --- GỠ CLASS NGAY SAU KHI CHỤP ---
                 if(sel === '#reportContainer') {
                      el.classList.remove('capturing-image');
                 }
@@ -740,9 +772,7 @@
                 previewHolder.innerHTML = '';
                 currentGeneratedImages = [];
 
-                // YÊU CẦU: CHỈ CẮT NẾU LÀ BÁO CÁO TỔNG HỢP, KHÔNG CẮT BÁO CÁO CHI TIẾT
                 if (canvas.height > limitHeight && sel !== '#reportContainer') {
-                    // Gọi hàm cắt ảnh mới, truyền thêm el (rootElement)
                     const images = await splitCanvasToImages(canvas, targetTable, el);
                     currentGeneratedImages = images;
                     
@@ -759,15 +789,13 @@
                     const imgSrc = canvas.toDataURL('image/png');
                     currentGeneratedImages = [imgSrc];
                     
-                    // --- TỰ ĐỘNG COPY VÀ ẨN MODAL NẾU KHÔNG CẦN CẮT TRANG ---
                     try { 
                         canvas.toBlob(async(blob)=>{ 
                             await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); 
                             showNotification(msg, 'success'); 
-                            DOM.imagePreviewModal.style.display = 'none'; // Ẩn modal nếu copy thành công
+                            DOM.imagePreviewModal.style.display = 'none'; 
                         }); 
                     } catch(e){
-                         // Fallback nếu không copy tự động được thì hiện modal
                          const img = document.createElement('img'); img.src = imgSrc;
                          previewHolder.appendChild(img);
                          DOM.btnSaveAllImages.style.display = 'none';
@@ -885,13 +913,90 @@
         }; r.readAsArrayBuffer(file);
     }
 
+    // --- MỚI: HÀM XỬ LÝ VÉ BÓC ---
+    function parseVeBocData() {
+        const input = DOM.veBocInput.value.trim();
+        veBocData = new Map();
+        if(!input) { DOM.veBocStatusMsg.style.display='none'; generateSummaryView(); return; }
+        
+        const lines = input.split('\n');
+        let count = 0;
+        lines.forEach(l => {
+            l = l.trim(); if(!l) return;
+            const parts = l.split(/[+\/,:;=.\s]+/).filter(p => p.trim() !== '');
+            if(parts.length >= 2) {
+                const code = parts[0].trim();
+                const qty = parseFloat(parts[1].trim()); 
+                if(code && !isNaN(qty) && qty > 0) {
+                    const revenue = qty * 5000;      
+                    const commission = revenue * 0.12; 
+                    veBocData.set(code, {qty: qty, rev: revenue, com: commission});
+                    count++;
+                }
+            }
+        });
+        DOM.veBocStatusMsg.textContent = count > 0 ? `Đã nhận: ${count} đại lý có vé bóc.` : '';
+        DOM.veBocStatusMsg.style.display = count > 0 ? 'block' : 'none';
+        generateSummaryView();
+    }
+
+    function handleVeBocFile(file) {
+        if(!file) return;
+        showLoading();
+        const r = new FileReader();
+        r.onload = (e) => {
+            try {
+                const d = new Uint8Array(e.target.result);
+                const wb = XLSX.read(d, {type:"array"});
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const json = XLSX.utils.sheet_to_json(ws, {header:1}); 
+                
+                veBocData = new Map();
+                let count = 0;
+                
+                json.forEach(row => {
+                    if(row.length >= 2) {
+                        const c = String(row[0]).trim(); 
+                        if(c.toLowerCase().includes("mã") || c === "") return; 
+                        
+                        const qty = parseFloat(String(row[1]).replace(/[.,]/g,'')); 
+                        if(!isNaN(qty) && qty > 0) {
+                            const revenue = qty * 5000;
+                            const commission = revenue * 0.12;
+                            veBocData.set(c, {qty: qty, rev: revenue, com: commission});
+                            count++;
+                        }
+                    }
+                });
+                
+                if(count > 0) {
+                    DOM.veBocStatusMsg.textContent = `Excel: ${count} đại lý bán vé bóc.`;
+                    DOM.veBocStatusMsg.style.display = 'block';
+                    DOM.veBocFile.classList.add('loaded');
+                    generateSummaryView();
+                } else {
+                    showNotification("File vé bóc lỗi hoặc rỗng", 'warning');
+                }
+            } catch(err) {
+                console.error(err);
+                showNotification("Lỗi file vé bóc", 'error');
+            } finally {
+                hideLoading();
+            }
+        };
+        r.readAsArrayBuffer(file);
+    }
+
+    // --- CẬP NHẬT: PROCESS SUMMARY DATA (THÊM VÉ BÓC) ---
     function processSummaryData(regionRules, revFilter) {
         let groups = new Map();
-        let totals = {rev:0, com:0, th:0, debt:0, final:0, lotoDB:0, lotoCap:0, c227:0, c323:0, xskt:0};
+        // MỚI: Thêm veBoc:0
+        let totals = {rev:0, com:0, th:0, debt:0, final:0, lotoDB:0, lotoCap:0, c227:0, c323:0, xskt:0, veBoc:0};
 
         if(appMode === 'excel') {
             const map=new Map();
-            const init=(c)=>{ if(!map.has(c)) map.set(c,{totRev:0,totCom:0,lotoDB:0,lotoCap:0,c227:0,c323:0,xskt:0,thuong:0,debt:0}); };
+            // MỚI: Thêm veBoc:0 vào init
+            const init=(c)=>{ if(!map.has(c)) map.set(c,{totRev:0,totCom:0,lotoDB:0,lotoCap:0,c227:0,c323:0,xskt:0,thuong:0,debt:0, veBoc:0}); };
             excelData1.forEach(r=>{
                 const c=String(r.__EMPTY||'').trim(); if(!c||!/\d/.test(c)) return; init(c); const d=map.get(c);
                 const ldb=parseFloat(r.__EMPTY_2)||0, lc=parseFloat(r.__EMPTY_6)||0, c2=parseFloat(r.__EMPTY_8)||0, c3=parseFloat(r.__EMPTY_10)||0, th=parseFloat(r.__EMPTY_14)||0;
@@ -902,7 +1007,19 @@
                 const x=(parseFloat(r.__EMPTY_7)||0)*1000; d.xskt+=x; d.totRev+=x; d.totCom+=x*0.1;
             });
             debtData.forEach((v,k)=>{ init(k); map.get(k).debt=v; });
-            const keys=[...map.keys()]; keys.forEach(k=>{ const d=map.get(k); if(d.totRev===0 && d.debt===0 && d.thuong===0) map.delete(k); });
+            
+            // MỚI: XỬ LÝ VÉ BÓC
+            veBocData.forEach((v, k) => {
+                init(k);
+                const d = map.get(k);
+                d.veBoc += v.rev; 
+                d.totRev += v.rev; 
+                d.totCom += v.com; 
+            });
+
+            const keys=[...map.keys()]; 
+            // MỚI: Không xóa nếu có vé bóc
+            keys.forEach(k=>{ const d=map.get(k); if(d.totRev===0 && d.debt===0 && d.thuong===0 && d.veBoc===0) map.delete(k); });
             
             let filteredMap=new Map();
             if(regionRules) map.forEach((v,k)=>{ const numMatch=String(k).match(/\d+$/); if(numMatch){ const n=parseInt(numMatch[0],10); if(regionRules.some(r=>n>=r.min && n<=r.max)) filteredMap.set(k,v); } }); else filteredMap=map;
@@ -919,20 +1036,28 @@
             if(revFilter) groups.forEach((v,k)=>{ if(v.gr>=revFilter.min && v.gr<=revFilter.max) finalGroups.set(k,v); }); else return {groups, totals:{}};
             finalGroups.forEach(g=>{ g.agents.forEach(a=>{ 
                 const d=a.data; totals.rev+=d.totRev; totals.th+=d.thuong; totals.debt+=d.debt; 
-                totals.lotoDB+=d.lotoDB; totals.lotoCap+=d.lotoCap; totals.c227+=d.c227; totals.c323+=d.c323; totals.xskt+=d.xskt;
+                // MỚI: Cộng tổng vé bóc
+                totals.lotoDB+=d.lotoDB; totals.lotoCap+=d.lotoCap; totals.c227+=d.c227; totals.c323+=d.c323; totals.xskt+=d.xskt; totals.veBoc+=d.veBoc;
                 totals.final+=(d.totRev-d.totCom-d.thuong)+d.debt;
             });});
             return {groups:finalGroups, totals};
 
         } else {
             const map = new Map();
-            const init=(c)=>{ if(!map.has(c)) map.set(c,{totRev:0,totCom:0,lotoDB:0,lotoCap:0,c227:0,c323:0,xskt:0,thuong:0,debt:0}); };
+            // MỚI: Thêm veBoc:0
+            const init=(c)=>{ if(!map.has(c)) map.set(c,{totRev:0,totCom:0,lotoDB:0,lotoCap:0,c227:0,c323:0,xskt:0,thuong:0,debt:0, veBoc:0}); };
             
             rawDataMap.forEach((items, code) => {
                 init(code); const d = map.get(code);
                 items.forEach(item => { d.totRev += item.rev; d.totCom += item.com; d.thuong += item.bonus; d.lotoDB += item.rev; });
             });
             debtData.forEach((v,k)=>{ init(k); map.get(k).debt=v; });
+
+            // MỚI: XỬ LÝ VÉ BÓC CHO RAW MODE
+            veBocData.forEach((v, k) => {
+                init(k); const d = map.get(k);
+                d.veBoc += v.rev; d.totRev += v.rev; d.totCom += v.com;
+            });
 
             let filteredMap=new Map();
             if(regionRules) map.forEach((v,k)=>{ const numMatch=String(k).match(/\d+$/); if(numMatch){ const n=parseInt(numMatch[0],10); if(regionRules.some(r=>n>=r.min && n<=r.max)) filteredMap.set(k,v); } }); else filteredMap=map;
@@ -949,15 +1074,17 @@
             if(revFilter) groups.forEach((v,k)=>{ if(v.gr>=revFilter.min && v.gr<=revFilter.max) finalGroups.set(k,v); }); else return {groups, totals:{}};
             finalGroups.forEach(g=>{ g.agents.forEach(a=>{ 
                 const d=a.data; totals.rev+=d.totRev; totals.th+=d.thuong; totals.debt+=d.debt; totals.com+=d.totCom; 
-                totals.lotoDB+=d.lotoDB; totals.final+=(d.totRev-d.totCom-d.thuong)+d.debt;
+                // MỚI: Cộng tổng vé bóc
+                totals.lotoDB+=d.lotoDB; totals.veBoc+=d.veBoc;
+                totals.final+=(d.totRev-d.totCom-d.thuong)+d.debt;
             });});
             return {groups:finalGroups, totals};
         }
     }
 
     function generateSummaryView() {
-        if(appMode === 'excel' && !excelData1.length && !excelData2.length && debtData.size===0) return;
-        if(appMode === 'raw' && rawDataMap.size===0 && debtData.size===0) return;
+        if(appMode === 'excel' && !excelData1.length && !excelData2.length && debtData.size===0 && veBocData.size===0) return;
+        if(appMode === 'raw' && rawDataMap.size===0 && debtData.size===0 && veBocData.size===0) return;
 
         const regVal=DOM.regionSelect.value, rules=regVal!=='all'?regionDefinitions[regVal]:null;
         const minV=parseFloat(DOM.minRevenueInput.dataset.value)||0, maxV=parseFloat(DOM.maxRevenueInput.dataset.value)||Infinity;
@@ -966,10 +1093,11 @@
         
         const hasXSKT = (appMode === 'excel' && excelData2.length > 0);
         const hasDebt = debtData.size > 0;
+        const hasVeBoc = veBocData.size > 0; // MỚI: Flag kiểm tra có vé bóc không
 
         let html;
         if (appMode === 'excel') {
-             html=`<thead><tr><th width="8%">STT</th><th width="12%">ĐL</th><th>LTô</th><th>LCặp</th><th>Lô 3/23</th><th>Lô 2/27</th>${hasXSKT?'<th>XSKT':''}<th>Dsố</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
+             html=`<thead><tr><th width="8%">STT</th><th width="12%">ĐL</th><th>LTô</th><th>LCặp</th><th>Lô 3/23</th><th>Lô 2/27</th>${hasXSKT?'<th>XSKT':''}${hasVeBoc?'<th>VBóc</th>':''}<th>Dsố</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
         } else {
              html=`<thead><tr><th width="8%">STT</th><th width="12%">ĐL</th><th>Doanh Số</th><th>Hoa hồng</th><th>Thưởng</th>${hasDebt?'<th>Nợ cũ':''}<th>Tiền nộp</th></tr></thead><tbody>`;
         }
@@ -980,42 +1108,30 @@
         else if(sortMode==='revenue_asc') sortedGroups.sort((a,b)=>a[1].gr - b[1].gr);
 
         sortedGroups.forEach(([gk, g])=>{
-            // Xác định xem đây là nhóm (nhiều đại lý) hay đại lý đơn lẻ
             const isGroup = g.agents.length > 1;
 
             g.agents.forEach((ag, idx)=>{
                 const d=ag.data, final=(d.totRev-d.totCom-d.thuong)+d.debt;
-                
-                // Logic xử lý class cho dòng
-                // Nếu là single agent -> 'single-agent-row' (in đậm)
-                // Nếu là thành viên nhóm -> 'group-member-row' (in nghiêng, thường)
                 const rowClass = isGroup ? 'group-member-row' : 'single-agent-row';
-                
-                // Logic xử lý in đậm + xanh lá:
-                // 1. Mã thuần số (không có chữ)
-                // 2. HOẶC là Đại lý lẻ (không có nhóm) - Bất kể có chữ hay số
-                // 3. HOẶC là Đại lý ĐẦU TIÊN trong một nhóm
                 const isNumericCode = !/[a-zA-Z]/.test(ag.code);
                 const isSingleAgent = !isGroup;
                 const isFirstInGroup = isGroup && idx === 0;
-                
                 const shouldHighlight = isNumericCode || isSingleAgent || isFirstInGroup;
                 const codeClass = shouldHighlight ? ' class="code-cell-highlight"' : '';
 
                 if (appMode === 'excel') {
-                    html+=`<tr class="${rowClass}"><td>${idx===0?stt:''}</td><td${codeClass}>${ag.code}</td><td>${formatNumberHiddenK(d.lotoDB)}</td><td>${formatNumberHiddenK(d.lotoCap)}</td><td>${formatNumberHiddenK(d.c323)}</td><td>${formatNumberHiddenK(d.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(d.xskt)}</td>`:''}<td>${formatNumberHiddenK(d.totRev)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`;
+                    html+=`<tr class="${rowClass}"><td>${idx===0?stt:''}</td><td${codeClass}>${ag.code}</td><td>${formatNumberHiddenK(d.lotoDB)}</td><td>${formatNumberHiddenK(d.lotoCap)}</td><td>${formatNumberHiddenK(d.c323)}</td><td>${formatNumberHiddenK(d.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(d.xskt)}</td>`:''}${hasVeBoc?`<td>${formatNumberHiddenK(d.veBoc)}</td>`:''}<td>${formatNumberHiddenK(d.totRev)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`;
                 } else {
                     html+=`<tr class="${rowClass}"><td>${idx===0?stt:''}</td><td${codeClass}>${ag.code}</td><td>${formatNumberHiddenK(d.totRev)}</td><td>${formatCommissionCellHiddenK(d.totRev, d.totCom)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`;
                 }
             }); 
             
-            // Dòng tổng nhóm (luôn in đậm theo class .group-total-row)
             if (isGroup) {
                 let sumDebt = 0; g.agents.forEach(ag => sumDebt+=ag.data.debt);
                 if (appMode === 'excel') {
-                    let sumLoto = 0, sumCap = 0, sumC3 = 0, sumC2 = 0, sumXskt = 0;
-                    g.agents.forEach(ag => { sumLoto+=ag.data.lotoDB; sumCap+=ag.data.lotoCap; sumC3+=ag.data.c323; sumC2+=ag.data.c227; sumXskt+=ag.data.xskt; });
-                    html += `<tr class="group-total-row"><td></td><td></td><td>${formatNumberHiddenK(sumLoto)}</td><td>${formatNumberHiddenK(sumCap)}</td><td>${formatNumberHiddenK(sumC3)}</td><td>${formatNumberHiddenK(sumC2)}</td>${hasXSKT?`<td>${formatNumberHiddenK(sumXskt)}</td>`:''}<td>${formatNumberHiddenK(g.gr)}</td><td>${formatNumberHiddenK(g.gth)}</td>${hasDebt?`<td>${formatNumberHiddenK(sumDebt)}</td>`:''}<td style="color:#c0392b;">${formatNumberHiddenK(g.gt)}</td></tr>`;
+                    let sumLoto = 0, sumCap = 0, sumC3 = 0, sumC2 = 0, sumXskt = 0, sumVeBoc = 0;
+                    g.agents.forEach(ag => { sumLoto+=ag.data.lotoDB; sumCap+=ag.data.lotoCap; sumC3+=ag.data.c323; sumC2+=ag.data.c227; sumXskt+=ag.data.xskt; sumVeBoc+=ag.data.veBoc; });
+                    html += `<tr class="group-total-row"><td></td><td></td><td>${formatNumberHiddenK(sumLoto)}</td><td>${formatNumberHiddenK(sumCap)}</td><td>${formatNumberHiddenK(sumC3)}</td><td>${formatNumberHiddenK(sumC2)}</td>${hasXSKT?`<td>${formatNumberHiddenK(sumXskt)}</td>`:''}${hasVeBoc?`<td>${formatNumberHiddenK(sumVeBoc)}</td>`:''}<td>${formatNumberHiddenK(g.gr)}</td><td>${formatNumberHiddenK(g.gth)}</td>${hasDebt?`<td>${formatNumberHiddenK(sumDebt)}</td>`:''}<td style="color:#c0392b;">${formatNumberHiddenK(g.gt)}</td></tr>`;
                 } else {
                     html += `<tr class="group-total-row"><td></td><td></td><td>${formatNumberHiddenK(g.gr)}</td><td></td><td>${formatNumberHiddenK(g.gth)}</td>${hasDebt?`<td>${formatNumberHiddenK(sumDebt)}</td>`:''}<td style="color:#c0392b;">${formatNumberHiddenK(g.gt)}</td></tr>`;
                 }
@@ -1023,9 +1139,8 @@
             stt++;
         });
         
-        /* YÊU CẦU 4: Dòng TỔNG đổi màu nền sang Nâu Đậm (#5d4037) */
         if(appMode === 'excel') {
-            html+=`<tr id="summaryTotalRow" class="group-total-row" style="background-color:#5d4037;color:white;font-weight:bold;"><td colspan="2">TỔNG</td><td>${formatNumberHiddenK(totals.lotoDB)}</td><td>${formatNumberHiddenK(totals.lotoCap)}</td><td>${formatNumberHiddenK(totals.c323)}</td><td>${formatNumberHiddenK(totals.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(totals.xskt)}</td>`:''}<td>${formatNumberHiddenK(totals.rev)}</td><td>${formatNumberHiddenK(totals.th)}</td>${hasDebt?`<td>${formatNumberHiddenK(totals.debt)}</td>`:''}<td class="${totals.final>=0?'final-amount-positive':'final-amount-negative'}">${formatNumberHiddenK(totals.final)}</td></tr></tbody>`;
+            html+=`<tr id="summaryTotalRow" class="group-total-row" style="background-color:#5d4037;color:white;font-weight:bold;"><td colspan="2">TỔNG</td><td>${formatNumberHiddenK(totals.lotoDB)}</td><td>${formatNumberHiddenK(totals.lotoCap)}</td><td>${formatNumberHiddenK(totals.c323)}</td><td>${formatNumberHiddenK(totals.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(totals.xskt)}</td>`:''}${hasVeBoc?`<td>${formatNumberHiddenK(totals.veBoc)}</td>`:''}<td>${formatNumberHiddenK(totals.rev)}</td><td>${formatNumberHiddenK(totals.th)}</td>${hasDebt?`<td>${formatNumberHiddenK(totals.debt)}</td>`:''}<td class="${totals.final>=0?'final-amount-positive':'final-amount-negative'}">${formatNumberHiddenK(totals.final)}</td></tr></tbody>`;
         } else {
              html+=`<tr id="summaryTotalRow" class="group-total-row" style="background-color:#5d4037;color:white;font-weight:bold;"><td colspan="2">TỔNG</td><td>${formatNumberHiddenK(totals.rev)}</td><td>${formatNumberHiddenK(totals.com)}</td><td>${formatNumberHiddenK(totals.th)}</td>${hasDebt?`<td>${formatNumberHiddenK(totals.debt)}</td>`:''}<td class="${totals.final>=0?'final-amount-positive':'final-amount-negative'}">${formatNumberHiddenK(totals.final)}</td></tr></tbody>`;
         }
@@ -1058,7 +1173,6 @@
             state.baseTongDT = t.lotoDB + t.loCap + t.c227 + t.c323 + t.xskt; state.baseTongHH = c.ldb + c.lc + c.c2 + c.c3 + c.x; state.baseTongHH = c.ldb + c.lc + c.c2 + c.c3 + c.x; state.baseThuong = t.thuong; state.debtFromData = debtAmt;
             return {t, c};
         } else {
-            // === LOGIC MỚI: TÌM KIẾM TƯƠNG ĐỐI ===
             let targetKey = null;
             const inputNum = soSo.replace(/\D/g, ''); 
             for (let key of rawDataMap.keys()) {
@@ -1084,7 +1198,6 @@
         }
     }
 
-    // --- CẬP NHẬT RENDER DETAILED REPORT (ĐÃ SỬA THEO YÊU CẦU) ---
     function renderDetailedReport(d, customDate, reportType = 'detailed') {
         const debtHtml = state.debtFromData > 0 ? `<tr style="color:var(--danger-color); font-weight:bold;"><td>Nợ cũ</td><td colspan="${(appMode === 'excel' || (appMode === 'raw' && reportType === 'summary')) ? 2 : 4}">${formatNumberHiddenK(state.debtFromData)}</td></tr>` : '';
         const reportDate = customDate || dateRangeText;
@@ -1093,19 +1206,13 @@
             let t, c;
 
             if (appMode === 'excel') {
-                // Dữ liệu từ Excel đã có sẵn cấu trúc t, c
                 t = d.t; 
                 c = d.c;
             } else {
-                // CHUYỂN ĐỔI DỮ LIỆU THÔ (ARRAY) -> DẠNG TỔNG HỢP (OBJECT t, c)
                 t = {lotoDB: 0, loCap: 0, c227: 0, c323: 0, thuong: 0, xskt: 0};
                 c = {ldb: 0, lc: 0, c2: 0, c3: 0, x: 0};
-
-                // Duyệt qua mảng dữ liệu thô để cộng dồn
                 d.forEach(item => {
                     t.thuong += item.bonus;
-                    
-                    // Map loại hình thô sang biến tổng
                     const type = item.type.toUpperCase();
                     if (type.includes('LT') || type.includes('DB')) {
                         t.lotoDB += item.rev; c.ldb += item.com;
@@ -1116,7 +1223,6 @@
                     } else if (type.includes('L3') || type.includes('3/23')) {
                         t.c323 += item.rev; c.c3 += item.com;
                     }
-                    // Nếu có loại khác, nó sẽ được tính vào tổng doanh thu chung ở hàm updateDetailedView
                 });
             }
 
@@ -1141,9 +1247,6 @@
                 </tbody>
             </table>`;
         } else {
-            // === LOGIC CŨ: RAW DATA REPORT CHI TIẾT ===
-            
-            // 1. Nhóm dữ liệu theo ngày
             const groupByDate = new Map();
             d.forEach(item => {
                 if(!groupByDate.has(item.date)) groupByDate.set(item.date, []);
@@ -1152,7 +1255,6 @@
 
             let rowsHtml = '';
             
-            // Map đổi tên loại hình
             const typeNameMap = {
                 'LT': 'Ltô ĐB',
                 'LC': 'LCặp',
@@ -1160,29 +1262,23 @@
                 'L3': 'Lô 3/23'
             };
 
-            // 2. Duyệt từng ngày để hiển thị
             groupByDate.forEach((items, dateStr) => {
-                const isSingleItem = items.length === 1; // Kiểm tra nếu chỉ có 1 loại hình
+                const isSingleItem = items.length === 1; 
                 let dayRev = 0, dayCom = 0, dayBonus = 0;
                 
-                // Duyệt item trong ngày
                 items.forEach(item => {
                     dayRev += item.rev;
                     dayCom += item.com;
                     dayBonus += item.bonus;
                     
                     const displayName = typeNameMap[item.type] || item.type;
-
-                    // Xác định style cho dòng item này
                     let cellStyle = '';
                     let revColor = '';
-                    let netColor = 'font-weight:bold; color: #000;'; // Mặc định đen cho item lẻ trong ngày nhiều loại
+                    let netColor = 'font-weight:bold; color: #000;'; 
 
                     if (isSingleItem) {
-                        // NẾU LÀ NGÀY ĐƠN: Áp dụng style của dòng tổng
-                        cellStyle = 'background-color: #ecf0f1;'; // Nền xám
-                        revColor = 'color: #000;'; // Doanh thu đen
-                        // Nộp/Lấy về màu Đỏ/Xanh
+                        cellStyle = 'background-color: #ecf0f1;'; 
+                        revColor = 'color: #000;'; 
                         if (item.net >= 0) netColor = 'font-weight:bold; color: var(--danger-color);'; 
                         else netColor = 'font-weight:bold; color: var(--success-color);';
                     }
@@ -1196,7 +1292,6 @@
                     </tr>`;
                 });
 
-                // 3. Chỉ hiện dòng TỔNG NGÀY nếu có > 1 loại hình
                 if (!isSingleItem) {
                     const dayNet = dayRev - dayCom - dayBonus;
                     const cellBgStyle = 'background-color: #ecf0f1;'; 
@@ -1212,11 +1307,9 @@
                 }
             });
 
-            // 3. Tổng hợp loại hình
             let typeSummaryHtml = '';
             const sortOrder = ['LT', 'LC', 'L2', 'L3'];
 
-            // Gom nhóm tổng theo loại hình (từ dữ liệu đầu vào d)
             const typeSummary = new Map();
             d.forEach(item => {
                 if(!typeSummary.has(item.type)) typeSummary.set(item.type, {rev:0, com:0, bonus:0});
@@ -1259,9 +1352,7 @@
                     <tr><td class="header" style="font-weight:bold;">Đợt:</td><td colspan="4" style="font-weight:500;">${reportDate}</td></tr>
                     <tr><th>Ngày/Loại</th><th>Doanh Thu</th><th>Hoa hồng</th><th>Thưởng</th><th>Nộp/Lấy về</th></tr>
                     ${rowsHtml}
-                    
                     ${typeSummaryHtml}
-
                     <tr id="tongCongRow" style="border-top: 2px solid #7f8c8d; background-color: #FEF9E7;">
                         <td style="font-weight: bold; color: var(--header-bg);">Tổng</td>
                         <td id="tongDT" style="font-weight:bold; color:var(--danger-color); font-size:1.1em;"></td>
@@ -1302,7 +1393,6 @@
         const d=processDetailedReport(s); 
         if(!d) return showNotification("Không có dữ liệu",'error');
         
-        // Truyền tham số type vào hàm render
         renderDetailedReport(d, null, type); 
         
         updateDetailedView(); 
@@ -1313,7 +1403,6 @@
         DOM.reportContainer.scrollIntoView({behavior:'smooth'});
     }
 
-    // --- EVENT LISTENERS CẬP NHẬT: ẨN/HIỆN NÚT THỦ CÔNG ---
     DOM.tabExcel.onclick = () => {
         appMode = 'excel';
         DOM.tabExcel.classList.add('active'); DOM.tabExcel.style.background = 'var(--primary-color)'; DOM.tabExcel.style.color = 'white';
@@ -1322,11 +1411,9 @@
         excelData1 = []; excelData2 = []; rawDataMap = new Map();
         document.querySelectorAll('input[type="file"]').forEach(i => i.classList.remove('loaded'));
         
-        // Hiện nút thủ công (Cả ở home và inline)
         if(DOM.btnShowManualReport_inline) DOM.btnShowManualReport_inline.style.display = 'block'; 
         if(DOM.btnShowManualReport) DOM.btnShowManualReport.style.display = 'block';
 
-        // Ẩn nút "Báo Cáo Ngày"
         if(DOM.btnCreateDailyReport) DOM.btnCreateDailyReport.style.display = 'none';
     };
 
@@ -1337,11 +1424,9 @@
         DOM.panelRaw.style.display = 'block'; DOM.panelExcel.style.display = 'none';
         excelData1 = []; excelData2 = []; rawDataMap = new Map();
         
-        // Ẩn nút thủ công (Cả ở home và inline)
         if(DOM.btnShowManualReport_inline) DOM.btnShowManualReport_inline.style.display = 'none';
         if(DOM.btnShowManualReport) DOM.btnShowManualReport.style.display = 'none';
 
-        // Hiện nút "Báo Cáo Ngày"
         if(DOM.btnCreateDailyReport) DOM.btnCreateDailyReport.style.display = 'block';
     };
 
@@ -1394,6 +1479,8 @@
         const data = processSummaryData(rules, {min: minV * 1000, max: maxV * 1000});
         if (!data) return showNotification("Không có dữ liệu!", 'error');
         const {groups, totals} = data; const hasXSKT = excelData2.length > 0 && appMode === 'excel'; const hasDebt = debtData.size > 0;
+        const hasVeBoc = veBocData.size > 0; // MỚI: Check vé bóc để xuất excel
+        
         const sHeader = { font: { bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "34495E" } }, alignment: { horizontal: "center", vertical: "center" }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
         const sGroup = { font: { bold: true }, fill: { fgColor: { rgb: "FEF9E7" } }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
         const sTotal = { font: { bold: true }, fill: { fgColor: { rgb: "FFC107" } }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
@@ -1404,7 +1491,7 @@
         const sBlue = { font: { color: { rgb: "00008B" }, bold: true }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
         let aoa = []; aoa.push([document.getElementById('summaryTitle').innerText]); aoa.push([dateRangeText]);
         const percent = totals.rev > 0 ? (totals.th / totals.rev * 100).toFixed(1) : 0; aoa.push([`Doanh số: ${formatNumberFull(totals.rev)} - Thưởng: ${formatNumberFull(totals.th)} (${percent}%)`]); aoa.push([""]); 
-        let headers; if(appMode === 'excel') { headers = ["STT", "Đại Lý", "Lô tô", "Lô cặp", "Lô 3/23", "Lô 2/27"]; if (hasXSKT) headers.push("XSKT"); } else { headers = ["STT", "Đại Lý", "Doanh Số", "Hoa hồng", "Thưởng"]; }
+        let headers; if(appMode === 'excel') { headers = ["STT", "Đại Lý", "Lô tô", "Lô cặp", "Lô 3/23", "Lô 2/27"]; if (hasXSKT) headers.push("XSKT"); if(hasVeBoc) headers.push("VBóc"); } else { headers = ["STT", "Đại Lý", "Doanh Số", "Hoa hồng", "Thưởng"]; }
         if(appMode==='excel') headers.push("Doanh số", "Thưởng"); if (hasDebt) headers.push("Nợ cũ"); headers.push("Tiền nộp"); aoa.push(headers);
         let rowMetaData = {}; let currentRow = 5; let stt = 1; 
         const sortMode = DOM.sortSelect.value; let sortedGroups = [...groups.entries()];
@@ -1414,18 +1501,18 @@
             g.agents.forEach((ag, idx) => { 
                 const d = ag.data; const final = (d.totRev - d.totCom - d.thuong) + d.debt; 
                 let displayStt = (idx === 0) ? stt : ""; let row;
-                if(appMode === 'excel') { row = [ displayStt, ag.code, d.lotoDB, d.lotoCap, d.c323, d.c227 ]; if (hasXSKT) row.push(d.xskt); row.push(d.totRev, d.thuong); } else { row = [ displayStt, ag.code, d.totRev, d.totCom, d.thuong ]; }
+                if(appMode === 'excel') { row = [ displayStt, ag.code, d.lotoDB, d.lotoCap, d.c323, d.c227 ]; if (hasXSKT) row.push(d.xskt); if(hasVeBoc) row.push(d.veBoc); row.push(d.totRev, d.thuong); } else { row = [ displayStt, ag.code, d.totRev, d.totCom, d.thuong ]; }
                 if (hasDebt) row.push(d.debt); row.push(final); 
                 aoa.push(row); rowMetaData[currentRow] = isMulti ? 'group_member' : 'single'; currentRow++;
             }); 
             if (isMulti) { 
-                let rowGroup = ["", ""]; if(appMode==='excel') { rowGroup.push("","","",""); if(hasXSKT) rowGroup.push(""); rowGroup.push(g.gr, g.gth); } else { rowGroup.push(g.gr, "", g.gth); }
+                let rowGroup = ["", ""]; if(appMode==='excel') { rowGroup.push("","","",""); if(hasXSKT) rowGroup.push(""); if(hasVeBoc) rowGroup.push(""); rowGroup.push(g.gr, g.gth); } else { rowGroup.push(g.gr, "", g.gth); }
                 if (hasDebt) { let sumDebt = 0; g.agents.forEach(ag => sumDebt+=ag.data.debt); rowGroup.push(sumDebt); } rowGroup.push(g.gt); 
                 aoa.push(rowGroup); rowMetaData[currentRow] = 'group_total'; currentRow++;
             } stt++; 
         }); 
         let rowTotal = ["TỔNG", ""]; 
-        if(appMode === 'excel') { rowTotal.push(totals.lotoDB, totals.lotoCap, totals.c323, totals.c227); if(hasXSKT) rowTotal.push(totals.xskt); rowTotal.push(totals.rev, totals.th); } else { rowTotal.push(totals.rev, totals.com, totals.th); }
+        if(appMode === 'excel') { rowTotal.push(totals.lotoDB, totals.lotoCap, totals.c323, totals.c227); if(hasXSKT) rowTotal.push(totals.xskt); if(hasVeBoc) rowTotal.push(totals.veBoc); rowTotal.push(totals.rev, totals.th); } else { rowTotal.push(totals.rev, totals.com, totals.th); }
         if (hasDebt) rowTotal.push(totals.debt); rowTotal.push(totals.final); aoa.push(rowTotal); let totalRowIndex = currentRow;
         const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(aoa); const range = XLSX.utils.decode_range(ws['!ref']); const lastColIdx = range.e.c; if(!ws['!merges']) ws['!merges'] = [];
         ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: lastColIdx } }); ws['!merges'].push({ s: { r: 1, c: 0 }, e: { r: 1, c: lastColIdx } }); ws['!merges'].push({ s: { r: 2, c: 0 }, e: { r: 2, c: lastColIdx } }); ws['!merges'].push({ s: { r: 4, c: 0 }, e: { r: 4, c: 1 } }); ws['!merges'].push({ s: { r: totalRowIndex, c: 0 }, e: { r: totalRowIndex, c: 1 } });
@@ -1461,7 +1548,29 @@
     DOM.closePasswordModalBtn.onclick=()=>{DOM.passwordModal.style.display='none'};
     DOM.closePreviewModalBtn.onclick=()=>{DOM.imagePreviewModal.style.display='none'};
     
-    // FIX: Function to handle region lock logic properly
+    // --- MỚI: SỰ KIỆN CHO VÉ BÓC ---
+    DOM.veBocModeRadios.forEach(r => r.onchange = (e) => {
+        DOM.veBocManualContainer.style.display = e.target.value === 'manual' ? 'block' : 'none';
+        DOM.veBocExcelContainer.style.display = e.target.value === 'excel' ? 'block' : 'none';
+        DOM.btnApplyVeBoc.style.display = e.target.value === 'manual' ? 'block' : 'none';
+        veBocData.clear();
+        DOM.veBocStatusMsg.style.display = 'none';
+        generateSummaryView();
+    });
+    DOM.veBocFile.onchange = (e) => handleVeBocFile(e.target.files[0]);
+    DOM.btnClearVeBoc.onclick = () => {
+        veBocData.clear();
+        DOM.veBocInput.value = '';
+        DOM.veBocFile.value = '';
+        DOM.veBocManualContainer.style.display = 'none';
+        DOM.veBocExcelContainer.style.display = 'none';
+        DOM.veBocStatusMsg.style.display = 'none';
+        DOM.veBocModeRadios.forEach(r => r.checked = false);
+        DOM.btnApplyVeBoc.style.display = 'none';
+        generateSummaryView();
+    };
+    DOM.btnApplyVeBoc.onclick = parseVeBocData;
+
     function parseRegions(){ 
         const txt=DOM.regionDefinitionsInput.value; regionDefinitions={}; const lines=txt.split('\n'); DOM.regionSelect.innerHTML='<option value="all">--- Tất cả ---</option>'; 
         lines.forEach(l=>{ const idx=l.indexOf(':'); if(idx>0){ const n=l.slice(0,idx).trim(), r=l.slice(idx+1).trim(); const rules=[]; r.split('+').forEach(p=>{ if(p.includes('_')){const[mi,ma]=p.split('_'); rules.push({min:+mi,max:+ma});} else rules.push({min:+p,max:+p}); }); if(rules.length){ regionDefinitions[n]=rules; const o=document.createElement('option'); o.value=n; o.text=n; DOM.regionSelect.add(o); } }}); 
