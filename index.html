@@ -89,25 +89,31 @@
     th { background: var(--header-bg); color: white; font-weight: 600; position: sticky; top: 0; z-index: 20; border-top: none; }
     #summaryTotalRow td { background-color: #f8f9fa; color: var(--text-color); font-weight: 700; position: sticky; bottom: 0; z-index: 20; border-top: 2px solid #bdc3c7; }
     
-    /* YÊU CẦU: Dòng tổng nhóm nền trắng */
+    /* Dòng tổng nhóm nền trắng */
     .group-total-row td { background-color: #ffffff; font-weight: bold; }
     
-    /* YÊU CẦU 1: Đại lý lẻ in đậm */
+    /* Đại lý lẻ in đậm */
     .single-agent-row td { font-weight: 700; }
 
-    /* YÊU CẦU 2: Đại lý thuộc nhóm in thường nghiêng */
+    /* Đại lý thuộc nhóm in thường nghiêng */
     .group-member-row td { font-style: italic; font-weight: 400; color: #555; }
 
-    /* YÊU CẦU 3: Mã đặc biệt (Thuần số HOẶC Đại lý lẻ) -> In đậm + Xanh lá */
+    /* Mã đặc biệt (Thuần số HOẶC Đại lý lẻ HOẶC Đại lý đầu tiên của nhóm) -> In đậm + Xanh lá */
     .code-cell-highlight { 
         color: #006400 !important; /* Xanh lá đậm */
         font-weight: 900 !important; /* Siêu đậm */
         font-style: normal !important; /* Không nghiêng */
     }
 
+    /* Cột STT (cột 1) luôn chữ thẳng thường */
+    #summaryTableContainer table td:first-child {
+        font-weight: 400 !important;
+        font-style: normal !important;
+        color: var(--text-color);
+    }
+
     .header { font-weight: 600; background: #f8f9fa; text-align: center !important; padding-left: 0 !important; }
     
-    /* YÊU CẦU: Cỡ chữ Mã đại lý (P968..) to bằng tiền nộp */
     .so-so { font-size: 22px !important; font-weight: 800; color: var(--logo-color); text-align: center; }
 
     #tongCongRow { background-color: #f1c40f; color: #fff; font-weight: 700 !important; text-shadow: 0 1px 1px rgba(0,0,0,0.1); } 
@@ -232,9 +238,9 @@
     #reportContainer.capturing-image h2 { font-size: 3em; }
     #reportContainer.capturing-image .total-amount { font-size: 4em; }
 
-    /* YÊU CẦU 1: Trong chế độ chụp ảnh, mã đại lý siêu to */
+    /* Trong chế độ chụp ảnh, mã đại lý siêu to */
     #reportContainer.capturing-image .so-so { 
-        font-size: 4.5em !important; /* Siêu to */
+        font-size: 4.5em !important; 
         font-weight: 900; 
         color: var(--logo-color); 
     }
@@ -249,8 +255,7 @@
     #reportContainer.capturing-image table th,
     #reportContainer.capturing-image table td { padding: 10px 10px; font-size: 1.1em; }
 
-    /* YÊU CẦU MỚI: CHỮ NỘI DUNG TO RA TRONG CHẾ ĐỘ CHỤP ẢNH (Gần gấp đôi) */
-    /* Target tất cả các ô trong bảng (trừ dòng Kết quả cuối và dòng Bằng chữ) */
+    /* CHỮ NỘI DUNG TO RA TRONG CHẾ ĐỘ CHỤP ẢNH */
     #reportContainer.capturing-image .report-table tr:not(#finalResultRow):not(#bangChuRow) td,
     #reportContainer.capturing-image .report-table th {
         font-size: 2.4em !important; /* Tăng cỡ chữ nội dung bảng lên RẤT TO */
@@ -560,53 +565,83 @@
         return res.charAt(0).toUpperCase()+res.slice(1);
     }
 
-    // --- LOGIC CẮT ẢNH A4 CHUẨN: MÓC CHÍNH XÁC DÒNG TIÊU ĐỀ ---
+    // --- LOGIC CẮT ẢNH A4 CHUẨN (CẬP NHẬT: SMART SPLIT KHÔNG CẮT CHỮ) ---
     async function splitCanvasToImages(canvas, targetTable, rootElement) {
         const images = [];
         const contentWidth = canvas.width;
         const totalHeight = canvas.height;
         const pageHeight = Math.floor(contentWidth * 1.414); 
         
-        // 1. TÌM VỊ TRÍ CHÍNH XÁC CỦA DÒNG TIÊU ĐỀ (THEAD)
         let theadH_inCanvas = 0;
         let theadY_inCanvas = 0;
         
         if (targetTable && rootElement) {
             const thead = targetTable.querySelector('thead');
             if (thead) {
-                // Tính tọa độ Y của thead so với top của canvas (rootElement)
                 const rootRect = rootElement.getBoundingClientRect();
                 const theadRect = thead.getBoundingClientRect();
                 const relativeY = theadRect.top - rootRect.top;
-
-                // Scale 2 do html2canvas
-                const scale = 2; 
-                
-                // Móc lên 5px để lấy viền
+                const scale = 2; // html2canvas scale
                 const adjustment = 5;
-                
                 theadY_inCanvas = Math.max(0, (relativeY - adjustment) * scale);
                 theadH_inCanvas = (thead.offsetHeight + adjustment) * scale;
             }
         }
         
-        // Vùng Header cần lặp lại (Chỉ lấy dòng xanh)
         const repeatHeaderHeight = theadH_inCanvas;
         const repeatHeaderSourceY = theadY_inCanvas;
 
         let currentY = 0;
         let pageIndex = 0;
+        const scale = 2; // Mặc định html2canvas scale
+
+        // Lấy danh sách các dòng tr trong bảng để tính toán điểm cắt
+        let tableRows = [];
+        if (targetTable) {
+            const rows = targetTable.querySelectorAll('tbody tr');
+            const rootRect = rootElement.getBoundingClientRect();
+            rows.forEach(tr => {
+                const rect = tr.getBoundingClientRect();
+                // Tọa độ top/bottom của row tính theo canvas (pixel)
+                const top = (rect.top - rootRect.top) * scale;
+                const bottom = (rect.bottom - rootRect.top) * scale;
+                tableRows.push({ top, bottom });
+            });
+            // Thêm dòng tổng cộng nếu có (tfoot hoặc row cuối)
+             const footRows = targetTable.querySelectorAll('tfoot tr');
+             footRows.forEach(tr => {
+                const rect = tr.getBoundingClientRect();
+                const top = (rect.top - rootRect.top) * scale;
+                const bottom = (rect.bottom - rootRect.top) * scale;
+                tableRows.push({ top, bottom });
+            });
+        }
 
         while (currentY < totalHeight) {
             const isFirstPage = (pageIndex === 0);
-            
-            // Trang 1: Cắt full trang A4 bình thường
-            // Trang 2+: Cần chừa chỗ ở đầu trang để dán Header vào
             const availableContentHeight = isFirstPage ? pageHeight : (pageHeight - repeatHeaderHeight);
             
-            let sliceHeight = Math.min(availableContentHeight, totalHeight - currentY);
+            // Điểm cắt dự kiến (lý tưởng)
+            let splitPoint = Math.min(currentY + availableContentHeight, totalHeight);
             
-            // Canvas đích cho trang hiện tại
+            // NẾU CẮT GIỮA CHỪNG (chưa hết ảnh) -> TÌM ĐIỂM CẮT AN TOÀN
+            if (splitPoint < totalHeight && tableRows.length > 0) {
+                 // Tìm row nào đang bị cắt ngang bởi splitPoint
+                 // Row bị cắt là row có: row.top < splitPoint < row.bottom
+                 const splittingRow = tableRows.find(row => row.top < splitPoint && row.bottom > splitPoint);
+                 
+                 if (splittingRow) {
+                     // Nếu cắt trúng dòng, lùi điểm cắt lên trên đầu dòng đó
+                     // Để dòng đó đẩy sang trang sau trọn vẹn
+                     // Nhưng đừng lùi quá xa (ví dụ nếu dòng quá cao > trang giấy thì chịu, cắt luôn)
+                     if (splittingRow.top > currentY) {
+                         splitPoint = splittingRow.top; 
+                     }
+                 }
+            }
+            
+            let sliceHeight = splitPoint - currentY;
+            
             const pageCanvas = document.createElement('canvas');
             pageCanvas.width = contentWidth;
             pageCanvas.height = isFirstPage ? sliceHeight : (repeatHeaderHeight + sliceHeight);
@@ -615,23 +650,16 @@
             ctx.fillStyle = "#ffffff";
             ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
             
-            // 1. Vẽ Header (Chỉ cho trang 2 trở đi)
             if (!isFirstPage && repeatHeaderHeight > 0) {
-                // Cắt đúng vùng thead từ canvas gốc (dùng tọa độ đã tính)
                 ctx.drawImage(canvas, 0, repeatHeaderSourceY, contentWidth, repeatHeaderHeight, 0, 0, contentWidth, repeatHeaderHeight);
             }
 
-            // 2. Vẽ Nội dung chính
-            // Nếu là trang 1: Vẽ từ đỉnh (0)
-            // Nếu là trang sau: Vẽ tiếp theo sau Header (repeatHeaderHeight)
             const destY = isFirstPage ? 0 : repeatHeaderHeight;
-            
-            // Cắt từ canvas gốc tại currentY
             ctx.drawImage(canvas, 0, currentY, contentWidth, sliceHeight, 0, destY, contentWidth, sliceHeight);
             
             images.push(pageCanvas.toDataURL('image/png'));
             
-            currentY += sliceHeight;
+            currentY = splitPoint; // Tiếp tục từ điểm cắt mới
             pageIndex++;
             
             if (currentY >= totalHeight) break;
@@ -966,10 +994,12 @@
                 // Logic xử lý in đậm + xanh lá:
                 // 1. Mã thuần số (không có chữ)
                 // 2. HOẶC là Đại lý lẻ (không có nhóm) - Bất kể có chữ hay số
+                // 3. HOẶC là Đại lý ĐẦU TIÊN trong một nhóm
                 const isNumericCode = !/[a-zA-Z]/.test(ag.code);
                 const isSingleAgent = !isGroup;
+                const isFirstInGroup = isGroup && idx === 0;
                 
-                const shouldHighlight = isNumericCode || isSingleAgent;
+                const shouldHighlight = isNumericCode || isSingleAgent || isFirstInGroup;
                 const codeClass = shouldHighlight ? ' class="code-cell-highlight"' : '';
 
                 if (appMode === 'excel') {
@@ -1104,7 +1134,7 @@
                     <tr><td>Lô 3/23</td><td>${formatNumberHiddenK(t.c323)}</td><td>${formatCommissionCellHiddenK(t.c323, c.c3)}</td></tr>
                     ${xsktHtml}
                     <tr id="tongCongRow" style="border-top: 2px solid #bdc3c7;"><td>Tổng</td><td id="tongDT"></td><td id="tongHH"></td></tr>
-                    <tr id="mainBonusRow"><td>Thưởng</td><td colspan="2">${formatNumberHiddenK(state.baseThuong)}</td></tr>
+                    <tr id="mainBonusRow" style="background-color: var(--success-color); color: white; font-weight: bold;"><td>Thưởng</td><td colspan="2" style="color: #fff;">${formatNumberHiddenK(state.baseThuong)}</td></tr>
                     ${debtHtml}
                     <tr id="finalResultRow"><td id="ketQuaLabel"></td><td colspan="2" id="ketQuaValue"></td></tr>
                     <tr id="bangChuRow"><td class="header" style="font-size:13px;">Bằng chữ</td><td colspan="2" id="ketQuaBangChu" class="bang-chu-cell"></td></tr>
