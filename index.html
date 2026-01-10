@@ -196,18 +196,49 @@
     @keyframes slideIn { from {transform: translateY(-20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
     
     /* PRINT */
+    /* PRINT */
     @media print {
         @page { size: A4; margin: 10mm; } 
-        body { padding: 0; background: white; -webkit-print-color-adjust: exact; font-size: 11pt; } 
+        
+        /* Bắt buộc trình duyệt in đúng màu đã thiết lập (-webkit-print-color-adjust: exact) */
+        body { 
+            padding: 0; 
+            background: white; 
+            -webkit-print-color-adjust: exact !important; 
+            print-color-adjust: exact !important;
+            font-size: 11pt; 
+        } 
+        
         body > * { display: none !important; }
+        
         #mainPage, #summarySection, #summaryTableContainer { 
             display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; 
             position: static !important; visibility: visible !important; overflow: visible !important;
             max-height: none !important; box-shadow: none !important;
         }
-        th, #summaryTotalRow td, tfoot td { position: static !important; border: 1px solid #000 !important; color: #000 !important; background: none !important; }
+        
+        /* Các ô tiêu đề và ô thường: In đen trắng để tiết kiệm mực */
+        th, tfoot td { 
+            position: static !important; 
+            border: 1px solid #000 !important; 
+            color: #000 !important; 
+            background: none !important; 
+        }
         td { border: 1px solid #000 !important; }
         #summaryTableContainer { border: none; }
+        
+        /* --- [CẬP NHẬT] DÒNG TỔNG CUỐI CÙNG: ÉP IN MÀU NỀN VÀ CHỮ TRẮNG --- */
+        #summaryTotalRow td { 
+            position: static !important; 
+            background-color: var(--primary-color) !important; /* Giữ màu nền đậm */
+            color: #ffffff !important; /* Chữ màu trắng */
+            font-weight: bold !important;
+            border: 1px solid #000 !important;
+            -webkit-print-color-adjust: exact !important; /* Quan trọng: Lệnh này ép trình duyệt in màu nền */
+            print-color-adjust: exact !important;
+        }
+
+        /* Ẩn các thành phần thừa */
         .controls-panel, .summary-actions, .home-menu-grid, .nav-header, .simple-animated-logo, 
         #scrollToTopBtn, #scrollToBottomBtn, #notification-area, #btnCopySummary, #btnExportExcel { display: none !important; }
         #summaryTitle, #summaryDate { text-align: center !important; display: block !important; }
