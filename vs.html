@@ -379,20 +379,20 @@
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
-        font-size: 22px !important; 
-        padding: 30px !important; 
+        font-size: 30px !important; 
+        padding: 25px !important; 
         background-color: white;
         box-shadow: none; 
         color: #000;
     }
     #reportContainer.capturing-image table { height: 100%; width: 100%; }
-    #reportContainer.capturing-image h2 { font-size: 3em; color: var(--primary-color); }
+    #reportContainer.capturing-image h2 { font-size: 4em; color: var(--primary-color); }
     #reportContainer.capturing-image .total-amount { font-size: 4em; }
-    #reportContainer.capturing-image .so-so { font-size: 4.5em !important; font-weight: 900; color: var(--accent-color); }
+    #reportContainer.capturing-image .so-so { font-size: 6em !important; font-weight: 900; color: var(--accent-color); }
     
     #reportContainer.capturing-image tr.final-amount-positive td, 
     #reportContainer.capturing-image tr.final-amount-negative td {
-        font-size: 4.5em !important;
+        font-size: 6em !important;
         padding: 25px 10px !important;
     }
 
@@ -409,6 +409,70 @@
     
     #reportContainer.capturing-image #tongCongRow td { font-size: 2.4em !important; background: #ccc !important; color: #000 !important; }
     #reportContainer.capturing-image #bangChuRow td { font-size: 1.3em !important; font-style: italic; padding: 10px !important; font-weight: normal; }
+
+/* --- CẬP NHẬT CẢ NỘP VÀ LẤY VỀ (SIÊU TO KHỔNG LỒ) --- */
+
+    /* 1. Cấu hình khung viền và nền */
+    .final-amount-positive { 
+        background-color: #ffffff !important;
+        border-top: 4px solid var(--accent-color); /* Viền Đỏ dày */
+    }
+    .final-amount-negative { 
+        background-color: #ffffff !important;
+        border-top: 4px solid var(--success-color); /* Viền Xanh dày */
+    }
+
+    /* 2. Cấu hình Chữ Siêu To cho cả 2 trường hợp */
+    .final-amount-positive td, 
+    .final-amount-negative td { 
+        font-weight: 900 !important;
+        font-size: 60px !important;       /* To cực đại trên màn hình (60px) */
+        background-color: #ffffff !important;
+        padding: 25px 10px !important;    /* Khoảng cách thoáng */
+        line-height: 1.2;
+    }
+
+    /* Giữ màu riêng: Dương -> Đỏ, Âm -> Xanh */
+    .final-amount-positive td { color: var(--accent-color) !important; }
+    .final-amount-negative td { color: var(--success-color) !important; }
+
+    /* 3. Cấu hình khi CHỤP ẢNH (To hơn nữa để ảnh nét) */
+    #reportContainer.capturing-image tr.final-amount-positive td,
+    #reportContainer.capturing-image tr.final-amount-negative td {
+        font-size: 85px !important;       /* Trong ảnh to 85px */
+        padding: 40px 15px !important;
+    }
+	
+	
+	/* --- CẤU HÌNH CỠ CHỮ TO CHO CÁC PHẦN CÒN LẠI (KHI CHỤP ẢNH) --- */
+
+    /* 1. Các chữ thường trong bảng (Lô tô, Doanh thu, các con số nhỏ...) */
+    #reportContainer.capturing-image .report-table th,
+    #reportContainer.capturing-image .report-table td {
+         font-size: 40px !important;    /* Tăng to lên (Mặc định cũ là 26px) */
+         padding: 20px 15px !important; /* Tăng khoảng cách ô cho thoáng */
+         line-height: 1.4;
+    }
+
+    /* 2. Dòng chữ "Bằng chữ..." ở dưới cùng */
+    #reportContainer.capturing-image .bang-chu-cell {
+        font-size: 35px !important;     /* To rõ ràng để dễ đọc */
+        padding: 20px !important;
+        font-style: italic;
+    }
+
+    /* 3. Tên Đại Lý (P968...) - Chỉnh lại cho cân đối với chữ thường */
+    #reportContainer.capturing-image .so-so {
+        font-size: 60px !important;     /* Tên đại lý siêu to */
+        padding-bottom: 20px !important;
+    }
+
+    /* 4. Riêng các nhãn tiêu đề bên trái (Đại lý:, Ngày:, Loại hình...) */
+    #reportContainer.capturing-image .report-table td.header {
+        font-weight: bold !important;
+        font-size: 40px !important;
+        color: #2c3e50 !important;
+    }
 </style>
 </head>
 <body>
