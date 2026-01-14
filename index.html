@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -732,6 +733,7 @@
         return images;
     }
 
+  // --- HÀM CHỤP ẢNH NÂNG CẤP (FINAL): RÚT INPUT RA ĐỂ KHÔNG BỊ TRÙNG ---
     async function copyElementAsImage(sel, msg, btn) { 
         const el = document.querySelector(sel); 
         if(!el || !el.innerHTML.trim()) return showNotification("Chưa có nội dung!", 'info');
@@ -739,11 +741,13 @@
         const oldTxt = btn ? btn.textContent : ''; 
         if(btn) btn.textContent = 'Đang xử lý...';
         
+        // 1. Bật chế độ chụp ảnh
         if(sel === '#reportContainer') {
             el.classList.add('capturing-image');
             await new Promise(r => setTimeout(r, 100)); 
         }
 
+        // 2. Ẩn các nút bấm không cần thiết
         const hiddenEls = [
             el.querySelector('.summary-actions'), el.querySelector('.controls-panel'), 
             document.getElementById('actionButtonContainer'), document.getElementById('sellTicketControls'),
@@ -752,28 +756,65 @@
         ].filter(Boolean);
         hiddenEls.forEach(e => e.style.display = 'none'); 
 
+        // 3. Thêm chân trang bản quyền
         const footer = document.createElement('div');
         footer.innerText = "© 2025 ZENG FINANCE";
         footer.style.width = "100%"; footer.style.textAlign = "center"; footer.style.marginTop = "20px"; footer.style.padding = "10px 0"; footer.style.fontSize = "14px"; footer.style.fontWeight = "bold"; footer.style.color = "#7f8c8d"; footer.style.backgroundColor = "#ffffff";
         el.appendChild(footer);
 
+        // --- [QUAN TRỌNG] THAY THẾ HOÀN TOÀN INPUT BẰNG TEXT ---
+        const inputsToFreeze = el.querySelectorAll('input.dynamic-input, textarea.dynamic-input');
+        const frozenState = [];
+        
+        inputsToFreeze.forEach(input => {
+            const val = input.value || '';
+            const parent = input.parentNode;
+            
+            if(parent) {
+                // Tạo thẻ div văn bản để thay thế
+                const replacement = document.createElement('div');
+                replacement.textContent = val;
+                
+                // Copy màu sắc
+                const computedStyle = window.getComputedStyle(input);
+                replacement.style.color = computedStyle.color;
+                
+                // Style cho đẹp
+                replacement.style.fontWeight = 'bold';
+                replacement.style.textAlign = 'center';
+                replacement.style.width = '100%';
+                replacement.style.fontSize = 'inherit';
+                replacement.style.display = 'flex';
+                replacement.style.alignItems = 'center';
+                replacement.style.justifyContent = 'center';
+                replacement.style.padding = '20px 0'; // Căn thoáng
+                replacement.style.whiteSpace = 'pre-wrap';
+                replacement.style.lineHeight = '1.5';
+
+                // LƯU Ý: Rút input ra khỏi DOM, thay bằng replacement
+                // Cách này đảm bảo html2canvas KHÔNG THỂ vẽ input được nữa
+                frozenState.push({ input, replacement, parent, nextSibling: input.nextSibling });
+                parent.removeChild(input);
+                parent.appendChild(replacement);
+            }
+        });
+        // -----------------------------------------------------------
+
         const tableContainer = document.getElementById('summaryTableContainer');
         const reportContainer = document.getElementById('reportContainer');
         let targetContainer = null;
+        let targetTable = null; 
+        const originalStyles = { maxHeight: '', overflowX: '', overflowY: '', width: '' };
+        let stickyElements = [];
 
         if (sel === '#summarySection' && tableContainer) targetContainer = tableContainer;
         else if (sel === '#reportContainer' && reportContainer) targetContainer = reportContainer;
-
-        const originalStyles = { maxHeight: '', overflowX: '', overflowY: '', width: '' };
-        let stickyElements = [];
-        let targetTable = null; 
 
         if (targetContainer) {
             originalStyles.maxHeight = targetContainer.style.maxHeight;
             originalStyles.overflowX = targetContainer.style.overflowX;
             originalStyles.overflowY = targetContainer.style.overflowY;
             targetContainer.style.maxHeight = 'none'; targetContainer.style.overflow = 'visible';
-            
             targetTable = targetContainer.querySelector('table'); 
             
             stickyElements = Array.from(targetContainer.querySelectorAll('th, #summaryTotalRow td'));
@@ -794,9 +835,18 @@
                 window.scrollTo(0,0);
                 const canvas = await html2canvas(el, { backgroundColor: "#ffffff", scale: 2, useCORS: true, scrollY: 0, x: 0, y: 0, width: el.scrollWidth, height: el.scrollHeight });
                 
-                if(sel === '#reportContainer') {
-                     el.classList.remove('capturing-image');
-                }
+                if(sel === '#reportContainer') el.classList.remove('capturing-image');
+
+                // --- [KHÔI PHỤC] LẮP LẠI INPUT VÀO ĐÚNG VỊ TRÍ CŨ ---
+                frozenState.forEach(({ input, replacement, parent, nextSibling }) => {
+                    if(parent.contains(replacement)) parent.removeChild(replacement);
+                    if(nextSibling) {
+                        parent.insertBefore(input, nextSibling);
+                    } else {
+                        parent.appendChild(input);
+                    }
+                });
+                // ----------------------------------------------------
 
                 const limitHeight = canvas.width * 2;
                 const previewHolder = document.getElementById('imagePreviewHolder');
@@ -806,7 +856,6 @@
                 if (canvas.height > limitHeight && sel !== '#reportContainer') {
                     const images = await splitCanvasToImages(canvas, targetTable, el);
                     currentGeneratedImages = images;
-                    
                     images.forEach((imgSrc, index) => {
                         const div = document.createElement('div');
                         div.className = 'preview-image-item';
@@ -819,7 +868,6 @@
                 } else {
                     const imgSrc = canvas.toDataURL('image/png');
                     currentGeneratedImages = [imgSrc];
-                    
                     try { 
                         canvas.toBlob(async(blob)=>{ 
                             await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); 
@@ -836,6 +884,13 @@
             } catch(e){ 
                 console.error(e); showNotification('Lỗi tạo ảnh', 'error'); 
                 if(sel === '#reportContainer') el.classList.remove('capturing-image');
+                
+                // Khôi phục phòng khi lỗi
+                frozenState.forEach(({ input, replacement, parent, nextSibling }) => {
+                    if(parent.contains(replacement)) parent.removeChild(replacement);
+                    if(nextSibling) parent.insertBefore(input, nextSibling);
+                    else parent.appendChild(input);
+                });
             }
             finally {
                 if(footer && footer.parentNode) footer.parentNode.removeChild(footer);
