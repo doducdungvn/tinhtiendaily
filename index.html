@@ -68,7 +68,11 @@
     button:hover { background-color: var(--primary-dark); transform: translateY(-1px); }
     button.secondary { background-color: #ecf0f1; color: var(--text-color); border: 1px solid #dcdde1; }
     button.success { background-color: var(--success-color); }
-    button.danger { background-color: var(--danger-color); }
+    /* Thêm color: #ffffff !important; để ép chữ màu trắng khi nút chuyển sang màu đỏ */
+button.danger { 
+    background-color: var(--danger-color); 
+    color: #ffffff !important; 
+}
     button.warning { background-color: var(--warning-color); color: #fff; } 
     
     .mode-switch { display: flex; background: #ecf0f1; border-radius: 8px; padding: 4px; gap: 4px; }
@@ -87,8 +91,15 @@
     
     /* Sticky Header & Footer */
     th { background: var(--header-bg); color: white; font-weight: 600; position: sticky; top: 0; z-index: 20; border-top: none; }
-    #summaryTotalRow td { background-color: #f8f9fa; color: var(--text-color); font-weight: 700; position: sticky; bottom: 0; z-index: 20; border-top: 2px solid #bdc3c7; }
-    
+#summaryTotalRow td { 
+    background-color: #f39c12 !important; /* Màu Vàng Cam */
+    color: #000000 !important;
+    font-weight: 700; 
+    position: sticky; 
+    bottom: 0; 
+    z-index: 20; 
+    border-top: 2px solid #e67e22;        /* Viền cam đậm hơn chút */
+}    
     /* Dòng tổng nhóm nền trắng */
     .group-total-row td { background-color: #ffffff; font-weight: bold; }
     
@@ -312,6 +323,23 @@
         padding: 10px !important;
         font-weight: normal;
     }
+	
+	
+	/* --- SỬA MÀU Ô TIỀN NỘP CUỐI CÙNG --- */
+
+/* Nếu là số DƯƠNG (Phải nộp) -> Màu Đỏ */
+#summaryTotalRow td.final-amount-positive {
+    background-color: var(--danger-color) !important; 
+    color: #ffffff !important;
+    border-top: 2px solid #c0392b; /* Viền đỏ đậm hơn */
+}
+
+/* Nếu là số ÂM (Lấy về) -> Màu Xanh lá */
+#summaryTotalRow td.final-amount-negative {
+    background-color: var(--success-color) !important;
+    color: #ffffff !important;
+    border-top: 2px solid #27ae60; /* Viền xanh đậm hơn */
+}
 
   </style>
 </head>
@@ -357,69 +385,90 @@
         <div class="online-badge" style="font-size: 11px; padding: 1px 8px;"><span class="online-dot" style="width:6px; height:6px;"></span> <span class="online-count">8</span></div>
     </div>
 
-    <div id="summarySection" class="main-section" style="display: none;">
+   <div id="summarySection" class="main-section" style="display: none;">
         <div class="nav-header">
             <button class="back-btn" id="btnBackFromSummary">⬅ Quay lại Tra cứu</button>
         </div>
+        
         <div class="controls-panel">
-            <div class="filter-grid-container">
-                <div class="filter-column">
-                    <div id="regionLockContainer" class="region-lock-container">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                            <label style="margin: 0;">Định nghĩa Vùng:</label>
-                            <button id="btnSaveRegions" class="success" style="padding: 4px 10px; font-size: 12px; width: auto;">Lưu Định nghĩa</button>
+            
+            <div id="toggleAdvancedTools" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px dashed #dcdde1; margin-bottom: 5px;">
+                <label style="margin: 0; color: #7f8c8d; font-size: 14px; cursor: pointer; font-weight: bold;">🛠️ Công cụ Nâng cao (Cấu hình Vùng, Nợ, Vé...)</label>
+                <button class="secondary" style="padding: 2px 10px; font-size: 14px; width: auto; font-weight: bold;">↓</button>
+            </div>
+
+            <div id="advancedToolsContainer" style="display: none; background: #fff; border: 1px solid #eee; border-radius: 6px; padding: 15px; margin-bottom: 15px;">
+                
+                <div class="filter-grid-container" style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #eee;">
+                    <div class="filter-column" style="width: 100%;">
+                        <div id="regionLockContainer" class="region-lock-container">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <label style="margin: 0; color: #2c3e50;">1. Định nghĩa Vùng:</label>
+                                <button id="btnSaveRegions" class="success" style="padding: 4px 10px; font-size: 12px; width: auto;">Lưu Định nghĩa</button>
+                            </div>
+                            <textarea id="regionDefinitionsInput" rows="2" placeholder="Đang tải dữ liệu..."></textarea>
                         </div>
-                        <textarea id="regionDefinitionsInput" rows="2" placeholder="Đang tải dữ liệu..."></textarea>
                     </div>
+                </div>
+
+                <div class="management-grid">
+                    <div id="debtContainer" style="margin: 0;">
+                            <label style="color: var(--danger-color); font-weight: 700;">2. Quản lý Nợ cũ:</label>
+                            <div class="debt-mode-selector">
+                            <div class="options"><label><input type="radio" name="debtMode" value="manual"> Thủ công</label><label><input type="radio" name="debtMode" value="excel"> Excel</label></div>
+                            <div style="display: flex; gap: 5px;">
+                                <button id="btnApplyDebt" class="warning" style="display:none; padding: 6px 15px; width: auto; font-size: 13px;">Cập nhật</button>
+                                <button id="btnClearDebt" class="danger" style="padding: 6px 15px; width: auto; font-size: 13px;">Xóa Nợ</button>
+                            </div>
+                            </div>
+                            <div id="debtManualContainer" style="display: none; margin-top: 10px;"><textarea id="debtInput" rows="2" placeholder="Mã+Tiền (980 1000)"></textarea></div>
+                            <div id="debtExcelContainer" style="display: none; margin-top: 10px;"><input type="file" id="debtFile" accept=".xls,.xlsx"></div>
+                            <div id="debtStatusMsg" style="font-size: 13px; color: var(--success-color); font-weight: 600; margin-top: 5px; display: none;"></div>
+                    </div>
+                    
+                    <div id="veBocContainer" style="margin: 0;">
+                            <label style="color: #8e44ad; font-weight: 700;">3. Quản lý Vé Bóc (5k):</label>
+                            <div class="debt-mode-selector">
+                            <div class="options">
+                                <label><input type="radio" name="veBocMode" value="manual"> Thủ công</label>
+                                <label><input type="radio" name="veBocMode" value="excel"> Excel</label>
+                            </div>
+                            <div style="display: flex; gap: 5px;">
+                                <button id="btnApplyVeBoc" class="warning" style="display:none; padding: 6px 15px; width: auto; font-size: 13px;">Cập nhật</button>
+                                <button id="btnClearVeBoc" class="danger" style="padding: 6px 15px; width: auto; font-size: 13px;">Xóa Vé</button>
+                            </div>
+                            </div>
+                            <div id="veBocManualContainer" style="display: none; margin-top: 10px;">
+                            <textarea id="veBocInput" rows="2" placeholder="Mã+SL (980 10)"></textarea>
+                            </div>
+                            <div id="veBocExcelContainer" style="display: none; margin-top: 10px;">
+                            <input type="file" id="veBocFile" accept=".xls,.xlsx">
+                            <div style="font-size: 12px; color: #7f8c8d; margin-top: 5px;">* File gồm 2 cột: Mã, SL</div>
+                            </div>
+                            <div id="veBocStatusMsg" style="font-size: 13px; color: var(--success-color); font-weight: 600; margin-top: 5px; display: none;"></div>
+                    </div>
+                </div>
+                
+                <div class="revenue-filter-grid" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #dcdde1; grid-template-columns: 1fr;">
+                    <div class="revenue-filter-col-left filter-column" style="grid-template-columns: 1fr 1fr 1fr;">
+                        <div class="filter-column"><label>4. Sắp xếp:</label><select id="sortSelect"><option value="default">Mặc định</option><option value="revenue_desc">Doanh số (Cao-Thấp)</option><option value="revenue_asc">Doanh số (Thấp-Cao)</option></select></div>
+                        <div class="filter-column"><label>Doanh số từ:</label><input type="text" id="minRevenueInput" class="manual-currency" inputmode="numeric" placeholder="VD: 300"></div>
+                        <div class="filter-column"><label>Đến:</label><input type="text" id="maxRevenueInput" class="manual-currency" inputmode="numeric" placeholder="Tối đa"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div style="margin-top: 10px;">
+                <label style="color: var(--header-bg); font-size: 15px;">Lọc theo Đơn vị (Nhóm):</label>
+                <div style="display: flex; gap: 8px; height: 45px; align-items: center; margin-top: 5px;">
+                    <select id="regionSelect" style="flex-grow: 1; height: 100%; border: 2px solid var(--primary-color); font-weight: 600;">
+                        <option value="all">--- Tất cả ---</option>
+                    </select>
+                    <button id="btnClearRevenueFilter" class="secondary" style="padding: 0 20px; width: auto; height: 100%; font-weight:bold; color: var(--danger-color); border: 2px solid #dcdde1;" title="Đặt lại tất cả bộ lọc">XÓA LỌC</button>
                 </div>
             </div>
 
-            <div class="management-grid" style="margin-top: 15px; border-top: 1px dashed #dcdde1; padding-top: 15px;">
-                <div id="debtContainer" style="margin: 0;">
-                     <label style="color: var(--danger-color); font-weight: 700;">Quản lý Nợ cũ:</label>
-                     <div class="debt-mode-selector">
-                        <div class="options"><label><input type="radio" name="debtMode" value="manual"> Thủ công</label><label><input type="radio" name="debtMode" value="excel"> Excel</label></div>
-                        <div style="display: flex; gap: 5px;">
-                            <button id="btnApplyDebt" class="warning" style="display:none; padding: 6px 15px; width: auto; font-size: 13px;">Cập nhật</button>
-                            <button id="btnClearDebt" class="danger" style="padding: 6px 15px; width: auto; font-size: 13px;">Xóa Nợ</button>
-                        </div>
-                     </div>
-                     <div id="debtManualContainer" style="display: none; margin-top: 10px;"><textarea id="debtInput" rows="2" placeholder="Mã+Tiền (980 1000)"></textarea></div>
-                     <div id="debtExcelContainer" style="display: none; margin-top: 10px;"><input type="file" id="debtFile" accept=".xls,.xlsx"></div>
-                     <div id="debtStatusMsg" style="font-size: 13px; color: var(--success-color); font-weight: 600; margin-top: 5px; display: none;"></div>
-                </div>
-                
-                <div id="veBocContainer" style="margin: 0;">
-                     <label style="color: #8e44ad; font-weight: 700;">Quản lý Vé Bóc (5k):</label>
-                     <div class="debt-mode-selector">
-                        <div class="options">
-                            <label><input type="radio" name="veBocMode" value="manual"> Thủ công</label>
-                            <label><input type="radio" name="veBocMode" value="excel"> Excel</label>
-                        </div>
-                        <div style="display: flex; gap: 5px;">
-                            <button id="btnApplyVeBoc" class="warning" style="display:none; padding: 6px 15px; width: auto; font-size: 13px;">Cập nhật</button>
-                            <button id="btnClearVeBoc" class="danger" style="padding: 6px 15px; width: auto; font-size: 13px;">Xóa Vé</button>
-                        </div>
-                     </div>
-                     <div id="veBocManualContainer" style="display: none; margin-top: 10px;">
-                        <textarea id="veBocInput" rows="2" placeholder="Mã+SL (980 10)"></textarea>
-                     </div>
-                     <div id="veBocExcelContainer" style="display: none; margin-top: 10px;">
-                        <input type="file" id="veBocFile" accept=".xls,.xlsx">
-                        <div style="font-size: 12px; color: #7f8c8d; margin-top: 5px;">* File gồm 2 cột: Mã, SL</div>
-                     </div>
-                     <div id="veBocStatusMsg" style="font-size: 13px; color: var(--success-color); font-weight: 600; margin-top: 5px; display: none;"></div>
-                </div>
-            </div>
-            
-            <div class="revenue-filter-grid" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #dcdde1;">
-                <div class="revenue-filter-col-left filter-column">
-                    <div class="filter-column"><label>Sắp xếp:</label><select id="sortSelect"><option value="default">Mặc định</option><option value="revenue_desc">Doanh số (Cao-Thấp)</option><option value="revenue_asc">Doanh số (Thấp-Cao)</option></select></div>
-                    <div class="filter-column"><label>Doanh số từ:</label><input type="text" id="minRevenueInput" class="manual-currency" inputmode="numeric" placeholder="VD: 300"></div>
-                    <div class="filter-column"><label>Đến:</label><input type="text" id="maxRevenueInput" class="manual-currency" inputmode="numeric" placeholder="Tối đa"></div>
-                </div>
-                <div class="revenue-filter-col-right filter-column"><label>Đơn vị:</label><div style="display: flex; gap: 5px;"><select id="regionSelect" style="flex-grow: 1;"><option value="all">--- Tất cả ---</option></select><button id="btnClearRevenueFilter" class="secondary" style="padding: 0 15px; width: auto;">X</button></div></div>
-            </div>
         </div>
 
         <h3 id="summaryTitle" style="margin-top: 20px;">Bảng Báo Cáo Tổng Hợp:</h3>
@@ -524,6 +573,7 @@
   <button id="scrollToTopBtn">⬆</button>
   <button id="scrollToBottomBtn">⬇</button>
 
+
 <script>
 'use strict';
 (function() {
@@ -589,7 +639,11 @@
         veBocModeRadios: document.querySelectorAll('input[name="veBocMode"]'),
         btnClearVeBoc: document.getElementById('btnClearVeBoc'),
         veBocStatusMsg: document.getElementById('veBocStatusMsg'),
-        btnApplyVeBoc: document.getElementById('btnApplyVeBoc')
+        btnApplyVeBoc: document.getElementById('btnApplyVeBoc'),
+
+        // --- [MỚI] DOM cho phần Toggle Nâng cao ---
+        toggleAdvancedTools: document.getElementById('toggleAdvancedTools'),
+        advancedToolsContainer: document.getElementById('advancedToolsContainer')
     };
     
     const manualFormOrder = ['manualAgentName', 'manualDateRange', 'manualLotoDB', 'manualLoCap', 'manualC227', 'manualC323', 'manualThuong'];
@@ -705,7 +759,6 @@
         return res.charAt(0).toUpperCase() + res.slice(1);
     }
 
-    // Logic cắt ảnh A4 chuẩn
     async function splitCanvasToImages(canvas, targetTable, rootElement) {
         const images = [];
         const contentWidth = canvas.width;
@@ -721,7 +774,7 @@
                 const rootRect = rootElement.getBoundingClientRect();
                 const theadRect = thead.getBoundingClientRect();
                 const relativeY = theadRect.top - rootRect.top;
-                const scale = 2; // html2canvas scale
+                const scale = 2; 
                 const adjustment = 5;
                 theadY_inCanvas = Math.max(0, (relativeY - adjustment) * scale);
                 theadH_inCanvas = (thead.offsetHeight + adjustment) * scale;
@@ -733,16 +786,14 @@
 
         let currentY = 0;
         let pageIndex = 0;
-        const scale = 2; // Mặc định html2canvas scale
+        const scale = 2; 
 
-        // Lấy danh sách các dòng tr trong bảng để tính toán điểm cắt
         let tableRows = [];
         if (targetTable) {
             const rows = targetTable.querySelectorAll('tbody tr');
             const rootRect = rootElement.getBoundingClientRect();
             rows.forEach(tr => {
                 const rect = tr.getBoundingClientRect();
-                // Tọa độ top/bottom của row tính theo canvas (pixel)
                 const top = (rect.top - rootRect.top) * scale;
                 const bottom = (rect.bottom - rootRect.top) * scale;
                 tableRows.push({ top, bottom });
@@ -798,7 +849,6 @@
         return images;
     }
 
-  // Hàm chụp ảnh nâng cấp: Rút input ra để không bị trùng
     async function copyElementAsImage(sel, msg, btn) { 
         const el = document.querySelector(sel); 
         if(!el || !el.innerHTML.trim()) return showNotification("Chưa có nội dung!", 'info');
@@ -806,13 +856,11 @@
         const oldTxt = btn ? btn.textContent : ''; 
         if(btn) btn.textContent = 'Đang xử lý...';
         
-        // 1. Bật chế độ chụp ảnh
         if(sel === '#reportContainer') {
             el.classList.add('capturing-image');
             await new Promise(r => setTimeout(r, 100)); 
         }
 
-        // 2. Ẩn các nút bấm không cần thiết
         const hiddenEls = [
             el.querySelector('.summary-actions'), el.querySelector('.controls-panel'), 
             document.getElementById('actionButtonContainer'), document.getElementById('sellTicketControls'),
@@ -821,13 +869,11 @@
         ].filter(Boolean);
         hiddenEls.forEach(e => e.style.display = 'none'); 
 
-        // 3. Thêm chân trang bản quyền
         const footer = document.createElement('div');
         footer.innerText = "© 2025 ZENG FINANCE";
         footer.style.width = "100%"; footer.style.textAlign = "center"; footer.style.marginTop = "20px"; footer.style.padding = "10px 0"; footer.style.fontSize = "14px"; footer.style.fontWeight = "bold"; footer.style.color = "#7f8c8d"; footer.style.backgroundColor = "#ffffff";
         el.appendChild(footer);
 
-        // [QUAN TRỌNG] Thay thế hoàn toàn input bằng text
         const inputsToFreeze = el.querySelectorAll('input.dynamic-input, textarea.dynamic-input');
         const frozenState = [];
         
@@ -836,15 +882,10 @@
             const parent = input.parentNode;
             
             if(parent) {
-                // Tạo thẻ div văn bản để thay thế
                 const replacement = document.createElement('div');
                 replacement.textContent = val;
-                
-                // Copy màu sắc
                 const computedStyle = window.getComputedStyle(input);
                 replacement.style.color = computedStyle.color;
-                
-                // Style cho đẹp
                 replacement.style.fontWeight = 'bold';
                 replacement.style.textAlign = 'center';
                 replacement.style.width = '100%';
@@ -852,12 +893,10 @@
                 replacement.style.display = 'flex';
                 replacement.style.alignItems = 'center';
                 replacement.style.justifyContent = 'center';
-                replacement.style.padding = '20px 0'; // Căn thoáng
+                replacement.style.padding = '20px 0'; 
                 replacement.style.whiteSpace = 'pre-wrap';
                 replacement.style.lineHeight = '1.5';
 
-                // LƯU Ý: Rút input ra khỏi DOM, thay bằng replacement
-                // Cách này đảm bảo html2canvas KHÔNG THỂ vẽ input được nữa
                 frozenState.push({ input, replacement, parent, nextSibling: input.nextSibling });
                 parent.removeChild(input);
                 parent.appendChild(replacement);
@@ -901,7 +940,6 @@
                 
                 if(sel === '#reportContainer') el.classList.remove('capturing-image');
 
-                // --- [KHÔI PHỤC] LẮP LẠI INPUT VÀO ĐÚNG VỊ TRÍ CŨ ---
                 frozenState.forEach(({ input, replacement, parent, nextSibling }) => {
                     if(parent.contains(replacement)) parent.removeChild(replacement);
                     if(nextSibling) {
@@ -910,7 +948,6 @@
                         parent.appendChild(input);
                     }
                 });
-                // ----------------------------------------------------
 
                 const limitHeight = canvas.width * 2;
                 const previewHolder = document.getElementById('imagePreviewHolder');
@@ -949,7 +986,6 @@
                 console.error(e); showNotification('Lỗi tạo ảnh', 'error'); 
                 if(sel === '#reportContainer') el.classList.remove('capturing-image');
                 
-                // Khôi phục phòng khi lỗi
                 frozenState.forEach(({ input, replacement, parent, nextSibling }) => {
                     if(parent.contains(replacement)) parent.removeChild(replacement);
                     if(nextSibling) parent.insertBefore(input, nextSibling);
@@ -1063,7 +1099,6 @@
         }; r.readAsArrayBuffer(file);
     }
 
-    // Hàm xử lý vé bóc
     function parseVeBocData() {
         const input = DOM.veBocInput.value.trim();
         veBocData = new Map();
@@ -1137,15 +1172,12 @@
         r.readAsArrayBuffer(file);
     }
 
-    // Process summary data (thêm vé bóc)
     function processSummaryData(regionRules, revFilter) {
         let groups = new Map();
-        // Thêm veBoc:0
         let totals = {rev:0, com:0, th:0, debt:0, final:0, lotoDB:0, lotoCap:0, c227:0, c323:0, xskt:0, veBoc:0};
 
         if(appMode === 'excel') {
             const map=new Map();
-            // Thêm veBoc:0 vào init
             const init=(c)=>{ if(!map.has(c)) map.set(c,{totRev:0,totCom:0,lotoDB:0,lotoCap:0,c227:0,c323:0,xskt:0,thuong:0,debt:0, veBoc:0}); };
             excelData1.forEach(r=>{
                 const c=String(r.__EMPTY||'').trim(); if(!c||!/\d/.test(c)) return; init(c); const d=map.get(c);
@@ -1158,7 +1190,6 @@
             });
             debtData.forEach((v,k)=>{ init(k); map.get(k).debt=v; });
             
-            // Xử lý vé bóc
             veBocData.forEach((v, k) => {
                 init(k);
                 const d = map.get(k);
@@ -1168,7 +1199,6 @@
             });
 
             const keys=[...map.keys()]; 
-            // Không xóa nếu có vé bóc
             keys.forEach(k=>{ const d=map.get(k); if(d.totRev===0 && d.debt===0 && d.thuong===0 && d.veBoc===0) map.delete(k); });
             
             let filteredMap=new Map();
@@ -1186,7 +1216,6 @@
             if(revFilter) groups.forEach((v,k)=>{ if(v.gr>=revFilter.min && v.gr<=revFilter.max) finalGroups.set(k,v); }); else return {groups, totals:{}};
             finalGroups.forEach(g=>{ g.agents.forEach(a=>{ 
                 const d=a.data; totals.rev+=d.totRev; totals.th+=d.thuong; totals.debt+=d.debt; 
-                // Cộng tổng vé bóc
                 totals.lotoDB+=d.lotoDB; totals.lotoCap+=d.lotoCap; totals.c227+=d.c227; totals.c323+=d.c323; totals.xskt+=d.xskt; totals.veBoc+=d.veBoc;
                 totals.final+=(d.totRev-d.totCom-d.thuong)+d.debt;
             });});
@@ -1194,7 +1223,6 @@
 
         } else {
             const map = new Map();
-            // Thêm veBoc:0
             const init=(c)=>{ if(!map.has(c)) map.set(c,{totRev:0,totCom:0,lotoDB:0,lotoCap:0,c227:0,c323:0,xskt:0,thuong:0,debt:0, veBoc:0}); };
             
             rawDataMap.forEach((items, code) => {
@@ -1203,7 +1231,6 @@
             });
             debtData.forEach((v,k)=>{ init(k); map.get(k).debt=v; });
 
-            // Xử lý vé bóc CHO RAW MODE
             veBocData.forEach((v, k) => {
                 init(k); const d = map.get(k);
                 d.veBoc += v.rev; d.totRev += v.rev; d.totCom += v.com;
@@ -1224,7 +1251,6 @@
             if(revFilter) groups.forEach((v,k)=>{ if(v.gr>=revFilter.min && v.gr<=revFilter.max) finalGroups.set(k,v); }); else return {groups, totals:{}};
             finalGroups.forEach(g=>{ g.agents.forEach(a=>{ 
                 const d=a.data; totals.rev+=d.totRev; totals.th+=d.thuong; totals.debt+=d.debt; totals.com+=d.totCom; 
-                // Cộng tổng vé bóc
                 totals.lotoDB+=d.lotoDB; totals.veBoc+=d.veBoc;
                 totals.final+=(d.totRev-d.totCom-d.thuong)+d.debt;
             });});
@@ -1243,7 +1269,7 @@
         
         const hasXSKT = (appMode === 'excel' && excelData2.length > 0);
         const hasDebt = debtData.size > 0;
-        const hasVeBoc = veBocData.size > 0; // Flag kiểm tra có vé bóc không
+        const hasVeBoc = veBocData.size > 0;
 
         let html;
         if (appMode === 'excel') {
@@ -1629,7 +1655,7 @@
         const data = processSummaryData(rules, {min: minV * 1000, max: maxV * 1000});
         if (!data) return showNotification("Không có dữ liệu!", 'error');
         const {groups, totals} = data; const hasXSKT = excelData2.length > 0 && appMode === 'excel'; const hasDebt = debtData.size > 0;
-        const hasVeBoc = veBocData.size > 0; // Check vé bóc để xuất excel
+        const hasVeBoc = veBocData.size > 0; 
         
         const sHeader = { font: { bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "34495E" } }, alignment: { horizontal: "center", vertical: "center" }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
         const sGroup = { font: { bold: true }, fill: { fgColor: { rgb: "FEF9E7" } }, border: { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} } };
@@ -1656,10 +1682,8 @@
                 aoa.push(row); rowMetaData[currentRow] = isMulti ? 'group_member' : 'single'; currentRow++;
             }); 
             if (isMulti) { 
-                // --- BẮT ĐẦU SỬA: Tính tổng chi tiết cho nhóm ---
                 let sumLoto = 0, sumCap = 0, sumC3 = 0, sumC2 = 0, sumXskt = 0, sumVeBoc = 0, sumDebt = 0;
                 
-                // Cộng dồn từng loại hình của các đại lý con trong nhóm
                 g.agents.forEach(ag => {
                     sumLoto += ag.data.lotoDB || 0;
                     sumCap += ag.data.lotoCap || 0;
@@ -1670,10 +1694,9 @@
                     sumDebt += ag.data.debt || 0;
                 });
 
-                let rowGroup = ["", ""]; // Cột STT để trống, Cột Tên để trống (hoặc bạn có thể để tên nhóm)
+                let rowGroup = ["", ""]; 
                 
                 if(appMode === 'excel') { 
-                    // Đẩy các biến tổng vừa tính vào hàng
                     rowGroup.push(sumLoto, sumCap, sumC3, sumC2); 
                     if(hasXSKT) rowGroup.push(sumXskt); 
                     if(hasVeBoc) rowGroup.push(sumVeBoc); 
@@ -1690,7 +1713,6 @@
                 aoa.push(rowGroup); 
                 rowMetaData[currentRow] = 'group_total'; 
                 currentRow++;
-                // --- KẾT THÚC SỬA ---
             } 
             stt++; 
         });
@@ -2129,6 +2151,20 @@
         DOM.manualAgentName.focus(); 
     }; 
     document.querySelectorAll('.simple-animated-logo').forEach(el => el.addEventListener('click', () => location.reload()));
+
+    // --- [MỚI] Script xử lý toggle Công cụ Nâng cao ---
+    if (DOM.toggleAdvancedTools && DOM.advancedToolsContainer) {
+        DOM.toggleAdvancedTools.onclick = () => {
+            const isHidden = DOM.advancedToolsContainer.style.display === 'none';
+            DOM.advancedToolsContainer.style.display = isHidden ? 'block' : 'none';
+            // Đổi icon mũi tên
+            const btnIcon = DOM.toggleAdvancedTools.querySelector('button');
+            if(btnIcon) btnIcon.textContent = isHidden ? '↑' : '↓';
+            
+            // Hiệu ứng visual một chút cho người dùng biết
+            DOM.toggleAdvancedTools.style.borderBottom = isHidden ? 'none' : '1px dashed #dcdde1';
+        };
+    }
 
     runLogoAnimation(); updateOnlineCounter();
 })();
