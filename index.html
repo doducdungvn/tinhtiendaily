@@ -330,7 +330,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                     <label style="color: var(--header-bg); font-size: 15px;">Lọc theo Đơn vị (Nhóm):</label>
                     <label style="font-size: 14px; cursor: pointer; color: var(--danger-color); font-weight: bold; display: flex; align-items: center; gap: 5px; padding-bottom: 5px;">
-                        <input type="checkbox" id="cbExcludeNumeric" style="width: 18px; height: 18px;"> Bỏ Dsố Bán Vé
+                        <input type="checkbox" id="cbExcludeNumeric" style="width: 18px; height: 18px;"> Bỏ Dsố vé bán (Số)
                     </label>
                 </div>
                 <div style="display: flex; gap: 8px; height: 45px; align-items: center; margin-top: 5px;">
@@ -357,7 +357,12 @@
         <div class="home-menu-grid"><button class="home-menu-btn" id="btnGoToSummary">📊 Xem Tổng hợp</button><button class="home-menu-btn" id="btnGoToSell">🎫 Bán thêm Vé</button></div>
         <h3>Tra cứu & Tạo Báo Cáo</h3>
         <div class="controls-panel">
-            <label for="soSoInput">Nhập số sổ:</label>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <label for="soSoInput" style="margin-bottom:0;">Nhập số sổ:</label>
+                <label style="font-size: 13px; cursor: pointer; color: var(--danger-color); font-weight: bold; display: flex; align-items: center; gap: 5px;">
+                    <input type="checkbox" id="cbExcludeNumeric_Detailed" style="width: 16px; height: 16px;"> Bỏ Dsố vé bán
+                </label>
+            </div>
             <div class="input-group-row">
                 <input type="text" id="soSoInput" inputmode="numeric" placeholder="968">
                 <div class="buttons-container">
@@ -515,7 +520,8 @@
         advancedToolsContainer: document.getElementById('advancedToolsContainer'),
         
         // --- NEW CHECKBOX DOM ---
-        cbExcludeNumeric: document.getElementById('cbExcludeNumeric')
+        cbExcludeNumeric: document.getElementById('cbExcludeNumeric'),
+        cbExcludeNumeric_Detailed: document.getElementById('cbExcludeNumeric_Detailed')
     };
     
     const manualFormOrder = ['manualAgentName', 'manualDateRange', 'manualLotoDB', 'manualLoCap', 'manualC227', 'manualC323', 'manualThuong'];
@@ -1197,14 +1203,41 @@
 
     function resetState(soSo) { state.currentSoSo=soSo; state.baseTongDT=0; state.baseTongHH=0; state.baseThuong=0; state.extraBonus=0; state.extraDebt=0; state.addedTickets=[]; state.accountCodes=new Set(); state.debtFromData=0; }
     
+    // --- UPDATED PROCESS DETAILED REPORT ---
     function processDetailedReport(soSo) {
+        const isExclude = DOM.cbExcludeNumeric_Detailed ? DOM.cbExcludeNumeric_Detailed.checked : false;
+
         if(appMode === 'excel') {
             const targetNum = parseInt(soSo, 10);
             if (isNaN(targetNum)) return null; 
-            const filter = (r) => { const c = String(r.__EMPTY || r.__EMPTY_1 || '').trim(); const match = c.match(/(\d+)$/); return match && parseInt(match[1], 10) === targetNum; };
-            const f1 = excelData1.filter(filter); const f2 = excelData2.filter(filter);
             
-            let debtAmt = 0; debtData.forEach((val, key) => { const match = String(key).match(/(\d+)$/); if(match && parseInt(match[1], 10) === targetNum) { debtAmt += val; state.accountCodes.add(key); } });
+            const filter = (r) => { 
+                const c = String(r.__EMPTY || r.__EMPTY_1 || '').trim(); 
+                
+                // NẾU TÍCH BỎ SỐ -> LOẠI BỎ MÃ THUẦN SỐ
+                if(isExclude && /^\d+$/.test(c)) {
+                    return false;
+                }
+
+                const match = c.match(/(\d+)$/); 
+                return match && parseInt(match[1], 10) === targetNum; 
+            };
+
+            const f1 = excelData1.filter(filter); 
+            const f2 = excelData2.filter(filter);
+            
+            let debtAmt = 0; 
+            debtData.forEach((val, key) => { 
+                const strKey = String(key);
+                if(isExclude && /^\d+$/.test(strKey)) return; // Bỏ qua nợ của mã thuần số nếu đang tích chọn
+
+                const match = strKey.match(/(\d+)$/); 
+                if(match && parseInt(match[1], 10) === targetNum) { 
+                    debtAmt += val; 
+                    state.accountCodes.add(key); 
+                } 
+            });
+
             if (!f1.length && !f2.length && debtAmt === 0) return null;
 
             resetState(soSo);
@@ -1215,28 +1248,38 @@
             state.baseTongDT = t.lotoDB + t.loCap + t.c227 + t.c323 + t.xskt; state.baseTongHH = c.ldb + c.lc + c.c2 + c.c3 + c.x; state.baseTongHH = c.ldb + c.lc + c.c2 + c.c3 + c.x; state.baseThuong = t.thuong; state.debtFromData = debtAmt;
             return {t, c};
         } else {
-            let targetKey = null;
+            // RAW MODE
+            // Logic tìm kiếm hơi khác: Phải tìm tất cả key có chứa số đó
             const inputNum = soSo.replace(/\D/g, ''); 
-            for (let key of rawDataMap.keys()) {
-                const keyNum = key.replace(/\D/g, '');
-                if (key === soSo || (inputNum.length > 0 && keyNum === inputNum)) {
-                    targetKey = key;
-                    break;
+            if(!inputNum) return null;
+
+            let foundItems = [];
+            let debtAmt = 0;
+            state.accountCodes = new Set(); // Reset set
+
+            for (let [key, items] of rawDataMap) {
+                const strKey = String(key);
+                
+                // LOGIC LỌC
+                if(isExclude && /^\d+$/.test(strKey)) continue;
+
+                const keyNum = strKey.replace(/\D/g, '');
+                if (key === soSo || keyNum === inputNum) {
+                    foundItems = foundItems.concat(items);
+                    state.accountCodes.add(key);
+                    if(debtData.has(key)) debtAmt += debtData.get(key);
                 }
             }
-            if(!targetKey) return null;
             
-            const items = rawDataMap.get(targetKey);
-            let debtAmt = 0; if(debtData.has(targetKey)) debtAmt = debtData.get(targetKey);
+            if(foundItems.length === 0 && debtAmt === 0) return null;
             
-            resetState(targetKey);
-            state.accountCodes.add(targetKey);
+            resetState(soSo); // state.currentSoSo sẽ hiển thị chung chung, nhưng accountCodes sẽ liệt kê chi tiết
             
             let totalRev = 0, totalCom = 0, totalBonus = 0;
-            items.forEach(i => { totalRev += i.rev; totalCom += i.com; totalBonus += i.bonus; });
+            foundItems.forEach(i => { totalRev += i.rev; totalCom += i.com; totalBonus += i.bonus; });
             
             state.baseTongDT = totalRev; state.baseTongHH = totalCom; state.baseThuong = totalBonus; state.debtFromData = debtAmt;
-            return items; 
+            return foundItems; 
         }
     }
 
@@ -1390,7 +1433,7 @@
             <table class="report-table" style="border: 1px solid var(--border-color);">
                 <colgroup><col style="width: 25%;"><col style="width: 20%;"><col style="width: 15%;"><col style="width: 15%;"><col style="width: 25%;"></colgroup>
                 <tbody>
-                    <tr><td class="header" style="font-weight:bold;">Đại Lý:</td><td colspan="4" class="so-so">${state.currentSoSo}</td></tr>
+                    <tr><td class="header" style="font-weight:bold;">Đại Lý:</td><td colspan="4" class="so-so">${[...state.accountCodes].join(', ')}</td></tr>
                     <tr><td class="header" style="font-weight:bold;">Đợt:</td><td colspan="4" style="font-weight:500;">${reportDate}</td></tr>
                     <tr><th>Ngày/Loại</th><th>Doanh Thu</th><th>Hoa hồng</th><th>Thưởng</th><th>Nộp/Lấy về</th></tr>
                     ${rowsHtml}
@@ -1820,6 +1863,8 @@
     DOM.maxRevenueInput.addEventListener('blur', updateFilterStatus);
     DOM.cbExcludeNumeric.addEventListener('change', updateFilterStatus);
     
+    // --- NO SYNC LOGIC HERE ---
+    
     DOM.btnClearRevenueFilter.onclick = () => { 
         DOM.sortSelect.value = 'default'; 
         DOM.minRevenueInput.value = ''; 
@@ -1828,6 +1873,7 @@
         DOM.maxRevenueInput.dataset.value = ''; 
         DOM.regionSelect.value = 'all'; 
         DOM.cbExcludeNumeric.checked = false;
+        // if(DOM.cbExcludeNumeric_Detailed) DOM.cbExcludeNumeric_Detailed.checked = false; // NO SYNC
         generateSummaryView(); 
         updateFilterStatus(); 
     };
