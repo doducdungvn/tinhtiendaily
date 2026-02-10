@@ -329,8 +329,8 @@
             <div style="margin-top: 10px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                     <label style="color: var(--header-bg); font-size: 15px;">Lọc theo Đơn vị (Nhóm):</label>
-                    <label style="font-size: 14px; cursor: pointer; color: var(--danger-color); font-weight: bold; display: flex; align-items: center; gap: 5px; padding-bottom: 5px;">
-                        <input type="checkbox" id="cbExcludeNumeric" style="width: 18px; height: 18px;"> Bỏ Dsố Bán Vé
+                    <label title="Đưa các loại hình Lô tô, Lô cặp, Lô 2/27, Lô 3/23, Thưởng về 0 -- Giữ lại: Doanh số XSKT, Vé bóc và Nợ cũ của đại lý bán vé" style="font-size: 14px; cursor: pointer; color: var(--danger-color); font-weight: bold; display: flex; align-items: center; gap: 5px; padding-bottom: 5px;">
+                        <input type="checkbox" id="cbExcludeNumeric" style="width: 18px; height: 18px;"> Bỏ Dsố Bán Vé ℹ️
                     </label>
                 </div>
                 <div style="display: flex; gap: 8px; height: 45px; align-items: center; margin-top: 5px;">
@@ -359,15 +359,15 @@
         <div class="controls-panel">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                 <label for="soSoInput" style="margin-bottom:0;">Nhập số sổ:</label>
-                <label style="font-size: 13px; cursor: pointer; color: var(--danger-color); font-weight: bold; display: flex; align-items: center; gap: 5px;">
-                    <input type="checkbox" id="cbExcludeNumeric_Detailed" style="width: 16px; height: 16px;"> Bỏ Dsố Bán Vé
+                <label title="Đưa các loại hình Lô tô, Lô cặp, Lô 2/27, Lô 3/23, Thưởng về 0 -- Giữ lại: Doanh số XSKT, Vé bóc và Nợ cũ của đại lý bán vé" style="font-size: 13px; cursor: pointer; color: var(--danger-color); font-weight: bold; display: flex; align-items: center; gap: 5px;">
+                    <input type="checkbox" id="cbExcludeNumeric_Detailed" style="width: 16px; height: 16px;"> Bỏ Dsố Bán Vé ℹ️
                 </label>
             </div>
             <div class="input-group-row">
                 <input type="text" id="soSoInput" inputmode="numeric" placeholder="968">
                 <div class="buttons-container">
                     <button id="btnCreateDailyReport" class="success">Báo Cáo Ngày</button>
-                    <button id="btnCreateSummaryReport" class="warning">Báo Cáo Tổng</button>
+                    <button id="btnCreateSummaryReport" class="warning">Báo Cáo Chi Tiết</button>
                     <button id="btnShowManualReport_inline" class="warning">Thủ công</button>
                 </div>
             </div>
