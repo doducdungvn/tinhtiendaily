@@ -79,6 +79,7 @@
     button.success { background-color: var(--success-color); }
     button.danger { background-color: var(--danger-color); color: #ffffff !important; }
     button.warning { background-color: var(--warning-color); color: #fff; } 
+    button.info { background-color: #3498db; color: white; }
     
     .mode-switch { display: flex; background: #ecf0f1; border-radius: 8px; padding: 4px; gap: 4px; }
     .tab-btn { flex: 1; border-radius: 6px !important; padding: 10px; font-size: 14px; border: none !important; background: transparent; color: var(--text-light); }
@@ -109,6 +110,10 @@
     #tongCongRow td { color: #2c3e50; }
     .added-ticket-row { background-color: #f0fdf9; } 
     .bang-chu-cell { text-align: center !important; font-style: italic; padding: 8px 15px !important; font-size: 13px; color: var(--text-light); background: #fff !important; white-space: normal !important; }
+    
+    /* REMOVE TICKET BUTTON */
+    .remove-ticket-btn { background: #fff5f5; border: 1px solid #ffcccc; cursor: pointer; color: var(--danger-color); font-weight: bold; font-size: 12px; margin-left: 5px; padding: 2px 6px; border-radius: 4px; display: inline-block; vertical-align: middle; }
+    .remove-ticket-btn:hover { background-color: var(--danger-color); color: white; border-color: var(--danger-color); }
 
     /* UTILS & HELPERS */
     .negative-value { color: var(--danger-color); }
@@ -248,6 +253,9 @@
         <div class="home-actions" style="margin-top: 20px;">
             <button id="btnShowManualReport" class="warning">Thêm thủ công</button>
             <button id="btnLoadData" class="success">Nạp dữ liệu & Xem báo cáo</button>
+        </div>
+        <div style="margin-top: 10px;">
+             <button id="btnShowHistory" class="secondary" style="width: 100%;">🕒 Lịch sử Báo cáo</button>
         </div>
     </div>
     <div class="main-copyright">© 2025 ZENG FINANCE</div>
@@ -424,6 +432,17 @@
        </div>
      </div>
    </div>
+   
+   <div id="historyModal" class="modal-overlay">
+       <div class="modal-content">
+           <span id="closeHistoryModalBtn" class="modal-close-btn">&times;</span>
+           <h4 style="margin-top:0;">Lịch sử Báo Cáo (Gần nhất)</h4>
+           <div id="historyList" style="max-height: 300px; overflow-y: auto; font-size: 13px;">
+               <div style="text-align:center; color: #777; padding: 20px;">Chưa có lịch sử.</div>
+           </div>
+           <button id="btnClearHistory" class="danger" style="width: 100%; margin-top: 15px;">Xóa lịch sử</button>
+       </div>
+   </div>
 
    <div id="imagePreviewModal" class="modal-overlay">
      <div class="modal-content" style="max-width: 95%; width: auto; background-color: #f8f9fa;">
@@ -445,10 +464,17 @@
         <span id="closePasswordModalBtn" class="modal-close-btn">&times;</span>
         <div class="controls-panel" style="border: none; padding: 10px 0; background:transparent;"> 
             <h4 style="margin-top:0;">Yêu cầu Mật khẩu</h4>
-            <input type="password" id="passwordInput" style="font-size: 18px; text-align:center;">
+            <input type="password" id="passwordInput" style="font-size: 18px; text-align:center;" placeholder="Nhập mật khẩu...">
             <div style="margin-top: 15px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                 <button id="cancelPasswordBtn" class="secondary">Huỷ</button>
                 <button id="btnSubmitPassword" class="success">Xác nhận</button>
+            </div>
+            <div style="margin-top: 15px; text-align: center;">
+                 <button id="btnChangePassword" class="info" style="font-size: 12px; padding: 5px 10px;">Đổi mật khẩu</button>
+            </div>
+            <div id="changePassArea" style="display:none; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
+                 <input type="password" id="newPasswordInput" placeholder="Mật khẩu mới" style="margin-bottom: 5px;">
+                 <button id="btnSaveNewPassword" class="success">Lưu Mật Khẩu Mới</button>
             </div>
         </div>
       </div>
@@ -510,9 +536,14 @@
         sortSelect: document.getElementById('sortSelect'), minRevenueInput: document.getElementById('minRevenueInput'), maxRevenueInput: document.getElementById('maxRevenueInput'), btnClearRevenueFilter: document.getElementById('btnClearRevenueFilter'),
         debtInput: document.getElementById('debtInput'), debtManualContainer: document.getElementById('debtManualContainer'), debtExcelContainer: document.getElementById('debtExcelContainer'), debtFile: document.getElementById('debtFile'), 
         debtModeRadios: document.querySelectorAll('input[name="debtMode"]'), btnClearDebt: document.getElementById('btnClearDebt'), debtStatusMsg: document.getElementById('debtStatusMsg'), btnApplyDebt: document.getElementById('btnApplyDebt'),
+        
+        // Password & History
         passwordModal: document.getElementById('passwordModal'), closePasswordModalBtn: document.getElementById('closePasswordModalBtn'), passwordInput: document.getElementById('passwordInput'), btnSubmitPassword: document.getElementById('btnSubmitPassword'), cancelPasswordBtn: document.getElementById('cancelPasswordBtn'),
+        btnChangePassword: document.getElementById('btnChangePassword'), changePassArea: document.getElementById('changePassArea'), newPasswordInput: document.getElementById('newPasswordInput'), btnSaveNewPassword: document.getElementById('btnSaveNewPassword'),
         btnSaveAllImages: document.getElementById('btnSaveAllImages'),
-
+        btnShowHistory: document.getElementById('btnShowHistory'), historyModal: document.getElementById('historyModal'), closeHistoryModalBtn: document.getElementById('closeHistoryModalBtn'), historyList: document.getElementById('historyList'), btnClearHistory: document.getElementById('btnClearHistory'),
+        
+        // Removed Session Restore UI Elements from DOM
         veBocInput: document.getElementById('veBocInput'),
         veBocManualContainer: document.getElementById('veBocManualContainer'),
         veBocExcelContainer: document.getElementById('veBocExcelContainer'),
@@ -575,6 +606,42 @@
         let res = chunks.map((c, i) => { const t = readChunk(c, i === 0); return t ? t + " " + units[chunks.length - 1 - i] : ""; }).filter(Boolean).join(" ").replace(/\s+/g, ' ').trim();
         return res.charAt(0).toUpperCase() + res.slice(1);
     }
+    
+    // --- STORAGE MANAGMENT ---
+    const STORAGE_KEY_PASS = 'zeng_admin_pass';
+    const STORAGE_KEY_HISTORY = 'zeng_report_history';
+
+    // REMOVED SESSION RESTORE LOGIC (saveSession, restoreSession, etc.)
+
+    function addToHistory(agentName, totalNet) {
+        let history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || '[]');
+        history.unshift({
+            time: new Date().toLocaleString('vi-VN'),
+            agent: agentName,
+            net: totalNet
+        });
+        if(history.length > 50) history = history.slice(0, 50); // Keep last 50
+        localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
+    }
+
+    function renderHistory() {
+        const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || '[]');
+        if(history.length === 0) {
+            DOM.historyList.innerHTML = '<div style="text-align:center; color: #777; padding: 20px;">Chưa có lịch sử.</div>';
+            return;
+        }
+        let html = '<table style="width:100%; border-collapse:collapse;">';
+        history.forEach(h => {
+            const color = h.net >= 0 ? 'var(--danger-color)' : 'var(--success-color)';
+            html += `<tr style="border-bottom:1px solid #eee;">
+                <td style="padding:8px 0; color:#7f8c8d;">${h.time}</td>
+                <td style="padding:8px; font-weight:bold;">${h.agent}</td>
+                <td style="padding:8px 0; text-align:right; font-weight:bold; color:${color}">${formatNumberHiddenK(h.net)}</td>
+            </tr>`;
+        });
+        html += '</table>';
+        DOM.historyList.innerHTML = html;
+    }
 
     async function splitCanvasToImages(canvas, targetTable, rootElement) {
         const images = []; const contentWidth = canvas.width; const totalHeight = canvas.height; const pageHeight = Math.floor(contentWidth * 1.414); 
@@ -615,6 +682,11 @@
         const el = document.querySelector(sel); if(!el || !el.innerHTML.trim()) return showNotification("Chưa có nội dung!", 'info');
         const oldTxt = btn ? btn.textContent : ''; if(btn) btn.textContent = 'Đang xử lý...';
         if(sel === '#reportContainer') { el.classList.add('capturing-image'); await new Promise(r => setTimeout(r, 100)); }
+        
+        // Hide delete buttons before capture
+        const delBtns = el.querySelectorAll('.remove-ticket-btn');
+        delBtns.forEach(b => b.style.display = 'none');
+
         const hiddenEls = [el.querySelector('.summary-actions'), el.querySelector('.controls-panel'), document.getElementById('actionButtonContainer'), document.getElementById('sellTicketControls'), el.querySelector('.nav-header'), document.querySelector('.home-menu-grid'), document.getElementById('scrollToTopBtn'), document.getElementById('scrollToBottomBtn')].filter(Boolean);
         hiddenEls.forEach(e => e.style.display = 'none'); 
 
@@ -659,7 +731,9 @@
                     catch(e){ const img = document.createElement('img'); img.src = imgSrc; previewHolder.appendChild(img); DOM.btnSaveAllImages.style.display = 'none'; DOM.imagePreviewModal.style.display = 'block'; }
                 }
             } catch(e){ console.error(e); showNotification('Lỗi tạo ảnh', 'error'); if(sel === '#reportContainer') el.classList.remove('capturing-image'); frozenState.forEach(({ input, replacement, parent, nextSibling }) => { if(parent.contains(replacement)) parent.removeChild(replacement); if(nextSibling) parent.insertBefore(input, nextSibling); else parent.appendChild(input); }); }
-            finally { if(footer && footer.parentNode) footer.parentNode.removeChild(footer); hiddenEls.forEach(e => e.style.display = ''); if(btn) btn.textContent = oldTxt; if (targetContainer) { targetContainer.style.maxHeight = originalStyles.maxHeight; targetContainer.style.overflowX = originalStyles.overflowX; targetContainer.style.overflowY = originalStyles.overflowY; targetContainer.style.width = ''; el.style.width = ''; stickyElements.forEach(elem => { elem.style.position = elem.dataset.originalPosition || ''; elem.style.borderTop = ''; }); } }
+            finally { 
+                delBtns.forEach(b => b.style.display = 'inline-block'); // Restore delete buttons
+                if(footer && footer.parentNode) footer.parentNode.removeChild(footer); hiddenEls.forEach(e => e.style.display = ''); if(btn) btn.textContent = oldTxt; if (targetContainer) { targetContainer.style.maxHeight = originalStyles.maxHeight; targetContainer.style.overflowX = originalStyles.overflowX; targetContainer.style.overflowY = originalStyles.overflowY; targetContainer.style.width = ''; el.style.width = ''; stickyElements.forEach(elem => { elem.style.position = elem.dataset.originalPosition || ''; elem.style.borderTop = ''; }); } }
         }, 100);
     }
     
@@ -811,8 +885,6 @@
     function renderDetailedReport(d, customDate, reportType = 'detailed') {
         const debtHtml = state.debtFromData > 0 ? `<tr style="color:var(--danger-color); font-weight:bold;"><td>Nợ cũ</td><td colspan="${(appMode === 'excel' || (appMode === 'raw' && reportType === 'summary')) ? 2 : 4}">${formatNumberHiddenK(state.debtFromData)}</td></tr>` : '';
         const reportDate = customDate || dateRangeText;
-
-        // --- BẢN FIX HIỂN THỊ TÊN ĐẠI LÝ ---
         const agentNameDisplay = [...state.accountCodes].filter(n => n && n.trim()).join(', ') || state.currentSoSo;
 
         if (appMode === 'excel' || (appMode === 'raw' && reportType === 'summary')) {
@@ -918,6 +990,11 @@
         DOM.actionButtonContainer.style.display='grid'; DOM.actionChoices.style.display='none'; 
         DOM.toggleChoicesBtn.textContent='Thêm tiền Thưởng/Nợ cũ'; DOM.toggleChoicesBtn.className='secondary';
         DOM.reportContainer.scrollIntoView({behavior:'smooth'});
+        
+        // Save history
+        const finalVal = (state.baseTongDT - state.baseTongHH - state.baseThuong) + state.debtFromData;
+        const agentName = [...state.accountCodes].filter(n=>n&&n.trim()).join(', ') || s;
+        addToHistory(agentName, finalVal);
     }
     
     // --- EVENT LISTENERS ---
@@ -976,12 +1053,35 @@
         let rateRad, ratePercent = 0; try { rateRad = document.querySelector('input[name="sellRate"]:checked').value; } catch(e) { rateRad = '10'; }
         if (rateRad === 'custom-rate') { ratePercent = parseFloat(DOM.customTicketRate.value); if (isNaN(ratePercent) || ratePercent < 0) return showNotification("Vui lòng nhập % hoa hồng hợp lệ!", 'error'); } else { ratePercent = parseFloat(rateRad); }
         const dt = q * price; const hh = dt * (ratePercent / 100); 
-        state.addedTickets.push({dt, hh});
-        const tr = document.createElement('tr'); tr.className = 'added-ticket-row'; 
-        tr.innerHTML = `<td>${name} (${formatNumberHiddenK(price)}k) [${q} vé]</td><td>${formatNumberHiddenK(dt)}</td><td>${formatCommissionCellHiddenK(dt, hh)}</td>`;
+        
+        // Use ID for deletion
+        const ticketId = Date.now();
+        state.addedTickets.push({id: ticketId, dt, hh});
+        
+        const tr = document.createElement('tr'); tr.className = 'added-ticket-row'; tr.id = `ticket-${ticketId}`;
+        
+        // --- NÚT XÓA ĐÃ ĐƯỢC CHUYỂN LÊN ĐẦU, CĂN GIỮA TOÀN BỘ Ô VÀ CÓ KHOẢNG CÁCH ---
+        tr.innerHTML = `
+            <td style="text-align: center;">
+                ${name} (${formatNumberHiddenK(price)}k) [${q} vé]
+                <button class="remove-ticket-btn" onclick="window.removeTicket(${ticketId})" style="margin-left: 5px; margin-right: 0;">✕</button>
+            </td>
+            <td>${formatNumberHiddenK(dt)}</td>
+            <td>${formatCommissionCellHiddenK(dt, hh)}</td>
+        `;
+        
         const anchor = document.getElementById('tongCongRow');
         if(anchor) { anchor.parentNode.insertBefore(tr, anchor); updateDetailedView(); DOM.sellQuantityInput.value = ''; showNotification("Đã thêm vé thành công!", 'success'); showSection('reportSection'); } else { showNotification("Lỗi: Không tìm thấy bảng báo cáo!", 'error'); }
     }
+    
+    // Global function for remove ticket button
+    window.removeTicket = (id) => {
+        state.addedTickets = state.addedTickets.filter(t => t.id !== id);
+        const el = document.getElementById(`ticket-${id}`);
+        if(el) el.remove();
+        updateDetailedView();
+        showNotification("Đã xoá vé", "info");
+    };
 
     DOM.toggleChoicesBtn.onclick = () => { const show = DOM.toggleChoicesBtn.textContent.includes('Thêm'); DOM.actionChoices.style.display = show ? 'grid' : 'none'; DOM.toggleChoicesBtn.textContent = show ? 'Đóng / Xoá hết' : 'Thêm tiền Thưởng/Nợ cũ'; DOM.toggleChoicesBtn.className = show ? 'danger' : 'secondary'; if(!show) { document.getElementById('extraBonusRow')?.remove(); document.getElementById('extraDebtRow')?.remove(); state.extraBonus=0; state.extraDebt=0; updateDetailedView(); } renderActionButtons(); };
     function renderActionButtons() { DOM.actionChoices.innerHTML = `${document.getElementById('extraBonusRow') ? `<button class="danger" onclick="window.removeRow('bonus')">Xoá Thưởng thêm</button>` : `<button onclick="window.addRow('bonus')">Thêm Thưởng</button>`}${document.getElementById('extraDebtRow') ? `<button class="danger" onclick="window.removeRow('debt')">Xoá Nợ cũ</button>` : `<button onclick="window.addRow('debt')">Thêm Nợ cũ</button>`}`; }
@@ -1101,9 +1201,52 @@
     function handleVeBocFile(file) { if(!file) return; showLoading(); const r = new FileReader(); r.onload = (e) => { try { const d = new Uint8Array(e.target.result); const wb = XLSX.read(d, {type:"array"}); const ws = wb.Sheets[wb.SheetNames[0]]; const json = XLSX.utils.sheet_to_json(ws, {header:1}); veBocData = new Map(); let count = 0; json.forEach(row => { if(row.length >= 2) { const c = String(row[0]).trim(); if(c.toLowerCase().includes("mã") || c === "") return; const qty = parseFloat(String(row[1]).replace(/[.,]/g,'')); if(!isNaN(qty) && qty > 0) { const revenue = qty * 5000; const commission = revenue * 0.12; veBocData.set(c, {qty: qty, rev: revenue, com: commission}); count++; } } }); if(count > 0) { DOM.veBocStatusMsg.textContent = `Excel: ${count} đại lý bán vé bóc.`; DOM.veBocStatusMsg.style.display = 'block'; DOM.veBocFile.classList.add('loaded'); generateSummaryView(); } else { showNotification("File vé bóc lỗi hoặc rỗng", 'warning'); } } catch(err) { console.error(err); showNotification("Lỗi file vé bóc", 'error'); } finally { hideLoading(); } }; r.readAsArrayBuffer(file); }
 
     DOM.btnSaveRegions.onclick = () => { if(isRegionLocked) { DOM.passwordModal.style.display = 'block'; DOM.passwordInput.focus(); } else { parseRegions(); } };
-    DOM.btnSubmitPassword.onclick = () => { if(DOM.passwordInput.value === 'admin') { DOM.passwordModal.style.display = 'none'; isRegionLocked = false; DOM.regionLockContainer.classList.remove('locked'); DOM.btnSaveRegions.textContent = 'Lưu Định nghĩa'; DOM.btnSaveRegions.classList.remove('warning'); DOM.btnSaveRegions.classList.add('success'); } else { showNotification('Sai mật khẩu', 'error'); } };
+    
+    // --- UPDATED PASSWORD LOGIC ---
+    DOM.btnSubmitPassword.onclick = () => { 
+        const storedPass = localStorage.getItem(STORAGE_KEY_PASS) || 'admin';
+        if(DOM.passwordInput.value === storedPass) { 
+            DOM.passwordModal.style.display = 'none'; 
+            isRegionLocked = false; 
+            DOM.regionLockContainer.classList.remove('locked'); 
+            DOM.btnSaveRegions.textContent = 'Lưu Định nghĩa'; 
+            DOM.btnSaveRegions.classList.remove('warning'); 
+            DOM.btnSaveRegions.classList.add('success'); 
+            DOM.passwordInput.value = '';
+        } else { 
+            showNotification('Sai mật khẩu', 'error'); 
+        } 
+    };
+    
+    DOM.btnChangePassword.onclick = () => {
+         const isHidden = DOM.changePassArea.style.display === 'none';
+         DOM.changePassArea.style.display = isHidden ? 'block' : 'none';
+    };
+    
+    DOM.btnSaveNewPassword.onclick = () => {
+        const newPass = DOM.newPasswordInput.value.trim();
+        if(newPass.length < 3) return showNotification('Mật khẩu quá ngắn', 'error');
+        localStorage.setItem(STORAGE_KEY_PASS, newPass);
+        showNotification('Đã đổi mật khẩu thành công!', 'success');
+        DOM.newPasswordInput.value = '';
+        DOM.changePassArea.style.display = 'none';
+    };
+
     DOM.closePasswordModalBtn.onclick = () => { DOM.passwordModal.style.display = 'none'; }; DOM.closePreviewModalBtn.onclick = () => { DOM.imagePreviewModal.style.display = 'none'; };
     
+    // History Events
+    DOM.btnShowHistory.onclick = () => {
+        renderHistory();
+        DOM.historyModal.style.display = 'block';
+    };
+    DOM.closeHistoryModalBtn.onclick = () => { DOM.historyModal.style.display = 'none'; };
+    DOM.btnClearHistory.onclick = () => {
+        if(confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử?')) {
+            localStorage.removeItem(STORAGE_KEY_HISTORY);
+            renderHistory();
+        }
+    };
+
     function parseRegions() { 
         const txt = DOM.regionDefinitionsInput.value; regionDefinitions = {}; const lines = txt.split('\n'); DOM.regionSelect.innerHTML = '<option value="all">--- Tất cả ---</option>'; 
         lines.forEach(l => { 
@@ -1154,7 +1297,7 @@
     DOM.btnClearManualReport.onclick = () => { const ids = ['manualAgentName', 'manualDateRange', 'manualLotoDB', 'manualLoCap', 'manualC227', 'manualC323', 'manualThuong']; ids.forEach(id => { const el = document.getElementById(id); if (el) { el.value = ''; if (el.dataset.value) el.dataset.value = ''; } }); DOM.manualAgentName.focus(); }; 
     document.querySelectorAll('.simple-animated-logo').forEach(el => el.addEventListener('click', () => location.reload()));
     if (DOM.toggleAdvancedTools && DOM.advancedToolsContainer) { DOM.toggleAdvancedTools.onclick = () => { const isHidden = DOM.advancedToolsContainer.style.display === 'none'; DOM.advancedToolsContainer.style.display = isHidden ? 'block' : 'none'; const btnIcon = DOM.toggleAdvancedTools.querySelector('button'); if(btnIcon) btnIcon.textContent = isHidden ? '↑' : '↓'; DOM.toggleAdvancedTools.style.borderBottom = isHidden ? 'none' : '1px dashed #dcdde1'; }; }
-
+    
     runLogoAnimation(); updateOnlineCounter();
 })();
 </script>
