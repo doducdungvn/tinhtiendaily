@@ -543,7 +543,6 @@
         btnSaveAllImages: document.getElementById('btnSaveAllImages'),
         btnShowHistory: document.getElementById('btnShowHistory'), historyModal: document.getElementById('historyModal'), closeHistoryModalBtn: document.getElementById('closeHistoryModalBtn'), historyList: document.getElementById('historyList'), btnClearHistory: document.getElementById('btnClearHistory'),
         
-        // Removed Session Restore UI Elements from DOM
         veBocInput: document.getElementById('veBocInput'),
         veBocManualContainer: document.getElementById('veBocManualContainer'),
         veBocExcelContainer: document.getElementById('veBocExcelContainer'),
@@ -610,8 +609,6 @@
     // --- STORAGE MANAGMENT ---
     const STORAGE_KEY_PASS = 'zeng_admin_pass';
     const STORAGE_KEY_HISTORY = 'zeng_report_history';
-
-    // REMOVED SESSION RESTORE LOGIC (saveSession, restoreSession, etc.)
 
     function addToHistory(agentName, totalNet) {
         let history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || '[]');
