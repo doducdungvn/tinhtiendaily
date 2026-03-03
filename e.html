@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>In Vé Lô Tô Nam Định - Canon 2900</title>
+    <style>
+        :root {
+            /* TỌA ĐỘ CHUẨN (Có thể sửa mm ở đây nếu máy in kéo lệch) */
+            --top-ngay: 11.2mm;   
+            --top-cap2: 19.8mm;   /* Dòng trên cùng - thụt lùi vào nhất */
+            --top-cap3: 28.2mm;   /* Dòng giữa */
+            --top-cap4: 36.6mm;   /* Dòng dưới cùng - nhô ra ngoài nhất */
+            
+            --l1-left-ngay: 29mm;
+            --l1-left-so: 42mm;
+            --l2-left-ngay: 113mm;
+            --l2-left-so: 104mm;
+        }
+
+        @media print {
+            @page { size: 70mm 180mm; margin: 0; }
+            .no-print { display: none !important; }
+            .ticket-page { width: 70mm; height: 180mm; position: relative; page-break-after: always; overflow: hidden; }
+            .printable-content {
+                position: absolute; width: 180mm; height: 70mm;
+                top: 0; left: 70mm; transform: rotate(90deg); transform-origin: top left;
+            }
+            .ink-free {
+                font-family: 'Ink Free', 'Segoe Script', cursive;
+                color: #0000FF; position: absolute; font-weight: bold; font-size: 18pt;
+            }
+        }
+
+        body { font-family: sans-serif; background: #f0f0f0; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .no-print { background: white; padding: 20px; border-radius: 8px; width: 350px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 10px; margin: 5px 0 15px 0; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
+        
+        .date-field { font-size: 13pt; top: var(--top-ngay); }
+        .l1-date { left: var(--l1-left-ngay); }
+        .l2-date { left: var(--l2-left-ngay); }
+        .l1-num { left: var(--l1-left-so); }
+        .l2-num { left: var(--l2-left-so); }
+        .row-cap2 { top: var(--top-cap2); }
+        .row-cap3 { top: var(--top-cap3); }
+        .row-cap4 { top: var(--top-cap4); }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <h3>IN VÉ NAM ĐỊNH</h3>
+        Ngày mở thưởng: <input type="text" id="ngay" value="03/03/26">
+        Bộ số (vd: 12 34 56): <input type="text" id="so" autofocus>
+        Số lượng tờ: <input type="number" id="sl" value="1">
+        <button onclick="inVe()">XÁC NHẬN IN</button>
+    </div>
+    <div id="print-area"></div>
+    <script>
+        function inVe() {
+            const n = document.getElementById('ngay').value;
+            const s = document.getElementById('so').value.trim();
+            const sl = document.getElementById('sl').value;
+            const pairs = s.split(/\s+/).filter(p => p.length > 0);
+            let cls = pairs.length === 2 ? "row-cap2" : pairs.length === 3 ? "row-cap3" : "row-cap4";
+            let h = "";
+            for(let i=0; i<sl; i++) {
+                h += `<div class="ticket-page"><div class="printable-content">
+                    <div class="ink-free date-field l1-date">${n}</div>
+                    <div class="ink-free date-field l2-date">${n}</div>
+                    <div class="ink-free l1-num ${cls}">${s}</div>
+                    <div class="ink-free l2-num ${cls}">${s}</div>
+                </div></div>`;
+            }
+            document.getElementById('print-area').innerHTML = h;
+            setTimeout(() => { window.print(); }, 500);
+        }
+    </script>
+</body>
+</html>
