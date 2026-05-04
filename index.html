@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -1283,7 +1284,8 @@
                 const delBtn = window.manuallyAddedAgents.has(ag.code) ? `<span class="remove-ticket-btn" onclick="window.removeAgentData('${ag.code}')" title="Xóa dữ liệu bổ sung đại lý ${ag.code}">-</span>` : '';
                 
                 if (!isGroup) {
-                    displayCode = getBaseId(ag.code); 
+                    let base = getBaseId(ag.code);
+                    displayCode = /^\d+$/.test(base) ? String(parseInt(base, 10)).padStart(3, '0') : base;
                     codeClass = ' class="code-cell-highlight"';
                 }
 
@@ -1763,7 +1765,8 @@
                 
                 let displayCode = ag.code;
                 if (!isMulti) {
-                    displayCode = getBaseId(ag.code); 
+                    let base = getBaseId(ag.code);
+                    displayCode = /^\d+$/.test(base) ? String(parseInt(base, 10)).padStart(3, '0') : base;
                 }
 
                 if(appMode === 'excel') { row = [ displayStt, displayCode, d.lotoDB, d.lotoCap, d.c323, d.c227 ]; if (hasXSKT) row.push(d.xskt); if(hasVeBoc) row.push(d.veBoc); row.push(d.totRev, d.thuong); } 
