@@ -2,35 +2,104 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>PDF to CVS Extractor - Pro UI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PDF to CVS Extractor - Mobile Friendly</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; background-color: #f4f7f9; }
-        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        h2 { color: #1a73e8; border-bottom: 2px solid #e8f0fe; padding-bottom: 10px; margin-top: 0; }
-        .input-group { margin-top: 20px; }
-        label { font-weight: bold; display: block; margin-bottom: 8px; color: #444; }
-        input[type="text"], input[type="file"] { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; margin-top: 25px; background-color: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 15px; 
+            background-color: #f4f7f9; 
+        }
+        .container { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08); 
+            margin-top: 10px;
+        }
+        h2 { 
+            color: #1a73e8; 
+            border-bottom: 2px solid #e8f0fe; 
+            padding-bottom: 10px; 
+            margin-top: 0; 
+            font-size: 20px;
+        }
+        .input-group { margin-top: 15px; }
+        label { 
+            font-weight: bold; 
+            display: block; 
+            margin-bottom: 8px; 
+            color: #444; 
+            font-size: 14px;
+        }
+        input[type="text"], input[type="file"] { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-size: 14px;
+        }
+        button { 
+            width: 100%; 
+            padding: 14px; 
+            margin-top: 20px; 
+            background-color: #1a73e8; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            touch-action: manipulation; /* Tối ưu chạm trên điện thoại */
+        }
         button:hover { background-color: #1557b0; }
         button:disabled { background-color: #ccc; cursor: not-allowed; }
-        #status { margin-top: 20px; padding: 15px; border-radius: 8px; display: none; line-height: 1.5; }
+        
+        #status { margin-top: 15px; padding: 12px; border-radius: 8px; display: none; line-height: 1.5; font-size: 14px; }
         .error { background-color: #fdecea; color: #d93025; border: 1px solid #fad2cf; display: block !important; }
         .success { background-color: #e6f4ea; color: #137333; border: 1px solid #ceead6; display: block !important; }
         .info { background-color: #e8f0fe; color: #1a73e8; border: 1px solid #d2e3fc; display: block !important; }
         
-        /* CSS cho thanh tiến trình */
-        .progress-wrapper { width: 100%; background-color: #e0e0e0; border-radius: 8px; margin-top: 15px; display: none; overflow: hidden; height: 22px; }
-        .progress-bar { width: 0%; height: 100%; background-color: #34a853; text-align: center; line-height: 22px; color: white; font-size: 13px; font-weight: bold; transition: width 0.4s ease; }
+        /* Thanh tiến trình */
+        .progress-wrapper { width: 100%; background-color: #e0e0e0; border-radius: 8px; margin-top: 15px; display: none; overflow: hidden; height: 20px; }
+        .progress-bar { width: 0%; height: 100%; background-color: #34a853; text-align: center; line-height: 20px; color: white; font-size: 12px; font-weight: bold; transition: width 0.4s ease; }
         
-        #output { white-space: pre-wrap; background: #202124; color: #fff; padding: 20px; border-radius: 8px; margin-top: 20px; display: none; font-family: 'Consolas', monospace; font-size: 13px; max-height: 400px; overflow: auto; }
+        /* Khung hiển thị code */
+        #output { 
+            white-space: pre; /* Giữ nguyên định dạng trên đt, cuộn ngang thay vì rớt dòng */
+            background: #202124; 
+            color: #fff; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin-top: 15px; 
+            display: none; 
+            font-family: 'Consolas', monospace; 
+            font-size: 12px; 
+            max-height: 350px; 
+            overflow: auto; 
+        }
+        
         #copyBtn { background-color: #ff9800; display: none; margin-top: 15px; }
         #copyBtn:hover { background-color: #e68a00; }
+
+        /* Media Queries cho màn hình lớn (Máy tính/Tablet) */
+        @media (min-width: 600px) {
+            body { padding: 30px; }
+            .container { padding: 30px; margin-top: 20px; }
+            h2 { font-size: 24px; }
+            label, input[type="text"], input[type="file"], #status { font-size: 15px; }
+            #output { font-size: 13px; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>📊 Tool Trích xuất Báo cáo PDF (Copy CVS)</h2>
+    <h2>📊 Tool Trích xuất Báo cáo PDF</h2>
     
     <div class="input-group">
         <label>1. Gemini API Key:</label>
@@ -46,12 +115,12 @@
     
     <div id="status"></div>
     
-    <!-- Thanh tiến trình -->
     <div class="progress-wrapper" id="progressWrapper">
         <div class="progress-bar" id="progressBar">0%</div>
     </div>
 
     <div id="output"></div>
+    
     <button id="copyBtn" onclick="copyToClipboard()">📋 Copy Dữ Liệu</button>
 </div>
 
@@ -73,12 +142,14 @@
         const copyBtn = document.getElementById('copyBtn');
         const progressWrapper = document.getElementById('progressWrapper');
 
+        // Bỏ focus khỏi các trường nhập liệu để bàn phím điện thoại tự ẩn xuống
+        document.activeElement.blur();
+
         if (!apiKey || !fileInput.files[0]) {
             showStatus("Vui lòng kiểm tra API Key và chọn file PDF!", "error");
             return;
         }
 
-        // Reset UI bắt đầu chạy
         runBtn.disabled = true;
         output.style.display = "none";
         copyBtn.style.display = "none";
@@ -102,13 +173,12 @@
                 m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent")
             );
 
-            if (availableModels.length === 0) throw new Error("API Key không có quyền truy cập model tạo văn bản.");
+            if (availableModels.length === 0) throw new Error("API Key không có quyền tạo văn bản.");
 
             let selectedModelName = "";
-            // Tự động tìm model tốt nhất hiện có
             const proModel = availableModels.find(m => m.name.includes("gemini-1.5-pro"));
             const flashModel = availableModels.find(m => m.name.includes("gemini-1.5-flash"));
-            const newerFlashModel = availableModels.find(m => m.name.includes("gemini-2.5-flash")); // Hỗ trợ nếu Google nâng cấp
+            const newerFlashModel = availableModels.find(m => m.name.includes("gemini-2.5-flash"));
 
             if (newerFlashModel) { selectedModelName = newerFlashModel.name; }
             else if (proModel) { selectedModelName = proModel.name; } 
@@ -126,11 +196,10 @@
                     const base64Data = reader.result.split(',')[1];
                     updateProgress(50);
                     
-                    // Bắt đầu mô phỏng AI đang "suy nghĩ" chạy từ 50% đến 90%
                     let currentPercent = 50;
                     progressInterval = setInterval(() => {
                         if (currentPercent < 90) {
-                            currentPercent += Math.floor(Math.random() * 5) + 1; // Tăng ngẫu nhiên 1-5%
+                            currentPercent += Math.floor(Math.random() * 5) + 1;
                             if (currentPercent > 90) currentPercent = 90;
                             updateProgress(currentPercent);
                         }
@@ -163,13 +232,11 @@
 
                     const data = await response.json();
                     
-                    // Dừng hiệu ứng loading
                     clearInterval(progressInterval);
 
                     if (data.error) throw new Error(data.error.message);
 
                     if (data.candidates && data.candidates[0].content) {
-                        // Gọi API thành công -> Hoàn thành 100%
                         updateProgress(100);
                         
                         let csvResult = data.candidates[0].content.parts[0].text;
@@ -190,7 +257,7 @@
                         copyBtn.style.display = "block";
                         window.lastCSV = csvResult;
                         
-                        showStatus(`🎉 Đã trích xuất thành công! Bạn có thể copy dữ liệu.`, "success");
+                        showStatus(`🎉 Trích xuất xong! Nhấn nút bên dưới để Copy.`, "success");
                     } else {
                         throw new Error("Không tìm thấy dữ liệu.");
                     }
@@ -235,7 +302,7 @@
                 copyBtn.style.backgroundColor = "#ff9800"; 
             }, 2000);
         }).catch(err => {
-            alert('Lỗi copy: ', err);
+            alert('Lỗi copy: ' + err);
         });
     }
 </script>
