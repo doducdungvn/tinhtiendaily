@@ -2210,16 +2210,35 @@
         const box = document.getElementById('box_kqxs_minhngoc');
         if (!box) return;
         
+        const titleElem = box.querySelector('.title');
         const thuElem = box.querySelector('.thu');
         const ngayElem = box.querySelector('.ngay');
-        let headerText = 'KẾT QUẢ XỔ SỐ MIỀN BẮC';
-        if (thuElem && ngayElem) {
-            const thu = thuElem.textContent.trim();
-            const match = ngayElem.textContent.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-            if (match) {
-                headerText = `${thu} ngày ${match[1]}-${match[2]}-${match[3]}`;
+        
+        let headerText = 'KẾT QUẢ XỔ SỐ';
+        
+        if (titleElem) {
+            let titleText = titleElem.textContent.trim();
+            const datePattern = /(\d{2})[\/\-](\d{2})[\/\-](\d{4})/;
+            if (datePattern.test(titleText)) {
+                const match = titleText.match(datePattern);
+                const formattedDate = `${match[1]}-${match[2]}-${match[3]}`;
+                const cleanTitle = titleText.replace(datePattern, '').replace('KQXS', '').trim();
+                const thu = thuElem ? thuElem.textContent.trim() : '';
+                headerText = `${thu} ngày ${formattedDate} - ${cleanTitle}`.trim();
+            } else {
+                const thu = thuElem ? thuElem.textContent.trim() : '';
+                let dateStr = '';
+                if (ngayElem) {
+                    const match = ngayElem.textContent.match(datePattern);
+                    if (match) {
+                        dateStr = `ngày ${match[1]}-${match[2]}-${match[3]}`;
+                    }
+                }
+                const cleanTitle = titleText.replace('KQXS', '').trim();
+                headerText = `${thu} ${dateStr} - ${cleanTitle}`.trim();
             }
         }
+        headerText = headerText.toUpperCase();
         
         const getPrizeNumbers = (cls) => {
             const elem = box.querySelector('.' + cls);
@@ -2235,6 +2254,7 @@
         const g5Numbers = getPrizeNumbers('giai5');
         const g6Numbers = getPrizeNumbers('giai6');
         const g7Numbers = getPrizeNumbers('giai7');
+        const g8Numbers = getPrizeNumbers('giai8');
         
         const flexContainer = document.querySelector('.xoso-flex-container');
         if (dbNumbers.length === 0 && g1Numbers.length === 0) {
@@ -2250,7 +2270,16 @@
             dbLoto = dbNum.substring(dbNum.length - 2);
         }
         
-        const buildPrizeRow = (title, numbers, isSpecial = false, numbersPerRow = 1) => {
+        const buildPrizeRow = (title, numbers, isSpecial = false) => {
+            if (numbers.length === 0) return '';
+            
+            // Determine columns based on actual items
+            const N = numbers.length;
+            let numbersPerRow = 1;
+            if (N === 2) numbersPerRow = 2;
+            else if (N === 3 || N === 6) numbersPerRow = 3;
+            else if (N === 4 || N === 7 || N === 8) numbersPerRow = 4;
+            
             let rowsHtml = '';
             const rowsCount = Math.ceil(numbers.length / numbersPerRow);
             for (let r = 0; r < rowsCount; r++) {
@@ -2278,14 +2307,15 @@
         let kqxsHtml = `
             <div class="header-row">${headerText}</div>
             <div style="display: flex; flex-direction: column;">
-                ${buildPrizeRow('Đặc biệt', dbNumbers, true, 1)}
-                ${buildPrizeRow('Giải nhất', g1Numbers, false, 1)}
-                ${buildPrizeRow('Giải nhì', g2Numbers, false, 2)}
-                ${buildPrizeRow('Giải ba', g3Numbers, false, 3)}
-                ${buildPrizeRow('Giải tư', g4Numbers, false, 4)}
-                ${buildPrizeRow('Giải năm', g5Numbers, false, 3)}
-                ${buildPrizeRow('Giải sáu', g6Numbers, false, 3)}
-                ${buildPrizeRow('Giải bảy', g7Numbers, false, 4)}
+                ${buildPrizeRow('Đặc biệt', dbNumbers, true)}
+                ${buildPrizeRow('Giải nhất', g1Numbers, false)}
+                ${buildPrizeRow('Giải nhì', g2Numbers, false)}
+                ${buildPrizeRow('Giải ba', g3Numbers, false)}
+                ${buildPrizeRow('Giải tư', g4Numbers, false)}
+                ${buildPrizeRow('Giải năm', g5Numbers, false)}
+                ${buildPrizeRow('Giải sáu', g6Numbers, false)}
+                ${buildPrizeRow('Giải bảy', g7Numbers, false)}
+                ${buildPrizeRow('Giải tám', g8Numbers, false)}
             </div>
         `;
         
@@ -2293,7 +2323,7 @@
         if (customKqxsBox) customKqxsBox.innerHTML = kqxsHtml;
         
         const lotoGroups = Array.from({ length: 10 }, () => []);
-        const allPrizes = [dbNumbers, g1Numbers, g2Numbers, g3Numbers, g4Numbers, g5Numbers, g6Numbers, g7Numbers];
+        const allPrizes = [dbNumbers, g1Numbers, g2Numbers, g3Numbers, g4Numbers, g5Numbers, g6Numbers, g7Numbers, g8Numbers];
         allPrizes.forEach(nums => {
             nums.forEach(num => {
                 const loto = num.substring(num.length - 2);
