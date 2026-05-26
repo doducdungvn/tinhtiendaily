@@ -238,6 +238,112 @@
         #reportContainer.capturing-image .report-table tr:not(#finalResultRow):not(#bangChuRow) td, #reportContainer.capturing-image .report-table th { font-size: 2.4em !important; padding: 20px 10px !important; font-weight: 600; }
         #reportContainer.capturing-image #tongCongRow td { font-size: 2.4em !important; }
         #reportContainer.capturing-image #bangChuRow td { font-size: 1.3em !important; font-style: italic; padding: 10px !important; font-weight: normal; }
+
+        /* --- CUSTOM VERTICAL KQXS & LOTO LAYOUT --- */
+        #box_kqxs_minhngoc .box_kqxs_mini {
+            display: none !important;
+        }
+        .xoso-flex-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 450px;
+            margin: 0 auto;
+            align-items: center;
+            padding: 5px;
+        }
+        #custom_kqxs, #custom_loto {
+            width: 100% !important;
+            max-width: 450px;
+            border: 3px solid #888888;
+            border-radius: 4px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .custom-table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            font-family: Arial, sans-serif !important;
+            background-color: #fff !important;
+        }
+        .custom-table th, .custom-table td {
+            border: 1px solid #cccccc !important;
+            padding: 8px 6px !important;
+            text-align: center !important;
+            vertical-align: middle !important;
+            font-size: 15px !important;
+        }
+        .custom-table th {
+            font-weight: bold !important;
+            background-color: #fff !important;
+            color: #000000 !important;
+            position: static !important;
+        }
+        
+        /* Grid rows in prizes */
+        .prize-row {
+            display: flex;
+            border-bottom: 1px solid #cccccc;
+            min-height: 40px;
+        }
+        .prize-row:last-child {
+            border-bottom: none;
+        }
+        .prize-title {
+            width: 25%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid #cccccc;
+            background-color: #fff;
+            font-weight: bold;
+            font-size: 15px;
+            color: #2c3e50;
+        }
+        .prize-title.special-title {
+            color: #ff0000 !important;
+        }
+        .prize-content-container {
+            width: 75%;
+            display: flex;
+            flex-direction: column;
+        }
+        .prize-values-row {
+            display: flex;
+            flex: 1;
+        }
+        .prize-values-row:not(:last-child) {
+            border-bottom: 1px solid #cccccc;
+        }
+        .prize-value {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            color: #000;
+            padding: 6px 2px;
+        }
+        .prize-value:not(:last-child) {
+            border-right: 1px solid #cccccc;
+        }
+        .prize-value.special-value {
+            color: #ff0000 !important;
+            font-size: 26px !important;
+            letter-spacing: 1px !important;
+        }
+        .header-row {
+            border-bottom: 2px solid #888888;
+            padding: 10px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #fff;
+            color: #000;
+        }
+
     </style>
 </head>
 <body>
@@ -273,7 +379,7 @@
             </div>
 
             <div id="panelXoso" style="display:none; margin-top: 15px;">
-                <div class="xoso-wrapper">
+                <div class="xoso-wrapper" style="border: none !important; box-shadow: none !important; margin-bottom: 10px !important;">
                     <div id="box_kqxs_minhngoc">
                         <script language="javascript"> 
                             bgcolor="#9c0303"; 
@@ -284,6 +390,10 @@
                         </script>
                         <script language="javascript" src="https://www.minhngoc.net.vn/getkqxs/mien-bac.js"></script>
                     </div>
+                </div>
+                <div class="xoso-flex-container">
+                    <div id="custom_kqxs"></div>
+                    <div id="custom_loto"></div>
                 </div>
             </div>
             
@@ -1615,6 +1725,7 @@
         DOM.tabRaw.classList.remove('active'); DOM.tabRaw.style.background = 'transparent'; DOM.tabRaw.style.color = 'var(--text-light)';
         DOM.panelXoso.style.display = 'block'; DOM.panelExcel.style.display = 'none'; DOM.panelRaw.style.display = 'none';
         DOM.homeActionContainer.style.display = 'none'; DOM.homeHistoryContainer.style.display = 'none';
+        updateXosoLayout();
     };
 
     DOM.btnLoadData.addEventListener('click', () => { 
@@ -2094,6 +2205,157 @@
     }
 
     if (closeCloudLogBtn) { closeCloudLogBtn.onclick = () => cloudLogModal.style.display = 'none'; }
+
+    function updateXosoLayout() {
+        const box = document.getElementById('box_kqxs_minhngoc');
+        if (!box) return;
+        
+        const thuElem = box.querySelector('.thu');
+        const ngayElem = box.querySelector('.ngay');
+        let headerText = 'KẾT QUẢ XỔ SỐ MIỀN BẮC';
+        if (thuElem && ngayElem) {
+            const thu = thuElem.textContent.trim();
+            const match = ngayElem.textContent.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+            if (match) {
+                headerText = `${thu} ngày ${match[1]}-${match[2]}-${match[3]}`;
+            }
+        }
+        
+        const getPrizeNumbers = (cls) => {
+            const elem = box.querySelector('.' + cls);
+            if (!elem) return [];
+            return elem.textContent.trim().split(/[^0-9]+/).filter(n => n.length >= 2);
+        };
+        
+        const dbNumbers = getPrizeNumbers('giaidb');
+        const g1Numbers = getPrizeNumbers('giai1');
+        const g2Numbers = getPrizeNumbers('giai2');
+        const g3Numbers = getPrizeNumbers('giai3');
+        const g4Numbers = getPrizeNumbers('giai4');
+        const g5Numbers = getPrizeNumbers('giai5');
+        const g6Numbers = getPrizeNumbers('giai6');
+        const g7Numbers = getPrizeNumbers('giai7');
+        
+        const flexContainer = document.querySelector('.xoso-flex-container');
+        if (dbNumbers.length === 0 && g1Numbers.length === 0) {
+            if (flexContainer) flexContainer.style.display = 'none';
+            return;
+        } else {
+            if (flexContainer) flexContainer.style.display = 'flex';
+        }
+        
+        let dbLoto = null;
+        if (dbNumbers.length > 0) {
+            const dbNum = dbNumbers[0];
+            dbLoto = dbNum.substring(dbNum.length - 2);
+        }
+        
+        const buildPrizeRow = (title, numbers, isSpecial = false, numbersPerRow = 1) => {
+            let rowsHtml = '';
+            const rowsCount = Math.ceil(numbers.length / numbersPerRow);
+            for (let r = 0; r < rowsCount; r++) {
+                let colsHtml = '';
+                const rowNums = numbers.slice(r * numbersPerRow, (r + 1) * numbersPerRow);
+                for (let c = 0; c < numbersPerRow; c++) {
+                    const num = rowNums[c] || '';
+                    const cellCls = isSpecial ? 'prize-value special-value' : 'prize-value';
+                    colsHtml += `<div class="${cellCls}">${num}</div>`;
+                }
+                rowsHtml += `<div class="prize-values-row">${colsHtml}</div>`;
+            }
+            
+            const titleCls = isSpecial ? 'prize-title special-title' : 'prize-title';
+            return `
+                <div class="prize-row">
+                    <div class="${titleCls}">${title}</div>
+                    <div class="prize-content-container">
+                        ${rowsHtml}
+                    </div>
+                </div>
+            `;
+        };
+        
+        let kqxsHtml = `
+            <div class="header-row">${headerText}</div>
+            <div style="display: flex; flex-direction: column;">
+                ${buildPrizeRow('Đặc biệt', dbNumbers, true, 1)}
+                ${buildPrizeRow('Giải nhất', g1Numbers, false, 1)}
+                ${buildPrizeRow('Giải nhì', g2Numbers, false, 2)}
+                ${buildPrizeRow('Giải ba', g3Numbers, false, 3)}
+                ${buildPrizeRow('Giải tư', g4Numbers, false, 4)}
+                ${buildPrizeRow('Giải năm', g5Numbers, false, 3)}
+                ${buildPrizeRow('Giải sáu', g6Numbers, false, 3)}
+                ${buildPrizeRow('Giải bảy', g7Numbers, false, 4)}
+            </div>
+        `;
+        
+        const customKqxsBox = document.getElementById('custom_kqxs');
+        if (customKqxsBox) customKqxsBox.innerHTML = kqxsHtml;
+        
+        const lotoGroups = Array.from({ length: 10 }, () => []);
+        const allPrizes = [dbNumbers, g1Numbers, g2Numbers, g3Numbers, g4Numbers, g5Numbers, g6Numbers, g7Numbers];
+        allPrizes.forEach(nums => {
+            nums.forEach(num => {
+                const loto = num.substring(num.length - 2);
+                const tens = parseInt(loto.charAt(0), 10);
+                if (tens >= 0 && tens <= 9) {
+                    lotoGroups[tens].push(loto);
+                }
+            });
+        });
+        
+        for (let i = 0; i < 10; i++) {
+            lotoGroups[i].sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+        }
+        
+        let lotoHtml = `
+        <table class="custom-table" style="border: none !important;">
+            <thead>
+                <tr style="border-bottom: 2px solid #888888 !important; height: 38px;">
+                    <th style="width: 25% !important; border: none !important; border-right: 1px solid #cccccc !important; border-bottom: 2px solid #888888 !important; text-align: center !important; color: #a90000 !important; font-size: 16px !important; font-weight: bold !important;">Đầu</th>
+                    <th style="width: 75% !important; border: none !important; border-bottom: 2px solid #888888 !important; text-align: left !important; color: #a90000 !important; font-size: 16px !important; font-weight: bold !important; padding-left: 15px !important;">Lô tô</th>
+                </tr>
+            </thead>
+            <tbody>
+        `;
+        
+        for (let i = 0; i < 10; i++) {
+            const group = lotoGroups[i];
+            let groupHtml = '';
+            if (group.length > 0) {
+                groupHtml = group.map(num => {
+                    if (num === dbLoto) {
+                        return `<span style="color: #ff0000 !important; font-weight: bold !important;">${num}</span><span style="color: #000000 !important; font-weight: bold !important;">;</span>`;
+                    } else {
+                        return `<span style="color: #000000 !important; font-weight: bold !important;">${num};</span>`;
+                    }
+                }).join(' ');
+            }
+            
+            lotoHtml += `
+                <tr style="height: 38px;">
+                    <td style="border: none !important; border-right: 1px solid #cccccc !important; border-bottom: ${i === 9 ? 'none' : '1px solid #cccccc'} !important; text-align: center !important; color: #a90000 !important; font-weight: bold !important; font-size: 16px !important;">${i}</td>
+                    <td style="border: none !important; border-bottom: ${i === 9 ? 'none' : '1px solid #cccccc'} !important; text-align: left !important; padding-left: 15px !important; font-size: 15px !important; font-weight: bold !important; letter-spacing: 0.5px !important;">${groupHtml}</td>
+                </tr>
+            `;
+        }
+        
+        lotoHtml += `
+            </tbody>
+        </table>
+        `;
+        
+        const customLotoBox = document.getElementById('custom_loto');
+        if (customLotoBox) customLotoBox.innerHTML = lotoHtml;
+    }
+
+    const xosoObserver = new MutationObserver(() => {
+        updateXosoLayout();
+    });
+    const target = document.getElementById('box_kqxs_minhngoc');
+    if (target) {
+        xosoObserver.observe(target, { childList: true, subtree: true });
+    }
 
     runLogoAnimation(); updateOnlineCounter();
 })();
