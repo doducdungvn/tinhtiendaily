@@ -188,6 +188,7 @@
         .modal-content { background-color: #fff; margin: auto; padding: 25px; width: 95%; max-width: 600px; border-radius: 12px; position: relative; animation: slideIn 0.3s; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
         .modal-close-btn { position: absolute; top: 10px; right: 15px; font-size: 28px; cursor: pointer; color: #aaa; z-index: 100; }
         .preview-images-container { display: flex; flex-direction: column; gap: 15px; align-items: center; background: #f0f0f0; padding: 10px; border-radius: 8px; }
+        .preview-images-container img { max-width: 100%; height: auto; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border: 1px solid #dcdde1; display: block; }
         .preview-image-item { width: 100%; background: #fff; padding: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; }
         .preview-image-item img { width: 100%; display: block; }
         .page-number { text-align: center; font-weight: bold; color: #7f8c8d; margin-bottom: 5px; font-size: 12px; }
@@ -742,8 +743,11 @@
                 <button id="btnSaveAllImages" class="success" style="padding: 10px 20px; font-size: 14px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">💾 LƯU TẤT CẢ ẢNH</button>
             </div>
             <div id="imagePreviewHolder" class="preview-images-container"></div>
-            <p style="text-align:center; font-size:13px; color:#777; margin-top: 10px;">
-                <span style="display:block; margin-bottom:3px;">💡 Mẹo: Nhấn giữ vào ảnh để <b>Lưu</b> hoặc <b>Sao chép</b> từng trang</span>
+            <p style="text-align:center; font-size:13.5px; color:#555; margin-top: 15px; line-height: 1.5; background: #e8f0fe; padding: 10px; border-radius: 8px;">
+                <span style="display:block; font-weight: bold; color: var(--primary-dark); margin-bottom: 5px;">💡 Hướng dẫn cho Safari / Điện thoại:</span>
+                • <b>Điện thoại:</b> Nhấn giữ vào ảnh khoảng 2 giây, chọn <b>Sao chép</b> hoặc <b>Thêm vào Ảnh</b>.<br>
+                • <b>Máy tính:</b> Click chuột phải vào ảnh và chọn <b>Sao chép hình ảnh</b>.<br>
+                • Hoặc click nút <b>TẢI ẢNH VỀ MÁY</b> (hoặc <b>TẢI TẤT CẢ ẢNH</b>) để tải trực tiếp file ảnh PNG.
             </p>
         </div>
     </div>
@@ -1054,12 +1058,17 @@
                 if (canvas.height > limitHeight && sel !== '#reportContainer') {
                     const images = await splitCanvasToImages(canvas, targetTable, el); currentGeneratedImages = images;
                     images.forEach((imgSrc, index) => { const div = document.createElement('div'); div.className = 'preview-image-item'; div.innerHTML = `<div class="page-number">Trang ${index + 1}/${images.length}</div><img src="${imgSrc}">`; previewHolder.appendChild(div); });
-                    showNotification(`Đã chia thành ${images.length} trang`, 'info'); DOM.btnSaveAllImages.style.display = 'inline-block'; DOM.imagePreviewModal.style.display = 'block';
+                    showNotification(`Đã chia thành ${images.length} trang`, 'info'); 
+                    DOM.btnSaveAllImages.textContent = '💾 TẢI TẤT CẢ ẢNH';
+                    DOM.btnSaveAllImages.style.display = 'inline-block'; 
+                    DOM.imagePreviewModal.style.display = 'block';
                 } else {
                     const imgSrc = canvas.toDataURL('image/png'); currentGeneratedImages = [imgSrc];
                     const showPreviewModal = () => {
                         const img = document.createElement('img'); img.src = imgSrc;
-                        previewHolder.appendChild(img); DOM.btnSaveAllImages.style.display = 'none';
+                        previewHolder.appendChild(img); 
+                        DOM.btnSaveAllImages.textContent = '💾 TẢI ẢNH VỀ MÁY';
+                        DOM.btnSaveAllImages.style.display = 'inline-block';
                         DOM.imagePreviewModal.style.display = 'block';
                     };
                     if (navigator.clipboard && navigator.clipboard.write) {
