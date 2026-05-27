@@ -849,32 +849,45 @@
     };
 
     async function loadBranchConfig() {
+        const githubUrl = `https://raw.githubusercontent.com/doducdungvn/tinhtiendaily/refs/heads/main/xemma.txt?t=${Date.now()}`;
+        const localUrl = `xemma.txt?t=${Date.now()}`;
+        
+        async function tryFetchAndParse(url) {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const text = await res.text();
+            const lines = text.split('\n');
+            let banvePref = ['0','1','2','3','4','5','6','7','8','9'];
+            let zaloPref = ['P', 'J'];
+            let techcomPref = ['U', 'H'];
+            
+            lines.forEach(line => {
+                const parts = line.split(':');
+                if (parts.length >= 2) {
+                    const key = parts[0].trim().toLowerCase();
+                    const val = parts[1].trim().split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
+                    if (key.includes('bán vé')) banvePref = val;
+                    else if (key.includes('zalo')) zaloPref = val;
+                    else if (key.includes('techcom')) techcomPref = val;
+                }
+            });
+            
+            branchModes.banve.prefixes = banvePref;
+            branchModes.zalo.prefixes = zaloPref;
+            branchModes.techcom.prefixes = techcomPref;
+            console.log(`Đã nạp cấu hình chi nhánh từ ${url}:`, branchModes);
+            return true;
+        }
+
         try {
-            const res = await fetch(`xemma.txt?t=${Date.now()}`);
-            if (res.ok) {
-                const text = await res.text();
-                const lines = text.split('\n');
-                let banvePref = ['0','1','2','3','4','5','6','7','8','9'];
-                let zaloPref = ['P', 'J'];
-                let techcomPref = ['U', 'H'];
-                
-                lines.forEach(line => {
-                    const parts = line.split(':');
-                    if (parts.length >= 2) {
-                        const key = parts[0].trim().toLowerCase();
-                        const val = parts[1].trim().split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
-                        if (key.includes('bán vé')) banvePref = val;
-                        else if (key.includes('zalo')) zaloPref = val;
-                        else if (key.includes('techcom')) techcomPref = val;
-                    }
-                });
-                branchModes.banve.prefixes = banvePref;
-                branchModes.zalo.prefixes = zaloPref;
-                branchModes.techcom.prefixes = techcomPref;
-                console.log('Đã nạp cấu hình chi nhánh từ xemma.txt:', branchModes);
-            }
+            await tryFetchAndParse(githubUrl);
         } catch (e) {
-            console.warn('Lỗi tải file cấu hình xemma.txt:', e);
+            console.warn('Lỗi tải file cấu hình từ GitHub, chuyển sang dùng file local:', e);
+            try {
+                await tryFetchAndParse(localUrl);
+            } catch (err) {
+                console.warn('Lỗi tải cả file cấu hình local xemma.txt:', err);
+            }
         }
     }
     loadBranchConfig();
