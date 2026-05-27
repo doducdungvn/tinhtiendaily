@@ -1610,7 +1610,6 @@
             const inputNum = soSo.replace(/\D/g, '') || soSo.toUpperCase(); if(!inputNum) return null;
             let foundItems = []; let debtAmt = 0; state.accountCodes = new Set();
             for (let [key, items] of rawDataMap) {
-                const strKey = String(key); if(isExclude && /^\d+$/.test(strKey)) continue;
                 const keyBase = getBaseId(key);
                 if (key.toUpperCase() === inputNum || keyBase === inputNum) { 
                     let validDatesForThisSearch = currentSearchSelectedDates;
@@ -1619,6 +1618,12 @@
                     
                     const filteredItems = items.filter(item => {
                         if (!validDatesForThisSearch.includes(item.date)) return false;
+                        
+                        // Chỉ bỏ qua Lôtô của đại lý có mã số thuần là số (ví dụ: "015")
+                        const isNumericKey = /^\d+$/.test(key);
+                        const isLotoType = item.type.toUpperCase() !== 'XSKT' && item.type.toUpperCase() !== 'VB' && item.type.toUpperCase() !== 'VEBOC' && !item.type.toUpperCase().includes('VÉ BÓC');
+                        if (isExclude && isNumericKey && isLotoType) return false;
+                        
                         if (isExcludeXSKT && item.type.toUpperCase() === 'XSKT') return false;
                         if (isExcludeVeBoc && (item.type.toUpperCase() === 'VB' || item.type.toUpperCase() === 'VEBOC' || item.type.toUpperCase() === 'VÉ BÓC')) return false;
                         return true;
@@ -2185,6 +2190,17 @@
     DOM.cbExcludeNumeric.onchange = generateSummaryView;
     DOM.cbExcludeXSKT.onchange = generateSummaryView;
     DOM.cbExcludeVeBoc.onchange = generateSummaryView;
+
+    const triggerDetailedReportRebuild = () => {
+        if (state.currentSoSo) {
+            DOM.soSoInput.value = state.currentSoSo;
+            const isSummaryView = document.querySelector('.report-table th:nth-child(2)') && document.querySelector('.report-table th:nth-child(2)').textContent.includes('Hoa hồng');
+            createReport(isSummaryView ? 'summary' : 'detailed');
+        }
+    };
+    if (DOM.cbExcludeNumeric_Detailed) DOM.cbExcludeNumeric_Detailed.onchange = triggerDetailedReportRebuild;
+    if (DOM.cbExcludeXSKT_Detailed) DOM.cbExcludeXSKT_Detailed.onchange = triggerDetailedReportRebuild;
+    if (DOM.cbExcludeVeBoc_Detailed) DOM.cbExcludeVeBoc_Detailed.onchange = triggerDetailedReportRebuild;
 
     DOM.btnClearRevenueFilter.onclick = () => { 
         DOM.sortSelect.value = 'default'; DOM.minRevenueInput.value = ''; DOM.minRevenueInput.dataset.value = ''; DOM.maxRevenueInput.value = ''; DOM.maxRevenueInput.dataset.value = ''; 
