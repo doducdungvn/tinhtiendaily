@@ -555,6 +555,15 @@
                     <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 10px;">
                         <label style="color: var(--header-bg); font-size: 15px;">Lọc theo Đơn vị (Nhóm):</label>
                         <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <label style="font-size: 14px; color: #2980b9; font-weight: bold; display: flex; align-items: center; gap: 5px;">
+                                Chế độ CNhánh:
+                                <select id="selBranchMode" style="padding: 4px 8px; font-size: 13px; border-radius: 6px; border: 1px solid #ccc; font-weight: bold; color: #2c3e50; cursor: pointer;">
+                                    <option value="all">Xem Tất Cả</option>
+                                    <option value="banve">Xem Bán Vé</option>
+                                    <option value="zalo">Xem Zalo</option>
+                                    <option value="techcom">Xem Techcom</option>
+                                </select>
+                            </label>
                             <label title="Đưa các loại hình Lô tô, Lô cặp, Lô 2/27, Lô 3/23, Thưởng về 0 -- Giữ lại: Doanh số XSKT, Vé bóc và Nợ cũ của đại lý bán vé" style="font-size: 14px; cursor: pointer; color: var(--danger-color); font-weight: bold; display: flex; align-items: center; gap: 5px;">
                                 <input type="checkbox" id="cbExcludeNumeric" style="width: 18px; height: 18px;"> Bỏ Dsố Bán Vé
                             </label>
@@ -595,21 +604,30 @@
             <h3>Tra cứu & Tạo Báo Cáo</h3>
             
             <div class="controls-panel">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-wrap: wrap; gap: 10px;">
-                    <label for="soSoInput" style="margin-bottom:0;">Nhập số sổ:</label>
+                <div style="display: flex; justify-content: flex-start; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 15px;">
+                    <label style="font-size: 13px; color: #2980b9; font-weight: bold; display: flex; align-items: center; gap: 5px; margin-bottom: 0;">
+                        Chế độ CNhánh:
+                        <select id="selBranchMode_Detailed" style="padding: 2px 6px; font-size: 12px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; color: #2c3e50; cursor: pointer;">
+                            <option value="all">Xem Tất Cả</option>
+                            <option value="banve">Xem Bán Vé</option>
+                            <option value="zalo">Xem Zalo</option>
+                            <option value="techcom">Xem Techcom</option>
+                        </select>
+                    </label>
                     <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                        <label title="Đưa các loại hình Lô tô... về 0" style="font-size: 13px; cursor: pointer; color: var(--danger-color); font-weight: bold; display: flex; align-items: center; gap: 5px;">
+                        <label title="Đưa các loại hình Lô tô... về 0" style="font-size: 13px; cursor: pointer; color: var(--danger-color); font-weight: bold; display: flex; align-items: center; gap: 5px; margin-bottom: 0;">
                             <input type="checkbox" id="cbExcludeNumeric_Detailed" style="width: 16px; height: 16px;"> Bỏ Dsố Bán Vé
                         </label>
-                        <label title="Đưa Doanh số và Hoa hồng XSKT về 0" style="font-size: 13px; cursor: pointer; color: #d35400; font-weight: bold; display: flex; align-items: center; gap: 5px;">
+                        <label title="Đưa Doanh số và Hoa hồng XSKT về 0" style="font-size: 13px; cursor: pointer; color: #d35400; font-weight: bold; display: flex; align-items: center; gap: 5px; margin-bottom: 0;">
                             <input type="checkbox" id="cbExcludeXSKT_Detailed" style="width: 16px; height: 16px;"> Bỏ XSKT
                         </label>
-                        <label title="Đưa Doanh số và Hoa hồng Vé Bóc về 0" style="font-size: 13px; cursor: pointer; color: #8e44ad; font-weight: bold; display: flex; align-items: center; gap: 5px;">
+                        <label title="Đưa Doanh số và Hoa hồng Vé Bóc về 0" style="font-size: 13px; cursor: pointer; color: #8e44ad; font-weight: bold; display: flex; align-items: center; gap: 5px; margin-bottom: 0;">
                             <input type="checkbox" id="cbExcludeVeBoc_Detailed" style="width: 16px; height: 16px;"> Bỏ Vbóc
                         </label>
                     </div>
                 </div>
                 <div class="input-group-row">
+                    <label for="soSoInput" style="margin-bottom: 0; display: flex; align-items: center; white-space: nowrap; font-weight: bold; font-size: 14px;">Nhập số sổ:</label>
                     <input type="text" id="soSoInput" inputmode="numeric" placeholder="968">
                     <div class="buttons-container">
                         <button id="btnCreateDailyReport" class="success">Báo Cáo Ngày</button>
@@ -823,6 +841,44 @@
     // Biến lưu trữ các đại lý được thêm từ phần nhập thủ công
     window.manuallyAddedAgents = new Set();
 
+    let branchModes = {
+        'all': { label: 'Xem Tất Cả', prefixes: [] },
+        'banve': { label: 'Xem Bán Vé', prefixes: ['0','1','2','3','4','5','6','7','8','9'] },
+        'zalo': { label: 'Xem Zalo', prefixes: ['P', 'J'] },
+        'techcom': { label: 'Xem Techcom', prefixes: ['U', 'H'] }
+    };
+
+    async function loadBranchConfig() {
+        try {
+            const res = await fetch(`xemma.txt?t=${Date.now()}`);
+            if (res.ok) {
+                const text = await res.text();
+                const lines = text.split('\n');
+                let banvePref = ['0','1','2','3','4','5','6','7','8','9'];
+                let zaloPref = ['P', 'J'];
+                let techcomPref = ['U', 'H'];
+                
+                lines.forEach(line => {
+                    const parts = line.split(':');
+                    if (parts.length >= 2) {
+                        const key = parts[0].trim().toLowerCase();
+                        const val = parts[1].trim().split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
+                        if (key.includes('bán vé')) banvePref = val;
+                        else if (key.includes('zalo')) zaloPref = val;
+                        else if (key.includes('techcom')) techcomPref = val;
+                    }
+                });
+                branchModes.banve.prefixes = banvePref;
+                branchModes.zalo.prefixes = zaloPref;
+                branchModes.techcom.prefixes = techcomPref;
+                console.log('Đã nạp cấu hình chi nhánh từ xemma.txt:', branchModes);
+            }
+        } catch (e) {
+            console.warn('Lỗi tải file cấu hình xemma.txt:', e);
+        }
+    }
+    loadBranchConfig();
+
     let globalSelectedDates = []; 
     let agentDateRules = {}; 
     let currentSearchSelectedDates = []; 
@@ -875,8 +931,8 @@
         btnShowHistory: document.getElementById('btnShowHistory'), historyModal: document.getElementById('historyModal'), closeHistoryModalBtn: document.getElementById('closeHistoryModalBtn'), historyList: document.getElementById('historyList'), btnClearHistory: document.getElementById('btnClearHistory'),
         veBocInput: document.getElementById('veBocInput'), veBocManualContainer: document.getElementById('veBocManualContainer'), veBocExcelContainer: document.getElementById('veBocExcelContainer'), veBocFile: document.getElementById('veBocFile'), veBocModeRadios: document.querySelectorAll('input[name="veBocMode"]'), btnClearVeBoc: document.getElementById('btnClearVeBoc'), veBocStatusMsg: document.getElementById('veBocStatusMsg'), btnApplyVeBoc: document.getElementById('btnApplyVeBoc'),
         toggleAdvancedTools: document.getElementById('toggleAdvancedTools'), advancedToolsContainer: document.getElementById('advancedToolsContainer'),
-        cbExcludeNumeric: document.getElementById('cbExcludeNumeric'), cbExcludeXSKT: document.getElementById('cbExcludeXSKT'), cbExcludeVeBoc: document.getElementById('cbExcludeVeBoc'),
-        cbExcludeNumeric_Detailed: document.getElementById('cbExcludeNumeric_Detailed'), cbExcludeXSKT_Detailed: document.getElementById('cbExcludeXSKT_Detailed'), cbExcludeVeBoc_Detailed: document.getElementById('cbExcludeVeBoc_Detailed'),
+        selBranchMode: document.getElementById('selBranchMode'), cbExcludeNumeric: document.getElementById('cbExcludeNumeric'), cbExcludeXSKT: document.getElementById('cbExcludeXSKT'), cbExcludeVeBoc: document.getElementById('cbExcludeVeBoc'),
+        selBranchMode_Detailed: document.getElementById('selBranchMode_Detailed'), cbExcludeNumeric_Detailed: document.getElementById('cbExcludeNumeric_Detailed'), cbExcludeXSKT_Detailed: document.getElementById('cbExcludeXSKT_Detailed'), cbExcludeVeBoc_Detailed: document.getElementById('cbExcludeVeBoc_Detailed'),
         agentDateSelect: document.getElementById('agentDateSelect'), datePickerContainer: document.getElementById('datePickerContainer'), availableDatesList: document.getElementById('availableDatesList'), activeRulesSummary: document.getElementById('activeRulesSummary'),
         detailedDatePickerContainer: document.getElementById('detailedDatePickerContainer'), detailedDatesList: document.getElementById('detailedDatesList'),
         extraRawInput: document.getElementById('extraRawInput'), btnAddExtraRaw: document.getElementById('btnAddExtraRaw'),
@@ -1158,6 +1214,18 @@
     };
 
     window.viewAgentDetail = (code) => {
+        if (DOM.selBranchMode && DOM.selBranchMode_Detailed) {
+            DOM.selBranchMode_Detailed.value = DOM.selBranchMode.value;
+        }
+        if (DOM.cbExcludeNumeric && DOM.cbExcludeNumeric_Detailed) {
+            DOM.cbExcludeNumeric_Detailed.checked = DOM.cbExcludeNumeric.checked;
+        }
+        if (DOM.cbExcludeXSKT && DOM.cbExcludeXSKT_Detailed) {
+            DOM.cbExcludeXSKT_Detailed.checked = DOM.cbExcludeXSKT.checked;
+        }
+        if (DOM.cbExcludeVeBoc && DOM.cbExcludeVeBoc_Detailed) {
+            DOM.cbExcludeVeBoc_Detailed.checked = DOM.cbExcludeVeBoc.checked;
+        }
         DOM.soSoInput.value = getBaseId(code);
         DOM.soSoInput.dispatchEvent(new Event('input'));
         showSection('reportSection');
@@ -1381,11 +1449,20 @@
         const isExcludeNumeric = DOM.cbExcludeNumeric ? DOM.cbExcludeNumeric.checked : false;
         const isExcludeXSKT = DOM.cbExcludeXSKT ? DOM.cbExcludeXSKT.checked : false;
         const isExcludeVeBoc = DOM.cbExcludeVeBoc ? DOM.cbExcludeVeBoc.checked : false;
+        const selectedBranchMode = DOM.selBranchMode ? DOM.selBranchMode.value : 'all';
+        const branchPrefixes = branchModes[selectedBranchMode]?.prefixes || [];
         
         map.forEach((v,k) => { 
-            const strCode = String(k); 
-            let item = { ...v }; 
+            const strCode = String(k).toUpperCase(); 
             
+            // Lọc theo Chế độ Chi nhánh (Branch Mode)
+            if (selectedBranchMode !== 'all') {
+                const matchesPrefix = branchPrefixes.some(pref => strCode.startsWith(pref));
+                if (!matchesPrefix) return; // Bỏ qua đại lý không thuộc chi nhánh này
+            }
+            
+            let item = { ...v }; 
+
             // XỬ LÝ "BỎ DS BÁN VÉ LÔ TÔ" (Chỉ giữ lại XSKT, Vé Bóc)
             if (isExcludeNumeric && /^\d+$/.test(strCode)) {
                 item.lotoDB = 0; item.lotoCap = 0; item.c227 = 0; item.c323 = 0; item.thuong = 0;
@@ -1487,7 +1564,12 @@
                 
                 if (!isGroup) {
                     let base = getBaseId(ag.code);
-                    displayCode = /^\d+$/.test(base) ? String(parseInt(base, 10)).padStart(3, '0') : base;
+                    const selectedBranchMode = DOM.selBranchMode ? DOM.selBranchMode.value : 'all';
+                    if (selectedBranchMode === 'zalo' || selectedBranchMode === 'techcom') {
+                        displayCode = ag.code;
+                    } else {
+                        displayCode = /^\d+$/.test(base) ? String(parseInt(base, 10)).padStart(3, '0') : base;
+                    }
                     codeClass = ' class="code-cell-highlight clickable-agent-code"';
                 }
 
@@ -1577,27 +1659,71 @@
     }
 
     function processDetailedReport(soSo) {
+        const selectedBranchMode = DOM.selBranchMode_Detailed ? DOM.selBranchMode_Detailed.value : 'all';
+        const branchPrefixes = branchModes[selectedBranchMode]?.prefixes || [];
         const isExclude = DOM.cbExcludeNumeric_Detailed ? DOM.cbExcludeNumeric_Detailed.checked : false;
         const isExcludeXSKT = DOM.cbExcludeXSKT_Detailed ? DOM.cbExcludeXSKT_Detailed.checked : false;
         const isExcludeVeBoc = DOM.cbExcludeVeBoc_Detailed ? DOM.cbExcludeVeBoc_Detailed.checked : false;
 
         if(appMode === 'excel') {
             const targetNum = parseInt(soSo, 10); if (isNaN(targetNum)) return null; 
-            const filterLoto = (r) => { const c = String(r.__EMPTY || r.__EMPTY_1 || '').trim(); if(isExclude && /^\d+$/.test(c)) return false; const match = c.match(/(\d+)$/); return match && parseInt(match[1], 10) === targetNum; };
+            
+            const filterLoto = (r) => { 
+                const c = String(r.__EMPTY || r.__EMPTY_1 || '').trim(); 
+                const match = c.match(/(\d+)$/); 
+                if (!match || parseInt(match[1], 10) !== targetNum) return false;
+                if (selectedBranchMode !== 'all') {
+                    const matchesPrefix = branchPrefixes.some(pref => c.toUpperCase().startsWith(pref));
+                    if (!matchesPrefix) return false;
+                }
+                if (isExclude && /^\d+$/.test(c)) return false;
+                return true;
+            };
             
             // Xử lý loại bỏ XSKT
             const filterXSKT = (r) => { 
                 if (isExcludeXSKT) return false;
-                const c = String(r.__EMPTY || r.__EMPTY_1 || '').trim(); const match = c.match(/(\d+)$/); return match && parseInt(match[1], 10) === targetNum; 
+                const c = String(r.__EMPTY || r.__EMPTY_1 || '').trim(); 
+                const match = c.match(/(\d+)$/); 
+                if (!match || parseInt(match[1], 10) !== targetNum) return false;
+                if (selectedBranchMode !== 'all') {
+                    return branchPrefixes.some(pref => c.toUpperCase().startsWith(pref));
+                }
+                return true;
             };
             
             const f1 = excelData1.filter(filterLoto); const f2 = excelData2.filter(filterXSKT);
-            let debtAmt = 0; debtData.forEach((val, key) => { const strKey = String(key); const match = strKey.match(/(\d+)$/); if(match && parseInt(match[1], 10) === targetNum) { debtAmt += val; state.accountCodes.add(key); } });
+            
+            let debtAmt = 0; 
+            debtData.forEach((val, key) => { 
+                const strKey = String(key); 
+                const match = strKey.match(/(\d+)$/); 
+                if (match && parseInt(match[1], 10) === targetNum) { 
+                    if (selectedBranchMode !== 'all') {
+                        const matchesPrefix = branchPrefixes.some(pref => strKey.toUpperCase().startsWith(pref));
+                        if (!matchesPrefix) return;
+                    }
+                    debtAmt += val; 
+                    state.accountCodes.add(key); 
+                } 
+            });
             
             // Xử lý loại bỏ Vé bóc
             let veBocStats = { rev: 0, com: 0 }; 
             if (!isExcludeVeBoc) {
-                veBocData.forEach((val, key) => { const strKey = String(key); const match = strKey.match(/(\d+)$/); if(match && parseInt(match[1], 10) === targetNum) { veBocStats.rev += val.rev; veBocStats.com += val.com; state.accountCodes.add(key); } });
+                veBocData.forEach((val, key) => { 
+                    const strKey = String(key); 
+                    const match = strKey.match(/(\d+)$/); 
+                    if (match && parseInt(match[1], 10) === targetNum) { 
+                        if (selectedBranchMode !== 'all') {
+                            const matchesPrefix = branchPrefixes.some(pref => strKey.toUpperCase().startsWith(pref));
+                            if (!matchesPrefix) return;
+                        }
+                        veBocStats.rev += val.rev; 
+                        veBocStats.com += val.com; 
+                        state.accountCodes.add(key); 
+                    } 
+                });
             }
 
             if (!f1.length && !f2.length && debtAmt === 0 && veBocStats.rev === 0) return null;
@@ -1619,6 +1745,14 @@
             const inputNum = soSo.replace(/\D/g, '') || soSo.toUpperCase(); if(!inputNum) return null;
             let foundItems = []; let debtAmt = 0; state.accountCodes = new Set();
             for (let [key, items] of rawDataMap) {
+                const strKey = String(key).toUpperCase();
+                
+                // Lọc theo Chế độ Chi nhánh (Branch Mode)
+                if (selectedBranchMode !== 'all') {
+                    const matchesPrefix = branchPrefixes.some(pref => strKey.startsWith(pref));
+                    if (!matchesPrefix) continue; // Bỏ qua đại lý không thuộc chi nhánh này
+                }
+                
                 const keyBase = getBaseId(key);
                 if (key.toUpperCase() === inputNum || keyBase === inputNum) { 
                     let validDatesForThisSearch = currentSearchSelectedDates;
@@ -1628,7 +1762,7 @@
                     const filteredItems = items.filter(item => {
                         if (!validDatesForThisSearch.includes(item.date)) return false;
                         
-                        // Chỉ bỏ qua Lôtô của đại lý có mã số thuần là số (ví dụ: "015")
+                        // Chỉ bỏ qua Lôtô của đại lý có mã số thuần là số (ví dụ: "015") khi chọn Bỏ Dsố Bán Vé
                         const isNumericKey = /^\d+$/.test(key);
                         const isLotoType = item.type.toUpperCase() !== 'XSKT' && item.type.toUpperCase() !== 'VB' && item.type.toUpperCase() !== 'VEBOC' && !item.type.toUpperCase().includes('VÉ BÓC');
                         if (isExclude && isNumericKey && isLotoType) return false;
@@ -2196,7 +2330,8 @@
 
     DOM.regionSelect.onchange = generateSummaryView; DOM.sortSelect.onchange = generateSummaryView; 
     DOM.minRevenueInput.onblur = generateSummaryView; DOM.maxRevenueInput.onblur = generateSummaryView; 
-    DOM.cbExcludeNumeric.onchange = generateSummaryView;
+    if (DOM.selBranchMode) DOM.selBranchMode.onchange = generateSummaryView;
+    if (DOM.cbExcludeNumeric) DOM.cbExcludeNumeric.onchange = generateSummaryView;
     DOM.cbExcludeXSKT.onchange = generateSummaryView;
     DOM.cbExcludeVeBoc.onchange = generateSummaryView;
 
@@ -2207,6 +2342,7 @@
             createReport(isSummaryView ? 'summary' : 'detailed');
         }
     };
+    if (DOM.selBranchMode_Detailed) DOM.selBranchMode_Detailed.onchange = triggerDetailedReportRebuild;
     if (DOM.cbExcludeNumeric_Detailed) DOM.cbExcludeNumeric_Detailed.onchange = triggerDetailedReportRebuild;
     if (DOM.cbExcludeXSKT_Detailed) DOM.cbExcludeXSKT_Detailed.onchange = triggerDetailedReportRebuild;
     if (DOM.cbExcludeVeBoc_Detailed) DOM.cbExcludeVeBoc_Detailed.onchange = triggerDetailedReportRebuild;
@@ -2214,7 +2350,8 @@
     DOM.btnClearRevenueFilter.onclick = () => { 
         DOM.sortSelect.value = 'default'; DOM.minRevenueInput.value = ''; DOM.minRevenueInput.dataset.value = ''; DOM.maxRevenueInput.value = ''; DOM.maxRevenueInput.dataset.value = ''; 
         DOM.regionSelect.value = 'all'; 
-        DOM.cbExcludeNumeric.checked = false; 
+        if (DOM.selBranchMode) DOM.selBranchMode.value = 'all'; 
+        if (DOM.cbExcludeNumeric) DOM.cbExcludeNumeric.checked = false; 
         DOM.cbExcludeXSKT.checked = false; 
         DOM.cbExcludeVeBoc.checked = false; 
         generateSummaryView(); 
