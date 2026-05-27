@@ -102,6 +102,8 @@
         .single-agent-row td { font-weight: 700; }
         .group-member-row td { font-style: italic; font-weight: 400; color: #555; }
         .code-cell-highlight { color: #006400 !important; font-weight: 900 !important; font-style: normal !important; }
+        .clickable-agent-code { cursor: pointer !important; }
+        .clickable-agent-code:hover { text-decoration: underline !important; opacity: 0.85; }
         #summaryTableContainer table td:first-child { font-weight: 400 !important; font-style: normal !important; color: var(--text-color); }
         .header { font-weight: 600; background: #f8f9fa; text-align: center !important; padding-left: 0 !important; }
         .so-so { font-size: 22px !important; font-weight: 800; color: var(--logo-color); text-align: center; }
@@ -1469,7 +1471,7 @@
                 const rowClass = isGroup ? 'group-member-row' : 'single-agent-row';
                 
                 let displayCode = ag.code;
-                let codeClass = '';
+                let codeClass = ' class="clickable-agent-code"';
                 
                 // Render nút xóa cho những mã được thêm bằng tay
                 const delBtn = window.manuallyAddedAgents.has(ag.code) ? `<span class="remove-ticket-btn" onclick="event.stopPropagation(); window.removeAgentData('${ag.code}')" title="Xóa dữ liệu bổ sung đại lý ${ag.code}">-</span>` : '';
@@ -1477,13 +1479,13 @@
                 if (!isGroup) {
                     let base = getBaseId(ag.code);
                     displayCode = /^\d+$/.test(base) ? String(parseInt(base, 10)).padStart(3, '0') : base;
-                    codeClass = ' class="code-cell-highlight"';
+                    codeClass = ' class="code-cell-highlight clickable-agent-code"';
                 }
 
                 if (appMode === 'excel') { 
-                    html += `<tr class="${rowClass}"><td>${idx===0?stt:''}</td><td${codeClass} style="cursor: pointer;" onclick="window.viewAgentDetail('${ag.code}')">${displayCode} ${delBtn}</td><td>${formatNumberHiddenK(d.lotoDB)}</td><td>${formatNumberHiddenK(d.lotoCap)}</td><td>${formatNumberHiddenK(d.c323)}</td><td>${formatNumberHiddenK(d.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(d.xskt)}</td>`:''}${hasVeBoc?`<td>${formatNumberHiddenK(d.veBoc)}</td>`:''}<td>${formatNumberHiddenK(d.totRev)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`; 
+                    html += `<tr class="${rowClass}"><td>${idx===0?stt:''}</td><td${codeClass} onclick="window.viewAgentDetail('${ag.code}')">${displayCode} ${delBtn}</td><td>${formatNumberHiddenK(d.lotoDB)}</td><td>${formatNumberHiddenK(d.lotoCap)}</td><td>${formatNumberHiddenK(d.c323)}</td><td>${formatNumberHiddenK(d.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(d.xskt)}</td>`:''}${hasVeBoc?`<td>${formatNumberHiddenK(d.veBoc)}</td>`:''}<td>${formatNumberHiddenK(d.totRev)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`; 
                 } else { 
-                    html += `<tr class="${rowClass}"><td>${idx===0?stt:''}</td><td${codeClass} style="cursor: pointer;" onclick="window.viewAgentDetail('${ag.code}')">${displayCode} ${delBtn}</td><td>${formatNumberHiddenK(d.totRev)}</td><td>${formatCommissionCellHiddenK(d.totRev, d.totCom)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`; 
+                    html += `<tr class="${rowClass}"><td>${idx===0?stt:''}</td><td${codeClass} onclick="window.viewAgentDetail('${ag.code}')">${displayCode} ${delBtn}</td><td>${formatNumberHiddenK(d.totRev)}</td><td>${formatCommissionCellHiddenK(d.totRev, d.totCom)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`; 
                 }
             }); 
             if (isGroup) {
@@ -1492,9 +1494,9 @@
                 if (appMode === 'excel') { 
                     let sumLoto = 0, sumCap = 0, sumC3 = 0, sumC2 = 0, sumXskt = 0, sumVeBoc = 0; 
                     g.agents.forEach(ag => { sumLoto+=ag.data.lotoDB; sumCap+=ag.data.lotoCap; sumC3+=ag.data.c323; sumC2+=ag.data.c227; sumXskt+=ag.data.xskt; sumVeBoc+=ag.data.veBoc; }); 
-                    html += `<tr class="group-total-row"><td></td><td class="code-cell-highlight" style="cursor: pointer;" onclick="window.viewAgentDetail('${gk}')">${String(gk).padStart(3, '0')}</td><td>${formatNumberHiddenK(sumLoto)}</td><td>${formatNumberHiddenK(sumCap)}</td><td>${formatNumberHiddenK(sumC3)}</td><td>${formatNumberHiddenK(sumC2)}</td>${hasXSKT?`<td>${formatNumberHiddenK(sumXskt)}</td>`:''}${hasVeBoc?`<td>${formatNumberHiddenK(sumVeBoc)}</td>`:''}<td>${formatNumberHiddenK(g.gr)}</td><td>${formatNumberHiddenK(g.gth)}</td>${hasDebt?`<td>${formatNumberHiddenK(sumDebt)}</td>`:''}<td style="color:#c0392b;">${formatNumberHiddenK(g.gt)}</td></tr>`; 
+                    html += `<tr class="group-total-row"><td></td><td class="code-cell-highlight clickable-agent-code" onclick="window.viewAgentDetail('${gk}')">${String(gk).padStart(3, '0')}</td><td>${formatNumberHiddenK(sumLoto)}</td><td>${formatNumberHiddenK(sumCap)}</td><td>${formatNumberHiddenK(sumC3)}</td><td>${formatNumberHiddenK(sumC2)}</td>${hasXSKT?`<td>${formatNumberHiddenK(sumXskt)}</td>`:''}${hasVeBoc?`<td>${formatNumberHiddenK(sumVeBoc)}</td>`:''}<td>${formatNumberHiddenK(g.gr)}</td><td>${formatNumberHiddenK(g.gth)}</td>${hasDebt?`<td>${formatNumberHiddenK(sumDebt)}</td>`:''}<td style="color:#c0392b;">${formatNumberHiddenK(g.gt)}</td></tr>`; 
                 } else { 
-                    html += `<tr class="group-total-row"><td></td><td class="code-cell-highlight" style="cursor: pointer;" onclick="window.viewAgentDetail('${gk}')">${String(gk).padStart(3, '0')}</td><td>${formatNumberHiddenK(g.gr)}</td><td>${formatNumberHiddenK(sumCom)}</td><td>${formatNumberHiddenK(g.gth)}</td>${hasDebt?`<td>${formatNumberHiddenK(sumDebt)}</td>`:''}<td style="color:#c0392b;">${formatNumberHiddenK(g.gt)}</td></tr>`; 
+                    html += `<tr class="group-total-row"><td></td><td class="code-cell-highlight clickable-agent-code" onclick="window.viewAgentDetail('${gk}')">${String(gk).padStart(3, '0')}</td><td>${formatNumberHiddenK(g.gr)}</td><td>${formatNumberHiddenK(sumCom)}</td><td>${formatNumberHiddenK(g.gth)}</td>${hasDebt?`<td>${formatNumberHiddenK(sumDebt)}</td>`:''}<td style="color:#c0392b;">${formatNumberHiddenK(g.gt)}</td></tr>`; 
                 }
             }
             stt++;
