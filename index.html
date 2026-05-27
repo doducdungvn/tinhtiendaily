@@ -1055,8 +1055,27 @@
                     showNotification(`Đã chia thành ${images.length} trang`, 'info'); DOM.btnSaveAllImages.style.display = 'inline-block'; DOM.imagePreviewModal.style.display = 'block';
                 } else {
                     const imgSrc = canvas.toDataURL('image/png'); currentGeneratedImages = [imgSrc];
-                    try { canvas.toBlob(async(blob)=>{ await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); showNotification(msg, 'success'); DOM.imagePreviewModal.style.display = 'none'; }); } 
-                    catch(e){ const img = document.createElement('img'); img.src = imgSrc; previewHolder.appendChild(img); DOM.btnSaveAllImages.style.display = 'none'; DOM.imagePreviewModal.style.display = 'block'; }
+                    const showPreviewModal = () => {
+                        const img = document.createElement('img'); img.src = imgSrc;
+                        previewHolder.appendChild(img); DOM.btnSaveAllImages.style.display = 'none';
+                        DOM.imagePreviewModal.style.display = 'block';
+                    };
+                    if (navigator.clipboard && navigator.clipboard.write) {
+                        canvas.toBlob((blob) => {
+                            if (!blob) { showPreviewModal(); return; }
+                            navigator.clipboard.write([
+                                new ClipboardItem({ 'image/png': blob })
+                            ]).then(() => {
+                                showNotification(msg, 'success');
+                                DOM.imagePreviewModal.style.display = 'none';
+                            }).catch((err) => {
+                                console.warn("Lỗi ghi clipboard:", err);
+                                showPreviewModal();
+                            });
+                        }, 'image/png');
+                    } else {
+                        showPreviewModal();
+                    }
                 }
             } catch(e){ 
                 console.error(e); showNotification('Lỗi tạo ảnh', 'error'); if(sel === '#reportContainer') el.classList.remove('capturing-image'); 
