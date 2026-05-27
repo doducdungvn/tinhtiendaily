@@ -88,7 +88,7 @@
         .mode-switch { display: flex; background: #ecf0f1; border-radius: 8px; padding: 4px; gap: 4px; }
         .tab-btn { flex: 1; border-radius: 6px !important; padding: 10px; font-size: 14px; border: none !important; background: transparent; color: var(--text-light); }
         .tab-btn.active { background: white !important; color: var(--primary-color) !important; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-weight: 700; }
-        .home-menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .home-menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
         .home-menu-btn { padding: 15px; font-size: 14px; font-weight: 600; text-align: center; background-color: white; color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
         .home-menu-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
 
@@ -137,14 +137,17 @@
             border-radius: 8px; 
             border: 1px solid var(--border-color); 
             overflow: hidden; 
+            width: 100%;
             max-width: 450px; 
             margin: 0 auto; 
             box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
         }
         #box_kqxs_minhngoc { width: 100% !important; margin: 0 auto; }
         #box_kqxs_minhngoc table { width: 100% !important; }
-        /* Ẩn triệt để thanh tìm kiếm ngày/đài và icon in ấn */
-        #box_kqxs_minhngoc form { display: none !important; }
+        /* Hiển thị thanh tìm kiếm ngày/đài của widget Minh Ngọc */
+        #box_kqxs_minhngoc form { display: block !important; margin: 10px auto !important; text-align: center !important; }
+        #box_kqxs_minhngoc form select { padding: 8px !important; border-radius: 4px !important; border: 1px solid var(--border-color) !important; background: white !important; font-size: 14px !important; font-weight: 600 !important; margin: 5px !important; width: auto !important; display: inline-block !important; }
+        #box_kqxs_minhngoc form input[type="button"], #box_kqxs_minhngoc form input[type="submit"], #box_kqxs_minhngoc form button { padding: 8px 16px !important; border-radius: 4px !important; background: var(--primary-color) !important; color: white !important; border: none !important; font-size: 14px !important; font-weight: 600 !important; cursor: pointer !important; margin: 5px !important; display: inline-block !important; }
         #box_kqxs_minhngoc img { display: none !important; }
         /* Canh chỉnh lại khoảng cách các ô trong bảng cho đỡ bị chật */
         #box_kqxs_minhngoc td { padding: 8px 4px !important; font-size: 14px !important; white-space: normal !important; }
@@ -159,9 +162,10 @@
         /* Media Queries - Mobile */
         @media (max-width: 768px) {
             body { padding: 0 !important; padding-bottom: 80px !important; background-color: #f5f6fa; }
-            #homePage { margin: 15px !important; width: auto !important; max-width: none !important; border-radius: 12px !important; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+            #homePage { margin: 15px 8px !important; padding: 15px 10px !important; width: auto !important; max-width: none !important; border-radius: 12px !important; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
             #mainPage { margin: 0 !important; width: 100% !important; max-width: 100% !important; padding: 10px 0 !important; border-radius: 0 !important; box-shadow: none !important; }
-            .controls-panel { margin: 0 10px 20px 10px; padding: 15px; border-radius: 8px; }
+            .controls-panel { margin: 0 0px 20px 0px; padding: 12px 8px; border-radius: 8px; }
+            .tab-btn { padding: 8px 4px !important; font-size: 13px !important; }
             h2 { font-size: 20px; margin-top: 20px; }
             #summaryTableContainer, #reportContainer { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 15px; border-left: none; border-right: none; border-radius: 0; }
             table { width: auto !important; min-width: 100%; table-layout: auto !important; }
@@ -173,6 +177,8 @@
             .simple-animated-logo { font-size: 28px; margin-top: 15px; }
             .main-copyright { margin-bottom: 20px; }
             .management-grid { grid-template-columns: 1fr; }
+            .home-menu-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+            .home-menu-btn { padding: 10px 5px; font-size: 12px; }
         }
 
         /* Modals & Notifications */
@@ -241,18 +247,25 @@
 
         /* --- CUSTOM VERTICAL KQXS & LOTO LAYOUT --- */
         #box_kqxs_minhngoc .box_kqxs_mini {
+            display: block !important;
+        }
+        #box_kqxs_minhngoc .box_kqxs_mini table {
+            display: none !important;
+        }
+        #box_kqxs_minhngoc .box_kqxs_mini a, #box_kqxs_minhngoc .box_kqxs_mini img, #box_kqxs_minhngoc .box_kqxs_mini br {
             display: none !important;
         }
         .xoso-flex-container {
             display: flex;
             flex-direction: column;
             gap: 15px;
+            width: 100%;
             max-width: 450px;
             margin: 0 auto;
-            align-items: center;
+            align-items: stretch;
             padding: 5px;
         }
-        #custom_kqxs, #custom_loto {
+        #custom_kqxs, #custom_loto, #custom_kqxs_main, #custom_loto_main {
             width: 100% !important;
             max-width: 450px;
             border: 3px solid #888888;
@@ -274,11 +287,15 @@
             vertical-align: middle !important;
             font-size: 15px !important;
         }
+        .custom-table td {
+            white-space: normal !important;
+        }
         .custom-table th {
             font-weight: bold !important;
             background-color: #fff !important;
             color: #000000 !important;
             position: static !important;
+            white-space: nowrap !important;
         }
         
         /* Grid rows in prizes */
@@ -322,16 +339,17 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 15px;
             color: #000;
             padding: 6px 2px;
+            white-space: nowrap !important;
         }
         .prize-value:not(:last-child) {
             border-right: 1px solid #cccccc;
         }
         .prize-value.special-value {
             color: #ff0000 !important;
-            font-size: 26px !important;
+            font-size: 24px !important;
             letter-spacing: 1px !important;
         }
         .header-row {
@@ -379,7 +397,7 @@
             </div>
 
             <div id="panelXoso" style="display:none; margin-top: 15px;">
-                <div class="xoso-wrapper" style="border: none !important; box-shadow: none !important; margin-bottom: 10px !important;">
+                <div class="xoso-wrapper" id="xosoWrapper" style="border: none !important; box-shadow: none !important; margin-bottom: 10px !important;">
                     <div id="box_kqxs_minhngoc">
                         <script language="javascript"> 
                             bgcolor="#9c0303"; 
@@ -417,8 +435,9 @@
         </div>
 
         <div id="summarySection" class="main-section" style="display: none;">
-            <div class="nav-header">
+            <div class="nav-header" style="display: flex; gap: 10px; align-items: center;">
                 <button class="back-btn" id="btnBackFromSummary">⬅ Quay lại Tra cứu</button>
+                <button class="back-btn" id="btnGoToXosoFromSummary">🏆 Kết quả XSMB</button>
             </div>
             
             <div class="controls-panel">
@@ -568,6 +587,7 @@
             <div class="home-menu-grid">
                 <button class="home-menu-btn" id="btnGoToSummary">📊 Xem Tổng hợp</button>
                 <button class="home-menu-btn" id="btnGoToSell">🎫 Bán thêm Vé</button>
+                <button class="home-menu-btn" id="btnGoToXosoFromReport">🏆 Kết quả XSMB</button>
             </div>
             <h3>Tra cứu & Tạo Báo Cáo</h3>
             
@@ -651,6 +671,18 @@
                         <div class="buttons-container"><button id="btnAddTicket" class="success">Thêm</button></div>
                     </div>
                 </div>
+            </div>
+        </div>
+        
+        <div id="xosoSection" class="main-section" style="display: none;">
+            <div class="nav-header">
+                <button class="back-btn" id="btnBackFromXoso">⬅ Quay lại</button>
+            </div>
+            <h3 style="margin-bottom: 20px;">Bảng Kết Quả XSMB</h3>
+            <div class="xoso-wrapper" id="xosoWrapperMain" style="border: none !important; box-shadow: none !important; margin-bottom: 10px !important;"></div>
+            <div class="xoso-flex-container">
+                <div id="custom_kqxs_main"></div>
+                <div id="custom_loto_main"></div>
             </div>
         </div>
         
@@ -806,7 +838,10 @@
         rawInput: document.getElementById('rawInput'),
         btnGoToSummary: document.getElementById('btnGoToSummary'), btnGoToSell: document.getElementById('btnGoToSell'),
         btnBackFromSummary: document.getElementById('btnBackFromSummary'), btnBackFromSell: document.getElementById('btnBackFromSell'),
-        summarySection: document.getElementById('summarySection'), reportSection: document.getElementById('reportSection'), sellSection: document.getElementById('sellSection'),
+        btnGoToXosoFromReport: document.getElementById('btnGoToXosoFromReport'),
+        btnGoToXosoFromSummary: document.getElementById('btnGoToXosoFromSummary'),
+        summarySection: document.getElementById('summarySection'), reportSection: document.getElementById('reportSection'), sellSection: document.getElementById('sellSection'), xosoSection: document.getElementById('xosoSection'),
+        btnBackFromXoso: document.getElementById('btnBackFromXoso'),
         summaryTableContainer: document.getElementById('summaryTableContainer'), summaryDate: document.getElementById('summaryDate'), summaryTitle: document.getElementById('summaryTitle'),
         soSoInput: document.getElementById('soSoInput'),
         btnCreateDailyReport: document.getElementById('btnCreateDailyReport'), btnCreateSummaryReport: document.getElementById('btnCreateSummaryReport'),
@@ -1090,6 +1125,13 @@
                 generateSummaryView();
             }
         }
+    };
+
+    window.viewAgentDetail = (code) => {
+        DOM.soSoInput.value = getBaseId(code);
+        DOM.soSoInput.dispatchEvent(new Event('input'));
+        showSection('reportSection');
+        createReport('summary');
     };
 
     function renderGlobalDatePicker() {
@@ -1411,7 +1453,7 @@
                 let codeClass = '';
                 
                 // Render nút xóa cho những mã được thêm bằng tay
-                const delBtn = window.manuallyAddedAgents.has(ag.code) ? `<span class="remove-ticket-btn" onclick="window.removeAgentData('${ag.code}')" title="Xóa dữ liệu bổ sung đại lý ${ag.code}">-</span>` : '';
+                const delBtn = window.manuallyAddedAgents.has(ag.code) ? `<span class="remove-ticket-btn" onclick="event.stopPropagation(); window.removeAgentData('${ag.code}')" title="Xóa dữ liệu bổ sung đại lý ${ag.code}">-</span>` : '';
                 
                 if (!isGroup) {
                     let base = getBaseId(ag.code);
@@ -1420,9 +1462,9 @@
                 }
 
                 if (appMode === 'excel') { 
-                    html += `<tr class="${rowClass}"><td>${idx===0?stt:''}</td><td${codeClass}>${displayCode} ${delBtn}</td><td>${formatNumberHiddenK(d.lotoDB)}</td><td>${formatNumberHiddenK(d.lotoCap)}</td><td>${formatNumberHiddenK(d.c323)}</td><td>${formatNumberHiddenK(d.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(d.xskt)}</td>`:''}${hasVeBoc?`<td>${formatNumberHiddenK(d.veBoc)}</td>`:''}<td>${formatNumberHiddenK(d.totRev)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`; 
+                    html += `<tr class="${rowClass}"><td>${idx===0?stt:''}</td><td${codeClass} style="cursor: pointer;" onclick="window.viewAgentDetail('${ag.code}')">${displayCode} ${delBtn}</td><td>${formatNumberHiddenK(d.lotoDB)}</td><td>${formatNumberHiddenK(d.lotoCap)}</td><td>${formatNumberHiddenK(d.c323)}</td><td>${formatNumberHiddenK(d.c227)}</td>${hasXSKT?`<td>${formatNumberHiddenK(d.xskt)}</td>`:''}${hasVeBoc?`<td>${formatNumberHiddenK(d.veBoc)}</td>`:''}<td>${formatNumberHiddenK(d.totRev)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`; 
                 } else { 
-                    html += `<tr class="${rowClass}"><td>${idx===0?stt:''}</td><td${codeClass}>${displayCode} ${delBtn}</td><td>${formatNumberHiddenK(d.totRev)}</td><td>${formatCommissionCellHiddenK(d.totRev, d.totCom)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`; 
+                    html += `<tr class="${rowClass}"><td>${idx===0?stt:''}</td><td${codeClass} style="cursor: pointer;" onclick="window.viewAgentDetail('${ag.code}')">${displayCode} ${delBtn}</td><td>${formatNumberHiddenK(d.totRev)}</td><td>${formatCommissionCellHiddenK(d.totRev, d.totCom)}</td><td>${formatNumberHiddenK(d.thuong)}</td>${hasDebt?`<td>${formatNumberHiddenK(d.debt)}</td>`:''}<td>${final<0?`<span class="negative-value">`:''}${formatNumberHiddenK(final)}${final<0?'</span>':''}</td></tr>`; 
                 }
             }); 
             if (isGroup) {
@@ -1431,9 +1473,9 @@
                 if (appMode === 'excel') { 
                     let sumLoto = 0, sumCap = 0, sumC3 = 0, sumC2 = 0, sumXskt = 0, sumVeBoc = 0; 
                     g.agents.forEach(ag => { sumLoto+=ag.data.lotoDB; sumCap+=ag.data.lotoCap; sumC3+=ag.data.c323; sumC2+=ag.data.c227; sumXskt+=ag.data.xskt; sumVeBoc+=ag.data.veBoc; }); 
-                    html += `<tr class="group-total-row"><td></td><td class="code-cell-highlight">${String(gk).padStart(3, '0')}</td><td>${formatNumberHiddenK(sumLoto)}</td><td>${formatNumberHiddenK(sumCap)}</td><td>${formatNumberHiddenK(sumC3)}</td><td>${formatNumberHiddenK(sumC2)}</td>${hasXSKT?`<td>${formatNumberHiddenK(sumXskt)}</td>`:''}${hasVeBoc?`<td>${formatNumberHiddenK(sumVeBoc)}</td>`:''}<td>${formatNumberHiddenK(g.gr)}</td><td>${formatNumberHiddenK(g.gth)}</td>${hasDebt?`<td>${formatNumberHiddenK(sumDebt)}</td>`:''}<td style="color:#c0392b;">${formatNumberHiddenK(g.gt)}</td></tr>`; 
+                    html += `<tr class="group-total-row"><td></td><td class="code-cell-highlight" style="cursor: pointer;" onclick="window.viewAgentDetail('${gk}')">${String(gk).padStart(3, '0')}</td><td>${formatNumberHiddenK(sumLoto)}</td><td>${formatNumberHiddenK(sumCap)}</td><td>${formatNumberHiddenK(sumC3)}</td><td>${formatNumberHiddenK(sumC2)}</td>${hasXSKT?`<td>${formatNumberHiddenK(sumXskt)}</td>`:''}${hasVeBoc?`<td>${formatNumberHiddenK(sumVeBoc)}</td>`:''}<td>${formatNumberHiddenK(g.gr)}</td><td>${formatNumberHiddenK(g.gth)}</td>${hasDebt?`<td>${formatNumberHiddenK(sumDebt)}</td>`:''}<td style="color:#c0392b;">${formatNumberHiddenK(g.gt)}</td></tr>`; 
                 } else { 
-                    html += `<tr class="group-total-row"><td></td><td class="code-cell-highlight">${String(gk).padStart(3, '0')}</td><td>${formatNumberHiddenK(g.gr)}</td><td>${formatNumberHiddenK(sumCom)}</td><td>${formatNumberHiddenK(g.gth)}</td>${hasDebt?`<td>${formatNumberHiddenK(sumDebt)}</td>`:''}<td style="color:#c0392b;">${formatNumberHiddenK(g.gt)}</td></tr>`; 
+                    html += `<tr class="group-total-row"><td></td><td class="code-cell-highlight" style="cursor: pointer;" onclick="window.viewAgentDetail('${gk}')">${String(gk).padStart(3, '0')}</td><td>${formatNumberHiddenK(g.gr)}</td><td>${formatNumberHiddenK(sumCom)}</td><td>${formatNumberHiddenK(g.gth)}</td>${hasDebt?`<td>${formatNumberHiddenK(sumDebt)}</td>`:''}<td style="color:#c0392b;">${formatNumberHiddenK(g.gt)}</td></tr>`; 
                 }
             }
             stt++;
@@ -1720,6 +1762,11 @@
     };
 
     DOM.tabXoso.onclick = () => {
+        const box = document.getElementById('box_kqxs_minhngoc');
+        const wrapper = document.getElementById('xosoWrapper');
+        if (box && wrapper && box.parentNode !== wrapper) {
+            wrapper.appendChild(box);
+        }
         DOM.tabXoso.classList.add('active'); DOM.tabXoso.style.background = 'var(--primary-color)'; DOM.tabXoso.style.color = 'white';
         DOM.tabExcel.classList.remove('active'); DOM.tabExcel.style.background = 'transparent'; DOM.tabExcel.style.color = 'var(--text-light)';
         DOM.tabRaw.classList.remove('active'); DOM.tabRaw.style.background = 'transparent'; DOM.tabRaw.style.color = 'var(--text-light)';
@@ -1845,7 +1892,7 @@
         updateDetailedView(); 
     };
 
-    function showSection(id) { ['summarySection','reportSection','sellSection'].forEach(s=>DOM[s].style.display='none'); DOM[id].style.display='block'; }
+    function showSection(id) { ['summarySection','reportSection','sellSection','xosoSection'].forEach(s=>DOM[s].style.display='none'); DOM[id].style.display='block'; }
 
     async function runLogoAnimation() { 
         const containers = document.querySelectorAll('.simple-animated-logo'); if (containers.length === 0) return; 
@@ -1963,6 +2010,30 @@
     DOM.btnGoToSell.onclick = () => { showSection('sellSection'); DOM.sellQuantityInput.focus(); }; 
     DOM.btnBackFromSummary.onclick = () => { showSection('reportSection'); DOM.soSoInput.focus(); }; 
     DOM.btnBackFromSell.onclick = () => { showSection('reportSection'); DOM.soSoInput.focus(); };
+    let lastActiveSection = 'reportSection';
+    DOM.btnGoToXosoFromReport.onclick = () => {
+        lastActiveSection = 'reportSection';
+        const box = document.getElementById('box_kqxs_minhngoc');
+        const wrapperMain = document.getElementById('xosoWrapperMain');
+        if (box && wrapperMain && box.parentNode !== wrapperMain) {
+            wrapperMain.appendChild(box);
+        }
+        showSection('xosoSection');
+        updateXosoLayout();
+    };
+    DOM.btnGoToXosoFromSummary.onclick = () => {
+        lastActiveSection = 'summarySection';
+        const box = document.getElementById('box_kqxs_minhngoc');
+        const wrapperMain = document.getElementById('xosoWrapperMain');
+        if (box && wrapperMain && box.parentNode !== wrapperMain) {
+            wrapperMain.appendChild(box);
+        }
+        showSection('xosoSection');
+        updateXosoLayout();
+    };
+    DOM.btnBackFromXoso.onclick = () => {
+        showSection(lastActiveSection);
+    };
     DOM.excelFile1.onchange = (e) => handleFile(e.target.files[0], 1, 'excelFile1'); 
     DOM.excelFile2.onchange = (e) => handleFile(e.target.files[0], 2, 'excelFile2');
     
@@ -2321,6 +2392,8 @@
         
         const customKqxsBox = document.getElementById('custom_kqxs');
         if (customKqxsBox) customKqxsBox.innerHTML = kqxsHtml;
+        const customKqxsBoxMain = document.getElementById('custom_kqxs_main');
+        if (customKqxsBoxMain) customKqxsBoxMain.innerHTML = kqxsHtml;
         
         const lotoGroups = Array.from({ length: 10 }, () => []);
         const allPrizes = [dbNumbers, g1Numbers, g2Numbers, g3Numbers, g4Numbers, g5Numbers, g6Numbers, g7Numbers, g8Numbers];
@@ -2377,6 +2450,8 @@
         
         const customLotoBox = document.getElementById('custom_loto');
         if (customLotoBox) customLotoBox.innerHTML = lotoHtml;
+        const customLotoBoxMain = document.getElementById('custom_loto_main');
+        if (customLotoBoxMain) customLotoBoxMain.innerHTML = lotoHtml;
     }
 
     const xosoObserver = new MutationObserver(() => {
@@ -2384,7 +2459,7 @@
     });
     const target = document.getElementById('box_kqxs_minhngoc');
     if (target) {
-        xosoObserver.observe(target, { childList: true, subtree: true });
+        xosoObserver.observe(target, { childList: true, subtree: true, characterData: true });
     }
 
     runLogoAnimation(); updateOnlineCounter();
